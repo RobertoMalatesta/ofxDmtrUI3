@@ -2,16 +2,52 @@
 
 ofxDmtrUI.h
 Created by Dimitre Lima on 04/06/2016.
-Copyright 2016 Dmtr.org. All rights reserved.
+Proof of concept
 
 */
 
 #include "ofxDmtrUI.h"
+//ofRectangle coluna = ofRectangle(30,30,500,700);
+
+// in the future measure events considering column offset
+ofRectangle coluna = ofRectangle(0,0,360,700);
+
+//--------------------------------------------------------------
+
+// function only used to generate UI Elements
+void ofxDmtrUI::generate(string text) {
+	int y = 20;
+	for (int b=0; b<4; b++) {
+		for (int a=0; a<10; a++) {
+			toggle tt;
+			tt.nome = "Toggle" + ofToString(a) + ofToString(b);
+			float altura = 20;
+			float altura2 = altura*1.25;
+			float w = 20;
+			tt.rect = ofRectangle(10 + b *(altura*1.25), 40 + a*(altura*1.25), w,altura); //(y+=altura2)
+			tt.cor = ofColor::fromHsb(a*4+b*5,255,255);
+			toggles.push_back(tt);
+		}
+	}
+
+	for (int a=0; a<30; a++) {
+		// temporary slider to push
+		slider ts;
+		ts.nome = "Slider" + ofToString(a);
+		float altura = 20;
+		float w = 150;
+		ts.rect = ofRectangle(150, 40 + a*(altura*1.25),w,altura);
+		ts.cor = ofColor::fromHsb(ofMap(a, 0,30, 0,200),255,255);
+		ts.val = &pFloat[ts.nome];
+
+		sliders.push_back(ts);
+	}
+}
 
 //--------------------------------------------------------------
 void ofxDmtrUI::setup() {
 
-	fbo.allocate(500, 500, GL_RGBA);
+	fbo.allocate(coluna.width, coluna.height, GL_RGBA);
 	fbo.begin();
 	ofClear(0);
 	fbo.end();
@@ -25,51 +61,27 @@ void ofxDmtrUI::setup() {
 	ofAddListener(ofEvents().mouseReleased, this, &ofxDmtrUI::onMouseReleased);
 	ofAddListener(ofEvents().exit, this, &ofxDmtrUI::onExit);
 
-
-	int y = 20;
-	for (int b=0; b<4; b++) {
-		for (int a=0; a<10; a++) {
-			toggle tt;
-			tt.nome = "Toggle" + ofToString(a) + ofToString(b);
-			float altura = 20;
-			float altura2 = altura*1.25;
-			float w = 20;
-			tt.rect = ofRectangle(10 + b *(altura*1.25), 40 + a*(altura*1.25), w,altura); //(y+=altura2)
-			tt.cor = ofColor::fromHsb(ofRandom(360),255,255);
-			toggles.push_back(tt);
-		}
-	}
-
-	for (int a=0; a<30; a++) {
-		slider ts;
-		ts.nome = "Slider" + ofToString(a);
-		float altura = 20;
-		float w = 150;
-		ts.rect = ofRectangle(150, 40 + a*(altura*1.25),w,altura);
-		ts.cor = ofColor::fromHsb(ofRandom(360),255,255,180);
-		sliders.push_back(ts);
-	}
+	generate();
 }
 // END SETUP
 
 //--------------------------------------------------------------
 void ofxDmtrUI::update() {
 	for (auto & p : pFloat) {
-		if (pFloat["easing"] > 0) {
-			pEasy[p.first] += (pFloat[p.first] - pEasy[p.first])/pFloat["easing"];
+		if (easing > 0) {
+			pEasy[p.first] += (pFloat[p.first] - pEasy[p.first])/easing;
 		}
 		else {
 			pEasy[p.first] = pFloat[p.first];
 		}
 	}
-
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::draw() {
-	if (redesenha) {
+	if (redraw) {
 		fbo.begin();
-		ofClear(0);
+		ofClear(0,100);
 		for (auto & t : toggles) {
 			ofSetColor(t.cor);
 			ofDrawRectangle(t.rect);
@@ -80,6 +92,7 @@ void ofxDmtrUI::draw() {
 				ofDrawLine(t.rect.x, t.rect.y+ t.rect.height, t.rect.x + t.rect.width, t.rect.y );
 				ofFill();
 
+				// just to check if t.inside is working OK
 //					if (t.inside) {
 //						float raio = 5;
 //						ofDrawEllipse(t.rect.x + 5, t.rect.y + 5, raio, raio);
@@ -93,8 +106,11 @@ void ofxDmtrUI::draw() {
 			ofSetColor(0,128);
 			float w = s.rect.width * s.valor;
 			ofDrawRectangle(s.rect.x, s.rect.y, w, s.rect.height);
+			string label = s.nome + " "+ofToString(s.valor);
+			ofSetColor(0,128);
+			ofDrawBitmapString(label, s.rect.x+11, s.rect.y+15);
 			ofSetColor(255);
-			ofDrawBitmapString(s.nome + " "+ofToString(s.valor), s.rect.x+10, s.rect.y+14);
+			ofDrawBitmapString(label, s.rect.x+10, s.rect.y+14);
 		}
 
 //			float y = 0;
@@ -105,10 +121,12 @@ void ofxDmtrUI::draw() {
 
 		fbo.end();
 	}
+
+
 	ofSetColor(255);
 
 	if (showGui) {
-		fbo.draw(0,0);
+		fbo.draw(coluna.x, coluna.y);
 	}
 }
 
@@ -140,7 +158,7 @@ void ofxDmtrUI::load(string xml){
 		t.valor = settings.getValue(t.nome, 0);
 		pBool[t.nome] = t.valor;
 	}
-	redesenha = true;
+	redraw = true;
 }
 
 //--------------------------------------------------------------
@@ -148,14 +166,8 @@ void ofxDmtrUI::keyPressed(int key){
 	if (key == '=') {
 		showGui = !showGui;
 	}
-	if (key == 's') {
-		save("save.xml");
-	}
 
-	if (key == 'a') {
-		load("save.xml");
-	}
-
+	// Temporary Shortcuts
 	if (key == '1') {
 		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
 			save("1.xml");
@@ -194,12 +206,18 @@ void ofxDmtrUI::keyReleased(int key){
 
 //--------------------------------------------------------------
 void ofxDmtrUI::mouseDragged(int x, int y, int button){
-	redesenha = true;
+	redraw = true;
+
+
+	if (coluna.inside(x,y)) {
+
+	}
+
 	for (auto & t : toggles) {
 		if (t.rect.inside(x,y) && !t.inside) {
 			t.valor = !t.valor;
 			t.inside = true;
-			//cout << t.valor << endl;
+			pBool[t.nome] = t.valor;
 		}
 	}
 
@@ -214,20 +232,19 @@ void ofxDmtrUI::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofxDmtrUI::mousePressed(int x, int y, int button){
-	redesenha = true;
+	redraw = true;
 
 	for (auto & t : toggles) {
 		if (t.rect.inside(x,y)&& !t.inside) {
 			t.valor = !t.valor;
 			t.inside = true;
-			//cout << t.valor << endl;
+			pBool[t.nome] = t.valor;
 		}
 	}
 
 	for (auto & s : sliders) {
 		if (s.rect.inside(x,y)) {
 			s.update(x);
-			//s.valor = (x - s.rect.x)/(double)s.rect.width;
 			pFloat[s.nome] = s.valor;
 		}
 	}
@@ -235,7 +252,7 @@ void ofxDmtrUI::mousePressed(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofxDmtrUI::mouseReleased(int x, int y, int button){
-	redesenha = false;
+	redraw = false;
 	for (auto & t : toggles) {
 		t.inside = false;
 	}
@@ -244,7 +261,6 @@ void ofxDmtrUI::mouseReleased(int x, int y, int button){
 //--------------------------------------------------------------
 void ofxDmtrUI::exit() {
 }
-
 
 
 //--------------------------------------------------------------

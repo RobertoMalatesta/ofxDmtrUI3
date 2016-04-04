@@ -12,10 +12,14 @@ public:
 	ofRectangle rect;
 	ofColor cor;
 	float min, max, def;
-	double valor = 0;
+	float valor = 0;
+	float *val;
 
 	void update(int x) {
 		valor = (x - rect.x)/(float)rect.width;
+		//val = valor;
+		cout << valor << endl;
+//		cout << val << endl;
 	}
 };
 
@@ -36,6 +40,7 @@ public:
 
 	// teste virtual void setup - 29 de marco de 2016
 	void		setup();
+	void		generate(string text="");
 	void		keyPressed(int key);
 	void		keyReleased(int key);
 	void		update();
@@ -72,8 +77,10 @@ public:
 	map <string,string>			pString;
 
 	bool showGui = true;
-	bool redesenha = true;
+	bool redraw = true;
 
 	ofFbo fbo;
+
+	float easing = 30;
 
 };
