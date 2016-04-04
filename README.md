@@ -1,9 +1,9 @@
-ofxDmtrUI
+# ofxDmtrUI
 
 Made to be really simple and lightweight.
 
-4 de abril de 2016 - primeiro rascunho da primeira versao do ofxDmtrUI
-
+## 4 de abril de 2016
+primeiro rascunho da primeira versao do ofxDmtrUI
 
 // fazer o toggle. 
 // fazer o toggle conversar com o drag.
