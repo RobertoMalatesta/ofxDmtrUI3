@@ -2,7 +2,8 @@
 
 Made to be really simple and lightweight.
 It is my first public openFrameworks addon.  
-Suggestions and code improvements will be greatly appreciated. 
+Suggestions and code improvements will be greatly appreciated.  
+PS: Not for production use.  
 http://dmtr.org/ 
 
 
