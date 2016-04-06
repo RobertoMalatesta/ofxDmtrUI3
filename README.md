@@ -1,17 +1,21 @@
 # ofxDmtrUI
 
 Made to be really simple and lightweight.
+It is my first public openFrameworks addon.  
+Suggestions and code improvements will be greatly appreciated. 
+http://dmtr.org/ 
+
 
 # TODO
-//slider behavior is not ok. it doesn’t fill everything to 100%  
-possibility of creating multiple columns  
 pass pointer reference of pFloat, pBool to update functions of classes.  
 add namespace to classes.  
 multiple toggle object  
 
 ## 2016 04 05  
-Solved drag to outside slider  
-ofClamp  
+//slider behavior is not ok. it doesn’t fill everything to 100%  
+//possibility of creating multiple columns  
+//Solved drag to outside slider  
+//ofClamp  
 
 ## 5 de abril de 2016  
 github first draft  

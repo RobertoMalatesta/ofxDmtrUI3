@@ -8,7 +8,7 @@
 
  Presets can be loaded using 1, 2, 3, 4 keys
  and saved using COMMAND + 1, 2, 3, 4 keys
-
+ 
  */
 
 
@@ -16,8 +16,28 @@
 void ofApp::setup(){
 	ui.setup();
 
-	// temporary function to populate some sliders
-	ui.generate();
+	// old way of creating a wall of toggle buttons.
+	int y = 20;
+	for (int b=0; b<4; b++) {
+		for (int a=0; a<10; a++) {
+			toggle tt;
+			tt.nome = "Toggle" + ofToString(a) + ofToString(b);
+			float altura = 20;
+			float altura2 = altura*1.25;
+			float w = 20;
+			tt.rect = ofRectangle(10 + b *(altura*1.25), 40 + a*(altura*1.25), w,altura); //(y+=altura2)
+			tt.cor = ofColor::fromHsb(a*4+b*5,255,255);
+			tt.showLabel = false;
+			ui.toggles.push_back(tt);
+		}
+	}
+
+	ui.flow.x = 150;
+	ui.flow.y = 40;
+	for (int a=0; a<20; a++) {
+		ui.create("Slider" + ofToString(a));
+	}
+
 	ofSetCircleResolution(94);
 }
 
