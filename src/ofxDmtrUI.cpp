@@ -10,39 +10,6 @@ Proof of concept
 //ofRectangle coluna = ofRectangle(30,30,500,700);
 
 // in the future measure events considering column offset
-ofRectangle coluna = ofRectangle(0,0,360,700);
-
-//--------------------------------------------------------------
-
-// function only used to generate UI Elements
-void ofxDmtrUI::generate(string text) {
-	int y = 20;
-	for (int b=0; b<4; b++) {
-		for (int a=0; a<10; a++) {
-			toggle tt;
-			tt.nome = "Toggle" + ofToString(a) + ofToString(b);
-			float altura = 20;
-			float altura2 = altura*1.25;
-			float w = 20;
-			tt.rect = ofRectangle(10 + b *(altura*1.25), 40 + a*(altura*1.25), w,altura); //(y+=altura2)
-			tt.cor = ofColor::fromHsb(a*4+b*5,255,255);
-			toggles.push_back(tt);
-		}
-	}
-
-	for (int a=0; a<30; a++) {
-		// temporary slider to push
-		slider ts;
-		ts.nome = "Slider" + ofToString(a);
-		float altura = 20;
-		float w = 150;
-		ts.rect = ofRectangle(150, 40 + a*(altura*1.25),w,altura);
-		ts.cor = ofColor::fromHsb(ofMap(a, 0,30, 0,200),255,255);
-		ts.val = &pFloat[ts.nome];
-
-		sliders.push_back(ts);
-	}
-}
 
 //--------------------------------------------------------------
 void ofxDmtrUI::setup() {
@@ -59,9 +26,10 @@ void ofxDmtrUI::setup() {
 	ofAddListener(ofEvents().mousePressed, this, &ofxDmtrUI::onMousePressed);
 	ofAddListener(ofEvents().mouseDragged, this, &ofxDmtrUI::onMouseDragged);
 	ofAddListener(ofEvents().mouseReleased, this, &ofxDmtrUI::onMouseReleased);
+
+	ofAddListener(ofEvents().mouseMoved, this, &ofxDmtrUI::onMouseMoved);
 	ofAddListener(ofEvents().exit, this, &ofxDmtrUI::onExit);
 
-	generate();
 }
 // END SETUP
 
@@ -85,11 +53,17 @@ void ofxDmtrUI::draw() {
 		for (auto & t : toggles) {
 			ofSetColor(t.cor);
 			ofDrawRectangle(t.rect);
+
+			// toggle Label
+//			ofSetColor(255);
+//			ofDrawBitmapString(t.nome, t.rect.x+30, t.rect.y+14);
+
 			if (t.valor) {
 				ofSetColor(0);
 				ofNoFill();
-				ofDrawLine(t.rect.x, t.rect.y, t.rect.x + t.rect.width, t.rect.y+ t.rect.height);
-				ofDrawLine(t.rect.x, t.rect.y+ t.rect.height, t.rect.x + t.rect.width, t.rect.y );
+				int off = 3;
+				ofDrawLine(t.rect.x + off, t.rect.y + off, 				   t.rect.x + t.rect.width -off, t.rect.y + t.rect.height -off);
+				ofDrawLine(t.rect.x + off, t.rect.y + t.rect.height - off, t.rect.x + t.rect.width -off, t.rect.y + off);
 				ofFill();
 
 				// just to check if t.inside is working OK
@@ -123,9 +97,10 @@ void ofxDmtrUI::draw() {
 	}
 
 
-	ofSetColor(255);
 
 	if (showGui) {
+		//ofSetColor(255, columnOver ? 255 : 30);
+		ofSetColor(255);
 		fbo.draw(coluna.x, coluna.y);
 	}
 }
@@ -196,6 +171,38 @@ void ofxDmtrUI::keyPressed(int key){
 			load("4.xml");
 		}
 	}
+
+	else if (key == '5') {
+		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
+			save("5.xml");
+		} else {
+			load("5.xml");
+		}
+	}
+
+	else if (key == '6') {
+		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
+			save("6.xml");
+		} else {
+			load("6.xml");
+		}
+	}
+
+	else if (key == '7') {
+		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
+			save("7.xml");
+		} else {
+			load("7.xml");
+		}
+	}
+
+	else if (key == '8') {
+		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
+			save("8.xml");
+		} else {
+			load("8.xml");
+		}
+	}
 }
 
 
@@ -209,10 +216,6 @@ void ofxDmtrUI::mouseDragged(int x, int y, int button){
 	redraw = true;
 
 
-	if (coluna.inside(x,y)) {
-
-	}
-
 	for (auto & t : toggles) {
 		if (t.rect.inside(x,y) && !t.inside) {
 			t.valor = !t.valor;
@@ -224,8 +227,14 @@ void ofxDmtrUI::mouseDragged(int x, int y, int button){
 	for (auto & s : sliders) {
 		if (s.rect.inside(x,y)) {
 			s.update(x);
+			s.inside = true;
 			//s.valor = (x - s.rect.x)/(double)s.rect.width;
 			pFloat[s.nome] = s.valor;
+		} else {
+			if (s.inside) {
+				s.update(x);
+				s.inside = false;
+			}
 		}
 	}
 }
@@ -245,6 +254,7 @@ void ofxDmtrUI::mousePressed(int x, int y, int button){
 	for (auto & s : sliders) {
 		if (s.rect.inside(x,y)) {
 			s.update(x);
+			s.inside = true;
 			pFloat[s.nome] = s.valor;
 		}
 	}
@@ -256,7 +266,17 @@ void ofxDmtrUI::mouseReleased(int x, int y, int button){
 	for (auto & t : toggles) {
 		t.inside = false;
 	}
+	for (auto & s : sliders) {
+		s.inside = false;
+	}
 }
+
+
+//--------------------------------------------------------------
+void ofxDmtrUI::mouseAll(int x, int y, int button){
+	columnOver = coluna.inside(x,y);
+}
+
 
 //--------------------------------------------------------------
 void ofxDmtrUI::exit() {
@@ -289,22 +309,90 @@ void ofxDmtrUI::onKeyReleased(ofKeyEventArgs& data)
 void ofxDmtrUI::onMousePressed(ofMouseEventArgs& data)
 {
 	mousePressed(data.x, data.y, data.button);
+	mouseAll(data.x, data.y, data.button);
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::onMouseDragged(ofMouseEventArgs& data)
 {
 	mouseDragged(data.x, data.y, data.button);
+	mouseAll(data.x, data.y, data.button);
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::onMouseReleased(ofMouseEventArgs& data)
 {
 	mouseReleased(data.x, data.y, data.button);
+	mouseAll(data.x, data.y, data.button);
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI::onMouseMoved(ofMouseEventArgs& data)
+{
+	mouseAll(data.x, data.y, data.button);
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::onExit(ofEventArgs &data)
 {
 	exit();
+}
+
+
+
+
+
+
+// function only used to generate UI Elements
+//--------------------------------------------------------------
+void ofxDmtrUI::generate(string text) {
+	int y = 20;
+	for (int b=0; b<4; b++) {
+		for (int a=0; a<10; a++) {
+			toggle tt;
+			tt.nome = "Toggle" + ofToString(a) + ofToString(b);
+			float altura = 20;
+			float altura2 = altura*1.25;
+			float w = 20;
+			tt.rect = ofRectangle(10 + b *(altura*1.25), 40 + a*(altura*1.25), w,altura); //(y+=altura2)
+			tt.cor = ofColor::fromHsb(a*4+b*5,255,255);
+			toggles.push_back(tt);
+		}
+	}
+
+	for (int a=0; a<20; a++) {
+		// temporary slider to push
+		slider ts;
+		ts.nome = "Slider" + ofToString(a);
+		float altura = 20;
+		float w = 150;
+		ts.rect = ofRectangle(150, 40 + a*(altura*1.25),w,altura);
+		ts.cor = ofColor::fromHsb(ofMap(a, 0,30, 0,200),255,255);
+		ts.val = &pFloat[ts.nome];
+		sliders.push_back(ts);
+	}
+}
+
+
+
+//--------------------------------------------------------------
+void ofxDmtrUI::create(string nome, string tipo) {
+	if (tipo == "slider") {
+		slider ts;
+		ts.nome = nome;
+		ts.rect = ofRectangle(flow.x, flow.y,150,20);
+		ts.cor = ofColor::fromHsb(ofRandom(200),255,255);
+		ts.val = &pFloat[ts.nome];
+		sliders.push_back(ts);
+	}
+
+	else if (tipo == "toggle") {
+		toggle tt;
+		tt.nome = nome;
+		tt.rect = ofRectangle(flow.x, flow.y, 20, 20);
+		tt.cor = ofColor::fromHsb(ofRandom(200),255,255);
+		toggles.push_back(tt);
+	}
+
+	flow.y += 30;
 }

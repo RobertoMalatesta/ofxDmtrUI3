@@ -8,28 +8,31 @@
 
 class slider {
 public:
-	string nome;
+	string 		nome;
 	ofRectangle rect;
-	ofColor cor;
-	float min, max, def;
-	float valor = 0;
-	float *val;
+	bool 		inside = false;
+	ofColor 		cor;
+	float 		min, max, def;
+	float 		valor = 0;
+	float 		*val;
 
 	void update(int x) {
-		valor = (x - rect.x)/(float)rect.width;
+
+		valor = ofClamp((x - rect.x)/(float)rect.width, 0, 1);
 		//val = valor;
-		cout << valor << endl;
+//		cout << valor << endl;
 //		cout << val << endl;
 	}
 };
 
 class toggle {
 public:
-	string nome;
-	ofRectangle rect;
-	ofColor cor;
-	bool valor = false;
-	bool inside = false;
+	string 			nome;
+	ofRectangle 		rect;
+	bool 			inside = false;
+	ofColor 			cor;
+	bool 			valor = false;
+	bool				showLabel = false;
 };
 
 
@@ -47,12 +50,17 @@ public:
 	void		draw();
 	void		exit();
 
+	// rename to createelement
+	void		create(string nome, string tipo="slider");
+
 	void		save(string xml);
 	void		load(string xml);
 
 	void mouseDragged(int x, int y, int button);
 	void mousePressed(int x, int y, int button);
 	void mouseReleased(int x, int y, int button);
+
+	void mouseAll(int x, int y, int button);
 
 
 	void onDraw(ofEventArgs &data);
@@ -65,9 +73,7 @@ public:
 	void onMouseDragged(ofMouseEventArgs &data);
 	void onMouseReleased(ofMouseEventArgs &data);
 
-	
-	vector <slider> sliders;
-	vector <toggle> toggles;
+	void onMouseMoved(ofMouseEventArgs &data);
 
 	
 	map <string,float>			pEasy;
@@ -76,11 +82,17 @@ public:
 	map <string,bool>			pBool;
 	map <string,string>			pString;
 
-	bool showGui = true;
-	bool redraw = true;
+	vector <slider> sliders;
+	vector <toggle> toggles;
 
 	ofFbo fbo;
-
 	float easing = 30;
+	bool showGui = true;
+	bool redraw = true;
+	bool columnOver = false;
+
+	ofRectangle coluna = ofRectangle(0,0,620,560);
+	ofPoint flow = ofPoint(0,0);
+
 
 };
