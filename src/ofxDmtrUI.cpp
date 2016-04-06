@@ -7,9 +7,7 @@ Proof of concept
 */
 
 #include "ofxDmtrUI.h"
-//ofRectangle coluna = ofRectangle(30,30,500,700);
 
-// in the future measure events considering column offset
 
 //--------------------------------------------------------------
 void ofxDmtrUI::setup() {
@@ -50,53 +48,11 @@ void ofxDmtrUI::draw() {
 	if (redraw) {
 		fbo.begin();
 		ofClear(0,100);
-		for (auto & t : toggles) {
-			ofSetColor(t.cor);
-			ofDrawRectangle(t.rect);
-
-			// toggle Label
-//			ofSetColor(255);
-//			ofDrawBitmapString(t.nome, t.rect.x+30, t.rect.y+14);
-
-			if (t.valor) {
-				ofSetColor(0);
-				ofNoFill();
-				int off = 3;
-				ofDrawLine(t.rect.x + off, t.rect.y + off, 				   t.rect.x + t.rect.width -off, t.rect.y + t.rect.height -off);
-				ofDrawLine(t.rect.x + off, t.rect.y + t.rect.height - off, t.rect.x + t.rect.width -off, t.rect.y + off);
-				ofFill();
-
-				// just to check if t.inside is working OK
-//					if (t.inside) {
-//						float raio = 5;
-//						ofDrawEllipse(t.rect.x + 5, t.rect.y + 5, raio, raio);
-//					}
-			}
-		}
-
-		for (auto & s : sliders) {
-			ofSetColor(s.cor);
-			ofDrawRectangle(s.rect);
-			ofSetColor(0,128);
-			float w = s.rect.width * s.valor;
-			ofDrawRectangle(s.rect.x, s.rect.y, w, s.rect.height);
-			string label = s.nome + " "+ofToString(s.valor);
-			ofSetColor(0,128);
-			ofDrawBitmapString(label, s.rect.x+11, s.rect.y+15);
-			ofSetColor(255);
-			ofDrawBitmapString(label, s.rect.x+10, s.rect.y+14);
-		}
-
-//			float y = 0;
-//			for (auto & p : pFloat) {
-//				string frase = p.first + " :: " + ofToString(p.second);
-//				ofDrawBitmapString(frase, 300, y+=20);
-//			}
-
+		for (auto & t : toggles) { t.draw(); }
+		for (auto & s : sliders) { s.draw(); }
+		for (auto & l : labels)  { l.draw(); }
 		fbo.end();
 	}
-
-
 
 	if (showGui) {
 		//ofSetColor(255, columnOver ? 255 : 30);
@@ -122,11 +78,12 @@ void ofxDmtrUI::save(string xml){
 //--------------------------------------------------------------
 void ofxDmtrUI::load(string xml){
 	cout << "load: " + xml << endl;
-
 	ofxXmlSettings settings;
 	settings.loadFile(xml);
 	for (auto & s : sliders) {
-		s.valor = settings.getValue(s.nome, 0.0);
+		// fazer uma funcao pra calcular o valorpixels atraves do valor.
+		//s.valor = settings.getValue(s.nome, 0.0);
+		s.setValue(settings.getValue(s.nome, 0.0));
 		pFloat[s.nome] = s.valor;
 	}
 	for (auto & t : toggles) {
@@ -143,6 +100,7 @@ void ofxDmtrUI::keyPressed(int key){
 	}
 
 	// Temporary Shortcuts
+	// fazer funcao loadorsave, substituir aqui
 	if (key == '1') {
 		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
 			save("1.xml");
@@ -344,6 +302,7 @@ void ofxDmtrUI::onExit(ofEventArgs &data)
 
 
 // function only used to generate UI Elements
+// remove in next versions
 //--------------------------------------------------------------
 void ofxDmtrUI::generate(string text) {
 	int y = 20;
@@ -360,39 +319,94 @@ void ofxDmtrUI::generate(string text) {
 		}
 	}
 
+	flow.x = 150;
+	flow.y = 40;
 	for (int a=0; a<20; a++) {
-		// temporary slider to push
-		slider ts;
-		ts.nome = "Slider" + ofToString(a);
-		float altura = 20;
-		float w = 150;
-		ts.rect = ofRectangle(150, 40 + a*(altura*1.25),w,altura);
-		ts.cor = ofColor::fromHsb(ofMap(a, 0,30, 0,200),255,255);
-		ts.val = &pFloat[ts.nome];
-		sliders.push_back(ts);
+		create("Slider" + ofToString(a));
 	}
 }
 
-
-
 //--------------------------------------------------------------
-void ofxDmtrUI::create(string nome, string tipo) {
+void ofxDmtrUI::create(string nome, string tipo, ofVec3f valores) {
+	int hue = int(flow.x + flow.y/6.0)%255;
+	int height = 20;
+	int sliderWidth = 150;
+
 	if (tipo == "slider") {
 		slider ts;
 		ts.nome = nome;
-		ts.rect = ofRectangle(flow.x, flow.y,150,20);
-		ts.cor = ofColor::fromHsb(ofRandom(200),255,255);
+		ts.rect = ofRectangle(flow.x, flow.y, sliderWidth, height);
+		ts.cor = ofColor::fromHsb(hue,255,255);
 		ts.val = &pFloat[ts.nome];
+		ts.min = valores.x;
+		ts.max = valores.y;
+		ts.def = ts.valor = valores.z;
 		sliders.push_back(ts);
 	}
 
 	else if (tipo == "toggle") {
 		toggle tt;
 		tt.nome = nome;
-		tt.rect = ofRectangle(flow.x, flow.y, 20, 20);
-		tt.cor = ofColor::fromHsb(ofRandom(200),255,255);
+		tt.rect = ofRectangle(flow.x, flow.y, height, height);
+		tt.cor = ofColor::fromHsb(hue,255,255);
 		toggles.push_back(tt);
 	}
 
-	flow.y += 30;
+	else if (tipo == "label") {
+		label tl;
+		tl.nome = nome;
+		tl.rect = ofRectangle(flow.x, flow.y, sliderWidth, height);
+		tl.cor = ofColor::fromHsb(hue,255,255);
+		labels.push_back(tl);
+	}
+
+	flow.y += 25;
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI::createFromText(string file) {
+	vector <string> linhas = textToVector(file);
+	for (auto & l : linhas) {
+		if (l == "") { // spacer
+			flow.y += 25;
+		} else {
+			vector <string> cols = ofSplitString(l, "	");
+			string tipo = cols[0];
+			string nome = cols[1];
+
+			ofVec3f valores = ofVec3f(0,1,0);
+
+			if (cols.size()>2) {
+				vector <string> vals = ofSplitString(cols[2], " ");
+				// min max def.
+				valores = ofVec3f(ofToFloat(vals[0]), ofToFloat(vals[1]), ofToFloat(vals[2]));
+			}
+			if (tipo == "float") tipo = "slider";
+			if (tipo == "bool") tipo = "toggle";
+
+			if (tipo == "newcol") {
+				flow.x += 180;
+				flow.y = marginy;
+			}
+			else if (tipo == "marginy") {
+				marginy = ofToFloat(cols[1]);
+				flow.y = marginy;
+			}
+
+			else {
+				create(nome, tipo, valores);
+			}
+		}
+	}
+}
+
+
+//--------------------------------------------------------------
+vector <string> ofxDmtrUI::textToVector(string file) {
+	vector <string> saida;
+	ofBuffer buff2 = ofBufferFromFile(file);
+	for(auto & line: buff2.getLines()) {
+		saida.push_back(line);
+	}
+	return saida;
 }
