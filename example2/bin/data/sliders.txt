@@ -25,9 +25,7 @@ bool	okc2	1
 bool	ok2c2	1
 float	slider1	0 1 0
 float	slider2	0 1 0
-float	slider3	0 1 0
-float	slider4	0 1 0
-float	slider5	0 1 0
+radio	planeta	sol lua marte venus
 
 newcol
 label	Third Column

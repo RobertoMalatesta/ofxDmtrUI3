@@ -53,11 +53,12 @@ void ofxDmtrUI::draw() {
 		for (auto & l : labels)  { l.draw(); }
 		for (auto & r : radios)  { r.draw(); }
 		fbo.end();
+		redraw = false;
 	}
 
 	if (showGui) {
-		ofSetColor(255, columnOver ? 255 : 128);
-		//ofSetColor(255);
+		//ofSetColor(255, columnOver ? 255 : 128);
+		ofSetColor(255);
 		fbo.draw(coluna.x, coluna.y);
 	}
 }
@@ -67,11 +68,25 @@ void ofxDmtrUI::save(string xml){
 	cout << "save: " + xml << endl;
 	ofxXmlSettings settings;
 	for (auto & s : sliders) {
-		settings.setValue(s.nome, s.valor);
+		// instead make a function called getValue() here
+		if (s.isInt) {
+			settings.setValue(s.nome, s.valorInt);
+		} else {
+			settings.setValue(s.nome, s.valor);
+		}
 	}
+
 	for (auto & t : toggles) {
 		settings.setValue(t.nome, t.valor);
 	}
+
+	for (auto & r : radios) {
+		// mudar pra valor
+		cout << r.nome << endl;
+		cout << r.selecionado << endl;
+		settings.setValue(r.nome, r.selecionado);
+	}
+
 	settings.save(xml);
 }
 
@@ -83,12 +98,23 @@ void ofxDmtrUI::load(string xml){
 	for (auto & s : sliders) {
 		// load default slider value in the case it doesnt exist in xml
 		s.setValue(settings.getValue(s.nome, s.def));
-		pFloat[s.nome] = settings.getValue(s.nome, s.def);
+		if (s.isInt) {
+			pInt[s.nome] = settings.getValue(s.nome, s.def);
+		} else {
+			pFloat[s.nome] = settings.getValue(s.nome, s.def);
+		}
+
 	}
 	for (auto & t : toggles) {
-		t.valor = settings.getValue(t.nome, 0);
+		t.valor = settings.getValue(t.nome, 0); // mudar o zero pra t.def
 		pBool[t.nome] = t.valor;
 	}
+
+	for (auto & r : radios) {
+		r.selecionado = settings.getValue(r.nome, "");
+		pString[r.nome] = r.selecionado;
+	}
+
 	redraw = true;
 }
 
@@ -118,8 +144,16 @@ void ofxDmtrUI::keyReleased(int key){
 }
 
 //--------------------------------------------------------------
-void ofxDmtrUI::mouseDragged(int x, int y, int button){
+void ofxDmtrUI::mousePressedDragged(int x, int y, int button){
 	redraw = true;
+
+	for (auto & e : radios) {
+		if (e.rect.inside(x - coluna.x,y - coluna.y)) {
+			e.checkMouse(x - coluna.x,y - coluna.y);
+		}
+		pString[e.nome] = e.selecionado;
+	}
+
 	for (auto & t : toggles) {
 		if (t.rect.inside(x - coluna.x,y - coluna.y) && !t.inside) {
 			t.valor = !t.valor;
@@ -128,12 +162,20 @@ void ofxDmtrUI::mouseDragged(int x, int y, int button){
 		}
 	}
 
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI::mouseDragged(int x, int y, int button){
 	for (auto & s : sliders) {
 		if (s.rect.inside(x - coluna.x,y - coluna.y)) {
 			s.update(x - coluna.x);
 			s.inside = true;
 			//s.valor = (x - s.rect.x)/(double)s.rect.width;
-			pFloat[s.nome] = s.valor;
+			if (s.isInt) {
+				pInt[s.nome] = s.valorInt;
+			} else {
+				pFloat[s.nome] = s.valor;
+			}
 		} else {
 			if (s.inside) {
 				s.update(x - coluna.x);
@@ -145,21 +187,15 @@ void ofxDmtrUI::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofxDmtrUI::mousePressed(int x, int y, int button){
-	redraw = true;
-
-	for (auto & t : toggles) {
-		if (t.rect.inside(x - coluna.x,y - coluna.y)&& !t.inside) {
-			t.valor = !t.valor;
-			t.inside = true;
-			pBool[t.nome] = t.valor;
-		}
-	}
-
 	for (auto & s : sliders) {
 		if (s.rect.inside(x - coluna.x,y - coluna.y)) {
 			s.update(x - coluna.x);
 			s.inside = true;
-			pFloat[s.nome] = s.valor;
+			if (s.isInt) {
+				pInt[s.nome] = s.valorInt;
+			} else {
+				pFloat[s.nome] = s.valor;
+			}
 		}
 	}
 }
@@ -178,6 +214,8 @@ void ofxDmtrUI::mouseReleased(int x, int y, int button){
 //--------------------------------------------------------------
 void ofxDmtrUI::mouseAll(int x, int y, int button){
 	columnOver = coluna.inside(x,y);
+
+	
 }
 
 //--------------------------------------------------------------
@@ -210,28 +248,30 @@ void ofxDmtrUI::onKeyReleased(ofKeyEventArgs& data)
 //--------------------------------------------------------------
 void ofxDmtrUI::onMousePressed(ofMouseEventArgs& data)
 {
-	mousePressed		(data.x, data.y, data.button);
-	mouseAll			(data.x, data.y, data.button);
+	mousePressed				(data.x, data.y, data.button);
+	mouseAll					(data.x, data.y, data.button);
+	mousePressedDragged		(data.x, data.y, data.button);
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::onMouseDragged(ofMouseEventArgs& data)
 {
-	mouseDragged		(data.x, data.y, data.button);
-	mouseAll			(data.x, data.y, data.button);
+	mouseDragged			(data.x, data.y, data.button);
+	mouseAll				(data.x, data.y, data.button);
+	mousePressedDragged (data.x, data.y, data.button);
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::onMouseReleased(ofMouseEventArgs& data)
 {
-	mouseReleased	(data.x, data.y, data.button);
-	mouseAll			(data.x, data.y, data.button);
+	mouseReleased		(data.x, data.y, data.button);
+	mouseAll				(data.x, data.y, data.button);
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::onMouseMoved(ofMouseEventArgs& data)
 {
-	mouseAll			(data.x, data.y, data.button);
+	mouseAll				(data.x, data.y, data.button);
 
 }
 
@@ -288,10 +328,12 @@ void ofxDmtrUI::createFromText(string file) {
 			}
 
 			else {
-				if (cols.size()>2) {
-					create(nome, tipo, cols[2]);
-				} else {
-					create(nome, tipo);
+				if (tipo.substr(0,1) != "#") { //comment
+					if (cols.size()>2) {
+						create(nome, tipo, cols[2]);
+					} else {
+						create(nome, tipo);
+					}
 				}
 			}
 		}
@@ -304,11 +346,12 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 	int height = 20;
 	int sliderWidth = 150;
 
-	if (tipo == "slider") {
+	if (tipo == "slider" || tipo == "int") {
 		slider ts;
 		ts.nome = nome;
 		ts.rect = ofRectangle(flow.x, flow.y, sliderWidth, height);
 		ts.cor = ofColor::fromHsb(hue,255,255);
+		ts.isInt = tipo == "int";
 		ts.val = &pFloat[ts.nome];
 
 		if (valores != "") {
@@ -322,6 +365,9 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		}
 		sliders.push_back(ts);
 		pFloat[nome] = ts.def;
+		if (ts.isInt) {
+			pInt[nome] = ts.def;
+		}
 	}
 
 	else if (tipo == "toggle") {
@@ -349,6 +395,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, height);
 		temp.cor = ofColor::fromHsb(hue,255,255);
 		temp.opcoes = ofSplitString(valores, " ");
+		temp.init();
 		//vector <string> parametros = ofSplitString(valores, " ");
 		radios.push_back(temp);
 	}
@@ -358,5 +405,27 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 	}
 	if (flowDirection == HORIZ) {
 		flow.x += 25;
+	}
+}
+
+
+
+//--------------------------------------------------------------
+void	 ofxDmtrUI::expires(int dataInicial, int dias) {
+	time_t rawtime;
+	struct tm * timeinfo;
+	time ( &rawtime );
+	timeinfo = localtime ( &rawtime );
+	cout << "-------- Dmtr Expires: " ;
+	cout << rawtime << endl;
+	int segundosPorDia = 86400;
+	int segundosExpira = segundosPorDia * dias;
+	float diasExpira = (segundosExpira - (difftime(rawtime,dataInicial))) / (float)segundosPorDia;
+
+	cout << "expira em " + ofToString(diasExpira) + " dias" << endl;
+	cout << "---------" << endl;
+	if (diasExpira < 0 || diasExpira > dias) {
+		ofSystemAlertDialog("Software Expirado ~ " + ofToString(dataInicial) + "\rdimitre79@gmail.com\r(11) 99450 3821");
+		std::exit(1);
 	}
 }

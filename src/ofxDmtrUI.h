@@ -19,17 +19,27 @@ public:
 	float		max = 1;
 	float		def = .5;
 	//float 		min, max, def;
-	float 		valor = 0;
+	float 		valor;
+	int			valorInt;
 	float 		*val;
 	int			valorPixels = 0;
+	bool			isInt = false;
 
 	void update(int x) {
 		valorPixels = ofClamp(x - rect.x, 0, rect.width);
 		valor = ofMap(valorPixels, 0, rect.width, min, max);
+
+		if (isInt) {
+			valorInt = ofMap(valorPixels, 0, rect.width, min, max);
+		}
 	}
 
 	void setValue(float v) {
-		valor = v;
+		if (isInt) {
+			valorInt = v;
+		} else {
+			valor = v;
+		}
 		valorPixels = ofMap(valor, min, max, 0, rect.width);
 	}
 
@@ -40,7 +50,7 @@ public:
 		// value rectangle black transparent
 		ofSetColor(0,128);
 		ofDrawRectangle(rect.x, rect.y, valorPixels, rect.height);
-		string label = nome + " "+ofToString(valor);
+		string label = nome + " "+ofToString(isInt ? valorInt : valor);
 		ofSetColor(0,128);
 		ofDrawBitmapString(label, rect.x+11, rect.y+15);
 		ofSetColor(255);
@@ -101,7 +111,16 @@ public:
 	string		selecionado;
 
 	void init() {
-
+		int offx = 0;
+		int largura = 50;
+		for (auto & o : opcoes) {
+			ofRectangle tr = ofRectangle(rect.x + offx, rect.y, largura, rect.height);
+			offx += largura + 1;
+			rects.push_back(tr);
+		}
+		// recalculando a largura total do rect sem mexer no offx e offy.
+		rect.width = offx;
+		// fazer com que o rect principal seja da largura de todos os outros rects.
 	}
 
 	void draw() {
@@ -110,10 +129,21 @@ public:
 //		ofDrawBitmapString(nome, rect.x, rect.y + offy);
 //		offy += 25;
 		int offx = 0;
+//		ofSetColor(cor);
+//		ofDrawRectangle(rect);
+
+		int i = 0;
+		for (auto & r : rects) {
+			ofSetColor(selecionado == opcoes[i] ? cor : ofColor(60,80));
+			ofDrawRectangle (r);
+			i++;
+		}
+		
 		for (auto & o : opcoes) {
-			ofSetColor(selecionado == o ? cor : 255);
-			ofDrawBitmapString(o, rect.x + offx, rect.y+15 + offy);
-			offx += 30;
+			//ofSetColor(selecionado == o ? cor : 255);
+			ofSetColor(255);
+			ofDrawBitmapString(o, rect.x + offx + 10, rect.y  + offy);
+			offx += 50;
 		}
 	}
 
@@ -141,6 +171,7 @@ public:
 	void 	mousePressed(int x, int y, int button);
 	void 	mouseReleased(int x, int y, int button);
 	void 	mouseAll(int x, int y, int button);
+	void 	mousePressedDragged(int x, int y, int button);
 
 	void 	onDraw(ofEventArgs &data);
 	void 	onUpdate(ofEventArgs &data);
@@ -161,6 +192,8 @@ public:
 	// this is only used in the next function
 	vector <string> textToVector(string file);
 	void		createFromText(string file);
+
+	void		expires(int dataInicial, int dias = 10);
 
 	map <string,float>			pEasy;
 	map <string,float>			pFloat;
@@ -189,3 +222,5 @@ public:
 
 	string UINAME = "";
 };
+
+
