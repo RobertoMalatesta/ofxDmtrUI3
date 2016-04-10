@@ -114,6 +114,7 @@ public:
 		int offx = 0;
 		int largura = 50;
 		for (auto & o : opcoes) {
+			largura = 6*2 + o.size() * 8;
 			ofRectangle tr = ofRectangle(rect.x + offx, rect.y, largura, rect.height);
 			offx += largura + 1;
 			rects.push_back(tr);
@@ -134,17 +135,20 @@ public:
 
 		int i = 0;
 		for (auto & r : rects) {
-			ofSetColor(selecionado == opcoes[i] ? cor : ofColor(60,80));
+			auto & o = opcoes[i];
+			ofSetColor(selecionado == o ? cor : ofColor(60,80));
 			ofDrawRectangle (r);
+			ofSetColor(selecionado == o ? 0 : 255);
+//			ofDrawBitmapString(o, rect.x + offx + 10, rect.y  + offy);
+			ofDrawBitmapString(o, r.x + 6, r.y + offy);
 			i++;
 		}
 		
-		for (auto & o : opcoes) {
-			//ofSetColor(selecionado == o ? cor : 255);
-			ofSetColor(255);
-			ofDrawBitmapString(o, rect.x + offx + 10, rect.y  + offy);
-			offx += 50;
-		}
+//		for (auto & o : opcoes) {
+//			ofSetColor(selecionado == o ? 0 : 255);
+//			ofDrawBitmapString(o, rect.x + offx + 10, rect.y  + offy);
+//			offx += 50;
+//		}
 	}
 
 	void checkMouse(int x, int y) {

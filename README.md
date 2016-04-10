@@ -15,8 +15,11 @@ Load interface layouts from text files.
 ofxXmlSettings  
 
 # TODO
-radio buttons
+radio button for integers
+radio buttons flow text to second line
+radio buttons rectangles according to width.
 pass pointer reference of pFloat, pBool to update functions of classes.  
+radio images for presets.
 add namespace to classes.  
 multiple toggle object  
 vertical sliders  
@@ -27,6 +30,9 @@ integration with ofxMidi for midi controllers use
 
 # Ideas
 maybe check inside panel rectangle if mouse event is inside before check in each panel element.
+
+## 2016 04 08
+radio buttons first draft.
 
 ## 2016 04 07
 slider integer working OK

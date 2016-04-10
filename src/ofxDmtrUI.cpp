@@ -45,18 +45,18 @@ void ofxDmtrUI::update() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::draw() {
-	if (redraw) {
-		fbo.begin();
-		ofClear(0,100);
-		for (auto & t : toggles) { t.draw(); }
-		for (auto & s : sliders) { s.draw(); }
-		for (auto & l : labels)  { l.draw(); }
-		for (auto & r : radios)  { r.draw(); }
-		fbo.end();
-		redraw = false;
-	}
-
 	if (showGui) {
+		if (redraw) {
+			fbo.begin();
+			ofClear(0,100);
+			for (auto & t : toggles) { t.draw(); }
+			for (auto & s : sliders) { s.draw(); }
+			for (auto & l : labels)  { l.draw(); }
+			for (auto & r : radios)  { r.draw(); }
+			fbo.end();
+			redraw = false;
+		}
+
 		//ofSetColor(255, columnOver ? 255 : 128);
 		ofSetColor(255);
 		fbo.draw(coluna.x, coluna.y);
@@ -86,7 +86,6 @@ void ofxDmtrUI::save(string xml){
 		cout << r.selecionado << endl;
 		settings.setValue(r.nome, r.selecionado);
 	}
-
 	settings.save(xml);
 }
 
@@ -248,31 +247,38 @@ void ofxDmtrUI::onKeyReleased(ofKeyEventArgs& data)
 //--------------------------------------------------------------
 void ofxDmtrUI::onMousePressed(ofMouseEventArgs& data)
 {
-	mousePressed				(data.x, data.y, data.button);
-	mouseAll					(data.x, data.y, data.button);
-	mousePressedDragged		(data.x, data.y, data.button);
+	if (showGui) {
+		mousePressed				(data.x, data.y, data.button);
+		mouseAll					(data.x, data.y, data.button);
+		mousePressedDragged		(data.x, data.y, data.button);
+	}
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::onMouseDragged(ofMouseEventArgs& data)
 {
-	mouseDragged			(data.x, data.y, data.button);
-	mouseAll				(data.x, data.y, data.button);
-	mousePressedDragged (data.x, data.y, data.button);
+	if (showGui) {
+		mouseDragged			(data.x, data.y, data.button);
+		mouseAll				(data.x, data.y, data.button);
+		mousePressedDragged (data.x, data.y, data.button);
+	}
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::onMouseReleased(ofMouseEventArgs& data)
 {
-	mouseReleased		(data.x, data.y, data.button);
-	mouseAll				(data.x, data.y, data.button);
+	if (showGui) {
+		mouseReleased		(data.x, data.y, data.button);
+		mouseAll				(data.x, data.y, data.button);
+	}
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::onMouseMoved(ofMouseEventArgs& data)
 {
-	mouseAll				(data.x, data.y, data.button);
-
+	if (showGui) {
+		mouseAll				(data.x, data.y, data.button);
+	}
 }
 
 //--------------------------------------------------------------
