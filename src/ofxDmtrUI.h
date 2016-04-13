@@ -40,7 +40,7 @@ public:
 		} else {
 			valor = v;
 		}
-		valorPixels = ofMap(valor, min, max, 0, rect.width);
+		valorPixels = ofMap(v, min, max, 0, rect.width);
 	}
 
 	void draw() {
@@ -101,91 +101,97 @@ public:
 	}
 };
 
-class radio {
-public:
-	string 			nome;
-	ofRectangle 		rect;
-	ofColor 			cor;
-	vector <string>	opcoes;
-	vector <ofRectangle> 	rects;
-	string		selecionado;
 
-	int offx = 0;
-	int offy = 0;
-	int height = 20;
-	//int widthAll = 300;
-	void init() {
-		for (auto & o : opcoes) {
-			int largura = 6*2 + o.size() * 8;
-			ofRectangle tr = ofRectangle(rect.x + offx, rect.y + offy, largura, height);
-
-			// mudar para sliderwidth
-			if ((offx + tr.width) > rect.width) {
-				offx = 0;
-				offy += 20 + 1;
-				tr = ofRectangle(rect.x + offx, rect.y + offy, largura, height);
-			}
-
-			rect.height = MAX(rect.height, offy + 21);
-
-			offx += largura + 1;
-
-			cout << o << endl;
-//			cout << offx << endl;
-//			cout << offy << endl;
-//			cout << "-----" << endl;
-
-			rects.push_back(tr);
-		}
-		// recalculando a largura total do rect sem mexer no offx e offy.
-		//rect.width = widthAll;
-		// fazer com que o rect principal seja da largura de todos os outros rects.
-	}
-
-	void draw() {
-		ofSetColor(255);
-		int offy = 15;
-//		ofDrawBitmapString(nome, rect.x, rect.y + offy);
-//		offy += 25;
-		int offx = 0;
-//		ofSetColor(cor);
-//		ofSetColor(255,0,60,128);
-//		ofDrawRectangle(rect);
-
-
-
-		int i = 0;
-		for (auto & r : rects) {
-			auto & o = opcoes[i];
-			ofSetColor(selecionado == o ? cor : ofColor(80,120));
-			ofDrawRectangle (r);
-			ofSetColor(selecionado == o ? 0 : 255);
-//			ofDrawBitmapString(o, rect.x + offx + 10, rect.y  + offy);
-			ofDrawBitmapString(o, r.x + 6, r.y + offy);
-			i++;
-		}
-		
-//		for (auto & o : opcoes) {
-//			ofSetColor(selecionado == o ? 0 : 255);
-//			ofDrawBitmapString(o, rect.x + offx + 10, rect.y  + offy);
-//			offx += 50;
-//		}
-	}
-
-	void checkMouse(int x, int y) {
-		int i = 0;
-		for (auto & r : rects) {
-			if (r.inside(x,y)) {
-				selecionado = opcoes[i];
-			}
-			i ++;
-		}
-	}
-};
 
 class ofxDmtrUI : public ofBaseApp
 {
 public:
+
+
+
+	class radio  {
+	public:
+		string 			nome;
+		ofRectangle 		rect;
+		ofColor 			cor;
+		vector <string>	opcoes;
+		vector <ofRectangle> 	rects;
+		string		selecionado;
+
+		int offx = 0;
+		int offy = 0;
+		int height = 20;
+		//int widthAll = 300;
+		void init() {
+			for (auto & o : opcoes) {
+				int largura = 6*2 + o.size() * 8;
+				ofRectangle tr = ofRectangle(rect.x + offx, rect.y + offy, largura, height);
+
+				// mudar para sliderwidth
+				if ((offx + tr.width) > rect.width) {
+					offx = 0;
+					offy += 20 + 1;
+					tr = ofRectangle(rect.x + offx, rect.y + offy, largura, height);
+				}
+
+				rect.height = MAX(rect.height, offy + 21);
+
+				offx += largura + 1;
+
+				cout << o << endl;
+				//			cout << offx << endl;
+				//			cout << offy << endl;
+				//			cout << "-----" << endl;
+
+				rects.push_back(tr);
+			}
+			// recalculando a largura total do rect sem mexer no offx e offy.
+			//rect.width = widthAll;
+			// fazer com que o rect principal seja da largura de todos os outros rects.
+		}
+
+		void draw() {
+			ofSetColor(255);
+			int offy = 15;
+			//		ofDrawBitmapString(nome, rect.x, rect.y + offy);
+			//		offy += 25;
+			int offx = 0;
+			//		ofSetColor(cor);
+			//		ofSetColor(255,0,60,128);
+			//		ofDrawRectangle(rect);
+
+
+
+			int i = 0;
+			for (auto & r : rects) {
+				auto & o = opcoes[i];
+				ofSetColor(selecionado == o ? cor : ofColor(80,120));
+				ofDrawRectangle (r);
+				ofSetColor(selecionado == o ? 0 : 255);
+				//			ofDrawBitmapString(o, rect.x + offx + 10, rect.y  + offy);
+				ofDrawBitmapString(o, r.x + 6, r.y + offy);
+				i++;
+			}
+
+			//		for (auto & o : opcoes) {
+			//			ofSetColor(selecionado == o ? 0 : 255);
+			//			ofDrawBitmapString(o, rect.x + offx + 10, rect.y  + offy);
+			//			offx += 50;
+			//		}
+		}
+
+		void checkMouse(int x, int y) {
+			int i = 0;
+			for (auto & r : rects) {
+				if (r.inside(x,y)) {
+					selecionado = opcoes[i];
+					//ofNotifyEvent(uiEvent, "change");
+				}
+				i ++;
+			}
+		}
+	};
+
 	void		setup();
 	void		keyPressed(int key);
 	void		keyReleased(int key);
@@ -249,6 +255,8 @@ public:
 
 	int sliderHeight = 20;
 	int sliderWidth = 150;
+
+	ofEvent<string> uiEvent;
 
 };
 

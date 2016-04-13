@@ -1,0 +1,5 @@
+rect	20 20 340 240
+label	Papel Milimetrado
+int	gridAlpha	0 180 100
+int	gridAlpha2	0 255 200
+int	gridAresta	1 20 10

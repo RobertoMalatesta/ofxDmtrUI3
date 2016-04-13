@@ -1,11 +1,11 @@
 # ofxDmtrUI
 
-Made to be really simple and lightweight.
-It is my first public openFrameworks addon. 
-Requires oF 0.9+
+Made to be really simple and lightweight.  
+It is my first public openFrameworks addon.  
+Requires oF 0.9+  
 Suggestions and code improvements will be greatly appreciated.  
 PS: Not for production use.  
-http://dmtr.org/ 
+http://dmtr.org/  
 
 ## Features
 Load interface layouts from text files.
@@ -15,7 +15,9 @@ Load interface layouts from text files.
 ofxXmlSettings  
 
 # TODO
-radio button for integers
+Detail: Slider steps in integers.
+Bang button triggering an event
+radio button shortcuts for integers or floats (bang)
 radio buttons rectangles according to width.
 pass pointer reference of pFloat, pBool to update functions of classes.  
 radio images for presets.
@@ -26,9 +28,10 @@ toggle wall grids
 toggle shortcut for sliders
 
 integration with ofxMidi for midi controllers use
+port to lib cinder 
 
 # Ideas
-maybe check inside panel rectangle if mouse event is inside before check in each panel element.
+Performance : maybe check inside panel rectangle if mouse event is inside before check in each panel element.
 
 ## 2016 04 12
 radio buttons flowing correctly
