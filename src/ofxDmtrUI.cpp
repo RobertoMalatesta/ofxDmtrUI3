@@ -316,7 +316,7 @@ void ofxDmtrUI::createFromText(string file) {
 			if (tipo == "bool") tipo = "toggle";
 
 			if (tipo == "newcol") {
-				flow.x += 180;
+				flow.x += sliderWidth + marginx * 1;
 				flow.y = marginy;
 			}
 			else if (tipo == "marginy") {
@@ -325,6 +325,14 @@ void ofxDmtrUI::createFromText(string file) {
 
 			else if (tipo == "marginx") {
 				flow.x = marginx = ofToFloat(cols[1]);
+			}
+			else if (tipo == "sliderWidth") {
+				sliderWidth = ofToFloat(cols[1]);
+				cout << tipo << endl;
+			}
+			else if (tipo == "sliderHeight") {
+				sliderHeight = ofToFloat(cols[1]);
+				cout << tipo << endl;
 			}
 
 			else if (tipo == "rect") {
@@ -349,13 +357,11 @@ void ofxDmtrUI::createFromText(string file) {
 //--------------------------------------------------------------
 void ofxDmtrUI::create(string nome, string tipo, string valores) {
 	int hue = int(flow.x + flow.y/6.0)%255;
-	int height = 20;
-	int sliderWidth = 150;
 
 	if (tipo == "slider" || tipo == "int") {
 		slider ts;
 		ts.nome = nome;
-		ts.rect = ofRectangle(flow.x, flow.y, sliderWidth, height);
+		ts.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
 		ts.cor = ofColor::fromHsb(hue,255,255);
 		ts.isInt = tipo == "int";
 		ts.val = &pFloat[ts.nome];
@@ -379,7 +385,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 	else if (tipo == "toggle") {
 		toggle tt;
 		tt.nome = nome;
-		tt.rect = ofRectangle(flow.x, flow.y, height, height);
+		tt.rect = ofRectangle(flow.x, flow.y, sliderHeight, sliderHeight);
 		tt.cor = ofColor::fromHsb(hue,255,255);
 		if (valores == "1") {
 			tt.valor = true;
@@ -390,7 +396,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 	else if (tipo == "label") {
 		label tl;
 		tl.nome = nome;
-		tl.rect = ofRectangle(flow.x, flow.y, sliderWidth, height);
+		tl.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
 		tl.cor = ofColor::fromHsb(hue,255,255);
 		labels.push_back(tl);
 	}
@@ -398,12 +404,38 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 	else if (tipo == "radio") {
 		radio temp;
 		temp.nome = nome;
-		temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, height);
+		temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
 		temp.cor = ofColor::fromHsb(hue,255,255);
 		temp.opcoes = ofSplitString(valores, " ");
 		temp.init();
 		//vector <string> parametros = ofSplitString(valores, " ");
 		radios.push_back(temp);
+	}
+
+	else if (tipo == "dirlist") {
+		ofDirectory dir;
+
+		// no futuro colocar o allowext por algum lado
+		//		dir.allowExt("wav");
+		dir.listDir(valores);
+
+		vector <string> opcoes;
+		for (auto & d : dir) {
+			//cout << d.getFileName() << endl;
+			opcoes.push_back(d.getFileName());
+		}
+
+		radio temp;
+		temp.nome = nome;
+		temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
+		temp.cor = ofColor::fromHsb(hue,255,255);
+		temp.opcoes = opcoes;
+		temp.init();
+		//vector <string> parametros = ofSplitString(valores, " ");
+		flow.y += temp.rect.height - 25 + 5;
+		radios.push_back(temp);
+
+
 	}
 
 	if (flowDirection == VERT) {

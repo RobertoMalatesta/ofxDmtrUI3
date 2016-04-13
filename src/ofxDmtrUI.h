@@ -110,17 +110,35 @@ public:
 	vector <ofRectangle> 	rects;
 	string		selecionado;
 
+	int offx = 0;
+	int offy = 0;
+	int height = 20;
+	//int widthAll = 300;
 	void init() {
-		int offx = 0;
-		int largura = 50;
 		for (auto & o : opcoes) {
-			largura = 6*2 + o.size() * 8;
-			ofRectangle tr = ofRectangle(rect.x + offx, rect.y, largura, rect.height);
+			int largura = 6*2 + o.size() * 8;
+			ofRectangle tr = ofRectangle(rect.x + offx, rect.y + offy, largura, height);
+
+			// mudar para sliderwidth
+			if ((offx + tr.width) > rect.width) {
+				offx = 0;
+				offy += 20 + 1;
+				tr = ofRectangle(rect.x + offx, rect.y + offy, largura, height);
+			}
+
+			rect.height = MAX(rect.height, offy + 21);
+
 			offx += largura + 1;
+
+			cout << o << endl;
+//			cout << offx << endl;
+//			cout << offy << endl;
+//			cout << "-----" << endl;
+
 			rects.push_back(tr);
 		}
 		// recalculando a largura total do rect sem mexer no offx e offy.
-		rect.width = offx;
+		//rect.width = widthAll;
 		// fazer com que o rect principal seja da largura de todos os outros rects.
 	}
 
@@ -131,12 +149,15 @@ public:
 //		offy += 25;
 		int offx = 0;
 //		ofSetColor(cor);
+//		ofSetColor(255,0,60,128);
 //		ofDrawRectangle(rect);
+
+
 
 		int i = 0;
 		for (auto & r : rects) {
 			auto & o = opcoes[i];
-			ofSetColor(selecionado == o ? cor : ofColor(60,80));
+			ofSetColor(selecionado == o ? cor : ofColor(80,120));
 			ofDrawRectangle (r);
 			ofSetColor(selecionado == o ? 0 : 255);
 //			ofDrawBitmapString(o, rect.x + offx + 10, rect.y  + offy);
@@ -225,6 +246,10 @@ public:
 	bool	 saveLoadShortcut = true;
 
 	string UINAME = "";
+
+	int sliderHeight = 20;
+	int sliderWidth = 150;
+
 };
 
 

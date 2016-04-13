@@ -16,7 +16,6 @@ ofxXmlSettings
 
 # TODO
 radio button for integers
-radio buttons flow text to second line
 radio buttons rectangles according to width.
 pass pointer reference of pFloat, pBool to update functions of classes.  
 radio images for presets.
@@ -30,6 +29,10 @@ integration with ofxMidi for midi controllers use
 
 # Ideas
 maybe check inside panel rectangle if mouse event is inside before check in each panel element.
+
+## 2016 04 12
+radio buttons flowing correctly
+dirtiest working too
 
 ## 2016 04 08
 radio buttons first draft.
