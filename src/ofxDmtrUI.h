@@ -4,7 +4,6 @@
 #include "ofEvents.h"
 #include "ofxXmlSettings.h"
 
-
 enum flowDir {
 	VERT, HORIZ, NO_FLOW
 };
@@ -31,22 +30,17 @@ public:
 	int			*_valInt;
 	int			valorPixels = 0;
 	bool			isInt = false;
-
 	ofEvent<string> uiEvent;
 
-
 	void update(int x) {
-
 		// fazer algo que cheque se o valor foi modificado da ultima vez pra disparar o evento?
 		valorPixels = ofClamp(x - rect.x, 0, rect.width);
 
 		if (isInt) {
-//			valorInt = ofMap(valorPixels, 0, rect.width, min, max);
 			*_valInt = ofMap(valorPixels, 0, rect.width, min, max);
-			string ev = "updateInt" + nome;
+			string ev = "updateInt_" + nome;
 			ofNotifyEvent(uiEvent, ev, this);
 		} else {
-//			valor = ofMap(valorPixels, 0, rect.width, min, max);
 			*_val = ofMap(valorPixels, 0, rect.width, min, max);
 			string ev = "updateFloat_" + nome;
 			ofNotifyEvent(uiEvent, ev, this);
@@ -54,18 +48,17 @@ public:
 	}
 
 	void setValue(float v) {
+		// posso colocar o evento aqui mas no caso vou dar um trigger qdo estiver carregando XML
+		// trigando todos os All e baguncando presets.
 		if (isInt) {
-			//valorInt = v;
 			*_valInt = v;
 		} else {
-			//valor = v;
 			*_val = v;
 		}
 		valorPixels = ofMap(v, min, max, 0, rect.width);
 	}
 
 	void draw() {
-
 		auto vvv = (isInt ? *_valInt : *_val);
 		valorPixels = ofMap(vvv, min, max, 0, rect.width);
 
@@ -75,7 +68,6 @@ public:
 		// value rectangle black transparent
 		ofSetColor(0,128);
 		ofDrawRectangle(rect.x, rect.y, valorPixels, rect.height);
-//		string label = nome + " "+ofToString(isInt ? valorInt : valor);
 		string label = nome + " "+ofToString(isInt ? *_valInt : *_val);
 		ofSetColor(0,128);
 		ofDrawBitmapString(label, rect.x+11, rect.y+15);
@@ -90,9 +82,8 @@ public:
 	ofRectangle 		rect;
 	bool 			inside = false;
 	ofColor 			cor;
-	bool 			valor = false;
+	//bool 			valor = false;
 	bool				showLabel = true;
-
 	bool				*_val;
 	bool				def = false;
 
@@ -100,13 +91,16 @@ public:
 
 	void flip() {
 		// deprecar
-		valor = !valor;
+		//valor = !valor;
 		*_val = !*_val;
+		string ev = "updateBool_" + nome;
+		ofNotifyEvent(uiEvent, ev, this);
 	}
 
+	// acho que nao preicsa mais? precisa?
+	// setvalue aqui ta triggering o evento.
 	void setValue(bool v) {
 		*_val = v;
-		valor = v;
 	}
 
 	void draw() {
@@ -119,7 +113,7 @@ public:
 			ofDrawBitmapString(nome, rect.x + rect.width + 5, rect.y+16);
 		}
 
-		if (valor) {
+		if (*_val) {
 			ofSetColor(0);
 			ofNoFill();
 			int off = 3;
@@ -150,7 +144,7 @@ public:
 	ofColor 			cor;
 	vector <string>	opcoes;
 	vector <ofRectangle> 	rects;
-	string		selecionado;
+	//string		selecionado;
 
 	string *_val;
 
@@ -159,13 +153,17 @@ public:
 	int height = 20;
 	ofEvent<string> uiEvent;
 
+	void setValue(string v) {
+		*_val = v;
+	}
+
 	void checkMouse(int x, int y) {
 		int i = 0;
 		for (auto & r : rects) {
 			if (r.inside(x,y)) {
-				if (selecionado != opcoes[i]) {
-					selecionado = opcoes[i];
-					*_val = selecionado;
+				if (*_val != opcoes[i]) {
+					*_val = opcoes[i];
+					//*_val = selecionado;
 					string ev = "updateRadio_" + nome;
 					ofNotifyEvent(uiEvent, ev, this);
 				}
@@ -205,9 +203,9 @@ public:
 		int i = 0;
 		for (auto & r : rects) {
 			auto & o = opcoes[i];
-			ofSetColor(selecionado == o ? cor : ofColor(80,120));
+			ofSetColor(*_val == o ? cor : ofColor(80,120));
 			ofDrawRectangle (r);
-			ofSetColor(selecionado == o ? 0 : 255);
+			ofSetColor(*_val == o ? 0 : 255);
 			ofDrawBitmapString(o, r.x + 6, r.y + offy);
 			i++;
 		}
@@ -289,15 +287,16 @@ public:
 	string UINAME = "";
 
 	int sliderHeight = 20;
-	int sliderWidth = 150;
+	int sliderWidth  = 150;
+	int	sliderMargin = 5;
 
 	ofEvent<string> uiEvent;
+	//ofEvent<string> evento;
 
+	// ainda ver direitiho se isso vai rolar.
 	map< string, map <string, string> > dirListMap;
 
+	map <string, int> indexElement;
 
-	ofEvent<string> evento;
-
+	bool keepSettings = false;
 };
-
-

@@ -28,6 +28,9 @@ void ofxDmtrUI::setup() {
 	ofAddListener(ofEvents().mouseMoved, this, &ofxDmtrUI::onMouseMoved);
 	ofAddListener(ofEvents().exit, this, &ofxDmtrUI::onExit);
 
+	if (keepSettings) {
+		load(UINAME + ".xml");
+	}
 }
 // END SETUP
 
@@ -56,7 +59,6 @@ void ofxDmtrUI::draw() {
 			fbo.end();
 			redraw = false;
 		}
-
 		//ofSetColor(255, columnOver ? 255 : 128);
 		ofSetColor(255);
 		fbo.draw(coluna.x, coluna.y);
@@ -76,12 +78,13 @@ void ofxDmtrUI::save(string xml){
 	}
 
 	for (auto & t : toggles) {
-//		settings.setValue(t.nome, t.valor);
 		settings.setValue(t.nome, *t._val);
 	}
 
 	for (auto & r : radios) {
-		settings.setValue(r.nome, r.selecionado);
+		// remover o selecionado totalmente?
+		//settings.setValue(r.nome, r.selecionado);
+		settings.setValue(r.nome, *r._val);
 	}
 	settings.save(xml);
 }
@@ -95,18 +98,14 @@ void ofxDmtrUI::load(string xml){
 		e.setValue(settings.getValue(e.nome, e.def));
 	}
 	for (auto & e : toggles) {
-		//t.valor = settings.getValue(t.nome, 0); // mudar o zero pra t.def
-		//*t._val = settings.getValue(t.nome, t.def); // mudar o zero pra t.def
 		e.setValue(settings.getValue(e.nome, e.def));
-		//pBool[t.nome] = t.valor;
 	}
 
-	for (auto & r : radios) {
+	for (auto & e : radios) {
 		// default? algo como asterisco no txt?
-		r.selecionado = settings.getValue(r.nome, "");
-		//pString[r.nome] = r.selecionado;
+		e.setValue(settings.getValue(e.nome, ""));
+		//e.selecionado = settings.getValue(e.nome, "");
 	}
-
 	redraw = true;
 }
 
@@ -128,7 +127,6 @@ void ofxDmtrUI::keyPressed(int key){
 			}
 		}
 	}
-
 }
 
 //--------------------------------------------------------------
@@ -138,7 +136,6 @@ void ofxDmtrUI::keyReleased(int key){
 //--------------------------------------------------------------
 void ofxDmtrUI::mousePressedDragged(int x, int y, int button){
 	redraw = true;
-
 	for (auto & e : radios) {
 		if (e.rect.inside(x - coluna.x,y - coluna.y)) {
 			e.checkMouse(x - coluna.x,y - coluna.y);
@@ -149,12 +146,8 @@ void ofxDmtrUI::mousePressedDragged(int x, int y, int button){
 		if (t.rect.inside(x - coluna.x,y - coluna.y) && !t.inside) {
 			t.inside = true;
 			t.flip();
-			//2t.valor = !t.valor;
-			// TODO, pointers
-			//pBool[t.nome] = t.valor;
 		}
 	}
-
 }
 
 //--------------------------------------------------------------
@@ -163,12 +156,6 @@ void ofxDmtrUI::mouseDragged(int x, int y, int button){
 		if (s.rect.inside(x - coluna.x,y - coluna.y)) {
 			s.update(x - coluna.x);
 			s.inside = true;
-			//s.valor = (x - s.rect.x)/(double)s.rect.width;
-//			if (s.isInt) {
-//				pInt[s.nome] = s.valorInt;
-//			} else {
-//				pFloat[s.nome] = s.valor;
-//			}
 		} else {
 			if (s.inside) {
 				s.update(x - coluna.x);
@@ -184,12 +171,6 @@ void ofxDmtrUI::mousePressed(int x, int y, int button){
 		if (s.rect.inside(x - coluna.x,y - coluna.y)) {
 			s.update(x - coluna.x);
 			s.inside = true;
-			// clean soon.
-//			if (s.isInt) {
-//				pInt[s.nome] = s.valorInt;
-//			} else {
-//				pFloat[s.nome] = s.valor;
-//			}
 		}
 	}
 }
@@ -208,12 +189,13 @@ void ofxDmtrUI::mouseReleased(int x, int y, int button){
 //--------------------------------------------------------------
 void ofxDmtrUI::mouseAll(int x, int y, int button){
 	columnOver = coluna.inside(x,y);
-
-	
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::exit() {
+	if (keepSettings) {
+		save(UINAME + ".xml");
+	}
 }
 
 
@@ -345,13 +327,14 @@ void ofxDmtrUI::createFromText(string file) {
 			}
 		}
 	}
-
-	// end lines
-
+	// end reading from text files
 	for (auto & e : radios) {
 		ofAddListener(e.uiEvent,this, &ofxDmtrUI::uiEvents);
 	}
 	for (auto & e : sliders) {
+		ofAddListener(e.uiEvent,this, &ofxDmtrUI::uiEvents);
+	}
+	for (auto & e : toggles) {
 		ofAddListener(e.uiEvent,this, &ofxDmtrUI::uiEvents);
 	}
 }
@@ -367,13 +350,11 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		ts.cor = ofColor::fromHsb(hue,255,255);
 		ts.isInt = tipo == "int";
 
-		// wow. it seems great
 		if (ts.isInt) {
 			ts._valInt = &pInt[ts.nome];
 		} else {
 			ts._val = &pFloat[ts.nome];
 		}
-		//ts._val = ts.isInt ? &pInt[ts.nome] : &pFloat[ts.nome];
 
 		if (valores != "") {
 			vector <string> vals = ofSplitString(valores, " ");
@@ -388,6 +369,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		if (ts.isInt) {
 			pInt[nome] = ts.def;
 		}
+		indexElement[nome] = sliders.size();
 		sliders.push_back(ts);
 	}
 
@@ -397,12 +379,10 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		tt.rect = ofRectangle(flow.x, flow.y, sliderHeight, sliderHeight);
 		tt.cor = ofColor::fromHsb(hue,255,255);
 		if (valores == "1") {
-			//tt.valor = true;
 			tt.def = true;
 		}
 		pBool[nome] = tt.def;
 		tt._val = &pBool[nome];
-
 		toggles.push_back(tt);
 	}
 
@@ -420,11 +400,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
 		temp.cor = ofColor::fromHsb(hue,255,255);
 		temp.opcoes = ofSplitString(valores, " ");
-		//pString[nome] = "";
 		temp._val = &pString[nome];
-//		cout << nome << endl;
-//		cout << &pString[nome] << endl;
-//		cout << "-----" << endl;
 		temp.init();
 		radios.push_back(temp);
 		flow.y += temp.rect.height - 25 + 5;
@@ -432,17 +408,14 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 
 	else if (tipo == "dirlist") {
 		ofDirectory dir;
-
 		// no futuro colocar o allowext por algum lado
 		//		dir.allowExt("wav");
 		dir.listDir(valores);
 
 		vector <string> opcoes;
 		for (auto & d : dir) {
-			//cout << d.getFileName() << endl;
 			opcoes.push_back(d.getFileName());
 			dirListMap[valores][d.getFileName()] = d.getAbsolutePath();
-			//cout << d.getAbsolutePath() << endl; // basename Ž o nome sem extensao
 		}
 
 		radio temp;
@@ -452,26 +425,18 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		temp.opcoes = opcoes;
 		pString[nome] = "";
 		temp._val = &pString[nome];
-//		cout << nome << endl;
-//		cout << &pString[nome] << endl;
-//		cout << "-----" << endl;
-
 		temp.init();
-		//vector <string> parametros = ofSplitString(valores, " ");
 		radios.push_back(temp);
 		flow.y += temp.rect.height - 25 + 5;
-
 	}
 
 	if (flowDirection == VERT) {
-		flow.y += 25;
+		flow.y += sliderHeight + sliderMargin;
 	}
 	if (flowDirection == HORIZ) {
-		flow.x += 25;
+		flow.x += sliderHeight + sliderMargin;
 	}
 }
-
-
 
 //--------------------------------------------------------------
 void	 ofxDmtrUI::expires(int dataInicial, int dias) {
@@ -494,8 +459,7 @@ void	 ofxDmtrUI::expires(int dataInicial, int dias) {
 }
 
 //--------------------------------------------------------------
-//void	 ofxDmtrUI::uiEvents(ofEventArgs & args) {
 void	 ofxDmtrUI::uiEvents(string & e) {
-	ofNotifyEvent(evento, e);
-	//cout << "uiEvents called :: " + e << endl;
+//	ofNotifyEvent(evento, e);
+	ofNotifyEvent(uiEvent, e);
 }

@@ -22,6 +22,7 @@ a personal substitute for the beloved and deprecated ofxUI
 ofxXmlSettings  
 
 # TODO
+parameter “auto fit” for dimensioning rectangles.  
 Change some variables named in portuguese  
 Bang! button, only triggering an event  
 //Write in this file an usage  
@@ -46,6 +47,9 @@ Performance : maybe check inside panel rectangle if mouse event is inside before
 ## 2016 04 14
 manual for ui text files 
 Pointers to pString working on Radio items and DirList.
+Pointers to pBool on toggles
+Pointers to pInt and pFloat on Sliders
+ui.keepSettings = false; ~ a way of automatically loading and saving xml files from ui on setup and exit.
 
 ## 2016 04 12
 radio buttons flowing correctly
