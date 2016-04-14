@@ -19,39 +19,64 @@ public:
 	float		max = 1;
 	float		def = .5;
 	//float 		min, max, def;
-	float 		valor;
-	int			valorInt;
-	float 		*val;
-	float 		val2;
+
+	// com o tempo remover o valor e valorInt e so usar os outros.
+//	float 		valor;
+//	int			valorInt;
+
+	// automatic so it can choose between float and integer :)
+	// doesnt work
+	// const auto			*_val;
+	float 		*_val;
+	int			*_valInt;
 	int			valorPixels = 0;
 	bool			isInt = false;
 
+	ofEvent<string> uiEvent;
+
+
 	void update(int x) {
+
+		// fazer algo que cheque se o valor foi modificado da ultima vez pra disparar o evento?
 		valorPixels = ofClamp(x - rect.x, 0, rect.width);
-		valor = ofMap(valorPixels, 0, rect.width, min, max);
 
 		if (isInt) {
-			valorInt = ofMap(valorPixels, 0, rect.width, min, max);
+//			valorInt = ofMap(valorPixels, 0, rect.width, min, max);
+			*_valInt = ofMap(valorPixels, 0, rect.width, min, max);
+			string ev = "updateInt" + nome;
+			ofNotifyEvent(uiEvent, ev, this);
+		} else {
+//			valor = ofMap(valorPixels, 0, rect.width, min, max);
+			*_val = ofMap(valorPixels, 0, rect.width, min, max);
+			string ev = "updateFloat_" + nome;
+			ofNotifyEvent(uiEvent, ev, this);
 		}
 	}
 
 	void setValue(float v) {
 		if (isInt) {
-			valorInt = v;
+			//valorInt = v;
+			*_valInt = v;
 		} else {
-			valor = v;
+			//valor = v;
+			*_val = v;
 		}
 		valorPixels = ofMap(v, min, max, 0, rect.width);
 	}
 
 	void draw() {
+
+		auto vvv = (isInt ? *_valInt : *_val);
+		valorPixels = ofMap(vvv, min, max, 0, rect.width);
+
 		ofSetColor(cor);
 		ofDrawRectangle(rect);
 
 		// value rectangle black transparent
 		ofSetColor(0,128);
 		ofDrawRectangle(rect.x, rect.y, valorPixels, rect.height);
-		string label = nome + " "+ofToString(isInt ? valorInt : valor);
+//		string label = nome + " "+ofToString(isInt ? valorInt : valor);
+		string label = nome + " "+ofToString(isInt ? *_valInt : *_val);
 		ofSetColor(0,128);
 		ofDrawBitmapString(label, rect.x+11, rect.y+15);
 		ofSetColor(255);
@@ -67,6 +92,10 @@ public:
 	ofColor 			cor;
 	bool 			valor = false;
 	bool				showLabel = true;
+
+	bool				*_val;
+
+	ofEvent<string> uiEvent;
 
 	void draw() {
 		ofSetColor(cor);
@@ -102,7 +131,6 @@ public:
 	}
 };
 
-
 class radio  {
 public:
 	string 			nome;
@@ -126,7 +154,7 @@ public:
 				if (selecionado != opcoes[i]) {
 					selecionado = opcoes[i];
 					*_val = selecionado;
-					string ev = "updateRadio" + nome;
+					string ev = "updateRadio_" + nome;
 					ofNotifyEvent(uiEvent, ev, this);
 				}
 			}
@@ -175,7 +203,6 @@ public:
 
 
 };
-
 
 
 class ofxDmtrUI : public ofBaseApp

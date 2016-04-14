@@ -70,9 +70,11 @@ void ofxDmtrUI::save(string xml){
 	for (auto & s : sliders) {
 		// instead make a function called getValue() here
 		if (s.isInt) {
-			settings.setValue(s.nome, s.valorInt);
+//			settings.setValue(s.nome, s.valorInt);
+			settings.setValue(s.nome, *s._valInt);
 		} else {
-			settings.setValue(s.nome, s.valor);
+//			settings.setValue(s.nome, s.valor);
+			settings.setValue(s.nome, *s._val);
 		}
 	}
 
@@ -92,14 +94,7 @@ void ofxDmtrUI::load(string xml){
 	ofxXmlSettings settings;
 	settings.loadFile(xml);
 	for (auto & s : sliders) {
-		// load default slider value in the case it doesnt exist in xml
 		s.setValue(settings.getValue(s.nome, s.def));
-		if (s.isInt) {
-			pInt[s.nome] = settings.getValue(s.nome, s.def);
-		} else {
-			pFloat[s.nome] = settings.getValue(s.nome, s.def);
-		}
-
 	}
 	for (auto & t : toggles) {
 		t.valor = settings.getValue(t.nome, 0); // mudar o zero pra t.def
@@ -167,11 +162,11 @@ void ofxDmtrUI::mouseDragged(int x, int y, int button){
 			s.update(x - coluna.x);
 			s.inside = true;
 			//s.valor = (x - s.rect.x)/(double)s.rect.width;
-			if (s.isInt) {
-				pInt[s.nome] = s.valorInt;
-			} else {
-				pFloat[s.nome] = s.valor;
-			}
+//			if (s.isInt) {
+//				pInt[s.nome] = s.valorInt;
+//			} else {
+//				pFloat[s.nome] = s.valor;
+//			}
 		} else {
 			if (s.inside) {
 				s.update(x - coluna.x);
@@ -187,11 +182,12 @@ void ofxDmtrUI::mousePressed(int x, int y, int button){
 		if (s.rect.inside(x - coluna.x,y - coluna.y)) {
 			s.update(x - coluna.x);
 			s.inside = true;
-			if (s.isInt) {
-				pInt[s.nome] = s.valorInt;
-			} else {
-				pFloat[s.nome] = s.valor;
-			}
+			// clean soon.
+//			if (s.isInt) {
+//				pInt[s.nome] = s.valorInt;
+//			} else {
+//				pFloat[s.nome] = s.valor;
+//			}
 		}
 	}
 }
@@ -350,14 +346,17 @@ void ofxDmtrUI::createFromText(string file) {
 
 	// end lines
 
-	for (auto & r : radios) {
-		ofAddListener(r.uiEvent,this, &ofxDmtrUI::uiEvents);
+	for (auto & e : radios) {
+		ofAddListener(e.uiEvent,this, &ofxDmtrUI::uiEvents);
+	}
+	for (auto & e : sliders) {
+		ofAddListener(e.uiEvent,this, &ofxDmtrUI::uiEvents);
 	}
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::create(string nome, string tipo, string valores) {
-	int hue = int(flow.x + flow.y/6.0)%255;
+	int hue = int(flow.x/8.0 + flow.y/6.0)%255;
 
 	if (tipo == "slider" || tipo == "int") {
 		slider ts;
@@ -365,8 +364,14 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		ts.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
 		ts.cor = ofColor::fromHsb(hue,255,255);
 		ts.isInt = tipo == "int";
-		ts.val = &pFloat[ts.nome];
-		//ts.val = *pFloat[ts.nome];
+
+		// wow. it seems great
+		if (ts.isInt) {
+			ts._valInt = &pInt[ts.nome];
+		} else {
+			ts._val = &pFloat[ts.nome];
+		}
+		//ts._val = ts.isInt ? &pInt[ts.nome] : &pFloat[ts.nome];
 
 		if (valores != "") {
 			vector <string> vals = ofSplitString(valores, " ");
@@ -377,11 +382,13 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 			// for initialization without mouse.
 			ts.setValue(ts.def);
 		}
-		sliders.push_back(ts);
 		pFloat[nome] = ts.def;
 		if (ts.isInt) {
 			pInt[nome] = ts.def;
 		}
+
+		sliders.push_back(ts);
+
 	}
 
 	else if (tipo == "toggle") {
