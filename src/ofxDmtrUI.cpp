@@ -68,18 +68,16 @@ void ofxDmtrUI::save(string xml){
 	cout << "save: " + xml << endl;
 	ofxXmlSettings settings;
 	for (auto & s : sliders) {
-		// instead make a function called getValue() here
 		if (s.isInt) {
-//			settings.setValue(s.nome, s.valorInt);
 			settings.setValue(s.nome, *s._valInt);
 		} else {
-//			settings.setValue(s.nome, s.valor);
 			settings.setValue(s.nome, *s._val);
 		}
 	}
 
 	for (auto & t : toggles) {
-		settings.setValue(t.nome, t.valor);
+//		settings.setValue(t.nome, t.valor);
+		settings.setValue(t.nome, *t._val);
 	}
 
 	for (auto & r : radios) {
@@ -93,15 +91,18 @@ void ofxDmtrUI::load(string xml){
 	cout << "load: " + xml << endl;
 	ofxXmlSettings settings;
 	settings.loadFile(xml);
-	for (auto & s : sliders) {
-		s.setValue(settings.getValue(s.nome, s.def));
+	for (auto & e : sliders) {
+		e.setValue(settings.getValue(e.nome, e.def));
 	}
-	for (auto & t : toggles) {
-		t.valor = settings.getValue(t.nome, 0); // mudar o zero pra t.def
-		pBool[t.nome] = t.valor;
+	for (auto & e : toggles) {
+		//t.valor = settings.getValue(t.nome, 0); // mudar o zero pra t.def
+		//*t._val = settings.getValue(t.nome, t.def); // mudar o zero pra t.def
+		e.setValue(settings.getValue(e.nome, e.def));
+		//pBool[t.nome] = t.valor;
 	}
 
 	for (auto & r : radios) {
+		// default? algo como asterisco no txt?
 		r.selecionado = settings.getValue(r.nome, "");
 		//pString[r.nome] = r.selecionado;
 	}
@@ -146,10 +147,11 @@ void ofxDmtrUI::mousePressedDragged(int x, int y, int button){
 
 	for (auto & t : toggles) {
 		if (t.rect.inside(x - coluna.x,y - coluna.y) && !t.inside) {
-			t.valor = !t.valor;
 			t.inside = true;
+			t.flip();
+			//2t.valor = !t.valor;
 			// TODO, pointers
-			pBool[t.nome] = t.valor;
+			//pBool[t.nome] = t.valor;
 		}
 	}
 
@@ -386,9 +388,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		if (ts.isInt) {
 			pInt[nome] = ts.def;
 		}
-
 		sliders.push_back(ts);
-
 	}
 
 	else if (tipo == "toggle") {
@@ -397,8 +397,12 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		tt.rect = ofRectangle(flow.x, flow.y, sliderHeight, sliderHeight);
 		tt.cor = ofColor::fromHsb(hue,255,255);
 		if (valores == "1") {
-			tt.valor = true;
+			//tt.valor = true;
+			tt.def = true;
 		}
+		pBool[nome] = tt.def;
+		tt._val = &pBool[nome];
+
 		toggles.push_back(tt);
 	}
 

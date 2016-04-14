@@ -94,8 +94,20 @@ public:
 	bool				showLabel = true;
 
 	bool				*_val;
+	bool				def = false;
 
 	ofEvent<string> uiEvent;
+
+	void flip() {
+		// deprecar
+		valor = !valor;
+		*_val = !*_val;
+	}
+
+	void setValue(bool v) {
+		*_val = v;
+		valor = v;
+	}
 
 	void draw() {
 		ofSetColor(cor);
