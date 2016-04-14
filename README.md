@@ -11,27 +11,34 @@ http://dmtr.org/
 Load interface layouts from text files.
 See section Text File Format in this README for more info
 
+## Motivation
+A C++ exercise for me  
+first open source project, hope to get collaboration from skilled programmers  
+lead an interface project from my own needs  
+a way of quickly design a prototype interface and spend time in what matters  
+a personal substitute for the beloved and deprecated ofxUI  
+
 ## Dependencies
 ofxXmlSettings  
 
 # TODO
-Change some variables named in portuguese
-Bang! button, only triggering an event
-//Write in this file an usage 
-Detail: Slider steps in integers.
-Bang button triggering an event
-radio button shortcuts for integers or floats (bang)
-radio buttons rectangles according to width.
+Change some variables named in portuguese  
+Bang! button, only triggering an event  
+//Write in this file an usage  
+Detail: Slider steps in integers.  
+Bang button triggering an event  
+radio button shortcuts for integers or floats (bang)  
+radio buttons rectangles according to width.  
 pass pointer reference of pFloat, pBool to update functions of classes.  
-radio images for presets.
+radio images for presets.  
 add namespace to classes.  
 multiple toggle object  
 vertical sliders  
-toggle wall grids
-toggle shortcut for sliders
+toggle wall grids  
+toggle shortcut for sliders  
 
-integration with ofxMidi for midi controllers use
-port to lib cinder 
+integration with ofxMidi for midi controllers use  
+port to lib cinder  
 
 # Future Ideas
 Performance : maybe check inside panel rectangle if mouse event is inside before check in each panel element.
