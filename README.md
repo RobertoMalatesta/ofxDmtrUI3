@@ -23,11 +23,9 @@ ofxXmlSettings
 
 # TODO
 parameter “auto fit” for dimensioning rectangles.  
-Change some variables named in portuguese  
+./Change some variables named in portuguese  
 Bang! button, only triggering an event  
-//Write in this file an usage  
 Detail: Slider steps in integers.  
-Bang button triggering an event  
 radio button shortcuts for integers or floats (bang)  
 radio buttons rectangles according to width.  
 pass pointer reference of pFloat, pBool to update functions of classes.  

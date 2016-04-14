@@ -259,6 +259,8 @@ public:
 	//void		uiEvents(ofEventArgs & args);
 	void		uiEvents(string & e);
 
+	void		autoFit();
+
 	map <string,float>			pEasy;
 	map <string,float>			pFloat;
 	map <string,int>				pInt;

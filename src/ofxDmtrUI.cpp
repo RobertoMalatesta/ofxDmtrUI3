@@ -453,7 +453,7 @@ void	 ofxDmtrUI::expires(int dataInicial, int dias) {
 	cout << "expira em " + ofToString(diasExpira) + " dias" << endl;
 	cout << "---------" << endl;
 	if (diasExpira < 0 || diasExpira > dias) {
-		ofSystemAlertDialog("Software Expirado ~ " + ofToString(dataInicial) + "\rdimitre79@gmail.com\r(11) 99450 3821");
+		ofSystemAlertDialog("Dmtr.org Software Expired ~ " + ofToString(dataInicial));
 		std::exit(1);
 	}
 }
@@ -463,3 +463,25 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 //	ofNotifyEvent(evento, e);
 	ofNotifyEvent(uiEvent, e);
 }
+
+//--------------------------------------------------------------
+void	 ofxDmtrUI::autoFit() {
+	float minX = 6666;
+	float minY = 6666;
+	float maxW = 0;
+	float maxH = 0;
+
+	for (auto & e : toggles) { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
+	for (auto & e : sliders) { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
+	for (auto & e : labels)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
+	for (auto & e : radios)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
+
+	cout << coluna << endl;
+	coluna.width = maxW + marginx;
+	coluna.height = maxH + marginx * 2;
+	cout << coluna << endl;
+
+	fbo.allocate(coluna.width, coluna.height, GL_RGBA);
+	redraw = true;
+}
+
