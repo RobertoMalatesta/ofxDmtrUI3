@@ -81,9 +81,6 @@ void ofxDmtrUI::save(string xml){
 	}
 
 	for (auto & r : radios) {
-		// mudar pra valor
-		cout << r.nome << endl;
-		cout << r.selecionado << endl;
 		settings.setValue(r.nome, r.selecionado);
 	}
 	settings.save(xml);
@@ -111,7 +108,7 @@ void ofxDmtrUI::load(string xml){
 
 	for (auto & r : radios) {
 		r.selecionado = settings.getValue(r.nome, "");
-		pString[r.nome] = r.selecionado;
+		//pString[r.nome] = r.selecionado;
 	}
 
 	redraw = true;
@@ -150,13 +147,13 @@ void ofxDmtrUI::mousePressedDragged(int x, int y, int button){
 		if (e.rect.inside(x - coluna.x,y - coluna.y)) {
 			e.checkMouse(x - coluna.x,y - coluna.y);
 		}
-		pString[e.nome] = e.selecionado;
 	}
 
 	for (auto & t : toggles) {
 		if (t.rect.inside(x - coluna.x,y - coluna.y) && !t.inside) {
 			t.valor = !t.valor;
 			t.inside = true;
+			// TODO, pointers
 			pBool[t.nome] = t.valor;
 		}
 	}
@@ -328,11 +325,9 @@ void ofxDmtrUI::createFromText(string file) {
 			}
 			else if (tipo == "sliderWidth") {
 				sliderWidth = ofToFloat(cols[1]);
-				cout << tipo << endl;
 			}
 			else if (tipo == "sliderHeight") {
 				sliderHeight = ofToFloat(cols[1]);
-				cout << tipo << endl;
 			}
 
 			else if (tipo == "rect") {
@@ -352,6 +347,12 @@ void ofxDmtrUI::createFromText(string file) {
 			}
 		}
 	}
+
+	// end lines
+
+	for (auto & r : radios) {
+		ofAddListener(r.uiEvent,this, &ofxDmtrUI::uiEvents);
+	}
 }
 
 //--------------------------------------------------------------
@@ -365,6 +366,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		ts.cor = ofColor::fromHsb(hue,255,255);
 		ts.isInt = tipo == "int";
 		ts.val = &pFloat[ts.nome];
+		//ts.val = *pFloat[ts.nome];
 
 		if (valores != "") {
 			vector <string> vals = ofSplitString(valores, " ");
@@ -407,9 +409,14 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
 		temp.cor = ofColor::fromHsb(hue,255,255);
 		temp.opcoes = ofSplitString(valores, " ");
+		//pString[nome] = "";
+		temp._val = &pString[nome];
+//		cout << nome << endl;
+//		cout << &pString[nome] << endl;
+//		cout << "-----" << endl;
 		temp.init();
-		//vector <string> parametros = ofSplitString(valores, " ");
 		radios.push_back(temp);
+		flow.y += temp.rect.height - 25 + 5;
 	}
 
 	else if (tipo == "dirlist") {
@@ -423,6 +430,8 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		for (auto & d : dir) {
 			//cout << d.getFileName() << endl;
 			opcoes.push_back(d.getFileName());
+			dirListMap[valores][d.getFileName()] = d.getAbsolutePath();
+			//cout << d.getAbsolutePath() << endl; // basename Ž o nome sem extensao
 		}
 
 		radio temp;
@@ -430,11 +439,16 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
 		temp.cor = ofColor::fromHsb(hue,255,255);
 		temp.opcoes = opcoes;
+		pString[nome] = "";
+		temp._val = &pString[nome];
+//		cout << nome << endl;
+//		cout << &pString[nome] << endl;
+//		cout << "-----" << endl;
+
 		temp.init();
 		//vector <string> parametros = ofSplitString(valores, " ");
-		flow.y += temp.rect.height - 25 + 5;
 		radios.push_back(temp);
-
+		flow.y += temp.rect.height - 25 + 5;
 
 	}
 
@@ -466,4 +480,11 @@ void	 ofxDmtrUI::expires(int dataInicial, int dias) {
 		ofSystemAlertDialog("Software Expirado ~ " + ofToString(dataInicial) + "\rdimitre79@gmail.com\r(11) 99450 3821");
 		std::exit(1);
 	}
+}
+
+//--------------------------------------------------------------
+//void	 ofxDmtrUI::uiEvents(ofEventArgs & args) {
+void	 ofxDmtrUI::uiEvents(string & e) {
+	ofNotifyEvent(evento, e);
+	//cout << "uiEvents called :: " + e << endl;
 }
