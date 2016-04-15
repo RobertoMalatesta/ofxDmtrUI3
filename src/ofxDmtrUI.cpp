@@ -119,7 +119,7 @@ void ofxDmtrUI::keyPressed(int key){
 		if (key == '1' || key == '2' || key == '3' || key == '4' || key == '5' || key == '6' || key == '7' ||
 			key == '8' || key == '9' || key == '0'
 			) {
-			string nome = ofToString(char(key)) + ".xml";
+			string nome = UINAME + ofToString(char(key)) + ".xml";
 			if (ofGetKeyPressed(OF_KEY_COMMAND)) {
 				save(nome);
 			} else {
@@ -284,67 +284,7 @@ vector <string> ofxDmtrUI::textToVector(string file) {
 void ofxDmtrUI::createFromText(string file) {
 	vector <string> linhas = textToVector(file);
 	for (auto & l : linhas) {
-		if (l == "") { // spacer
-			flow.y += 25;
-		} else {
-			vector <string> cols = ofSplitString(l, "	");
-			string tipo = cols[0];
-			string nome = "";
-			if (cols.size()>1) {
-				nome = cols[1];
-			}
-
-			if (tipo == "float") tipo = "slider";
-			if (tipo == "bool") tipo = "toggle";
-
-			if (tipo == "newcol") {
-				flow.x += sliderWidth + marginx * 1;
-				flow.y = marginy;
-			}
-			else if (tipo == "marginy") {
-				flow.y = marginy = ofToFloat(cols[1]);
-			}
-
-			else if (tipo == "marginx") {
-				flow.x = marginx = ofToFloat(cols[1]);
-			}
-			else if (tipo == "sliderWidth") {
-				sliderWidth = ofToFloat(cols[1]);
-			}
-			else if (tipo == "sliderHeight") {
-				sliderHeight = ofToFloat(cols[1]);
-			}
-			else if (tipo == "sliderMargin") {
-				sliderMargin = ofToFloat(cols[1]);
-			}
-			else if (tipo == "flowVert") {
-				flowDirection = VERT;
-				if (pFloatBak["flowx"]) {
-					flow.x = pFloatBak["flowx"];
-				}
-				flow.y += lastHeight + sliderMargin;
-			}
-			else if (tipo == "flowHoriz") {
-				flowDirection = HORIZ;
-				pFloatBak["flowx"] = flow.x;
-			}
-
-			else if (tipo == "rect") {
-				vector <string> v = ofSplitString(cols[1], " ");
-				coluna = ofRectangle(ofToInt(v[0]),ofToInt(v[1]),ofToInt(v[2]),ofToInt(v[3]));
-				fbo.allocate(coluna.width, coluna.height, GL_RGBA);
-			}
-
-			else {
-				if (tipo.substr(0,1) != "#") { //comment
-					if (cols.size()>2) {
-						create(nome, tipo, cols[2]);
-					} else {
-						create(nome, tipo);
-					}
-				}
-			}
-		}
+		createFromLine(l);
 	}
 	// end reading from text files
 	for (auto & e : radios) {
@@ -357,6 +297,76 @@ void ofxDmtrUI::createFromText(string file) {
 		ofAddListener(e.uiEvent,this, &ofxDmtrUI::uiEvents);
 	}
 }
+
+//--------------------------------------------------------------
+void ofxDmtrUI::createFromLine(string l) {
+	if (l == "") { // spacer
+		//flow.y += 25;
+		flow.y += sliderHeight + sliderMargin;
+	} else {
+
+		vector <string> cols = ofSplitString(l, "	");
+		string tipo = cols[0];
+		string nome = "";
+		if (cols.size()>1) {
+			nome = cols[1];
+		}
+
+		if (tipo == "float") tipo = "slider";
+		if (tipo == "bool") tipo = "toggle";
+
+		if (tipo == "newcol") {
+			flow.x += sliderWidth + marginx * 1;
+			flow.y = marginy;
+		}
+		else if (tipo == "marginy") {
+			flow.y = marginy = ofToFloat(cols[1]);
+		}
+		else if (tipo == "marginx") {
+			flow.x = marginx = ofToFloat(cols[1]);
+		}
+		else if (tipo == "autoFit") {
+			autoFit();
+		}
+		else if (tipo == "sliderWidth") {
+			sliderWidth = ofToFloat(cols[1]);
+		}
+		else if (tipo == "sliderHeight") {
+			sliderHeight = ofToFloat(cols[1]);
+		}
+		else if (tipo == "sliderMargin") {
+			sliderMargin = ofToFloat(cols[1]);
+		}
+		else if (tipo == "flowVert") {
+			flowDirection = VERT;
+			if (pFloatBak["flowx"]) {
+				flow.x = pFloatBak["flowx"];
+			}
+			flow.y += lastHeight + sliderMargin;
+		}
+		else if (tipo == "flowHoriz") {
+			flowDirection = HORIZ;
+			pFloatBak["flowx"] = flow.x;
+		}
+
+		else if (tipo == "rect") {
+			vector <string> v = ofSplitString(cols[1], " ");
+			coluna = ofRectangle(ofToInt(v[0]),ofToInt(v[1]),ofToInt(v[2]),ofToInt(v[3]));
+			fbo.allocate(coluna.width, coluna.height, GL_RGBA);
+		}
+
+		else {
+			if (tipo.substr(0,1) != "#") { //comment
+				if (cols.size()>2) {
+					create(nome, tipo, cols[2]);
+				} else {
+					create(nome, tipo);
+				}
+			}
+		}
+	}
+}
+
 
 //--------------------------------------------------------------
 void ofxDmtrUI::create(string nome, string tipo, string valores) {
@@ -404,7 +414,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		sliders.push_back(ts);
 	}
 
-	else if (tipo == "toggle" || tipo == "bang") { // bool
+	else if (tipo == "toggle" || tipo == "bang" || tipo == "toggleNolabel") { // bool
 		toggle tt;
 		tt.nome = nome;
 		tt.rect = ofRectangle(flow.x, flow.y, sliderHeight, sliderHeight);
@@ -418,6 +428,11 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		pBool[nome] = tt.def;
 		tt._val = &pBool[nome];
 		indexElement[nome] = toggles.size();
+
+		if (tipo == "toggleNolabel") {
+			tt.showLabel = false;
+			lastWidth  = tt.rect.width;
+		}
 		toggles.push_back(tt);
 	}
 
@@ -472,7 +487,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		flow.y += lastHeight + sliderMargin;
 	}
 	if (flowDirection == HORIZ) {
-		cout << "flowhoriz" << endl;
 		flow.x += lastWidth + sliderMargin;
 	}
 }
@@ -500,6 +514,7 @@ void	 ofxDmtrUI::expires(int dataInicial, int dias) {
 //--------------------------------------------------------------
 void	 ofxDmtrUI::uiEvents(string & e) {
 //	ofNotifyEvent(evento, e);
+//	cout << e << endl;
 
 	// Marvellous
 	if (ofIsStringInString(e, "shortcut")) {
@@ -530,7 +545,7 @@ void	 ofxDmtrUI::autoFit() {
 
 	//cout << coluna << endl;
 	coluna.width = maxW + marginx;
-	coluna.height = maxH + marginx * 2;
+	coluna.height = maxH + marginy;
 	//cout << coluna << endl;
 
 	fbo.allocate(coluna.width, coluna.height, GL_RGBA);

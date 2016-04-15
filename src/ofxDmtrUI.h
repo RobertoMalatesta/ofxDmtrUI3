@@ -272,6 +272,7 @@ public:
 	// this is only used in the next function
 	vector <string> textToVector(string file);
 	void		createFromText(string file);
+	void		createFromLine(string line);
 
 	void		expires(int dataInicial, int dias = 10);
 

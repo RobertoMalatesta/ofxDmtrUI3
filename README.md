@@ -4,7 +4,8 @@ Made to be really simple and lightweight.
 It is my first public openFrameworks addon.  
 Requires oF 0.9+  
 Suggestions and code improvements will be greatly appreciated.  
-PS: Not for production use.  
+PS: Not for production use, yet.  
+Tested on OS X. Let me know if you are using it in other platforms   
 http://dmtr.org/  
 
 ## Features
@@ -23,6 +24,7 @@ An UI that is not constantly redrawing on screen. each time one element is refre
 ofxXmlSettings  
 
 # TODO
+Choose a license  
 Different events for loading xml files and updating with the mouse.
 ./Change some variables named in portuguese  
 vertical sliders  
