@@ -152,13 +152,14 @@ void ofxDmtrUI::mousePressedDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofxDmtrUI::mouseDragged(int x, int y, int button){
+	// simplificar, fazer o x - coluna.x antes
 	for (auto & s : sliders) {
-		if (s.rect.inside(x - coluna.x,y - coluna.y)) {
-			s.update(x - coluna.x);
+		if (s.rect.inside(x - coluna.x, y - coluna.y)) {
+			s.update(x - coluna.x, y - coluna.y);
 			s.inside = true;
 		} else {
 			if (s.inside) {
-				s.update(x - coluna.x);
+				s.update(x - coluna.x, y - coluna.y);
 				s.inside = false;
 			}
 		}
@@ -169,7 +170,7 @@ void ofxDmtrUI::mouseDragged(int x, int y, int button){
 void ofxDmtrUI::mousePressed(int x, int y, int button){
 	for (auto & s : sliders) {
 		if (s.rect.inside(x - coluna.x,y - coluna.y)) {
-			s.update(x - coluna.x);
+			s.update(x - coluna.x, y - coluna.y);
 			s.inside = true;
 		}
 	}
@@ -313,6 +314,20 @@ void ofxDmtrUI::createFromText(string file) {
 			else if (tipo == "sliderHeight") {
 				sliderHeight = ofToFloat(cols[1]);
 			}
+			else if (tipo == "sliderMargin") {
+				sliderMargin = ofToFloat(cols[1]);
+			}
+			else if (tipo == "flowVert") {
+				flowDirection = VERT;
+				if (pFloatBak["flowx"]) {
+					flow.x = pFloatBak["flowx"];
+				}
+				flow.y += lastHeight + sliderMargin;
+			}
+			else if (tipo == "flowHoriz") {
+				flowDirection = HORIZ;
+				pFloatBak["flowx"] = flow.x;
+			}
 
 			else if (tipo == "rect") {
 				vector <string> v = ofSplitString(cols[1], " ");
@@ -347,10 +362,19 @@ void ofxDmtrUI::createFromText(string file) {
 void ofxDmtrUI::create(string nome, string tipo, string valores) {
 	int hue = int(flow.x/8.0 + flow.y/6.0)%255;
 
-	if (tipo == "slider" || tipo == "int") {
+	lastHeight = sliderHeight;
+	lastWidth = sliderWidth;
+
+	if (tipo == "slider" || tipo == "int" || tipo == "slidervert") {
 		slider ts;
 		ts.nome = nome;
-		ts.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
+		ts.vert = (tipo == "slidervert");
+
+		if (ts.vert) {
+			ts.rect = ofRectangle(flow.x, flow.y, sliderHeight, sliderWidth);
+		} else {
+			ts.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
+		}
 		ts.cor = ofColor::fromHsb(hue,255,255);
 		ts.isInt = tipo == "int";
 
@@ -374,6 +398,9 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 			pInt[nome] = ts.def;
 		}
 		indexElement[nome] = sliders.size();
+
+		lastHeight = ts.rect.height;
+		lastWidth  = ts.rect.width;
 		sliders.push_back(ts);
 	}
 
@@ -411,7 +438,8 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		temp._val = &pString[nome];
 		temp.init();
 		radios.push_back(temp);
-		flow.y += temp.rect.height - 25 + 5;
+		lastHeight = temp.rect.height;
+
 	}
 
 	else if (tipo == "dirlist") {
@@ -434,15 +462,18 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		pString[nome] = "";
 		temp._val = &pString[nome];
 		temp.init();
+		lastHeight = temp.rect.height;
+
 		radios.push_back(temp);
 		flow.y += temp.rect.height - 25 + 5;
 	}
 
 	if (flowDirection == VERT) {
-		flow.y += sliderHeight + sliderMargin;
+		flow.y += lastHeight + sliderMargin;
 	}
 	if (flowDirection == HORIZ) {
-		flow.x += sliderHeight + sliderMargin;
+		cout << "flowhoriz" << endl;
+		flow.x += lastWidth + sliderMargin;
 	}
 }
 
@@ -497,10 +528,10 @@ void	 ofxDmtrUI::autoFit() {
 	for (auto & e : labels)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 	for (auto & e : radios)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 
-	cout << coluna << endl;
+	//cout << coluna << endl;
 	coluna.width = maxW + marginx;
 	coluna.height = maxH + marginx * 2;
-	cout << coluna << endl;
+	//cout << coluna << endl;
 
 	fbo.allocate(coluna.width, coluna.height, GL_RGBA);
 	redraw = true;

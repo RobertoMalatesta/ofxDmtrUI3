@@ -2,6 +2,9 @@
 
 /*
 
+ EXAMPLE DEPRECATED
+ 
+
  Example using easing parameters.
  First 3 sliders control RGB
  We are using pEasy which is pFloat values with easing

@@ -32,7 +32,10 @@ public:
 	bool			isInt = false;
 	ofEvent<string> uiEvent;
 
-	void update(int x) {
+	// 15 04 2016 - boolean for vertical sliders
+	bool			vert = false;
+
+	void update(int x, int y) {
 		// fazer algo que cheque se o valor foi modificado da ultima vez pra disparar o evento?
 		valorPixels = ofClamp(x - rect.x, 0, rect.width);
 
@@ -44,6 +47,20 @@ public:
 			*_val = ofMap(valorPixels, 0, rect.width, min, max);
 			string ev = "updateFloat_" + nome;
 			ofNotifyEvent(uiEvent, ev, this);
+		}
+
+		// não sei se é boa idéia aqui... ou somente usar 90 graus em tudo...
+		if (vert) {
+			valorPixels = ofClamp(y - rect.y, 0, rect.height);
+			if (isInt) {
+				*_valInt = ofMap(valorPixels, 0, rect.height, min, max);
+				string ev = "updateInt_" + nome;
+				ofNotifyEvent(uiEvent, ev, this);
+			} else {
+				*_val = ofMap(valorPixels, 0, rect.height, min, max);
+				string ev = "updateFloat_" + nome;
+				ofNotifyEvent(uiEvent, ev, this);
+			}
 		}
 	}
 
@@ -67,12 +84,17 @@ public:
 
 		// value rectangle black transparent
 		ofSetColor(0,128);
-		ofDrawRectangle(rect.x, rect.y, valorPixels, rect.height);
-		string label = nome + " "+ofToString(isInt ? *_valInt : *_val);
-		ofSetColor(0,128);
-		ofDrawBitmapString(label, rect.x+11, rect.y+15);
-		ofSetColor(255);
-		ofDrawBitmapString(label, rect.x+10, rect.y+14);
+		if (vert) {
+			valorPixels = ofMap(vvv, min, max, 0, rect.height);
+			ofDrawRectangle(rect.x, rect.y, rect.width, valorPixels);
+		} else {
+			ofDrawRectangle(rect.x, rect.y, valorPixels, rect.height);
+			string label = nome + " "+ofToString(isInt ? *_valInt : *_val);
+			ofSetColor(0,128);
+			ofDrawBitmapString(label, rect.x+11, rect.y+15);
+			ofSetColor(255);
+			ofDrawBitmapString(label, rect.x+10, rect.y+14);
+		}
 	}
 };
 
@@ -264,6 +286,9 @@ public:
 	map <string,bool>			pBool;
 	map <string,string>			pString;
 
+	// only internal use to backup some variables.
+	map <string,float>			pFloatBak;
+
 	vector <slider> 	sliders;
 	vector <toggle> 	toggles;
 	vector <label> 	labels;
@@ -278,8 +303,8 @@ public:
 	ofRectangle coluna = ofRectangle(0,0,620,560);
 	float marginx = 20;
 	float marginy = 20;
+	
 	ofPoint flow = ofPoint(marginx, marginy);
-
 	flowDir flowDirection = VERT;
 	bool	 saveLoadShortcut = true;
 
@@ -288,6 +313,9 @@ public:
 	int sliderHeight = 20;
 	int sliderWidth  = 150;
 	int	sliderMargin = 5;
+
+	// precisa?
+	int	lastHeight, lastWidth;
 
 	ofEvent<string> uiEvent;
 	//ofEvent<string> evento;

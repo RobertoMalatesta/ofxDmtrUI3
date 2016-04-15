@@ -23,6 +23,7 @@ An UI that is not constantly redrawing on screen. each time one element is refre
 ofxXmlSettings  
 
 # TODO
+Different events for loading xml files and updating with the mouse.
 ./Change some variables named in portuguese  
 vertical sliders  
 Detail: Slider steps in integers.  
