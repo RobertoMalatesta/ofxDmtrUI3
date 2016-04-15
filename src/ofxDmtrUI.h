@@ -86,14 +86,13 @@ public:
 	bool				showLabel = true;
 	bool				*_val;
 	bool				def = false;
+	bool				bang = false;
 
 	ofEvent<string> uiEvent;
 
 	void flip() {
-		// deprecar
-		//valor = !valor;
 		*_val = !*_val;
-		string ev = "updateBool_" + nome;
+		string ev = bang ? "bang_" + nome : "updateBool_" + nome;
 		ofNotifyEvent(uiEvent, ev, this);
 	}
 
@@ -144,8 +143,6 @@ public:
 	ofColor 			cor;
 	vector <string>	opcoes;
 	vector <ofRectangle> 	rects;
-	//string		selecionado;
-
 	string *_val;
 
 	int offx = 0;

@@ -17,22 +17,20 @@ first open source project, hope to get collaboration from skilled programmers
 lead an interface project from my own needs  
 a way of quickly design a prototype interface and spend time in what matters  
 a personal substitute for the beloved and deprecated ofxUI  
+An UI that is not constantly redrawing on screen. each time one element is refreshed the screen is saved into an FBO. CPU usage is very low. 
 
 ## Dependencies
 ofxXmlSettings  
 
 # TODO
-parameter “auto fit” for dimensioning rectangles.  
 ./Change some variables named in portuguese  
-Bang! button, only triggering an event  
+vertical sliders  
 Detail: Slider steps in integers.  
-radio button shortcuts for integers or floats (bang)  
 radio buttons rectangles according to width.  
-pass pointer reference of pFloat, pBool to update functions of classes.  
-radio images for presets.  
+radio images for presets.
+2d Sliders  
 add namespace to classes.  
 multiple toggle object  
-vertical sliders  
 toggle wall grids  
 toggle shortcut for sliders  
 
@@ -42,12 +40,18 @@ port to lib cinder
 # Future Ideas
 Performance : maybe check inside panel rectangle if mouse event is inside before check in each panel element.
 
+## 2016 04 15
+Bang! button, only triggering an event  
+radio button shortcuts for integers or floats (bang)  
+
 ## 2016 04 14
 manual for ui text files 
 Pointers to pString working on Radio items and DirList.
 Pointers to pBool on toggles
 Pointers to pInt and pFloat on Sliders
-ui.keepSettings = false; ~ a way of automatically loading and saving xml files from ui on setup and exit.
+ui.keepSettings = false; ~ a way of automatically loading and saving xml files from ui on setup and exit.  
+parameter “auto fit” for dimensioning rectangles.
+pass pointer reference of pFloat, pBool to update functions of classes.    
 
 ## 2016 04 12
 radio buttons flowing correctly

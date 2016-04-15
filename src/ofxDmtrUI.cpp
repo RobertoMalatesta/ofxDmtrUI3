@@ -180,6 +180,10 @@ void ofxDmtrUI::mouseReleased(int x, int y, int button){
 	redraw = false;
 	for (auto & t : toggles) {
 		t.inside = false;
+		if (t.bang) {
+			*t._val = false;
+			redraw = true;
+		}
 	}
 	for (auto & s : sliders) {
 		s.inside = false;
@@ -373,7 +377,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		sliders.push_back(ts);
 	}
 
-	else if (tipo == "toggle") {
+	else if (tipo == "toggle" || tipo == "bang") { // bool
 		toggle tt;
 		tt.nome = nome;
 		tt.rect = ofRectangle(flow.x, flow.y, sliderHeight, sliderHeight);
@@ -381,8 +385,12 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		if (valores == "1") {
 			tt.def = true;
 		}
+		if (tipo == "bang") {
+			tt.bang = true;
+		}
 		pBool[nome] = tt.def;
 		tt._val = &pBool[nome];
+		indexElement[nome] = toggles.size();
 		toggles.push_back(tt);
 	}
 
@@ -461,6 +469,19 @@ void	 ofxDmtrUI::expires(int dataInicial, int dias) {
 //--------------------------------------------------------------
 void	 ofxDmtrUI::uiEvents(string & e) {
 //	ofNotifyEvent(evento, e);
+
+	// Marvellous
+	if (ofIsStringInString(e, "shortcut")) {
+		vector <string> split = ofSplitString(e, "_");
+		string nome = split[1];
+		pFloat[nome] = ofToFloat(pString[nome + "_shortcut"]);
+	}
+	if (ofIsStringInString(e, "shortcutInt")) {
+		vector <string> split = ofSplitString(e, "_");
+		string nome = split[1];
+		pInt[nome] = ofToInt(pString[nome + "_shortcutInt"]);
+	}
+
 	ofNotifyEvent(uiEvent, e);
 }
 
