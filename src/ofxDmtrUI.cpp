@@ -454,7 +454,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		temp.init();
 		radios.push_back(temp);
 		lastHeight = temp.rect.height;
-
 	}
 
 	else if (tipo == "dirlist") {
@@ -481,6 +480,21 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 
 		radios.push_back(temp);
 		flow.y += temp.rect.height - 25 + 5;
+	} else if (tipo == "togglematrix") {
+		if (valores != "") {
+			vector <string> vals = ofSplitString(valores, " ");
+			int maxx = ofToInt(vals[0]);
+			int maxy = ofToInt(vals[1]);
+
+			for (int y=0; y<maxy; y++) {
+				createFromLine("flowVert");
+				createFromLine("flowHoriz");
+				for (int x=0; x<maxx; x++) {
+					string nomeElement = nome + ofToString(x) + ofToString(y);
+					create(nomeElement, "toggleNolabel");
+				}
+			}
+		}
 	}
 
 	if (flowDirection == VERT) {

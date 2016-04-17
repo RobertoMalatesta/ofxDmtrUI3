@@ -27,15 +27,13 @@ ofxXmlSettings
 Choose a license  
 Different events for loading xml files and updating with the mouse.
 ./Change some variables named in portuguese  
-vertical sliders  
-Detail: Slider steps in integers.  
 radio buttons rectangles according to width.  
 radio images for presets.
 2d Sliders  
 add namespace to classes.  
 multiple toggle object  
-toggle wall grids  
 toggle shortcut for sliders  
+test events in IOs
 
 integration with ofxMidi for midi controllers use  
 port to lib cinder  
@@ -43,9 +41,19 @@ port to lib cinder
 # Future Ideas
 Performance : maybe check inside panel rectangle if mouse event is inside before check in each panel element.
 
+## 2016 04 17
+toggle matrix elements
+```
+togglematrix	checkers	5 3
+```
+
 ## 2016 04 15
 Bang! button, only triggering an event  
 radio button shortcuts for integers or floats (bang)  
+vertical sliders  
+create object from a line
+Areia, arrays of toggles.
+shortcut to float and int sliders
 
 ## 2016 04 14
 manual for ui text files 

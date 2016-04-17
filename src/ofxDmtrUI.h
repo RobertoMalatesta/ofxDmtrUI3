@@ -229,8 +229,6 @@ public:
 			i++;
 		}
 	}
-
-
 };
 
 
@@ -297,9 +295,9 @@ public:
 
 	ofFbo fbo;
 	float easing = 30;
-	bool showGui = true;
-	bool redraw = true;
-	bool columnOver = false;
+	bool  showGui = true;
+	bool  redraw = true;
+	bool  columnOver = false;
 
 	ofRectangle coluna = ofRectangle(0,0,620,560);
 	float marginx = 20;
