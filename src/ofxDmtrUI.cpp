@@ -1,8 +1,32 @@
+/**********************************************************************************
+
+ Copyright (C) 2016 Dimitre Lima (www.dmtr.org)
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal in
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do
+ so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+ **********************************************************************************/
+
 /*
 
 ofxDmtrUI.h
 Created by Dimitre Lima on 04/06/2016.
-Proof of concept
+http://dmtr.org/
 
 */
 
@@ -119,7 +143,7 @@ void ofxDmtrUI::keyPressed(int key){
 		if (key == '1' || key == '2' || key == '3' || key == '4' || key == '5' || key == '6' || key == '7' ||
 			key == '8' || key == '9' || key == '0'
 			) {
-			string nome = UINAME + ofToString(char(key)) + ".xml";
+			string nome = presetsFolder + UINAME + ofToString(char(key)) + ".xml";
 			if (ofGetKeyPressed(OF_KEY_COMMAND)) {
 				save(nome);
 			} else {
@@ -395,6 +419,11 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		}
 
 		if (valores != "") {
+			cout << valores << endl;
+			cout << tipo << endl;
+			cout << nome << endl;
+			cout << "----" << endl;
+
 			vector <string> vals = ofSplitString(valores, " ");
 			ofVec3f val = ofVec3f(ofToFloat(vals[0]), ofToFloat(vals[1]), ofToFloat(vals[2]));
 			ts.min = val.x;
@@ -452,6 +481,9 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		temp.opcoes = ofSplitString(valores, " ");
 		temp._val = &pString[nome];
 		temp.init();
+
+		indexElement[nome] = radios.size();
+
 		radios.push_back(temp);
 		lastHeight = temp.rect.height;
 	}
@@ -557,12 +589,29 @@ void	 ofxDmtrUI::autoFit() {
 	for (auto & e : labels)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 	for (auto & e : radios)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 
-	//cout << coluna << endl;
 	coluna.width = maxW + marginx;
 	coluna.height = maxH + marginy;
-	//cout << coluna << endl;
-
 	fbo.allocate(coluna.width, coluna.height, GL_RGBA);
 	redraw = true;
 }
 
+
+//--------------------------------------------------------------
+void ofxDmtrUI::setFloat(string nome, float val) {
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI::setBool(string nome, bool val) {
+//	toggles[indexElement[nome]].setValue(val, true);
+//	redraw = true;
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI::setRadio(string nome, string val) {
+	cout << nome << endl;
+	cout << indexElement[nome] << endl;
+	cout << radios[indexElement[nome]].nome << endl;
+	cout << "------" << endl;
+	radios[indexElement[nome]].setValue(val, true);
+	redraw = true;
+}

@@ -24,22 +24,21 @@ An UI that is not constantly redrawing on screen. each time one element is refre
 ofxXmlSettings  
 
 # TODO
-Choose a license  
 Different events for loading xml files and updating with the mouse.
 ./Change some variables named in portuguese  
 radio buttons rectangles according to width.  
 radio images for presets.
 2d Sliders  
 add namespace to classes.  
-multiple toggle object  
-toggle shortcut for sliders  
 test events in IOs
-
 integration with ofxMidi for midi controllers use  
 port to lib cinder  
 
 # Future Ideas
 Performance : maybe check inside panel rectangle if mouse event is inside before check in each panel element.
+
+## 2016 04 18
+License added. 
 
 ## 2016 04 17
 toggle matrix elements

@@ -27,3 +27,4 @@ sliderMargin	5
 sliderHeight	20
 flowVert
 float	bottom	0 1 0
+autoFit

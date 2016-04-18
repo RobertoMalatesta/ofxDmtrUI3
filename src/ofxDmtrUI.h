@@ -1,3 +1,27 @@
+/**********************************************************************************
+
+ Copyright (C) 2016 Dimitre Lima (www.dmtr.org)
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal in
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do
+ so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+ **********************************************************************************/
+
 
 #pragma once
 #include "ofMain.h"
@@ -172,8 +196,12 @@ public:
 	int height = 20;
 	ofEvent<string> uiEvent;
 
-	void setValue(string v) {
+	void setValue(string v, bool notify = false) {
 		*_val = v;
+		if (notify) {
+			string ev = "updateRadio_" + nome;
+			ofNotifyEvent(uiEvent, ev, this);
+		}
 	}
 
 	void checkMouse(int x, int y) {
@@ -262,22 +290,20 @@ public:
 	void 	onExit(ofEventArgs &data);
 
 	// rename to createelement
-	void		create(string nome, string tipo="slider", string valores = ""); // NULL
-
-	void		save(string xml);
-	void		load(string xml);
-
-	// this is only used in the next function
 	vector <string> textToVector(string file);
 	void		createFromText(string file);
 	void		createFromLine(string line);
-
+	void		create(string nome, string tipo="slider", string valores = ""); // NULL
+	void		save(string xml);
+	void		load(string xml);
 	void		expires(int dataInicial, int dias = 10);
-
-	//void		uiEvents(ofEventArgs & args);
 	void		uiEvents(string & e);
-
 	void		autoFit();
+
+	void		setFloat(string nome, float val);
+	void		setBool(string nome, bool val);
+	void		setRadio(string nome, string val);
+
 
 	map <string,float>			pEasy;
 	map <string,float>			pFloat;
@@ -307,7 +333,7 @@ public:
 	flowDir flowDirection = VERT;
 	bool	 saveLoadShortcut = true;
 
-	string UINAME = "";
+	string UINAME = "ui";
 
 	int sliderHeight = 20;
 	int sliderWidth  = 150;
@@ -325,4 +351,6 @@ public:
 	map <string, int> indexElement;
 
 	bool keepSettings = false;
+
+	string presetsFolder = "";
 };
