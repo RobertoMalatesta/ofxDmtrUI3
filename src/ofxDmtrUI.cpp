@@ -53,7 +53,7 @@ void ofxDmtrUI::setup() {
 	ofAddListener(ofEvents().exit, this, &ofxDmtrUI::onExit);
 
 	if (keepSettings) {
-		load(UINAME + ".xml");
+		load(presetsFolder + UINAME + ".xml");
 	}
 }
 // END SETUP
@@ -128,9 +128,11 @@ void ofxDmtrUI::load(string xml){
 	for (auto & e : radios) {
 		// default? algo como asterisco no txt?
 		e.setValue(settings.getValue(e.nome, ""));
-		//e.selecionado = settings.getValue(e.nome, "");
 	}
 	redraw = true;
+
+	string e = "load";
+	ofNotifyEvent(uiEvent, e);
 }
 
 //--------------------------------------------------------------
@@ -223,7 +225,7 @@ void ofxDmtrUI::mouseAll(int x, int y, int button){
 //--------------------------------------------------------------
 void ofxDmtrUI::exit() {
 	if (keepSettings) {
-		save(UINAME + ".xml");
+		save(presetsFolder + UINAME + ".xml");
 	}
 }
 
@@ -376,7 +378,6 @@ void ofxDmtrUI::createFromLine(string l) {
 		else if (tipo == "rect") {
 			vector <string> v = ofSplitString(cols[1], " ");
 			coluna = ofRectangle(ofToInt(v[0]),ofToInt(v[1]),ofToInt(v[2]),ofToInt(v[3]));
-			fbo.allocate(coluna.width, coluna.height, GL_RGBA);
 		}
 
 		else {
@@ -395,9 +396,13 @@ void ofxDmtrUI::createFromLine(string l) {
 //--------------------------------------------------------------
 void ofxDmtrUI::create(string nome, string tipo, string valores) {
 	int hue = int(flow.x/8.0 + flow.y/6.0)%255;
+	int saturation = bw ? 0 : 255;
+	int brightness = bw ? 127 : 255;
+	ofColor cor = ofColor::fromHsb(hue,saturation,brightness);
 
 	lastHeight = sliderHeight;
 	lastWidth = sliderWidth;
+
 
 	if (tipo == "slider" || tipo == "int" || tipo == "slidervert") {
 		slider ts;
@@ -409,7 +414,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		} else {
 			ts.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
 		}
-		ts.cor = ofColor::fromHsb(hue,255,255);
+		ts.cor = cor;
 		ts.isInt = tipo == "int";
 
 		if (ts.isInt) {
@@ -419,10 +424,10 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		}
 
 		if (valores != "") {
-			cout << valores << endl;
-			cout << tipo << endl;
-			cout << nome << endl;
-			cout << "----" << endl;
+//			cout << valores << endl;
+//			cout << tipo << endl;
+//			cout << nome << endl;
+//			cout << "----" << endl;
 
 			vector <string> vals = ofSplitString(valores, " ");
 			ofVec3f val = ofVec3f(ofToFloat(vals[0]), ofToFloat(vals[1]), ofToFloat(vals[2]));
@@ -447,7 +452,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		toggle tt;
 		tt.nome = nome;
 		tt.rect = ofRectangle(flow.x, flow.y, sliderHeight, sliderHeight);
-		tt.cor = ofColor::fromHsb(hue,255,255);
+		tt.cor = cor;
 		if (valores == "1") {
 			tt.def = true;
 		}
@@ -469,7 +474,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		label tl;
 		tl.nome = nome;
 		tl.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
-		tl.cor = ofColor::fromHsb(hue,255,255);
+		tl.cor = cor;
 		labels.push_back(tl);
 	}
 
@@ -477,7 +482,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		radio temp;
 		temp.nome = nome;
 		temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
-		temp.cor = ofColor::fromHsb(hue,255,255);
+		temp.cor = cor;
 		temp.opcoes = ofSplitString(valores, " ");
 		temp._val = &pString[nome];
 		temp.init();
@@ -503,7 +508,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		radio temp;
 		temp.nome = nome;
 		temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
-		temp.cor = ofColor::fromHsb(hue,255,255);
+		temp.cor = cor;
 		temp.opcoes = opcoes;
 		pString[nome] = "";
 		temp._val = &pString[nome];
@@ -602,8 +607,8 @@ void ofxDmtrUI::setFloat(string nome, float val) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::setBool(string nome, bool val) {
-//	toggles[indexElement[nome]].setValue(val, true);
-//	redraw = true;
+	toggles[indexElement[nome]].setValue(val);
+	redraw = true;
 }
 
 //--------------------------------------------------------------
@@ -614,4 +619,10 @@ void ofxDmtrUI::setRadio(string nome, string val) {
 	cout << "------" << endl;
 	radios[indexElement[nome]].setValue(val, true);
 	redraw = true;
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI::loadPreset(int n) {
+	string nome = presetsFolder + UINAME + ofToString(n) + ".xml";
+	load(nome);
 }

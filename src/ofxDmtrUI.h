@@ -146,6 +146,9 @@ public:
 	// setvalue aqui ta triggering o evento.
 	void setValue(bool v) {
 		*_val = v;
+		// 19 de abril. vai atrapalhar?
+		string ev = "updateBool_" + nome;
+		ofNotifyEvent(uiEvent, ev, this);
 	}
 
 	void draw() {
@@ -304,6 +307,8 @@ public:
 	void		setBool(string nome, bool val);
 	void		setRadio(string nome, string val);
 
+	void		loadPreset(int n);
+
 
 	map <string,float>			pEasy;
 	map <string,float>			pFloat;
@@ -353,4 +358,6 @@ public:
 	bool keepSettings = false;
 
 	string presetsFolder = "";
+
+	bool bw = false;
 };

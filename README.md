@@ -8,6 +8,9 @@ PS: Not for production use, yet.
 Tested on OS X. Let me know if you are using it in other platforms   
 http://dmtr.org/  
 
+![Example](http://hifolio.com/media/1/Screen_Shot_2016-04-15_at_12.45.11_PM.png)
+
+
 ## Features
 Load interface layouts from text files.
 See section Text File Format in this README for more info
