@@ -75,7 +75,9 @@ public:
 
 		// não sei se é boa idéia aqui... ou somente usar 90 graus em tudo...
 		if (vert) {
-			valorPixels = ofClamp(y - rect.y, 0, rect.height);
+			valorPixels = ofClamp(rect.height - (y - rect.y), 0, rect.height);
+			
+
 			if (isInt) {
 				*_valInt = ofMap(valorPixels, 0, rect.height, min, max);
 				string ev = "updateInt_" + nome;
@@ -110,7 +112,9 @@ public:
 		ofSetColor(0,128);
 		if (vert) {
 			valorPixels = ofMap(vvv, min, max, 0, rect.height);
-			ofDrawRectangle(rect.x, rect.y, rect.width, valorPixels);
+
+			//ofDrawRectangle(rect.x, rect.y, rect.width, valorPixels);
+			ofDrawRectangle(rect.x, rect.y + rect.height-valorPixels, rect.width, valorPixels);
 		} else {
 			ofDrawRectangle(rect.x, rect.y, valorPixels, rect.height);
 			string label = nome + " "+ofToString(isInt ? *_valInt : *_val);
@@ -199,10 +203,15 @@ public:
 	int height = 20;
 	ofEvent<string> uiEvent;
 
-	void setValue(string v, bool notify = false) {
+	void setValue(string v, int notify = 0) {
 		*_val = v;
-		if (notify) {
+		if (notify == 1) {
 			string ev = "updateRadio_" + nome;
+			ofNotifyEvent(uiEvent, ev, this);
+		}
+
+		if (notify == 2) {
+			string ev = "loadRadio_" + nome;
 			ofNotifyEvent(uiEvent, ev, this);
 		}
 	}

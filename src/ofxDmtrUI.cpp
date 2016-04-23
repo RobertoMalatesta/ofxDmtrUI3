@@ -127,7 +127,10 @@ void ofxDmtrUI::load(string xml){
 
 	for (auto & e : radios) {
 		// default? algo como asterisco no txt?
-		e.setValue(settings.getValue(e.nome, ""));
+		//if (*e._val != settings.getValue(e.nome, ""))
+		{
+			e.setValue(settings.getValue(e.nome, ""), 2);
+		}
 	}
 	redraw = true;
 
@@ -404,10 +407,10 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 	lastWidth = sliderWidth;
 
 
-	if (tipo == "slider" || tipo == "int" || tipo == "slidervert") {
+	if (tipo == "slider" || tipo == "int" || tipo == "sliderVert") {
 		slider ts;
 		ts.nome = nome;
-		ts.vert = (tipo == "slidervert");
+		ts.vert = (tipo == "sliderVert");
 
 		if (ts.vert) {
 			ts.rect = ofRectangle(flow.x, flow.y, sliderHeight, sliderWidth);
@@ -568,12 +571,12 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 //	cout << e << endl;
 
 	// Marvellous
-	if (ofIsStringInString(e, "shortcut")) {
+	if (ofIsStringInString(e, "shortcut") && !ofIsStringInString(e, "load")) {
 		vector <string> split = ofSplitString(e, "_");
 		string nome = split[1];
 		pFloat[nome] = ofToFloat(pString[nome + "_shortcut"]);
 	}
-	if (ofIsStringInString(e, "shortcutInt")) {
+	if (ofIsStringInString(e, "shortcutInt") && !ofIsStringInString(e, "load")) {
 		vector <string> split = ofSplitString(e, "_");
 		string nome = split[1];
 		pInt[nome] = ofToInt(pString[nome + "_shortcutInt"]);
