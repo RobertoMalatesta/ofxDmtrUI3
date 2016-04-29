@@ -32,6 +32,7 @@ enum flowDir {
 	VERT, HORIZ, NO_FLOW
 };
 
+
 class slider {
 public:
 	string 		nome;
@@ -52,6 +53,9 @@ public:
 	// const auto			*_val;
 	float 		*_val;
 	int			*_valInt;
+	// temporario
+	unsigned char			*_valChar;
+
 	int			valorPixels = 0;
 	bool			isInt = false;
 	ofEvent<string> uiEvent;
@@ -119,9 +123,10 @@ public:
 			ofDrawRectangle(rect.x, rect.y, valorPixels, rect.height);
 			string label = nome + " "+ofToString(isInt ? *_valInt : *_val);
 			ofSetColor(0,128);
-			ofDrawBitmapString(label, rect.x+11, rect.y+15);
+			int offy = rect.height - 2;
+			ofDrawBitmapString(label, rect.x+11, rect.y+offy);
 			ofSetColor(255);
-			ofDrawBitmapString(label, rect.x+10, rect.y+14);
+			ofDrawBitmapString(label, rect.x+10, rect.y+offy-1);
 		}
 	}
 };
@@ -181,11 +186,12 @@ public:
 	string 			nome;
 	ofRectangle 		rect;
 	ofColor 			cor;
+	string			*_val;
 
 	void draw() {
 		ofSetColor(cor);
 		//ofDrawRectangle(rect);
-		ofDrawBitmapString(nome, rect.x + 0, rect.y+15);
+		ofDrawBitmapString(nome + " " + *_val, rect.x + 0, rect.y+15);
 	}
 };
 
@@ -194,9 +200,10 @@ public:
 	string 			nome;
 	ofRectangle 		rect;
 	ofColor 			cor;
+	string 			*_val;
+
 	vector <string>	opcoes;
 	vector <ofRectangle> 	rects;
-	string *_val;
 
 	int offx = 0;
 	int offy = 0;
@@ -256,8 +263,8 @@ public:
 		ofSetColor(255);
 		int offy = 15;
 		int offx = 0;
-//				ofSetColor(255,0,60,128);
-//				ofDrawRectangle(rect);
+		//				ofSetColor(255,0,60,128);
+		//				ofDrawRectangle(rect);
 
 		int i = 0;
 		for (auto & r : rects) {
@@ -271,14 +278,162 @@ public:
 	}
 };
 
+class preset {
+public:
+	int index;
+	string nome;
+	ofRectangle	rect;
+	ofImage	img;
+	ofFbo fbo;
+	bool selecionado = false;
+	void draw() {
+		ofSetColor(255);
+		fbo.begin();
+		ofClear(0,255);
+		if (img.isAllocated()) {
+			img.draw(0,0);
+		}
+		if (selecionado) {
+			ofSetColor(255,0,80);
+			ofDrawRectangle(5,5,20,20);
+		}
+		fbo.end();
+		fbo.draw(rect.x, rect.y, rect.width, rect.height);
+	}
+};
+
+class presets {
+public:
+
+	string nome;
+	ofRectangle rect;
+	vector <preset> presets;
+	int	*_val;
+	// temporario
+	int valor = -1;
+	bool ok = false;
+	ofEvent<string> uiEvent;
+
+	void draw() { // presets draw
+//		ofSetColor(130);
+//		ofDrawRectangle(rect);
+//		ofSetColor(255);
+		for (auto & p : presets) {
+			p.draw();
+		}
+	}
+
+	void update(int novovalor) {
+	}
+
+	void checkMouse(int x, int y) {
+		for (auto & p : presets) {
+			if (p.rect.inside(x,y)) {
+				// only trigger events if clicked in different preset slot
+				if (ofGetKeyPressed(OF_KEY_COMMAND)) {
+					if (valor != -1) {
+						presets[valor].selecionado = false;
+						presets[valor].draw();
+					}
+					valor = p.index;
+					p.selecionado = true;
+					string ev = "savePreset_" + ofToString(valor);
+					ofNotifyEvent(uiEvent, ev, this);
+					p.draw();
+				} else {
+					if (valor != p.index) {
+						if (valor != -1) {
+							presets[valor].selecionado = false;
+							presets[valor].draw();
+						}
+						valor = p.index;
+						p.selecionado = true;
+						string ev = "loadPreset_" + ofToString(valor);
+						ofNotifyEvent(uiEvent, ev, this);
+						p.draw();
+					}
+				}
+			}
+		}
+	}
+};
+
+class color {
+public:
+	string nome;
+	float *_h;
+	float *_s;
+	float *_b;
+	float *_a;
+	slider *_sh;
+	slider *_ss;
+	slider *_sb;
+	slider *_sa;
+
+};
+
+class slider2d {
+public:
+	string nome;
+	float *_valx;
+	float *_valy;
+	ofRectangle rect;
+	ofColor cor;
+	ofEvent<string> uiEvent;
+	bool inside = false;
+
+	void checkMouse(int mx, int my) {
+		float x = mx - rect.x;
+		float y = my - rect.y;
+		*_valx = ofMap(x, 0, rect.width, 0, 1);
+		*_valy = ofMap(y, 0, rect.height, 0, 1);
+		//cout << *_valx << endl;
+		//cout << *_valy << endl;
+	}
+
+	void draw() {
+		//cout << "slider2d draw" << endl;
+		ofSetColor(cor);
+		ofDrawRectangle(rect);
+		ofSetColor(255,0,0);
+		ofNoFill();
+		//ofPushMatrix();
+		float x = *_valx * rect.width + rect.x;
+		float y = *_valy * rect.height + rect.y;
+		ofDrawLine(x, rect.y, x, rect.y + rect.height);
+		ofDrawLine(rect.x, y, rect.x + rect.width, y);
+		ofFill();
+		float raio = 4;
+		ofDrawRectangle(x -raio/2, y-raio/2, raio,raio);
+	}
+};
+
+
+class element {
+public:
+	string nome;
+	string tipo;
+	//ofRectangle rect; // pointer?
+	ofRectangle *_rect;
+	slider *_slider;
+	// function pointer.
+
+	void draw() {
+		if (_slider != NULL) {
+			_slider->draw();
+		}
+	}
+	void (*_functionPointer);
+};
+
+void funcao() {
+	cout << "funcao" << endl;
+}
+
 
 class ofxDmtrUI : public ofBaseApp
 {
 public:
-
-
-
-
 	void		setup();
 	void		keyPressed(int key);
 	void		keyReleased(int key);
@@ -317,13 +472,10 @@ public:
 	void		setRadio(string nome, string val);
 
 	void		loadPreset(int n);
+	void		savePreset(int n);
+	void		setFbo(ofFbo &fbo);
 
 
-	map <string,float>			pEasy;
-	map <string,float>			pFloat;
-	map <string,int>				pInt;
-	map <string,bool>			pBool;
-	map <string,string>			pString;
 
 	// only internal use to backup some variables.
 	map <string,float>			pFloatBak;
@@ -332,6 +484,10 @@ public:
 	vector <toggle> 	toggles;
 	vector <label> 	labels;
 	vector <radio> 	radios;
+	vector <slider2d> sliders2d;
+	vector <element> elements;
+
+
 
 	ofFbo fbo;
 	float easing = 30;
@@ -352,7 +508,6 @@ public:
 	int sliderHeight = 20;
 	int sliderWidth  = 150;
 	int	sliderMargin = 5;
-
 	// precisa?
 	int	lastHeight, lastWidth;
 
@@ -360,13 +515,24 @@ public:
 	//ofEvent<string> evento;
 
 	// ainda ver direitiho se isso vai rolar.
-	map< string, map <string, string> > dirListMap;
-
+	map <string, map <string, string> > dirListMap;
 	map <string, int> indexElement;
-
 	bool keepSettings = false;
-
 	string presetsFolder = "";
-
 	bool bw = false;
+
+	// 26 04 2016 - presets
+	presets allPresets;
+	ofFbo *_fbo;
+
+
+	map <string,float>			pEasy;
+	map <string,float>			pFloat;
+	map <string,int>				pInt;
+	map <string,bool>			pBool;
+	map <string,string>			pString;
+	map <string,string>			pLabel;
+	map <string,ofPoint>			pPoint;
+	map <string,ofFloatColor>	pColor;
+
 };

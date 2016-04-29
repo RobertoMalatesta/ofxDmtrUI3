@@ -39,6 +39,11 @@ port to lib cinder
 
 # Future Ideas
 Performance : maybe check inside panel rectangle if mouse event is inside before check in each panel element.
+Implement the class Element and make pointers to member functions of draw, check mouse, get val etc.
+
+## 2016 04 27
+Slider2d first sketches
+Color first sketch
 
 ## 2016 04 18
 License added. 

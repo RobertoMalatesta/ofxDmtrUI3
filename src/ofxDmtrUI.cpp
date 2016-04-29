@@ -76,10 +76,16 @@ void ofxDmtrUI::draw() {
 		if (redraw) {
 			fbo.begin();
 			ofClear(0,100);
-			for (auto & t : toggles) { t.draw(); }
-			for (auto & s : sliders) { s.draw(); }
-			for (auto & l : labels)  { l.draw(); }
-			for (auto & r : radios)  { r.draw(); }
+//			for (auto & e : elements) 	{ e.draw(); }
+
+			for (auto & e : sliders) 	{ e.draw(); }
+			for (auto & e : toggles) 	{ e.draw(); }
+			for (auto & e : labels)  	{ e.draw(); }
+			for (auto & e : radios)  	{ e.draw(); }
+			for (auto & e : sliders2d)  { e.draw(); }
+			if (allPresets.ok) {
+				allPresets.draw();
+			}
 			fbo.end();
 			redraw = false;
 		}
@@ -177,11 +183,29 @@ void ofxDmtrUI::mousePressedDragged(int x, int y, int button){
 			t.flip();
 		}
 	}
+
+	if (allPresets.ok && allPresets.rect.inside(x - coluna.x,y - coluna.y)) {
+		allPresets.checkMouse(x - coluna.x, y - coluna.y);
+	}
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::mouseDragged(int x, int y, int button){
 	// simplificar, fazer o x - coluna.x antes
+	for (auto & s : sliders2d) {
+		if (s.rect.inside(x - coluna.x, y - coluna.y)) {
+			s.checkMouse(x - coluna.x, y - coluna.y);
+			s.inside = true;
+		} else {
+			if (s.inside) {
+				s.checkMouse(x - coluna.x, y - coluna.y);
+				s.inside = false;
+			}
+		}
+	}
+
+
+
 	for (auto & s : sliders) {
 		if (s.rect.inside(x - coluna.x, y - coluna.y)) {
 			s.update(x - coluna.x, y - coluna.y);
@@ -316,15 +340,22 @@ void ofxDmtrUI::createFromText(string file) {
 		createFromLine(l);
 	}
 	// end reading from text files
-	for (auto & e : radios) {
+	for (auto & e : sliders) {
 		ofAddListener(e.uiEvent,this, &ofxDmtrUI::uiEvents);
 	}
-	for (auto & e : sliders) {
+	for (auto & e : sliders2d) {
+		ofAddListener(e.uiEvent,this, &ofxDmtrUI::uiEvents);
+	}
+
+	for (auto & e : radios) {
 		ofAddListener(e.uiEvent,this, &ofxDmtrUI::uiEvents);
 	}
 	for (auto & e : toggles) {
 		ofAddListener(e.uiEvent,this, &ofxDmtrUI::uiEvents);
 	}
+
+	ofAddListener(allPresets.uiEvent,this, &ofxDmtrUI::uiEvents);
+
 }
 
 //--------------------------------------------------------------
@@ -345,8 +376,15 @@ void ofxDmtrUI::createFromLine(string l) {
 		if (tipo == "bool") tipo = "toggle";
 
 		if (tipo == "newcol") {
+//			cout << flow.x << endl;
+//			cout << flow.y << endl;
 			flow.x += sliderWidth + marginx * 1;
 			flow.y = marginy;
+//			cout << flow.x << endl;
+//			cout << flow.y << endl;
+		}
+		else if (tipo == "margin") {
+			flow.x = flow.y = marginx = marginy = ofToFloat(cols[1]);
 		}
 		else if (tipo == "marginy") {
 			flow.y = marginy = ofToFloat(cols[1]);
@@ -406,6 +444,101 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 	lastHeight = sliderHeight;
 	lastWidth = sliderWidth;
 
+	if (tipo == "presets") {
+		int cols = 3;
+		int rows = 4;
+		if (nome != "") {
+			vector <string> vals = ofSplitString(nome, " ");
+			cols = ofToInt(vals[0]);
+			rows = ofToInt(vals[1]);
+		}
+		int w = 100;
+		int h = 60;
+		int x = flow.x;
+		int y = flow.y;
+		// temporario
+
+		allPresets.ok = true;
+		// temporario também
+		allPresets.rect = ofRectangle(flow.x, flow.y, cols * w + (cols)*sliderMargin, rows * h + (rows)*sliderMargin);
+		for (int a=0; a<cols * rows; a++) {
+			preset tp;
+			tp.index = a;
+			tp.nome = ofToString(a);
+			tp.rect.x = x;
+			tp.rect.y = y;
+			tp.rect.width = w;
+			tp.rect.height = h;
+			tp.fbo.allocate(w, h, GL_RGBA);
+			tp.fbo.begin();
+			ofClear(0,255);
+
+			// talvez prepend o UI name aqui? nao sei. UINAME
+			string filename = presetsFolder + UINAME + ofToString(a) + ".tif";
+			//cout << filename << endl;
+			//cout << filename << endl;
+			if (ofFile::doesFileExist(filename)) {
+				tp.img.load(filename);
+				tp.img.draw(0,0);
+			}
+			tp.fbo.end();
+			allPresets.presets.push_back(tp);
+
+			if (a%cols==(cols-1)) {
+				x = flow.x;
+				y += h + sliderMargin;
+			} else {
+				x += w + sliderMargin;
+			}
+		}
+
+		flow.y += allPresets.rect.height + sliderMargin;
+		element te;
+		te._rect = &allPresets.rect;
+//		te._functionPointer = allPresets.draw;
+//		te._functionPointer = &sliders[0].draw();
+		elements.push_back(te);
+	}
+
+	if (tipo == "color" || tipo == "colorhsb") {
+		ofRectangle rect;
+		rect.x = flow.x;
+		rect.y = flow.y;
+		rect.width = sliderWidth;
+		if (tipo == "color") {
+			create(nome+"_r", "slider", "0 1 1");
+			sliders[indexElement[nome+"_r"]]._val = &pColor[nome].r;
+			create(nome+"_g", "slider", "0 1 1");
+			sliders[indexElement[nome+"_g"]]._val = &pColor[nome].g;
+			create(nome+"_b", "slider", "0 1 1");
+			sliders[indexElement[nome+"_b"]]._val = &pColor[nome].b;
+			create(nome+"_a", "slider", "0 1 1");
+			sliders[indexElement[nome+"_a"]]._val = &pColor[nome].a;
+		} else {
+			create(nome+"_h", "slider", "0 255 0");
+			create(nome+"_s", "slider", "0 255 255");
+			create(nome+"_b", "slider", "0 255 255");
+
+		}
+		rect.height = flow.y - rect.y;
+
+//		element te;
+//		*te._slider =
+//		te._rect = &allPresets.rect;
+//		elements.push_back(te);
+	}
+
+	if (tipo == "slider2d") {
+		slider2d ts;
+		ts.nome = nome;
+		ts.cor = cor;
+		ts.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderWidth*.35);
+		ts._valx = &pPoint[nome].x;
+		ts._valy = &pPoint[nome].y;
+		lastHeight = ts.rect.height;
+		lastWidth  = ts.rect.width;
+		sliders2d.push_back(ts);
+	}
 
 	if (tipo == "slider" || tipo == "int" || tipo == "sliderVert") {
 		slider ts;
@@ -427,11 +560,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		}
 
 		if (valores != "") {
-//			cout << valores << endl;
-//			cout << tipo << endl;
-//			cout << nome << endl;
-//			cout << "----" << endl;
-
 			vector <string> vals = ofSplitString(valores, " ");
 			ofVec3f val = ofVec3f(ofToFloat(vals[0]), ofToFloat(vals[1]), ofToFloat(vals[2]));
 			ts.min = val.x;
@@ -448,7 +576,18 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 
 		lastHeight = ts.rect.height;
 		lastWidth  = ts.rect.width;
+
+//		element te;
+//		te._slider = &ts;
+//		te._rect = &ts.rect;
+//		elements.push_back(te);
+
+
 		sliders.push_back(ts);
+
+
+//		element te;
+
 	}
 
 	else if (tipo == "toggle" || tipo == "bang" || tipo == "toggleNolabel") { // bool
@@ -476,6 +615,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 	else if (tipo == "label") {
 		label tl;
 		tl.nome = nome;
+		tl._val = &pLabel[nome];
 		tl.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
 		tl.cor = cor;
 		labels.push_back(tl);
@@ -496,7 +636,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		lastHeight = temp.rect.height;
 	}
 
-	else if (tipo == "dirlist") {
+	else if (tipo == "dirlist" || tipo == "dirList") {
 		ofDirectory dir;
 		// no futuro colocar o allowext por algum lado
 		//		dir.allowExt("wav");
@@ -567,10 +707,48 @@ void	 ofxDmtrUI::expires(int dataInicial, int dias) {
 
 //--------------------------------------------------------------
 void	 ofxDmtrUI::uiEvents(string & e) {
-//	ofNotifyEvent(evento, e);
-//	cout << e << endl;
+	if (ofIsStringInString(e, "savePreset")) {
+		vector <string> split = ofSplitString(e, "_");
+		int slot = ofToInt(split[1]);
+		if (_fbo != NULL) {
+			ofFbo fboThumb;
+			float w = allPresets.presets[0].fbo.getWidth();
+			float h = allPresets.presets[0].fbo.getHeight();
+			float aspectThumb = w / (float)h;
+			float aspectFbo = _fbo->getWidth() / (float)_fbo->getHeight();
+			float neww = w;
+			float newh = h;
+			float offx = 0;
+			float offy = 0;
 
-	// Marvellous
+			//wider fbo than thumbnail
+			if (aspectFbo > aspectThumb) {
+				float proporcao = _fbo->getHeight() / (float)h;
+				neww = _fbo->getWidth() / proporcao;
+				offx = (w - neww) / 2.0;
+			}
+			// este fbo nao precisa.
+
+			allPresets.presets[slot].fbo.begin();
+//			fboThumb.allocate(w, h, GL_RGBA);
+//			fboThumb.begin();
+			ofClear(0);
+			_fbo->draw(offx, offy, neww,h);
+			allPresets.presets[slot].fbo.end();
+			//fboThumb.end();
+
+			ofPixels pixels;
+			pixels.allocate( w, h, OF_IMAGE_COLOR_ALPHA);
+			allPresets.presets[slot].fbo.readToPixels(pixels);
+			string imgPath = presetsFolder + UINAME + ofToString(slot) + ".tif";
+			ofSaveImage(pixels, imgPath);
+			allPresets.draw();
+			allPresets.presets[slot].img.setFromPixels(pixels);
+		}
+
+	}
+
+
 	if (ofIsStringInString(e, "shortcut") && !ofIsStringInString(e, "load")) {
 		vector <string> split = ofSplitString(e, "_");
 		string nome = split[1];
@@ -592,8 +770,12 @@ void	 ofxDmtrUI::autoFit() {
 	float maxW = 0;
 	float maxH = 0;
 
-	for (auto & e : toggles) { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
+	for (auto & e : elements)
+	{
+		minX = MIN(e._rect->x, minX); minY = MIN(e._rect->y, minY); maxW = MAX(e._rect->x + e._rect->width, maxW); maxH = MAX(e._rect->y + e._rect->height, maxH); }
+
 	for (auto & e : sliders) { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
+	for (auto & e : toggles) { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 	for (auto & e : labels)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 	for (auto & e : radios)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 
@@ -616,10 +798,10 @@ void ofxDmtrUI::setBool(string nome, bool val) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::setRadio(string nome, string val) {
-	cout << nome << endl;
-	cout << indexElement[nome] << endl;
-	cout << radios[indexElement[nome]].nome << endl;
-	cout << "------" << endl;
+//	cout << nome << endl;
+//	cout << indexElement[nome] << endl;
+//	cout << radios[indexElement[nome]].nome << endl;
+//	cout << "------" << endl;
 	radios[indexElement[nome]].setValue(val, true);
 	redraw = true;
 }
@@ -628,4 +810,16 @@ void ofxDmtrUI::setRadio(string nome, string val) {
 void ofxDmtrUI::loadPreset(int n) {
 	string nome = presetsFolder + UINAME + ofToString(n) + ".xml";
 	load(nome);
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI::savePreset(int n) {
+	string nome = presetsFolder + UINAME + ofToString(n) + ".xml";
+	save(nome);
+}
+
+
+//--------------------------------------------------------------
+void ofxDmtrUI::setFbo(ofFbo &fbo) {
+	_fbo = &fbo;
 }
