@@ -41,6 +41,9 @@ port to lib cinder
 Performance : maybe check inside panel rectangle if mouse event is inside before check in each panel element.
 Implement the class Element and make pointers to member functions of draw, check mouse, get val etc.
 
+## 2016 05 04
+Flow fixes
+
 ## 2016 04 29
 “margin” affects marginx and marginy
 Presets working. load and save presets with thumbnail images.
