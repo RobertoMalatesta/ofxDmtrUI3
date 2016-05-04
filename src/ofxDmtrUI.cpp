@@ -378,8 +378,17 @@ void ofxDmtrUI::createFromLine(string l) {
 		if (tipo == "newcol") {
 //			cout << flow.x << endl;
 //			cout << flow.y << endl;
-			flow.x += sliderWidth + marginx * 1;
+			/* no caso quando for veritcal slider como no midi, somar a largura de todos no flowHoriz...
+			*/
+
+//			flow.x += sliderWidth + marginx * 1;
+			float sw = MAX(pFloat["maxWidthHorizontal"]- coluna.x, sliderWidth) ;
+			flow.x += sw + marginx * 1;
 			flow.y = marginy;
+
+			cout << flow.x << endl;
+
+			pFloatBak["flowx"] = flow.x;
 //			cout << flow.x << endl;
 //			cout << flow.y << endl;
 		}
@@ -682,6 +691,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 	}
 	if (flowDirection == HORIZ) {
 		flow.x += lastWidth + sliderMargin;
+		pFloat["maxWidthHorizontal"] = MAX(pFloat["maxWidthHorizontal"], flow.x);
 	}
 }
 
