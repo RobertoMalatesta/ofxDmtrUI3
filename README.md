@@ -5,8 +5,8 @@ It is my first public openFrameworks addon.
 Requires oF 0.9+  
 Suggestions and code improvements will be greatly appreciated.  
 PS: Not for production use, yet.  
-Tested on OS X. Let me know if you are using it in other platforms   
-http://dmtr.org/  
+Tested on OS X. Let me know if you are using it. Examples will be created under demand  
+http://dmtr.org/ofxDmtrUI  
 
 ![Example](http://hifolio.com/media/1/Screen_Shot_2016-04-15_at_12.45.11_PM.png)
 
@@ -40,6 +40,10 @@ port to lib cinder
 # Future Ideas
 Performance : maybe check inside panel rectangle if mouse event is inside before check in each panel element.
 Implement the class Element and make pointers to member functions of draw, check mouse, get val etc.
+
+## 2016 04 29
+“margin” affects marginx and marginy
+Presets working. load and save presets with thumbnail images.
 
 ## 2016 04 27
 Slider2d first sketches

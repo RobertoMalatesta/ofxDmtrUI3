@@ -810,6 +810,7 @@ void ofxDmtrUI::setRadio(string nome, string val) {
 void ofxDmtrUI::loadPreset(int n) {
 	string nome = presetsFolder + UINAME + ofToString(n) + ".xml";
 	load(nome);
+	presetLoaded = n;
 }
 
 //--------------------------------------------------------------

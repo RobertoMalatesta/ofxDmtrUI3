@@ -525,6 +525,8 @@ public:
 	presets allPresets;
 	ofFbo *_fbo;
 
+	int presetLoaded;
+
 
 	map <string,float>			pEasy;
 	map <string,float>			pFloat;
