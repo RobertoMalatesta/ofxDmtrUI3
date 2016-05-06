@@ -382,7 +382,7 @@ void ofxDmtrUI::createFromLine(string l) {
 			*/
 
 //			flow.x += sliderWidth + marginx * 1;
-			float sw = MAX(pFloat["maxWidthHorizontal"]- coluna.x, sliderWidth) ;
+			float sw = MAX(pFloat["maxWidthHorizontal"] - coluna.x, sliderWidth) ;
 			flow.x += sw + marginx * 1;
 			flow.y = marginy;
 
@@ -391,6 +391,7 @@ void ofxDmtrUI::createFromLine(string l) {
 			pFloatBak["flowx"] = flow.x;
 //			cout << flow.x << endl;
 //			cout << flow.y << endl;
+			pFloat["maxWidthHorizontal"] = 0;
 		}
 		else if (tipo == "margin") {
 			flow.x = flow.y = marginx = marginy = ofToFloat(cols[1]);
@@ -401,6 +402,13 @@ void ofxDmtrUI::createFromLine(string l) {
 		else if (tipo == "marginx") {
 			flow.x = marginx = ofToFloat(cols[1]);
 		}
+		else if (tipo == "flowX") {
+			flow.x = ofToFloat(cols[1]);
+		}
+		else if (tipo == "flowY") {
+			flow.y = ofToFloat(cols[1]);
+		}
+
 		else if (tipo == "autoFit") {
 			autoFit();
 		}
@@ -554,6 +562,13 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		ts.nome = nome;
 		ts.vert = (tipo == "sliderVert");
 
+
+		// inverte as coordenadas
+		if (ts.vert) {
+			lastHeight = sliderWidth;
+			lastWidth = sliderHeight;
+		}
+
 		if (ts.vert) {
 			ts.rect = ofRectangle(flow.x, flow.y, sliderHeight, sliderWidth);
 		} else {
@@ -683,6 +698,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 					create(nomeElement, "toggleNolabel");
 				}
 			}
+			//createFromLine("flowVert");
 		}
 	}
 
