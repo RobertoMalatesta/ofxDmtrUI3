@@ -643,6 +643,8 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		tl.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
 		tl.cor = cor;
 		labels.push_back(tl);
+
+		lastHeight = 20;
 	}
 
 	else if (tipo == "radio") {
@@ -700,6 +702,16 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 			}
 			//createFromLine("flowVert");
 		}
+	}
+
+	else if (tipo == "sliderVertMatrix") {
+		createFromLine("label	" + nome);
+		createFromLine("flowHoriz");
+		for (int a=0; a<ofToInt(valores); a++) {
+			createFromLine("sliderVert	" + nome + "_" + ofToString(a) + "	0 1 0");
+		}
+		createFromLine("flowVert");
+		flow.y -= sliderWidth;
 	}
 
 	if (flowDirection == VERT) {

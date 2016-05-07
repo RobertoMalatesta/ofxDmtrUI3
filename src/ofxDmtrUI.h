@@ -205,6 +205,9 @@ public:
 	vector <string>	opcoes;
 	vector <ofRectangle> 	rects;
 
+//	bool				multiple	 = false;
+//	vector <string> selecionados;
+
 	int offx = 0;
 	int offy = 0;
 	int height = 20;
