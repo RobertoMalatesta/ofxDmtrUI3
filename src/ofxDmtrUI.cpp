@@ -466,19 +466,10 @@ void ofxDmtrUI::createFromLine(string l) {
 		if (tipo == "bool") tipo = "toggle";
 
 		if (tipo == "newcol" || tipo == "newCol") {
-//			cout << flow.x << endl;
-//			cout << flow.y << endl;
-			/* no caso quando for veritcal slider como no midi, somar a largura de todos no flowHoriz...
-			*/
-
-//			flow.x += sliderWidth + marginx * 1;
 			float sw = MAX(pFloat["maxWidthHorizontal"] - coluna.x, sliderWidth) ;
 			flow.x += sw + marginx * 1;
 			flow.y = marginy;
-			//cout << flow.x << endl;
 			pFloatBak["flowx"] = flow.x;
-//			cout << flow.x << endl;
-//			cout << flow.y << endl;
 			pFloat["maxWidthHorizontal"] = 0;
 		}
 		else if (tipo == "margin") {
@@ -549,7 +540,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 	lastHeight = sliderHeight;
 	lastWidth = sliderWidth;
 
-
+	bool flowing = true;
 
 	if (tipo == "presets") {
 		int cols = 3;
@@ -608,7 +599,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		elements.push_back(te);
 	}
 
-	if (tipo == "color" || tipo == "colorhsb") {
+	else if (tipo == "color" || tipo == "colorhsb") {
 		ofRectangle rect;
 		rect.x = flow.x;
 		rect.y = flow.y;
@@ -636,7 +627,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 //		elements.push_back(te);
 	}
 
-	if (tipo == "slider2d" || tipo == "fbo") {
+	else if (tipo == "slider2d" || tipo == "fbo") {
 		slider2d ts;
 		ts.nome = nome;
 		ts.cor = cor;
@@ -664,18 +655,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		sliders2d.push_back(ts);
 	}
 
-
-	if (tipo == "_float") {
-		vector<string> vals = ofSplitString(valores," ");
-		pFloat[nome] = stof(vals[2]);
-	}
-
-	else if (tipo == "_int") {
-		vector<string> vals = ofSplitString(valores," ");
-		pInt[nome] = stof(vals[2]);
-	}
-
-	if (tipo == "slider" || tipo == "int" || tipo == "sliderVert") {
+	else if (tipo == "slider" || tipo == "int" || tipo == "sliderVert") {
 		slider ts;
 		ts.nome = nome;
 		ts.vert = (tipo == "sliderVert");
@@ -804,7 +784,9 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 
 		radios.push_back(temp);
 		flow.y += temp.rect.height - 25 + 5;
-	} else if (tipo == "togglematrix") {
+	}
+
+	else if (tipo == "togglematrix") {
 		if (valores != "") {
 			vector <string> vals = ofSplitString(valores, " ");
 			int maxx = ofToInt(vals[0]);
@@ -832,12 +814,27 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		flow.y -= sliderWidth;
 	}
 
-	if (flowDirection == VERT) {
-		flow.y += lastHeight + sliderMargin;
+	else {
+		flowing = false;
+		if (tipo == "_float") {
+			vector<string> vals = ofSplitString(valores," ");
+			pFloat[nome] = stof(vals[2]);
+		}
+
+		else if (tipo == "_int") {
+			vector<string> vals = ofSplitString(valores," ");
+			pInt[nome] = stof(vals[2]);
+		}
 	}
-	if (flowDirection == HORIZ) {
-		flow.x += lastWidth + sliderMargin;
-		pFloat["maxWidthHorizontal"] = MAX(pFloat["maxWidthHorizontal"], flow.x);
+
+	if (flowing) {
+		if (flowDirection == VERT) {
+			flow.y += lastHeight + sliderMargin;
+		}
+		if (flowDirection == HORIZ) {
+			flow.x += lastWidth + sliderMargin;
+			pFloat["maxWidthHorizontal"] = MAX(pFloat["maxWidthHorizontal"], flow.x);
+		}
 	}
 }
 
