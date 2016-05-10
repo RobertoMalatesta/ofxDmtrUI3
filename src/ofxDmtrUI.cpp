@@ -82,7 +82,7 @@ void ofxDmtrUI::draw() {
 			for (auto & e : toggles) 	{ e.draw(); }
 			for (auto & e : labels)  	{ e.draw(); }
 			for (auto & e : radios)  	{ e.draw(); }
-			for (auto & e : sliders2d)  { e.draw(); }
+			//for (auto & e : sliders2d)  { e.draw(); }
 			if (allPresets.ok) {
 				allPresets.draw();
 			}
@@ -92,6 +92,12 @@ void ofxDmtrUI::draw() {
 		//ofSetColor(255, columnOver ? 255 : 128);
 		ofSetColor(255);
 		fbo.draw(coluna.x, coluna.y);
+		ofPushMatrix();
+		ofTranslate(coluna.x, coluna.y);
+		for (auto & e : sliders2d)  {
+			e.draw();
+		}
+		ofPopMatrix();
 	}
 }
 
@@ -116,6 +122,13 @@ void ofxDmtrUI::save(string xml){
 		//settings.setValue(r.nome, r.selecionado);
 		settings.setValue(r.nome, *r._val);
 	}
+
+	// ainda nao sei se funciona
+	for (auto & e : sliders2d) {
+		ofPoint xy = *e._val;
+		settings.setValue(e.nome + "x", xy.x);
+		settings.setValue(e.nome + "y", xy.y);
+	}
 	settings.save(xml);
 }
 
@@ -132,14 +145,19 @@ void ofxDmtrUI::load(string xml){
 	}
 
 	for (auto & e : radios) {
-		// default? algo como asterisco no txt?
+		// default? algo como asterisco no txt? ou um parametro novo, um tab a mais.
 		//if (*e._val != settings.getValue(e.nome, ""))
 		{
 			e.setValue(settings.getValue(e.nome, ""), 2);
 		}
 	}
-	redraw = true;
 
+	for (auto & e : sliders2d) {
+		float x = settings.getValue(e.nome+"x", 0.0);
+		float y = settings.getValue(e.nome+"y", 0.0);
+		e.setValue(ofPoint(x, y));
+	}
+	redraw = true;
 	string e = "load";
 	ofNotifyEvent(uiEvent, e);
 }
@@ -160,6 +178,68 @@ void ofxDmtrUI::keyPressed(int key){
 			} else {
 				load(nome);
 			}
+		}
+	}
+
+	if (useShortcut) {
+		if (key == 'a' || key == 'A') {
+			loadPreset(0 + pInt["atalhoOffset"]);
+//			string x = "foo";
+//			uiEvent(x);
+		}
+		else if (key == 's' || key == 'S') {
+			loadPreset(1 + pInt["atalhoOffset"]);
+		}
+		else if (key == 'd' || key == 'D') {
+			loadPreset(2 + pInt["atalhoOffset"]);
+		}
+		else if (key == 'f' || key == 'F') {
+			loadPreset(3 + pInt["atalhoOffset"]);
+		}
+		else if (key == 'g' || key == 'G') {
+			loadPreset(4 + pInt["atalhoOffset"]);
+		}
+		else if (key == 'h' || key == 'H') {
+			loadPreset(5 + pInt["atalhoOffset"]);
+		}
+		else if (key == 'j' || key == 'J') {
+			loadPreset(6 + pInt["atalhoOffset"]);
+		}
+		else if (key == 'k' || key == 'K') {
+			loadPreset(7 + pInt["atalhoOffset"]);
+		}
+		else if (key == 'l' || key == 'L') {
+			loadPreset(8 + pInt["atalhoOffset"]);
+		}
+		else if (key == ';') {
+			loadPreset(9 + pInt["atalhoOffset"]);
+		}
+		else if (key == 39) { //single quote
+			loadPreset(10 + pInt["atalhoOffset"]);
+		}
+		if (key == 'z' || key == 'Z') {
+			loadPreset(11 + pInt["atalhoOffset"]);
+		}
+		else if (key == 'x' || key == 'X') {
+			loadPreset(12 + pInt["atalhoOffset"]);
+		}
+		else if (key == 'c' || key == 'C') {
+			loadPreset(13 + pInt["atalhoOffset"]);
+		}
+		else if (key == 'v' || key == 'V') {
+			loadPreset(14 + pInt["atalhoOffset"]);
+		}
+		else if (key == 'b' || key == 'B') {
+			loadPreset(15 + pInt["atalhoOffset"]);
+		}
+		else if (key == 'n' || key == 'N') {
+			loadPreset(16 + pInt["atalhoOffset"]);
+		}
+		else if (key == 'm' || key == 'M') {
+			loadPreset(17 + pInt["atalhoOffset"]);
+		}
+		else if (key == ',') {
+			loadPreset(18 + pInt["atalhoOffset"]);
 		}
 	}
 }
@@ -227,6 +307,13 @@ void ofxDmtrUI::mousePressed(int x, int y, int button){
 			s.inside = true;
 		}
 	}
+
+	for (auto & s : sliders2d) {
+		if (s.rect.inside(x - coluna.x,y - coluna.y)) {
+			s.checkMouse(x - coluna.x, y - coluna.y);
+			s.inside = true;
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -240,6 +327,9 @@ void ofxDmtrUI::mouseReleased(int x, int y, int button){
 		}
 	}
 	for (auto & s : sliders) {
+		s.inside = false;
+	}
+	for (auto & s : sliders2d) {
 		s.inside = false;
 	}
 }
@@ -375,7 +465,7 @@ void ofxDmtrUI::createFromLine(string l) {
 		if (tipo == "float") tipo = "slider";
 		if (tipo == "bool") tipo = "toggle";
 
-		if (tipo == "newcol") {
+		if (tipo == "newcol" || tipo == "newCol") {
 //			cout << flow.x << endl;
 //			cout << flow.y << endl;
 			/* no caso quando for veritcal slider como no midi, somar a largura de todos no flowHoriz...
@@ -385,9 +475,7 @@ void ofxDmtrUI::createFromLine(string l) {
 			float sw = MAX(pFloat["maxWidthHorizontal"] - coluna.x, sliderWidth) ;
 			flow.x += sw + marginx * 1;
 			flow.y = marginy;
-
-			cout << flow.x << endl;
-
+			//cout << flow.x << endl;
 			pFloatBak["flowx"] = flow.x;
 //			cout << flow.x << endl;
 //			cout << flow.y << endl;
@@ -453,13 +541,15 @@ void ofxDmtrUI::createFromLine(string l) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::create(string nome, string tipo, string valores) {
-	int hue = int(flow.x/8.0 + flow.y/6.0)%255;
+	int hue = int(flow.x/8.0 + flow.y/6.0 + 200)%255;
 	int saturation = bw ? 0 : 255;
-	int brightness = bw ? 127 : 255;
+	int brightness = bw ? 127 : 200;
 	ofColor cor = ofColor::fromHsb(hue,saturation,brightness);
 
 	lastHeight = sliderHeight;
 	lastWidth = sliderWidth;
+
+
 
 	if (tipo == "presets") {
 		int cols = 3;
@@ -492,6 +582,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 
 			// talvez prepend o UI name aqui? nao sei. UINAME
 			string filename = presetsFolder + UINAME + ofToString(a) + ".tif";
+			//cout << filename << endl;
 			//cout << filename << endl;
 			//cout << filename << endl;
 			if (ofFile::doesFileExist(filename)) {
@@ -549,12 +640,26 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		slider2d ts;
 		ts.nome = nome;
 		ts.cor = cor;
-		ts.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderWidth*.35);
-		ts._valx = &pPoint[nome].x;
-		ts._valy = &pPoint[nome].y;
+		ts.rect = ofRectangle(flow.x, flow.y, sliderWidth, 50);
+//		ts._valx = &pPoint[nome].x;
+//		ts._valy = &pPoint[nome].y;
+		ts._val = &pPoint[nome];
 		lastHeight = ts.rect.height;
 		lastWidth  = ts.rect.width;
+		pPoint[nome] = ofPoint(.5, .5);
+		indexElement[nome] = sliders2d.size();
 		sliders2d.push_back(ts);
+	}
+
+
+	if (tipo == "_float") {
+		vector<string> vals = ofSplitString(valores," ");
+		pFloat[nome] = stof(vals[2]);
+	}
+
+	else if (tipo == "_int") {
+		vector<string> vals = ofSplitString(valores," ");
+		pInt[nome] = stof(vals[2]);
 	}
 
 	if (tipo == "slider" || tipo == "int" || tipo == "sliderVert") {
@@ -745,9 +850,33 @@ void	 ofxDmtrUI::expires(int dataInicial, int dias) {
 
 //--------------------------------------------------------------
 void	 ofxDmtrUI::uiEvents(string & e) {
+	//cout << e << endl;
+
+	if (ofIsStringInString(e, "loadPreset")) {
+		vector <string> split = ofSplitString(e, "_");
+		int slot = ofToInt(split[1]);
+//		if (_presetsUI) {
+//			_presetsUI->loadPreset(slot);
+//		}
+		for (auto & p : _presetsUIs) {
+			p->loadPreset(slot);
+		}
+	}
+
 	if (ofIsStringInString(e, "savePreset")) {
 		vector <string> split = ofSplitString(e, "_");
 		int slot = ofToInt(split[1]);
+
+//		if (_presetsUI) {
+//			_presetsUI->savePreset(slot);
+//		}
+
+		for (auto & p : _presetsUIs) {
+			p->savePreset(slot);
+		}
+
+		// talvez salvar o thumbnail no folder da outra UI? nao sei.
+
 		if (_fbo != NULL) {
 			ofFbo fboThumb;
 			float w = allPresets.presets[0].fbo.getWidth();
@@ -771,6 +900,7 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 //			fboThumb.allocate(w, h, GL_RGBA);
 //			fboThumb.begin();
 			ofClear(0);
+			ofSetColor(255);
 			_fbo->draw(offx, offy, neww,h);
 			allPresets.presets[slot].fbo.end();
 			//fboThumb.end();
@@ -779,6 +909,7 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 			pixels.allocate( w, h, OF_IMAGE_COLOR_ALPHA);
 			allPresets.presets[slot].fbo.readToPixels(pixels);
 			string imgPath = presetsFolder + UINAME + ofToString(slot) + ".tif";
+			//cout << "save: " + imgPath << endl;
 			ofSaveImage(pixels, imgPath);
 			allPresets.draw();
 			allPresets.presets[slot].img.setFromPixels(pixels);

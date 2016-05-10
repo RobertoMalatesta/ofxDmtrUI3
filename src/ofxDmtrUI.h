@@ -378,31 +378,58 @@ public:
 class slider2d {
 public:
 	string nome;
-	float *_valx;
-	float *_valy;
+	ofPoint	 *_val;
+//	float *_valx;
+//	float *_valy;
+	float defx = .5;
+	float defy = .5;
+	ofFbo *_fbo;
+	bool		fboSet = false;
 	ofRectangle rect;
 	ofColor cor;
 	ofEvent<string> uiEvent;
 	bool inside = false;
 
+	void setFbo(ofFbo &fbo) {
+		_fbo = &fbo;
+		fboSet = true;
+	}
+
+	void setValue(ofPoint xy) {
+		*_val = xy;
+		// UNIFICAR EVENTOS DEPOIS
+		string ev = "loadSlider2d_" + nome;
+		ofNotifyEvent(uiEvent, ev, this);
+	}
+
 	void checkMouse(int mx, int my) {
 		float x = mx - rect.x;
 		float y = my - rect.y;
-		*_valx = ofMap(x, 0, rect.width, 0, 1);
-		*_valy = ofMap(y, 0, rect.height, 0, 1);
-		//cout << *_valx << endl;
-		//cout << *_valy << endl;
+		*_val = ofPoint(
+						ofClamp(ofMap(x, 0, rect.width, 0, 1), 0, 1),
+						ofClamp(ofMap(y, 0, rect.height, 0, 1), 0, 1)
+						);
+		string ev = "updateSlider2d_" + nome;
+		ofNotifyEvent(uiEvent, ev, this);
 	}
 
 	void draw() {
-		//cout << "slider2d draw" << endl;
-		ofSetColor(cor);
-		ofDrawRectangle(rect);
+		if (fboSet) {
+			ofSetColor(255);
+			_fbo->draw(rect.x, rect.y);
+		}
+		else
+		{
+			ofSetColor(cor);
+			ofDrawRectangle(rect);
+		}
+
 		ofSetColor(255,0,0);
 		ofNoFill();
 		//ofPushMatrix();
-		float x = *_valx * rect.width + rect.x;
-		float y = *_valy * rect.height + rect.y;
+		ofPoint xy = *_val;
+		float x = xy.x * rect.width + rect.x;
+		float y = xy.y * rect.height + rect.y;
 		ofDrawLine(x, rect.y, x, rect.y + rect.height);
 		ofDrawLine(rect.x, y, rect.x + rect.width, y);
 		ofFill();
@@ -459,10 +486,10 @@ public:
 	void 	onMouseMoved(ofMouseEventArgs &data);
 	void 	onExit(ofEventArgs &data);
 
-	// rename to createelement
 	vector <string> textToVector(string file);
 	void		createFromText(string file);
 	void		createFromLine(string line);
+	// rename to createelement
 	void		create(string nome, string tipo="slider", string valores = ""); // NULL
 	void		save(string xml);
 	void		load(string xml);
@@ -540,4 +567,8 @@ public:
 	map <string,ofPoint>			pPoint;
 	map <string,ofFloatColor>	pColor;
 
+	ofxDmtrUI *_presetsUI;
+
+	vector <ofxDmtrUI *> _presetsUIs;
+	bool		useShortcut = false;
 };
