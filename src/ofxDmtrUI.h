@@ -375,6 +375,19 @@ public:
 
 };
 
+//class fboelement {
+//public:
+//	string nome;
+//	ofFbo *_fbo;
+//	bool fboSet;
+//	ofRectangle rect;
+//
+//	void setFbo(ofFbo &fbo) {
+//		_fbo = &fbo;
+//		fboSet = true;
+//	}
+//};
+
 class slider2d {
 public:
 	string nome;
@@ -389,6 +402,7 @@ public:
 	ofColor cor;
 	ofEvent<string> uiEvent;
 	bool inside = false;
+	bool isSlider = true;
 
 	void setFbo(ofFbo &fbo) {
 		_fbo = &fbo;
@@ -424,17 +438,19 @@ public:
 			ofDrawRectangle(rect);
 		}
 
-		ofSetColor(255,0,0);
-		ofNoFill();
-		//ofPushMatrix();
-		ofPoint xy = *_val;
-		float x = xy.x * rect.width + rect.x;
-		float y = xy.y * rect.height + rect.y;
-		ofDrawLine(x, rect.y, x, rect.y + rect.height);
-		ofDrawLine(rect.x, y, rect.x + rect.width, y);
-		ofFill();
-		float raio = 4;
-		ofDrawRectangle(x -raio/2, y-raio/2, raio,raio);
+		if (isSlider) {
+			ofSetColor(255,0,0);
+			ofNoFill();
+			//ofPushMatrix();
+			ofPoint xy = *_val;
+			float x = xy.x * rect.width + rect.x;
+			float y = xy.y * rect.height + rect.y;
+			ofDrawLine(x, rect.y, x, rect.y + rect.height);
+			ofDrawLine(rect.x, y, rect.x + rect.width, y);
+			ofFill();
+			float raio = 4;
+			ofDrawRectangle(x -raio/2, y-raio/2, raio,raio);
+		}
 	}
 };
 
@@ -571,4 +587,7 @@ public:
 
 	vector <ofxDmtrUI *> _presetsUIs;
 	bool		useShortcut = false;
+
+
+	ofColor colunaBackground = ofColor(0,100);
 };

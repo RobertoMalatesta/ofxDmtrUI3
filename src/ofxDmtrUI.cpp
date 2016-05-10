@@ -75,7 +75,7 @@ void ofxDmtrUI::draw() {
 	if (showGui) {
 		if (redraw) {
 			fbo.begin();
-			ofClear(0,100);
+			ofClear(colunaBackground);
 //			for (auto & e : elements) 	{ e.draw(); }
 
 			for (auto & e : sliders) 	{ e.draw(); }
@@ -560,7 +560,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 			rows = ofToInt(vals[1]);
 		}
 		int w = 100;
-		int h = 60;
+		int h = 36;
 		int x = flow.x;
 		int y = flow.y;
 		// temporario
@@ -636,13 +636,26 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 //		elements.push_back(te);
 	}
 
-	if (tipo == "slider2d") {
+	if (tipo == "slider2d" || tipo == "fbo") {
 		slider2d ts;
 		ts.nome = nome;
 		ts.cor = cor;
 		ts.rect = ofRectangle(flow.x, flow.y, sliderWidth, 50);
+		if (tipo == "fbo") {
+			ts.isSlider = false;
+
+			if (valores != "") {
+				vector<string> vals = ofSplitString(valores," ");
+				if (vals[0] != "")
+					ts.rect.width = ofToInt(vals[0]);
+				if (vals[1] != "")
+					ts.rect.height = ofToInt(vals[1]);
+			}
+		}
 //		ts._valx = &pPoint[nome].x;
 //		ts._valy = &pPoint[nome].y;
+
+
 		ts._val = &pPoint[nome];
 		lastHeight = ts.rect.height;
 		lastWidth  = ts.rect.width;

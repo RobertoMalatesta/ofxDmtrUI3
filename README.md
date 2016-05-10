@@ -41,6 +41,12 @@ port to lib cinder
 Performance : maybe check inside panel rectangle if mouse event is inside before check in each panel element.
 Implement the class Element and make pointers to member functions of draw, check mouse, get val etc.
 
+## 2016 05 10
+Slider2d now working OK, saving and loading
+fbo element now possible. just display some FBO in your interface.
+
+In the meantime I’ve written Cinder-DmtrUI as a simple UI for Cinder too. I’ve started by other approach and I like it very much. I’ll try to convert some ideas and concepts from there to here in the near future.
+
 ## 2016 05 04
 Flow fixes
 
