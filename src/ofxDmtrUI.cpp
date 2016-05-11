@@ -990,6 +990,13 @@ void ofxDmtrUI::loadPreset(int n) {
 	string nome = presetsFolder + UINAME + ofToString(n) + ".xml";
 	load(nome);
 	presetLoaded = n;
+
+	allPresets.set(n);
+//	redraw = true;
+	//re();
+	//cout << allPresets.valor << endl;
+	//allPresets.presets[allPresets.valor].selecionado = false;
+	//allPresets.presets[n].selecionado = true;
 }
 
 //--------------------------------------------------------------
@@ -1003,3 +1010,11 @@ void ofxDmtrUI::savePreset(int n) {
 void ofxDmtrUI::setFbo(ofFbo &fbo) {
 	_fbo = &fbo;
 }
+
+
+//--------------------------------------------------------------
+void ofxDmtrUI::re() {
+	redraw = true;
+	draw();
+}
+

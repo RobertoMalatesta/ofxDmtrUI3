@@ -329,6 +329,22 @@ public:
 	void update(int novovalor) {
 	}
 
+	// 10 de maio, Mareh Marisco, apenas testando.
+	void set(int slot) {
+		//cout << "set : " + ofToString(slot) << endl;
+		if (valor != -1) {
+			presets[valor].selecionado = false;
+			presets[valor].draw();
+		}
+		if (presets.size() > 0) {
+			valor = slot;
+			presets[valor].selecionado = true;
+			presets[valor].draw();
+		}
+
+
+	}
+
 	void checkMouse(int x, int y) {
 		for (auto & p : presets) {
 			if (p.rect.inside(x,y)) {
@@ -590,4 +606,6 @@ public:
 
 
 	ofColor colunaBackground = ofColor(0,100);
+
+	void re();
 };
