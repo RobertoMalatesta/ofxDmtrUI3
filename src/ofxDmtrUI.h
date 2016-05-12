@@ -205,8 +205,10 @@ public:
 	vector <string>	opcoes;
 	vector <ofRectangle> 	rects;
 
-//	bool				multiple	 = false;
-//	vector <string> selecionados;
+	// tentativa de multiple
+	bool multiple = false;
+	vector <bool *> _vals;
+	vector <bool> clicked;
 
 	int offx = 0;
 	int offy = 0;
@@ -229,13 +231,25 @@ public:
 	void checkMouse(int x, int y) {
 		int i = 0;
 		for (auto & r : rects) {
-			if (r.inside(x,y)) {
-				if (*_val != opcoes[i]) {
-					*_val = opcoes[i];
-					//*_val = selecionado;
-					string ev = "updateRadio_" + nome;
-					ofNotifyEvent(uiEvent, ev, this);
+			if (r.inside(x,y) ) {
+				if (multiple) {
+					if (!clicked[i]) {
+						*_vals[i] ^= 1;
+					}
+					clicked[i] = true;
 				}
+
+				else {
+					if (*_val != opcoes[i]) {
+						*_val = opcoes[i];
+						string ev = "updateRadio_" + nome;
+						ofNotifyEvent(uiEvent, ev, this);
+					}
+				}
+			}
+			// 12 de maio de 2016. tentando evento do multiple radio
+			else {
+				clicked[i] = false;
 			}
 			i ++;
 		}
@@ -243,6 +257,7 @@ public:
 
 	void init() {
 		for (auto & o : opcoes) {
+			clicked.push_back(false);
 			int largura = 6*2 + o.size() * 8;
 			ofRectangle tr = ofRectangle(rect.x + offx, rect.y + offy, largura, height);
 
@@ -270,13 +285,25 @@ public:
 		//				ofDrawRectangle(rect);
 
 		int i = 0;
-		for (auto & r : rects) {
-			auto & o = opcoes[i];
-			ofSetColor(*_val == o ? cor : ofColor(80,120));
-			ofDrawRectangle (r);
-			ofSetColor(*_val == o ? 0 : 255);
-			ofDrawBitmapString(o, r.x + 6, r.y + offy);
-			i++;
+		if (multiple) {
+			for (auto & r : rects) {
+				auto & o = opcoes[i];
+				ofSetColor(*_vals[i] ? cor : ofColor(80,120));
+				ofDrawRectangle (r);
+				ofSetColor(*_vals[i] ? 0 : 255);
+				ofDrawBitmapString(o, r.x + 6, r.y + offy);
+				i++;
+			}
+		} else {
+
+			for (auto & r : rects) {
+				auto & o = opcoes[i];
+				ofSetColor(*_val == o ? cor : ofColor(80,120));
+				ofDrawRectangle (r);
+				ofSetColor(*_val == o ? 0 : 255);
+				ofDrawBitmapString(o, r.x + 6, r.y + offy);
+				i++;
+			}
 		}
 	}
 };

@@ -4,11 +4,14 @@ Made to be really simple and lightweight.
 It is my first public openFrameworks addon.  
 Requires oF 0.9+  
 Suggestions and code improvements will be greatly appreciated.  
-PS: Not for production use, yet.  
+Use by your own risk. It is working well here.
 Tested on OS X. Let me know if you are using it. Examples will be created under demand  
 http://dmtr.org/ofxDmtrUI  
 
 ![Example](http://hifolio.com/media/1/Screen_Shot_2016-04-15_at_12.45.11_PM.png)
+
+Sister Project:
+https://github.com/dimitre/Cinder-DmtrUI
 
 
 ## Features
@@ -28,18 +31,21 @@ ofxXmlSettings
 
 # TODO
 Different events for loading xml files and updating with the mouse.
-./Change some variables named in portuguese  
-radio buttons rectangles according to width.  
-radio images for presets.
-2d Sliders  
 add namespace to classes.  
 test events in IOs
 integration with ofxMidi for midi controllers use  
-port to lib cinder  
+
+./Change some variables named in portuguese  
+//radio buttons rectangles according to width.  
+//radio images for presets.
+//port to lib cinder  
 
 # Future Ideas
 Performance : maybe check inside panel rectangle if mouse event is inside before check in each panel element.
 Implement the class Element and make pointers to member functions of draw, check mouse, get val etc.
+
+## 2016 05 12
+Under demand for Marisco Festival next weekend: Multiple options radio. flowing like a text and saving booleans. saving space too.
 
 ## 2016 05 10
 Slider2d now working OK, saving and loading

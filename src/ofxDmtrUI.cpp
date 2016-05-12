@@ -120,7 +120,16 @@ void ofxDmtrUI::save(string xml){
 	for (auto & r : radios) {
 		// remover o selecionado totalmente?
 		//settings.setValue(r.nome, r.selecionado);
-		settings.setValue(r.nome, *r._val);
+
+		if (!r.multiple) {
+			settings.setValue(r.nome, *r._val);
+		} else {
+			int i = 0;
+			for (auto & o : r.opcoes) {
+				settings.setValue(o, *r._vals[i]);
+				i++;
+			}
+		}
 	}
 
 	// ainda nao sei se funciona
@@ -147,8 +156,20 @@ void ofxDmtrUI::load(string xml){
 	for (auto & e : radios) {
 		// default? algo como asterisco no txt? ou um parametro novo, um tab a mais.
 		//if (*e._val != settings.getValue(e.nome, ""))
-		{
+		if (!e.multiple) {
 			e.setValue(settings.getValue(e.nome, ""), 2);
+		}
+
+		else {
+			int i = 0;
+			for (auto & o : e.opcoes) {
+				*e._vals[i] = settings.getValue(o, false);
+				cout << o;
+				cout << " --- ";
+				cout << settings.getValue(o, false) << endl;
+				i++;
+			}
+			e.draw();
 		}
 	}
 
@@ -331,6 +352,9 @@ void ofxDmtrUI::mouseReleased(int x, int y, int button){
 	}
 	for (auto & s : sliders2d) {
 		s.inside = false;
+	}
+	for (auto & s : radios) {
+		//s.clicked = false;
 	}
 }
 
@@ -551,7 +575,8 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 			rows = ofToInt(vals[1]);
 		}
 		int w = 100;
-		int h = 36;
+		//int h = 36;
+		int h = 24;
 		int x = flow.x;
 		int y = flow.y;
 		// temporario
@@ -745,15 +770,21 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		lastHeight = 20;
 	}
 
-	else if (tipo == "radio") {
+	else if (tipo == "radio" || tipo == "radioMult") {
 		radio temp;
 		temp.nome = nome;
 		temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
 		temp.cor = cor;
 		temp.opcoes = ofSplitString(valores, " ");
 		temp._val = &pString[nome];
+		if (tipo == "radioMult") {
+			temp.multiple = true;
+			for (auto & o : temp.opcoes) {
+				bool *tempBool = &pBool[o];
+				temp._vals.push_back(tempBool);
+			}
+		}
 		temp.init();
-
 		indexElement[nome] = radios.size();
 
 		radios.push_back(temp);
