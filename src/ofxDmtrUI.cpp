@@ -164,9 +164,6 @@ void ofxDmtrUI::load(string xml){
 			int i = 0;
 			for (auto & o : e.opcoes) {
 				*e._vals[i] = settings.getValue(o, false);
-				cout << o;
-				cout << " --- ";
-				cout << settings.getValue(o, false) << endl;
 				i++;
 			}
 			e.draw();
@@ -782,6 +779,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 			for (auto & o : temp.opcoes) {
 				bool *tempBool = &pBool[o];
 				temp._vals.push_back(tempBool);
+				temp.cores.push_back(cor);
 			}
 		}
 		temp.init();

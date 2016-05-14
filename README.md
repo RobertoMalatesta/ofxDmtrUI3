@@ -24,7 +24,8 @@ first open source project, hope to get collaboration from skilled programmers
 lead an interface project from my own needs  
 a way of quickly design a prototype interface and spend time in what matters  
 a personal substitute for the beloved and deprecated ofxUI  
-An UI that is not constantly redrawing on screen. each time one element is refreshed the screen is saved into an FBO. CPU usage is very low. 
+An UI that is not constantly redrawing on screen. each time one element is refreshed the screen is saved into an FBO.  
+CPU usage is very low. 
 
 ## Dependencies
 ofxXmlSettings  

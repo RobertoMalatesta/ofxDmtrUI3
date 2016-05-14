@@ -205,6 +205,7 @@ public:
 	vector <string>	opcoes;
 	vector <ofRectangle> 	rects;
 
+
 	// tentativa de multiple
 	bool multiple = false;
 	vector <bool *> _vals;
@@ -214,6 +215,11 @@ public:
 	int offy = 0;
 	int height = 20;
 	ofEvent<string> uiEvent;
+
+
+	// pra fazer da mareh o lookup de cores.
+	vector <ofColor> cores;
+	bool useColors = false;
 
 	void setValue(string v, int notify = 0) {
 		*_val = v;
@@ -270,6 +276,9 @@ public:
 			rect.height = MAX(rect.height, offy + 21);
 			offx += largura + 1;
 			rects.push_back(tr);
+
+			// temporario pras cores de moving heads mareh
+			cores.push_back(cor);
 		}
 
 		// recalculando a largura total do rect sem mexer no offx e offy.
@@ -281,14 +290,17 @@ public:
 		ofSetColor(255);
 		int offy = 15;
 		int offx = 0;
-		//				ofSetColor(255,0,60,128);
-		//				ofDrawRectangle(rect);
+		//ofSetColor(255,0,60,128);
+		//ofDrawRectangle(rect);
 
 		int i = 0;
 		if (multiple) {
 			for (auto & r : rects) {
 				auto & o = opcoes[i];
 				ofSetColor(*_vals[i] ? cor : ofColor(80,120));
+				if (useColors) {
+					ofSetColor(cores[i]);
+				}
 				ofDrawRectangle (r);
 				ofSetColor(*_vals[i] ? 0 : 255);
 				ofDrawBitmapString(o, r.x + 6, r.y + offy);
@@ -299,6 +311,9 @@ public:
 			for (auto & r : rects) {
 				auto & o = opcoes[i];
 				ofSetColor(*_val == o ? cor : ofColor(80,120));
+				if (useColors) {
+					ofSetColor(cores[i]);
+				}
 				ofDrawRectangle (r);
 				ofSetColor(*_val == o ? 0 : 255);
 				ofDrawBitmapString(o, r.x + 6, r.y + offy);
@@ -505,6 +520,7 @@ public:
 	//ofRectangle rect; // pointer?
 	ofRectangle *_rect;
 	slider *_slider;
+
 	// function pointer.
 
 	void draw() {
