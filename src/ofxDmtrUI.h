@@ -32,6 +32,14 @@ enum flowDir {
 	VERT, HORIZ, NO_FLOW
 };
 
+class elementList {
+public:
+	string nome;
+	string tipo;
+//	slider *_slider;
+//	toggle *_toggle;
+};
+
 
 class slider {
 public:
@@ -651,4 +659,6 @@ public:
 	ofColor colunaBackground = ofColor(0,100);
 
 	void re();
+
+	vector <elementList> elementsList;
 };

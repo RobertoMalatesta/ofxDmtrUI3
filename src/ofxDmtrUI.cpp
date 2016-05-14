@@ -553,6 +553,13 @@ void ofxDmtrUI::createFromLine(string l) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::create(string nome, string tipo, string valores) {
+	{
+		elementList t;
+		t.nome = nome;
+		t.tipo = tipo;
+		elementsList.push_back(t);
+	}
+
 	int hue = int(flow.x/8.0 + flow.y/6.0 + 200)%255;
 	int saturation = bw ? 0 : 255;
 	int brightness = bw ? 127 : 200;
