@@ -603,7 +603,7 @@ public:
 
 
 	ofFbo fbo;
-	float easing = 30;
+	float easing = 5;
 	bool  showGui = true;
 	bool  redraw = true;
 	bool  columnOver = false;
