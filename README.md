@@ -45,6 +45,9 @@ integration with ofxMidi for midi controllers use
 Performance : maybe check inside panel rectangle if mouse event is inside before check in each panel element.
 Implement the class Element and make pointers to member functions of draw, check mouse, get val etc.
 
+## 2016 05 20
+function clear added. clear all sliders and variables, reset flow.x e flow.y to be ready to build other kinds of elements.
+
 ## 2016 05 13
 Possibility of coloring down some radio options. Made for Mareh Festival, a visual shortcut to moving heads color wheel options.
 Happy, the second commercial project using the interface.

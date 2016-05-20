@@ -553,6 +553,10 @@ void ofxDmtrUI::createFromLine(string l) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::create(string nome, string tipo, string valores) {
+
+	// vamos tentar inventar uma variavel aqui nos parametros somente.
+	ofStringReplace(valores, "sliderWidth", ofToString(sliderWidth));
+
 	{
 		elementList t;
 		t.nome = nome;
@@ -663,7 +667,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		ts.rect = ofRectangle(flow.x, flow.y, sliderWidth, 50);
 		if (tipo == "fbo") {
 			ts.isSlider = false;
-
 			if (valores != "") {
 				vector<string> vals = ofSplitString(valores," ");
 				if (vals[0] != "")
@@ -676,10 +679,10 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 //		ts._valy = &pPoint[nome].y;
 
 
+		pPoint[nome] = ofPoint(.5, .5);
 		ts._val = &pPoint[nome];
 		lastHeight = ts.rect.height;
 		lastWidth  = ts.rect.width;
-		pPoint[nome] = ofPoint(.5, .5);
 		indexElement[nome] = sliders2d.size();
 		sliders2d.push_back(ts);
 	}
@@ -838,6 +841,16 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 			}
 			//createFromLine("flowVert");
 		}
+	}
+
+	else if (tipo == "noise") {
+		createFromLine("label	"+nome);
+		createFromLine("float	"+nome+"NoiseSeed	0 1 .5");
+		createFromLine("float	"+nome+"NoiseMin	0 1 .1");
+		createFromLine("float	"+nome+"Noise	0 1 .5");
+		createFromLine("float	"+nome+"NoiseMult	.1 30 10");
+		createFromLine("fbo	"+nome+"NoiseFbo	sliderWidth 30");
+		lastHeight = 0;
 	}
 
 	else if (tipo == "sliderVertMatrix") {
@@ -1054,3 +1067,28 @@ void ofxDmtrUI::re() {
 	draw();
 }
 
+//--------------------------------------------------------------
+void ofxDmtrUI::clear() {
+	flow = ofPoint(marginx, marginy);
+	sliders.clear();
+	sliders2d.clear();
+	toggles.clear();
+	radios.clear();
+	elements.clear();
+	labels.clear();
+	pEasy.clear();
+	pFloat.clear();
+	pInt.clear();
+	pBool.clear();
+	pString.clear();
+	pLabel.clear();
+	pPoint.clear();
+	pColor.clear();
+	redraw = true;
+}
+
+//--------------------------------------------------------------
+float ofxDmtrUI::getNoise(string nome, float a) {
+	return (pFloat[nome+"NoiseMin"] + ofNoise(pFloat[nome+"NoiseSeed"],
+	a * pEasy[nome+"NoiseMult"]) * pFloat[nome+"Noise"]);
+}

@@ -661,4 +661,8 @@ public:
 	void re();
 
 	vector <elementList> elementsList;
+
+	float getNoise(string nome, float a);
+
+	void clear();
 };
