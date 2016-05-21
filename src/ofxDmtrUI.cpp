@@ -541,7 +541,11 @@ void ofxDmtrUI::createFromLine(string l) {
 		else {
 			if (tipo.substr(0,1) != "#") { //comment
 				if (cols.size()>2) {
-					create(nome, tipo, cols[2]);
+					if (cols.size()==3)
+						create(nome, tipo, cols[2]);
+					if (cols.size()==4)
+						create(nome, tipo, cols[2], cols[3]);
+
 				} else {
 					create(nome, tipo);
 				}
@@ -552,7 +556,7 @@ void ofxDmtrUI::createFromLine(string l) {
 
 
 //--------------------------------------------------------------
-void ofxDmtrUI::create(string nome, string tipo, string valores) {
+void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2) {
 
 	// vamos tentar inventar uma variavel aqui nos parametros somente.
 	ofStringReplace(valores, "sliderWidth", ofToString(sliderWidth));
@@ -564,7 +568,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		elementsList.push_back(t);
 	}
 
-	int hue = int(flow.x/8.0 + flow.y/6.0 + 200)%255;
+	int hue = int(flow.x/8.0 + flow.y/6.0 + 100)%255;
 	int saturation = bw ? 0 : 255;
 	int brightness = bw ? 127 : 200;
 	ofColor cor = ofColor::fromHsb(hue,saturation,brightness);
@@ -713,12 +717,17 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 			ts._val = &pFloat[ts.nome];
 		}
 
+		//cout << "valores : " + valores << endl;
+
 		if (valores != "") {
 			vector <string> vals = ofSplitString(valores, " ");
 			ofVec3f val = ofVec3f(ofToFloat(vals[0]), ofToFloat(vals[1]), ofToFloat(vals[2]));
 			ts.min = val.x;
 			ts.max = val.y;
 			ts.def = val.z;
+
+			//cout << val << endl;
+
 			// for initialization without mouse.
 			ts.setValue(ts.def);
 		}
@@ -803,6 +812,17 @@ void ofxDmtrUI::create(string nome, string tipo, string valores) {
 		ofDirectory dir;
 		// no futuro colocar o allowext por algum lado
 		//		dir.allowExt("wav");
+
+//		cout << "dirlist:: "  + valores << endl;
+		if (valores2 != "") {
+			vector <string> vals = ofSplitString(valores2, "	");
+			for (auto & c : vals) {
+				dir.allowExt(c);
+			}
+		}
+
+		pFolder[nome] = valores;
+
 		dir.listDir(valores);
 
 		vector <string> opcoes;
@@ -1084,6 +1104,8 @@ void ofxDmtrUI::clear() {
 	pLabel.clear();
 	pPoint.clear();
 	pColor.clear();
+
+	pFolder.clear();
 	redraw = true;
 }
 

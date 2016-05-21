@@ -573,7 +573,7 @@ public:
 	void		createFromText(string file);
 	void		createFromLine(string line);
 	// rename to createelement
-	void		create(string nome, string tipo="slider", string valores = ""); // NULL
+	void		create(string nome, string tipo="slider", string valores = "", string valores2 = ""); // NULL
 	void		save(string xml);
 	void		load(string xml);
 	void		expires(int dataInicial, int dias = 10);
@@ -649,6 +649,8 @@ public:
 	map <string,string>			pLabel;
 	map <string,ofPoint>			pPoint;
 	map <string,ofFloatColor>	pColor;
+	// NOVO
+	map <string,string>			pFolder;
 
 	ofxDmtrUI *_presetsUI;
 
