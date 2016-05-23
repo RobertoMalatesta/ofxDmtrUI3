@@ -46,6 +46,10 @@ Performance : maybe check inside panel rectangle if mouse event is inside before
 Implement the class Element and make pointers to member functions of draw, check mouse, get val etc.
 
 ## 2016 05 20
+new addon to interface this addon with midi controller
+https://github.com/dimitre/ofxDmtrUIMidiController
+
+## 2016 05 20
 function clear added. clear all sliders and variables, reset flow.x e flow.y to be ready to build other kinds of elements.
 
 ## 2016 05 13

@@ -105,12 +105,21 @@ public:
 	void setValue(float v) {
 		// posso colocar o evento aqui mas no caso vou dar um trigger qdo estiver carregando XML
 		// trigando todos os All e baguncando presets.
+
+		// hoje coloquei eventos aqui pra poder usar o pan_All desde o midi controller
+		string ev;
 		if (isInt) {
 			*_valInt = v;
+			ev = "setInt_" + nome;
 		} else {
 			*_val = v;
+			ev = "setFloat_" + nome;
 		}
 		valorPixels = ofMap(v, min, max, 0, rect.width);
+
+		if (ev != "") {
+			ofNotifyEvent(uiEvent, ev, this);
+		}
 	}
 
 	void draw() {

@@ -864,11 +864,15 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 	}
 
 	else if (tipo == "noise") {
+		if (valores == "") {
+			valores = ".5 .1 .5 10";
+		}
+		vector <string> vals = ofSplitString(valores, " ");
 		createFromLine("label	"+nome);
-		createFromLine("float	"+nome+"NoiseSeed	0 1 .5");
-		createFromLine("float	"+nome+"NoiseMin	0 1 .1");
-		createFromLine("float	"+nome+"Noise	0 1 .5");
-		createFromLine("float	"+nome+"NoiseMult	.1 30 10");
+		createFromLine("float	"+nome+"NoiseSeed	0 1 " + vals[0]);
+		createFromLine("float	"+nome+"NoiseMin	-.2 1 " + vals[1]);
+		createFromLine("float	"+nome+"Noise	0 1.4 " + vals[2]);
+		createFromLine("float	"+nome+"NoiseMult	.1 30 " + vals[3]);
 		createFromLine("fbo	"+nome+"NoiseFbo	sliderWidth 30");
 		lastHeight = 0;
 	}
