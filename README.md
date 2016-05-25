@@ -45,6 +45,11 @@ integration with ofxMidi for midi controllers use
 Performance : maybe check inside panel rectangle if mouse event is inside before check in each panel element.
 Implement the class Element and make pointers to member functions of draw, check mouse, get val etc.
 
+## 2016 05 25
+added saveX saveY and restoreX restoreY  
+updating software for The Year club.  
+upgrading ofxDmtrUIMidiController.  
+
 ## 2016 05 20
 new addon to interface this addon with midi controller
 https://github.com/dimitre/ofxDmtrUIMidiController
