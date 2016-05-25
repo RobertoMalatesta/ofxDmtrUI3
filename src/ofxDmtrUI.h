@@ -617,13 +617,13 @@ public:
 	bool  redraw = true;
 	bool  columnOver = false;
 
-	ofRectangle coluna = ofRectangle(0,0,620,560);
+
 	float marginx = 20;
 	float marginy = 20;
 	
 	ofPoint flow = ofPoint(marginx, marginy);
 	flowDir flowDirection = VERT;
-	bool	 saveLoadShortcut = true;
+	bool	 saveLoadShortcut = false;
 
 	string UINAME = "ui";
 
@@ -667,7 +667,6 @@ public:
 	bool		useShortcut = false;
 
 
-	ofColor colunaBackground = ofColor(0,100);
 
 	void re();
 
@@ -676,4 +675,21 @@ public:
 	float getNoise(string nome, float a);
 
 	void clear();
+
+
+
+	//ofColor colunaBackground = ofColor(40,150);
+	ofColor colunaBackground = ofColor(0,100);
+	//ofRectangle coluna = ofRectangle(0,0,620,560);
+	ofRectangle coluna = ofRectangle(0,0,250,250);
+
+	ofPoint presetDimensions = ofPoint(100,25);
+
+
+	bool debug = true;
 };
+
+
+
+
+

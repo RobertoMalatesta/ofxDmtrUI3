@@ -446,9 +446,14 @@ vector <string> ofxDmtrUI::textToVector(string file) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::createFromText(string file) {
+	if (debug) {
+		cout << "ofxDmtrUI createFromText ::: " + file << endl;
+	}
+
 	vector <string> linhas = textToVector(file);
 	for (auto & l : linhas) {
 		createFromLine(l);
+
 	}
 	// end reading from text files
 	for (auto & e : sliders) {
@@ -493,6 +498,23 @@ void ofxDmtrUI::createFromLine(string l) {
 			pFloatBak["flowx"] = flow.x;
 			pFloat["maxWidthHorizontal"] = 0;
 		}
+
+		else if (tipo == "saveY") {
+			pFloatBak["saveY"] = flow.y;
+		}
+
+		else if (tipo == "restoreY") {
+			flow.y = pFloatBak["saveY"];
+		}
+
+		else if (tipo == "saveX") {
+			pFloatBak["saveX"] = flow.x;
+		}
+
+		else if (tipo == "restoreX") {
+			flow.x = pFloatBak["saveX"];
+		}
+
 		else if (tipo == "margin") {
 			flow.x = flow.y = marginx = marginy = ofToFloat(cols[1]);
 		}
@@ -586,9 +608,10 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			cols = ofToInt(vals[0]);
 			rows = ofToInt(vals[1]);
 		}
-		int w = 100;
-		//int h = 36;
-		int h = 24;
+//		int w = 100;
+//		int h = 24;
+		int w = presetDimensions.x;
+		int h = presetDimensions.y;
 		int x = flow.x;
 		int y = flow.y;
 		// temporario
@@ -1093,6 +1116,9 @@ void ofxDmtrUI::re() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::clear() {
+	if (debug) {
+		cout << "ofxDmtrUI Clear!" << endl;
+	}
 	flow = ofPoint(marginx, marginy);
 	sliders.clear();
 	sliders2d.clear();
