@@ -36,7 +36,7 @@ http://dmtr.org/
 void ofxDmtrUI::setup() {
 	ofSetEscapeQuitsApp(false);
 
-	ofPoint flow = ofPoint(marginx, marginy);
+	flow = ofPoint(marginx, marginy);
 
 	fbo.allocate(coluna.width, coluna.height, GL_RGBA);
 	fbo.begin();
@@ -73,12 +73,13 @@ void ofxDmtrUI::update() {
 //--------------------------------------------------------------
 void ofxDmtrUI::draw() {
 	if (showGui) {
+		ofEnableAlphaBlending();
 		if (redraw) {
 			fbo.begin();
 			ofClear(colunaBackground);
 //			for (auto & e : elements) 	{ e.draw(); }
 
-			for (auto & e : sliders) 	{ e.draw(); }
+			for (auto & e : sliders) 	{ e.draw(learnMode); }
 			for (auto & e : toggles) 	{ e.draw(); }
 			for (auto & e : labels)  	{ e.draw(); }
 			for (auto & e : radios)  	{ e.draw(); }
@@ -144,6 +145,9 @@ void ofxDmtrUI::save(string xml){
 //--------------------------------------------------------------
 void ofxDmtrUI::load(string xml){
 	cout << "load: " + xml << endl;
+	if (!ofFile::doesFileExist(xml)) {
+		cout << " ----- file doesn't exist" << endl;
+	}
 	ofxXmlSettings settings;
 	settings.loadFile(xml);
 	for (auto & e : sliders) {
@@ -182,6 +186,10 @@ void ofxDmtrUI::load(string xml){
 
 //--------------------------------------------------------------
 void ofxDmtrUI::keyPressed(int key){
+	if (key == 'q') {
+		learnMode = !learnMode;
+		re();
+	}
 	if (key == '=') {
 		showGui = !showGui;
 	}
@@ -453,11 +461,17 @@ void ofxDmtrUI::createFromText(string file) {
 	vector <string> linhas = textToVector(file);
 	for (auto & l : linhas) {
 		createFromLine(l);
-
 	}
+	addAllListeners();
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI::addAllListeners() {
+
 	// end reading from text files
 	for (auto & e : sliders) {
 		ofAddListener(e.uiEvent,this, &ofxDmtrUI::uiEvents);
+		ofAddListener(e.evento ,this, &ofxDmtrUI::uiEventsNeu);
 	}
 	for (auto & e : sliders2d) {
 		ofAddListener(e.uiEvent,this, &ofxDmtrUI::uiEvents);
@@ -465,9 +479,11 @@ void ofxDmtrUI::createFromText(string file) {
 
 	for (auto & e : radios) {
 		ofAddListener(e.uiEvent,this, &ofxDmtrUI::uiEvents);
+		ofAddListener(e.evento ,this, &ofxDmtrUI::uiEventsNeu);
 	}
 	for (auto & e : toggles) {
 		ofAddListener(e.uiEvent,this, &ofxDmtrUI::uiEvents);
+		ofAddListener(e.evento ,this, &ofxDmtrUI::uiEventsNeu);
 	}
 
 	ofAddListener(allPresets.uiEvent,this, &ofxDmtrUI::uiEvents);
@@ -497,6 +513,22 @@ void ofxDmtrUI::createFromLine(string l) {
 			flow.y = marginy;
 			pFloatBak["flowx"] = flow.x;
 			pFloat["maxWidthHorizontal"] = 0;
+		}
+
+//		else if (tipo == "uiSetup") {
+//			setup();
+//		}
+		else if (tipo == "uiClear") {
+			clear();
+		}
+
+		else if (tipo == "hueStart") {
+			hueStart = ofToFloat(cols[1]);
+		}
+
+		// em portugues?
+		else if (tipo == "colunaBackground") {
+			colunaBackground  = ofColor::fromHex(ofHexToInt(cols[1].substr(1)));
 		}
 
 		else if (tipo == "saveY") {
@@ -590,7 +622,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		elementsList.push_back(t);
 	}
 
-	int hue = int(flow.x/8.0 + flow.y/6.0 + 100)%255;
+	int hue = int(flow.x/8.0 + flow.y/6.0 + hueStart)%255;
 	int saturation = bw ? 0 : 255;
 	int brightness = bw ? 127 : 200;
 	ofColor cor = ofColor::fromHsb(hue,saturation,brightness);
@@ -712,6 +744,12 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		lastWidth  = ts.rect.width;
 		indexElement[nome] = sliders2d.size();
 		sliders2d.push_back(ts);
+
+//		elementNeu te;
+//		te._slider2d = &sliders2d[sliders2d.size()-1];
+		elementsMap[nome]._slider2d = &sliders2d[sliders2d.size()-1];
+		elementsMap[nome].ok = true;
+		elementsMap[nome].nome = nome;
 	}
 
 	else if (tipo == "slider" || tipo == "int" || tipo == "sliderVert") {
@@ -865,7 +903,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		lastHeight = temp.rect.height;
 
 		radios.push_back(temp);
-		flow.y += temp.rect.height - 25 + 5;
+		//flow.y += temp.rect.height - 25 + 5;
 	}
 
 	else if (tipo == "togglematrix") {
@@ -955,6 +993,11 @@ void	 ofxDmtrUI::expires(int dataInicial, int dias) {
 }
 
 //--------------------------------------------------------------
+void	 ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
+	ofNotifyEvent(evento, e);
+}
+
+//--------------------------------------------------------------
 void	 ofxDmtrUI::uiEvents(string & e) {
 	//cout << e << endl;
 
@@ -1020,7 +1063,6 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 			allPresets.draw();
 			allPresets.presets[slot].img.setFromPixels(pixels);
 		}
-
 	}
 
 

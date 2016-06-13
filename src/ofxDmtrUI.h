@@ -28,8 +28,26 @@
 #include "ofEvents.h"
 #include "ofxXmlSettings.h"
 
+//#if defined( TARGET_OF_IPHONE ) || defined( TARGET_OF_IOS ) || defined( TARGET_ANDROID )
+//	#define DMTRUI_TARGET_TOUCH
+//#endif
+
 enum flowDir {
 	VERT, HORIZ, NO_FLOW
+};
+
+// 27 de maio de 2016
+enum elementType {
+	SLIDER, SLIDERINT, TOGGLE, LABEL, RADIO, RADIOITEM, SLIDER2D, FBO
+};
+
+enum eventoType {
+	// bang fica aqui mesmo?
+	UPDATE, LOAD, SET, BANG
+};
+
+enum varType {
+	FLOAT, INT, STRING, BOOLEANO
 };
 
 class elementList {
@@ -39,6 +57,32 @@ public:
 //	slider *_slider;
 //	toggle *_toggle;
 };
+
+// 27 de maio de 2016, ainda não sei se vai dar certo.
+class dmtrUIEvent {
+public:
+	string *_nome;
+	string nome;
+	string ui;
+	elementType element;
+	eventoType tipo;
+	varType var = FLOAT;
+	//ofxDmtrUI *_ui;
+	// unknown type name.
+	//string action; //update, load, etc.
+};
+
+
+// 28 de maio. rascunho pro futuro - acho que provisorio.
+//dmtrUIEvent sendEvent(string & nome, varType var, elementType element , eventoType tipo ) { //string ui,
+//	dmtrUIEvent te;
+//	te._nome = &nome;
+//	te.tipo = UPDATE;
+//	te.element = element;
+//	te.tipo = tipo;
+//	te.var = var;
+//	return te;
+//}
 
 
 class slider {
@@ -71,38 +115,49 @@ public:
 	// 15 04 2016 - boolean for vertical sliders
 	bool			vert = false;
 
+	// 27 05 2016 - tipo de evento mais completo
+	ofEvent<dmtrUIEvent> evento;
+
 	void update(int x, int y) {
+		dmtrUIEvent te;
+		te._nome = &nome;
+		te.tipo = UPDATE;
+
+		// nome pode ser um pointer.
 		// fazer algo que cheque se o valor foi modificado da ultima vez pra disparar o evento?
-		valorPixels = ofClamp(x - rect.x, 0, rect.width);
+		if (vert) {
+			valorPixels = ofClamp(rect.height - (y - rect.y), 0, rect.height);
+		} else {
+			valorPixels = ofClamp(x - rect.x, 0, rect.width);
+		}
 
 		if (isInt) {
-			*_valInt = ofMap(valorPixels, 0, rect.width, min, max);
+			te.element = SLIDERINT;
+			te.var = INT;
+			if (vert) {
+				*_valInt = ofMap(valorPixels, 0, rect.height, min, max);
+			} else {
+				*_valInt = ofMap(valorPixels, 0, rect.width, min, max);
+			}
 			string ev = "updateInt_" + nome;
 			ofNotifyEvent(uiEvent, ev, this);
 		} else {
-			*_val = ofMap(valorPixels, 0, rect.width, min, max);
+			te.element = SLIDER;
+
+			if (vert) {
+				*_val = ofMap(valorPixels, 0, rect.height, min, max);
+			} else {
+				*_val = ofMap(valorPixels, 0, rect.width, min, max);
+			}
 			string ev = "updateFloat_" + nome;
 			ofNotifyEvent(uiEvent, ev, this);
 		}
 
-		// não sei se é boa idéia aqui... ou somente usar 90 graus em tudo...
-		if (vert) {
-			valorPixels = ofClamp(rect.height - (y - rect.y), 0, rect.height);
-			
-
-			if (isInt) {
-				*_valInt = ofMap(valorPixels, 0, rect.height, min, max);
-				string ev = "updateInt_" + nome;
-				ofNotifyEvent(uiEvent, ev, this);
-			} else {
-				*_val = ofMap(valorPixels, 0, rect.height, min, max);
-				string ev = "updateFloat_" + nome;
-				ofNotifyEvent(uiEvent, ev, this);
-			}
-		}
+		ofNotifyEvent(evento, te, this);
 	}
 
-	void setValue(float v) {
+	void setValue(float v, string eventName = "set") {
+
 		// posso colocar o evento aqui mas no caso vou dar um trigger qdo estiver carregando XML
 		// trigando todos os All e baguncando presets.
 
@@ -110,19 +165,25 @@ public:
 		string ev;
 		if (isInt) {
 			*_valInt = v;
-			ev = "setInt_" + nome;
+			ev = eventName + "Int_" + nome;
 		} else {
 			*_val = v;
-			ev = "setFloat_" + nome;
+			ev = eventName + "Float_" + nome;
 		}
 		valorPixels = ofMap(v, min, max, 0, rect.width);
 
 		if (ev != "") {
 			ofNotifyEvent(uiEvent, ev, this);
 		}
+
+
+//		dmtrUIEvent e = sendEvent(nome, isInt ? INT : FLOAT, isInt ? SLIDERINT : SLIDER, SET);
+//		ofNotifyEvent(evento, e, this);
+
 	}
 
-	void draw() {
+//	void draw() {
+	void draw(bool learn = false) {
 		auto vvv = (isInt ? *_valInt : *_val);
 		valorPixels = ofMap(vvv, min, max, 0, rect.width);
 
@@ -145,6 +206,14 @@ public:
 			ofSetColor(255);
 			ofDrawBitmapString(label, rect.x+10, rect.y+offy-1);
 		}
+
+		if (learn) {
+			ofSetColor(255,0,70);
+			ofNoFill();
+			//ofSetColor(0,50,200,50);
+			ofDrawRectangle(rect);
+			ofFill();
+		}
 	}
 };
 
@@ -161,11 +230,21 @@ public:
 	bool				bang = false;
 
 	ofEvent<string> uiEvent;
+	ofEvent<dmtrUIEvent> evento;
+
 
 	void flip() {
 		*_val = !*_val;
 		string ev = bang ? "bang_" + nome : "updateBool_" + nome;
 		ofNotifyEvent(uiEvent, ev, this);
+
+		// 28 maio 2016
+		dmtrUIEvent te;
+		te._nome = &nome;
+		te.tipo = BANG;
+		te.var = BOOLEANO;
+		ofNotifyEvent(evento, te, this);
+
 	}
 
 	// acho que nao preicsa mais? precisa?
@@ -173,7 +252,7 @@ public:
 	void setValue(bool v) {
 		*_val = v;
 		// 19 de abril. vai atrapalhar?
-		string ev = "updateBool_" + nome;
+		string ev = "loadBool_" + nome;
 		ofNotifyEvent(uiEvent, ev, this);
 	}
 
@@ -232,6 +311,7 @@ public:
 	int offy = 0;
 	int height = 20;
 	ofEvent<string> uiEvent;
+	ofEvent<dmtrUIEvent> evento;
 
 
 	// pra fazer da mareh o lookup de cores.
@@ -240,15 +320,23 @@ public:
 
 	void setValue(string v, int notify = 0) {
 		*_val = v;
+		dmtrUIEvent te;
+		te._nome = &nome;
+		te.element = RADIO;
+		te.var = STRING;
+
 		if (notify == 1) {
+			te.tipo = UPDATE;
 			string ev = "updateRadio_" + nome;
 			ofNotifyEvent(uiEvent, ev, this);
 		}
 
 		if (notify == 2) {
+			te.tipo = LOAD;
 			string ev = "loadRadio_" + nome;
 			ofNotifyEvent(uiEvent, ev, this);
 		}
+		ofNotifyEvent(evento, te, this);
 	}
 
 	void checkMouse(int x, int y) {
@@ -267,6 +355,14 @@ public:
 						*_val = opcoes[i];
 						string ev = "updateRadio_" + nome;
 						ofNotifyEvent(uiEvent, ev, this);
+
+						dmtrUIEvent te;
+						te._nome = &nome;
+						te.element = RADIO;
+						te.tipo = UPDATE;
+						te.var = STRING;
+						ofNotifyEvent(evento, te, this);
+
 					}
 				}
 			}
@@ -529,6 +625,14 @@ public:
 	}
 };
 
+class elementNeu {
+public:
+	slider2d *_slider2d;
+	bool ok = false;
+	string nome;
+	//	slider *_slider;
+	//	toggle *_toggle;
+};
 
 class element {
 public:
@@ -587,6 +691,7 @@ public:
 	void		load(string xml);
 	void		expires(int dataInicial, int dias = 10);
 	void		uiEvents(string & e);
+	void		uiEventsNeu(dmtrUIEvent & e);
 	void		autoFit();
 
 	void		setFloat(string nome, float val);
@@ -634,7 +739,7 @@ public:
 	int	lastHeight, lastWidth;
 
 	ofEvent<string> uiEvent;
-	//ofEvent<string> evento;
+	ofEvent<dmtrUIEvent> evento;
 
 	// ainda ver direitiho se isso vai rolar.
 	map <string, map <string, string> > dirListMap;
@@ -669,27 +774,22 @@ public:
 
 
 	void re();
-
 	vector <elementList> elementsList;
-
 	float getNoise(string nome, float a);
-
 	void clear();
-
 
 
 	//ofColor colunaBackground = ofColor(40,150);
 	ofColor colunaBackground = ofColor(0,100);
 	//ofRectangle coluna = ofRectangle(0,0,620,560);
 	ofRectangle coluna = ofRectangle(0,0,250,250);
-
 	ofPoint presetDimensions = ofPoint(100,25);
+	bool debug = false;
+	map <string, elementNeu> elementsMap;
+	void addAllListeners();
 
+	int hueStart = 100;
 
-	bool debug = true;
+	bool learnMode = false;
 };
-
-
-
-
 
