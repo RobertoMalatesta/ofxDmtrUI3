@@ -322,6 +322,9 @@ public:
 		*_val = v;
 		dmtrUIEvent te;
 		te._nome = &nome;
+		// vamos ver direito tudo isso.
+		// mudar tudo pra ingles?
+		te.nome = nome;
 		te.element = RADIO;
 		te.var = STRING;
 
@@ -699,7 +702,9 @@ public:
 	void		setRadio(string nome, string val);
 
 	void		loadPreset(int n);
+	void		loadPresetAll(int n);
 	void		savePreset(int n);
+	void		savePresetAll(int n);
 	void		setFbo(ofFbo &fbo);
 
 
@@ -791,5 +796,7 @@ public:
 	int hueStart = 100;
 
 	bool learnMode = false;
+
+	vector<string> colors;
 };
 

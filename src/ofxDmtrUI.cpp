@@ -209,63 +209,63 @@ void ofxDmtrUI::keyPressed(int key){
 
 	if (useShortcut) {
 		if (key == 'a' || key == 'A') {
-			loadPreset(0 + pInt["atalhoOffset"]);
+			loadPresetAll(0 + pInt["atalhoOffset"]);
 //			string x = "foo";
 //			uiEvent(x);
 		}
 		else if (key == 's' || key == 'S') {
-			loadPreset(1 + pInt["atalhoOffset"]);
+			loadPresetAll(1 + pInt["atalhoOffset"]);
 		}
 		else if (key == 'd' || key == 'D') {
-			loadPreset(2 + pInt["atalhoOffset"]);
+			loadPresetAll(2 + pInt["atalhoOffset"]);
 		}
 		else if (key == 'f' || key == 'F') {
-			loadPreset(3 + pInt["atalhoOffset"]);
+			loadPresetAll(3 + pInt["atalhoOffset"]);
 		}
 		else if (key == 'g' || key == 'G') {
-			loadPreset(4 + pInt["atalhoOffset"]);
+			loadPresetAll(4 + pInt["atalhoOffset"]);
 		}
 		else if (key == 'h' || key == 'H') {
-			loadPreset(5 + pInt["atalhoOffset"]);
+			loadPresetAll(5 + pInt["atalhoOffset"]);
 		}
 		else if (key == 'j' || key == 'J') {
-			loadPreset(6 + pInt["atalhoOffset"]);
+			loadPresetAll(6 + pInt["atalhoOffset"]);
 		}
 		else if (key == 'k' || key == 'K') {
-			loadPreset(7 + pInt["atalhoOffset"]);
+			loadPresetAll(7 + pInt["atalhoOffset"]);
 		}
 		else if (key == 'l' || key == 'L') {
-			loadPreset(8 + pInt["atalhoOffset"]);
+			loadPresetAll(8 + pInt["atalhoOffset"]);
 		}
 		else if (key == ';') {
-			loadPreset(9 + pInt["atalhoOffset"]);
+			loadPresetAll(9 + pInt["atalhoOffset"]);
 		}
 		else if (key == 39) { //single quote
-			loadPreset(10 + pInt["atalhoOffset"]);
+			loadPresetAll(10 + pInt["atalhoOffset"]);
 		}
 		if (key == 'z' || key == 'Z') {
-			loadPreset(11 + pInt["atalhoOffset"]);
+			loadPresetAll(11 + pInt["atalhoOffset"]);
 		}
 		else if (key == 'x' || key == 'X') {
-			loadPreset(12 + pInt["atalhoOffset"]);
+			loadPresetAll(12 + pInt["atalhoOffset"]);
 		}
 		else if (key == 'c' || key == 'C') {
-			loadPreset(13 + pInt["atalhoOffset"]);
+			loadPresetAll(13 + pInt["atalhoOffset"]);
 		}
 		else if (key == 'v' || key == 'V') {
-			loadPreset(14 + pInt["atalhoOffset"]);
+			loadPresetAll(14 + pInt["atalhoOffset"]);
 		}
 		else if (key == 'b' || key == 'B') {
-			loadPreset(15 + pInt["atalhoOffset"]);
+			loadPresetAll(15 + pInt["atalhoOffset"]);
 		}
 		else if (key == 'n' || key == 'N') {
-			loadPreset(16 + pInt["atalhoOffset"]);
+			loadPresetAll(16 + pInt["atalhoOffset"]);
 		}
 		else if (key == 'm' || key == 'M') {
-			loadPreset(17 + pInt["atalhoOffset"]);
+			loadPresetAll(17 + pInt["atalhoOffset"]);
 		}
 		else if (key == ',') {
-			loadPreset(18 + pInt["atalhoOffset"]);
+			loadPresetAll(18 + pInt["atalhoOffset"]);
 		}
 	}
 }
@@ -664,7 +664,8 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			ofClear(0,255);
 
 			// talvez prepend o UI name aqui? nao sei. UINAME
-			string filename = presetsFolder + UINAME + ofToString(a) + ".tif";
+//			string filename = presetsFolder + ofToString(a) + UINAME + ".tif";
+			string filename = presetsFolder + ofToString(a) + ".tif";
 			//cout << filename << endl;
 			//cout << filename << endl;
 			//cout << filename << endl;
@@ -691,33 +692,28 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		elements.push_back(te);
 	}
 
-	else if (tipo == "color" || tipo == "colorhsb") {
-		ofRectangle rect;
-		rect.x = flow.x;
-		rect.y = flow.y;
-		rect.width = sliderWidth;
-		if (tipo == "color") {
-			create(nome+"_r", "slider", "0 1 1");
-			sliders[indexElement[nome+"_r"]]._val = &pColor[nome].r;
-			create(nome+"_g", "slider", "0 1 1");
-			sliders[indexElement[nome+"_g"]]._val = &pColor[nome].g;
-			create(nome+"_b", "slider", "0 1 1");
-			sliders[indexElement[nome+"_b"]]._val = &pColor[nome].b;
-			create(nome+"_a", "slider", "0 1 1");
-			sliders[indexElement[nome+"_a"]]._val = &pColor[nome].a;
-		} else {
-			create(nome+"_h", "slider", "0 255 0");
-			create(nome+"_s", "slider", "0 255 255");
-			create(nome+"_b", "slider", "0 255 255");
-
-		}
-		rect.height = flow.y - rect.y;
-
-//		element te;
-//		*te._slider =
-//		te._rect = &allPresets.rect;
-//		elements.push_back(te);
-	}
+//	else if (tipo == "color" || tipo == "colorhsb") {
+//		ofRectangle rect;
+//		rect.x = flow.x;
+//		rect.y = flow.y;
+//		rect.width = sliderWidth;
+//		if (tipo == "color") {
+//			create(nome+"_r", "slider", "0 1 1");
+//			sliders[indexElement[nome+"_r"]]._val = &pColor[nome].r;
+//			create(nome+"_g", "slider", "0 1 1");
+//			sliders[indexElement[nome+"_g"]]._val = &pColor[nome].g;
+//			create(nome+"_b", "slider", "0 1 1");
+//			sliders[indexElement[nome+"_b"]]._val = &pColor[nome].b;
+//			create(nome+"_a", "slider", "0 1 1");
+//			sliders[indexElement[nome+"_a"]]._val = &pColor[nome].a;
+//		} else {
+//			create(nome+"_h", "slider", "0 255 0");
+//			create(nome+"_s", "slider", "0 255 255");
+//			create(nome+"_b", "slider", "0 255 255");
+//
+//		}
+//		rect.height = flow.y - rect.y;
+//	}
 
 	else if (tipo == "slider2d" || tipo == "fbo") {
 		slider2d ts;
@@ -924,6 +920,23 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		}
 	}
 
+	else if (tipo == "color") {
+		createFromLine("toggle	"+nome+"UsaPaleta	0 1 0");
+		createFromLine("slider2d	"+nome+"Paleta	.5 .5");
+		createFromLine("slider2d	"+nome+"Hsv	.5 .5");
+		createFromLine("fbo	"+nome+"PaletaAtual	200 10");
+		createFromLine("slider	"+nome+"S	0 255 255");
+		createFromLine("slider	"+nome+"HRange	0 720 100");
+		createFromLine("slider	"+nome+"HRangeAudio	0 360 0");
+		createFromLine("slider	"+nome+"BRange	0 255 0");
+		createFromLine("int	"+nome+"HStep	0 6 0");
+		createFromLine("slider	"+nome+"Alpha	0 255 255");
+		createFromLine("slider	"+nome+"AlphaAudio	0 255 0");
+		createFromLine("slider	"+nome+"AlphaRange	0 255 0");
+		colors.push_back(nome);
+		//createFromLine("");
+	}
+
 	else if (tipo == "noise") {
 		if (valores == "") {
 			valores = ".5 .1 .5 10";
@@ -1007,9 +1020,10 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 //		if (_presetsUI) {
 //			_presetsUI->loadPreset(slot);
 //		}
-		for (auto & p : _presetsUIs) {
-			p->loadPreset(slot);
-		}
+		loadPresetAll(slot);
+//		for (auto & p : _presetsUIs) {
+//			p->loadPreset(slot);
+//		}
 	}
 
 	if (ofIsStringInString(e, "savePreset")) {
@@ -1020,9 +1034,11 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 //			_presetsUI->savePreset(slot);
 //		}
 
-		for (auto & p : _presetsUIs) {
-			p->savePreset(slot);
-		}
+//		for (auto & p : _presetsUIs) {
+//			p->savePreset(slot);
+//		}
+		savePresetAll(slot);
+
 
 		// talvez salvar o thumbnail no folder da outra UI? nao sei.
 
@@ -1057,7 +1073,8 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 			ofPixels pixels;
 			pixels.allocate( w, h, OF_IMAGE_COLOR_ALPHA);
 			allPresets.presets[slot].fbo.readToPixels(pixels);
-			string imgPath = presetsFolder + UINAME + ofToString(slot) + ".tif";
+//			string imgPath = presetsFolder + UINAME + ofToString(slot) + ".tif";
+			string imgPath = presetsFolder + ofToString(slot) + ".tif";
 			//cout << "save: " + imgPath << endl;
 			ofSaveImage(pixels, imgPath);
 			allPresets.draw();
@@ -1124,8 +1141,32 @@ void ofxDmtrUI::setRadio(string nome, string val) {
 }
 
 //--------------------------------------------------------------
+void ofxDmtrUI::loadPresetAll(int n) {
+	cout << "loadPresetAll" << endl;
+	for (auto & p : _presetsUIs) {
+		//p->loadPreset(n);
+		string nome = presetsFolder + ofToString(n) + p->UINAME +  ".xml";
+		p->load(nome);
+	}
+	presetLoaded = n;
+	allPresets.set(n);
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI::savePresetAll(int n) {
+	cout << "savePresetAll" << endl;
+	for (auto & p : _presetsUIs) {
+		string nome = presetsFolder + ofToString(n) + p->UINAME +  ".xml";
+		p->save(nome);
+	}
+	presetLoaded = n;
+	allPresets.set(n);
+}
+
+//--------------------------------------------------------------
 void ofxDmtrUI::loadPreset(int n) {
-	string nome = presetsFolder + UINAME + ofToString(n) + ".xml";
+//	string nome = presetsFolder + UINAME + ofToString(n) + ".xml";
+	string nome = presetsFolder + ofToString(n) + UINAME +  ".xml";
 	load(nome);
 	presetLoaded = n;
 
@@ -1139,7 +1180,8 @@ void ofxDmtrUI::loadPreset(int n) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::savePreset(int n) {
-	string nome = presetsFolder + UINAME + ofToString(n) + ".xml";
+//	string nome = presetsFolder + UINAME + ofToString(n) + ".xml";
+	string nome = presetsFolder + ofToString(n) + UINAME +  ".xml";
 	save(nome);
 }
 
