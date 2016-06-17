@@ -120,6 +120,7 @@ public:
 
 	void update(int x, int y) {
 		dmtrUIEvent te;
+		te.nome = nome;
 		te._nome = &nome;
 		te.tipo = UPDATE;
 
@@ -175,7 +176,6 @@ public:
 		if (ev != "") {
 			ofNotifyEvent(uiEvent, ev, this);
 		}
-
 
 //		dmtrUIEvent e = sendEvent(nome, isInt ? INT : FLOAT, isInt ? SLIDERINT : SLIDER, SET);
 //		ofNotifyEvent(evento, e, this);
@@ -321,10 +321,10 @@ public:
 	void setValue(string v, int notify = 0) {
 		*_val = v;
 		dmtrUIEvent te;
+		te.nome = nome;
 		te._nome = &nome;
 		// vamos ver direito tudo isso.
 		// mudar tudo pra ingles?
-		te.nome = nome;
 		te.element = RADIO;
 		te.var = STRING;
 
@@ -360,6 +360,7 @@ public:
 						ofNotifyEvent(uiEvent, ev, this);
 
 						dmtrUIEvent te;
+						te.nome = nome;
 						te._nome = &nome;
 						te.element = RADIO;
 						te.tipo = UPDATE;
@@ -499,8 +500,6 @@ public:
 			presets[valor].selecionado = true;
 			presets[valor].draw();
 		}
-
-
 	}
 
 	void checkMouse(int x, int y) {

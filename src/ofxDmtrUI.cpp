@@ -55,6 +55,7 @@ void ofxDmtrUI::setup() {
 	if (keepSettings) {
 		load(presetsFolder + UINAME + ".xml");
 	}
+
 }
 // END SETUP
 
@@ -669,8 +670,10 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			//cout << filename << endl;
 			//cout << filename << endl;
 			//cout << filename << endl;
+
 			if (ofFile::doesFileExist(filename)) {
 				tp.img.load(filename);
+				ofSetColor(255);
 				tp.img.draw(0,0);
 			}
 			tp.fbo.end();
@@ -884,7 +887,8 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 		vector <string> opcoes;
 		for (auto & d : dir) {
-			opcoes.push_back(d.getFileName());
+			//opcoes.push_back(d.getFileName());
+			opcoes.push_back(d.getBaseName());
 			dirListMap[valores][d.getFileName()] = d.getAbsolutePath();
 		}
 
@@ -1014,32 +1018,17 @@ void	 ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 void	 ofxDmtrUI::uiEvents(string & e) {
 	//cout << e << endl;
 
+	// passar isso tudo pro estilo novo de eventos?
 	if (ofIsStringInString(e, "loadPreset")) {
 		vector <string> split = ofSplitString(e, "_");
 		int slot = ofToInt(split[1]);
-//		if (_presetsUI) {
-//			_presetsUI->loadPreset(slot);
-//		}
 		loadPresetAll(slot);
-//		for (auto & p : _presetsUIs) {
-//			p->loadPreset(slot);
-//		}
 	}
 
 	if (ofIsStringInString(e, "savePreset")) {
 		vector <string> split = ofSplitString(e, "_");
 		int slot = ofToInt(split[1]);
-
-//		if (_presetsUI) {
-//			_presetsUI->savePreset(slot);
-//		}
-
-//		for (auto & p : _presetsUIs) {
-//			p->savePreset(slot);
-//		}
 		savePresetAll(slot);
-
-
 		// talvez salvar o thumbnail no folder da outra UI? nao sei.
 
 		if (_fbo != NULL) {
@@ -1081,7 +1070,6 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 			allPresets.presets[slot].img.setFromPixels(pixels);
 		}
 	}
-
 
 	if (ofIsStringInString(e, "shortcut") && !ofIsStringInString(e, "load")) {
 		vector <string> split = ofSplitString(e, "_");
@@ -1132,17 +1120,13 @@ void ofxDmtrUI::setBool(string nome, bool val) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::setRadio(string nome, string val) {
-//	cout << nome << endl;
-//	cout << indexElement[nome] << endl;
-//	cout << radios[indexElement[nome]].nome << endl;
-//	cout << "------" << endl;
 	radios[indexElement[nome]].setValue(val, true);
 	redraw = true;
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::loadPresetAll(int n) {
-	cout << "loadPresetAll" << endl;
+	//cout << "loadPresetAll" << endl;
 	for (auto & p : _presetsUIs) {
 		//p->loadPreset(n);
 		string nome = presetsFolder + ofToString(n) + p->UINAME +  ".xml";
@@ -1154,7 +1138,7 @@ void ofxDmtrUI::loadPresetAll(int n) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::savePresetAll(int n) {
-	cout << "savePresetAll" << endl;
+	//cout << "savePresetAll" << endl;
 	for (auto & p : _presetsUIs) {
 		string nome = presetsFolder + ofToString(n) + p->UINAME +  ".xml";
 		p->save(nome);
