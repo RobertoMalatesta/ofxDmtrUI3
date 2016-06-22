@@ -780,7 +780,7 @@ public:
 	void re();
 	vector <elementList> elementsList;
 	float getNoise(string nome, float a);
-	void clear();
+	void clear(bool keepVars = false);
 
 
 	//ofColor colunaBackground = ofColor(40,150);

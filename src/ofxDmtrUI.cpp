@@ -532,6 +532,10 @@ void ofxDmtrUI::createFromLine(string l) {
 			colunaBackground  = ofColor::fromHex(ofHexToInt(cols[1].substr(1)));
 		}
 
+		else if (tipo == "bw") {
+			bw  = ofToInt(cols[1]);
+		}
+
 		else if (tipo == "saveY") {
 			pFloatBak["saveY"] = flow.y;
 		}
@@ -695,29 +699,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		elements.push_back(te);
 	}
 
-//	else if (tipo == "color" || tipo == "colorhsb") {
-//		ofRectangle rect;
-//		rect.x = flow.x;
-//		rect.y = flow.y;
-//		rect.width = sliderWidth;
-//		if (tipo == "color") {
-//			create(nome+"_r", "slider", "0 1 1");
-//			sliders[indexElement[nome+"_r"]]._val = &pColor[nome].r;
-//			create(nome+"_g", "slider", "0 1 1");
-//			sliders[indexElement[nome+"_g"]]._val = &pColor[nome].g;
-//			create(nome+"_b", "slider", "0 1 1");
-//			sliders[indexElement[nome+"_b"]]._val = &pColor[nome].b;
-//			create(nome+"_a", "slider", "0 1 1");
-//			sliders[indexElement[nome+"_a"]]._val = &pColor[nome].a;
-//		} else {
-//			create(nome+"_h", "slider", "0 255 0");
-//			create(nome+"_s", "slider", "0 255 255");
-//			create(nome+"_b", "slider", "0 255 255");
-//
-//		}
-//		rect.height = flow.y - rect.y;
-//	}
-
 	else if (tipo == "slider2d" || tipo == "fbo") {
 		slider2d ts;
 		ts.nome = nome;
@@ -789,9 +770,13 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			//cout << val << endl;
 
 			// for initialization without mouse.
-			ts.setValue(ts.def);
+			// removed 18 june 2016 for shader reload keeping parameters intact initialization
+			//ts.setValue(ts.def);
 		}
-		pFloat[nome] = ts.def;
+
+		if (!pFloat[nome])
+			pFloat[nome] = ts.def;
+
 		if (ts.isInt) {
 			pInt[nome] = ts.def;
 		}
@@ -805,12 +790,8 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 //		te._rect = &ts.rect;
 //		elements.push_back(te);
 
-
 		sliders.push_back(ts);
-
-
 //		element te;
-
 	}
 
 	else if (tipo == "toggle" || tipo == "bang" || tipo == "toggleNolabel") { // bool
@@ -1183,7 +1164,7 @@ void ofxDmtrUI::re() {
 }
 
 //--------------------------------------------------------------
-void ofxDmtrUI::clear() {
+void ofxDmtrUI::clear(bool keepVars) {
 	if (debug) {
 		cout << "ofxDmtrUI Clear!" << endl;
 	}
@@ -1194,16 +1175,19 @@ void ofxDmtrUI::clear() {
 	radios.clear();
 	elements.clear();
 	labels.clear();
-	pEasy.clear();
-	pFloat.clear();
-	pInt.clear();
-	pBool.clear();
-	pString.clear();
-	pLabel.clear();
-	pPoint.clear();
-	pColor.clear();
 
-	pFolder.clear();
+	if (!keepVars) {
+		pEasy.clear();
+		pFloat.clear();
+		pInt.clear();
+		pBool.clear();
+		pString.clear();
+		pLabel.clear();
+		pPoint.clear();
+		pColor.clear();
+		pFolder.clear();
+	}
+	
 	redraw = true;
 }
 
