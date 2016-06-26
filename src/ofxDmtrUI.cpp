@@ -33,7 +33,10 @@ http://dmtr.org/
 #include "ofxDmtrUI.h"
 
 //--------------------------------------------------------------
-void ofxDmtrUI::setup() {
+void ofxDmtrUI::setup(string uiName) {
+	if (uiName != "") {
+		UINAME = uiName;
+	}
 	ofSetEscapeQuitsApp(false);
 
 	flow = ofPoint(marginx, marginy);
@@ -834,6 +837,9 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		temp.cor = cor;
 		temp.opcoes = ofSplitString(valores, " ");
 		temp._val = &pString[nome];
+		// 26 de junho de 2016, teste de null pointer
+		//pString[nome] = "";
+		
 		if (tipo == "radioMult") {
 			temp.multiple = true;
 			for (auto & o : temp.opcoes) {
@@ -992,6 +998,30 @@ void	 ofxDmtrUI::expires(int dataInicial, int dias) {
 
 //--------------------------------------------------------------
 void	 ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
+	//cout << e.nome << endl;
+
+	if (e.nome == "easing") {
+		cout << pFloat["easing"] << endl;
+		easing = pFloat["easing"];
+		for (auto & p : _presetsUIs) {
+			p->easing = pFloat["easing"];
+		}
+	}
+	if (e.nome == "scene") {
+		if (uiC != NULL) {
+			if (pString["sceneAnterior"] != pString["scene"]) {
+				uiC->clear();
+				uiC->createFromText("uiC.txt");
+				string fileName = "_scene/" + pString["scene"] + ".txt";
+				if (ofFile::doesFileExist(fileName)) {
+					uiC->createFromText(fileName);
+				}
+				uiC->createFromLine("autoFit");
+				uiC->setup();
+			}
+			pString["sceneAnterior"] = pString["scene"];
+		}
+	}
 	ofNotifyEvent(evento, e);
 }
 
@@ -1115,12 +1145,14 @@ void ofxDmtrUI::loadPresetAll(int n) {
 	}
 	presetLoaded = n;
 	allPresets.set(n);
+	redraw = true;
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::savePresetAll(int n) {
 	//cout << "savePresetAll" << endl;
 	for (auto & p : _presetsUIs) {
+		//cout << p->UINAME << endl;
 		string nome = presetsFolder + ofToString(n) + p->UINAME +  ".xml";
 		p->save(nome);
 	}

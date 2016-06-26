@@ -349,6 +349,15 @@ public:
 				if (multiple) {
 					if (!clicked[i]) {
 						*_vals[i] ^= 1;
+
+						// ver uma maneira mais firmeza de modularizar isso:
+						dmtrUIEvent te;
+						te.nome = nome;
+						te._nome = &nome;
+						te.element = RADIO; // fazer RADIOMULT?
+						te.tipo = UPDATE;
+						te.var = STRING;
+						ofNotifyEvent(evento, te, this);
 					}
 					clicked[i] = true;
 				}
@@ -358,16 +367,13 @@ public:
 						*_val = opcoes[i];
 						string ev = "updateRadio_" + nome;
 						ofNotifyEvent(uiEvent, ev, this);
-
 						dmtrUIEvent te;
 						te.nome = nome;
 						te._nome = &nome;
 						te.element = RADIO;
 						te.tipo = UPDATE;
 						te.var = STRING;
-						ofNotifyEvent(evento, te, this);
-
-					}
+						ofNotifyEvent(evento, te, this);					}
 				}
 			}
 			// 12 de maio de 2016. tentando evento do multiple radio
@@ -662,7 +668,7 @@ void funcao() {
 class ofxDmtrUI : public ofBaseApp
 {
 public:
-	void		setup();
+	void		setup(string uiName = "");
 	void		keyPressed(int key);
 	void		keyReleased(int key);
 	void		update();
@@ -770,8 +776,7 @@ public:
 	// NOVO
 	map <string,string>			pFolder;
 
-	ofxDmtrUI *_presetsUI;
-
+	//ofxDmtrUI *_presetsUI;
 	vector <ofxDmtrUI *> _presetsUIs;
 	bool		useShortcut = false;
 
@@ -797,5 +802,8 @@ public:
 	bool learnMode = false;
 
 	vector<string> colors;
+
+	// 22 junho de 2016 pra tentar pegar algo do Illusion e tornar global
+	ofxDmtrUI * uiC = NULL;
 };
 
