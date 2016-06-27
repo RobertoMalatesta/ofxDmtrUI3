@@ -1014,7 +1014,7 @@ void	 ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 	//cout << e.nome << endl;
 
 	if (e.nome == "easing") {
-		cout << pFloat["easing"] << endl;
+		//cout << pFloat["easing"] << endl;
 		easing = pFloat["easing"];
 		for (auto & p : _presetsUIs) {
 			p->easing = pFloat["easing"];

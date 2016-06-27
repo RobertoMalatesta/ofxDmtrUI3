@@ -2,6 +2,7 @@ label	ofxDmtrUI
 label	Code Dmtr.org 2016
 
 marginy	100
+opacity	200
 label	First Column
 float	r	0 255 127
 float	g	0 255 127
@@ -34,5 +35,5 @@ bool	ok44	1
 bool	ok23	1
 float	slider6	0 1 0
 float	slider7	0 1 0
-
 flowvert
+autoFit
