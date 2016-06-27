@@ -608,7 +608,7 @@ public:
 
 	void draw() {
 		if (fboSet) {
-			ofSetColor(255);
+			//ofSetColor(255);
 			_fbo->draw(rect.x, rect.y);
 		}
 		else
@@ -700,7 +700,7 @@ public:
 	void		expires(int dataInicial, int dias = 10);
 	void		uiEvents(string & e);
 	void		uiEventsNeu(dmtrUIEvent & e);
-	void		autoFit();
+	void		autoFit(bool w = true, bool h = true);
 
 	void		setFloat(string nome, float val);
 	void		setBool(string nome, bool val);
@@ -805,5 +805,8 @@ public:
 
 	// 22 junho de 2016 pra tentar pegar algo do Illusion e tornar global
 	ofxDmtrUI * uiC = NULL;
+
+	float opacity = 255;
+	float opacityRest = 255;
 };
 

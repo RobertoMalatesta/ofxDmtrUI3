@@ -17,6 +17,7 @@ https://github.com/dimitre/Cinder-DmtrUI
 ## Features
 Load interface layouts from text files.
 See section Text File Format in this README for more info
+Info is not up to date.
 
 ## Motivation
 A C++ exercise for me  
@@ -31,12 +32,11 @@ CPU usage is very low.
 ofxXmlSettings  
 
 # TODO
-Different events for loading xml files and updating with the mouse.
+./Different events for loading xml files and updating with the mouse.
 add namespace to classes.  
 test events in IOs
-integration with ofxMidi for midi controllers use  
-
 ./Change some variables named in portuguese  
+//integration with ofxMidi for midi controllers use  
 //radio buttons rectangles according to width.  
 //radio images for presets.
 //port to lib cinder  
@@ -44,6 +44,10 @@ integration with ofxMidi for midi controllers use
 # Future Ideas
 Performance : maybe check inside panel rectangle if mouse event is inside before check in each panel element.
 Implement the class Element and make pointers to member functions of draw, check mouse, get val etc.
+
+## 2016 06 27
+New parameter opacity and opacityRest (UI without mouse over)
+Lots of improvements not logged here.
 
 ## 2016 05 25
 added saveX saveY and restoreX restoreY  

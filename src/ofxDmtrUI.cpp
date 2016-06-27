@@ -82,7 +82,6 @@ void ofxDmtrUI::draw() {
 			fbo.begin();
 			ofClear(colunaBackground);
 //			for (auto & e : elements) 	{ e.draw(); }
-
 			for (auto & e : sliders) 	{ e.draw(learnMode); }
 			for (auto & e : toggles) 	{ e.draw(); }
 			for (auto & e : labels)  	{ e.draw(); }
@@ -95,7 +94,7 @@ void ofxDmtrUI::draw() {
 			redraw = false;
 		}
 		//ofSetColor(255, columnOver ? 255 : 128);
-		ofSetColor(255);
+		ofSetColor(255, columnOver ? opacity : opacityRest);
 		fbo.draw(coluna.x, coluna.y);
 		ofPushMatrix();
 		ofTranslate(coluna.x, coluna.y);
@@ -539,6 +538,15 @@ void ofxDmtrUI::createFromLine(string l) {
 			bw  = ofToInt(cols[1]);
 		}
 
+		else if (tipo == "opacity") {
+			opacity  	= ofToInt(cols[1]);
+			opacityRest = ofToInt(cols[1]);
+		}
+
+		else if (tipo == "opacityRest") {
+			opacityRest = ofToInt(cols[1]);
+		}
+
 		else if (tipo == "saveY") {
 			pFloatBak["saveY"] = flow.y;
 		}
@@ -570,9 +578,14 @@ void ofxDmtrUI::createFromLine(string l) {
 		else if (tipo == "flowY") {
 			flow.y = ofToFloat(cols[1]);
 		}
-
 		else if (tipo == "autoFit") {
 			autoFit();
+		}
+		else if (tipo == "autoFitW") {
+			autoFit(1,0);
+		}
+		else if (tipo == "autoFitH") {
+			autoFit(0,1);
 		}
 		else if (tipo == "sliderWidth") {
 			sliderWidth = ofToFloat(cols[1]);
@@ -1097,7 +1110,7 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 }
 
 //--------------------------------------------------------------
-void	 ofxDmtrUI::autoFit() {
+void	 ofxDmtrUI::autoFit(bool w, bool h) {
 	float minX = 6666;
 	float minY = 6666;
 	float maxW = 0;
@@ -1112,8 +1125,10 @@ void	 ofxDmtrUI::autoFit() {
 	for (auto & e : labels)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 	for (auto & e : radios)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 
-	coluna.width = maxW + marginx;
-	coluna.height = maxH + marginy;
+	if (w)
+		coluna.width = maxW + marginx;
+	if (h)
+		coluna.height = maxH + marginy;
 	fbo.allocate(coluna.width, coluna.height, GL_RGBA);
 	redraw = true;
 }
