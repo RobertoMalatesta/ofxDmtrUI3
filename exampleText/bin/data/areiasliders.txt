@@ -39,3 +39,5 @@ float	speed_All	.25 4 1
 bool	fitasolta_All	0 1 0
 bang	microrandom1
 bang	microrandom2
+
+autoFit
