@@ -102,6 +102,7 @@ void ofxDmtrUI::draw() {
 			e.draw();
 		}
 		ofPopMatrix();
+		ofSetColor(255);
 	}
 }
 
@@ -887,8 +888,13 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 		vector <string> opcoes;
 		for (auto & d : dir) {
-			//opcoes.push_back(d.getFileName());
-			opcoes.push_back(d.getBaseName());
+			if (entireName) {
+				//cout << "entireName" << endl;
+				opcoes.push_back(d.getFileName());
+			} else {
+				//cout << "baseName" << endl;
+				opcoes.push_back(d.getBaseName());
+			}
 			dirListMap[valores][d.getFileName()] = d.getAbsolutePath();
 		}
 

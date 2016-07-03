@@ -613,12 +613,12 @@ public:
 		}
 		else
 		{
-			ofSetColor(cor);
+			//ofSetColor(cor);
 			ofDrawRectangle(rect);
 		}
 
 		if (isSlider) {
-			ofSetColor(255,0,0);
+			//ofSetColor(255,0,0);
 			ofNoFill();
 			//ofPushMatrix();
 			ofPoint xy = *_val;
@@ -808,5 +808,6 @@ public:
 
 	float opacity = 255;
 	float opacityRest = 255;
+	bool entireName = false;
 };
 
