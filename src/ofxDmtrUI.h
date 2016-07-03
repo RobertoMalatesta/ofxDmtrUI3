@@ -812,7 +812,7 @@ public:
 
 	float opacity = 255;
 	float opacityRest = 255;
-	bool entireName = false;
+	bool dirListEntireName = false;
 
 	string getPresetsFolder();
 };

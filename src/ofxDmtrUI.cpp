@@ -890,7 +890,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 		vector <string> opcoes;
 		for (auto & d : dir) {
-			if (entireName) {
+			if (dirListEntireName) {
 				//cout << "entireName" << endl;
 				opcoes.push_back(d.getFileName());
 			} else {
