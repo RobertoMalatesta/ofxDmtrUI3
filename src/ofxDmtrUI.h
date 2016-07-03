@@ -476,16 +476,13 @@ public:
 	string nome;
 	ofRectangle rect;
 	vector <preset> presets;
-	int	*_val;
+	//int	*_val;
 	// temporario
 	int valor = -1;
 	bool ok = false;
 	ofEvent<string> uiEvent;
 
-	void draw() { // presets draw
-//		ofSetColor(130);
-//		ofDrawRectangle(rect);
-//		ofSetColor(255);
+	void draw() {
 		for (auto & p : presets) {
 			p.draw();
 		}

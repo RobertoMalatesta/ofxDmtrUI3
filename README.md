@@ -45,6 +45,9 @@ test events in IOs
 Performance : maybe check inside panel rectangle if mouse event is inside before check in each panel element.
 Implement the class Element and make pointers to member functions of draw, check mouse, get val etc.
 
+## 2016 07 03
+Major overhaul on xml saving / loading. it will recognize the oldstyle xml files and save in 2.0 version automatically for a while. Let me know if you are already using presets, the conversion process will be stripped out in some weeks.  
+
 ## 2016 06 27
 New parameter opacity and opacityRest (UI without mouse over)
 Lots of improvements not logged here.
