@@ -755,7 +755,8 @@ public:
 	map <string, map <string, string> > dirListMap;
 	map <string, int> indexElement;
 	bool keepSettings = false;
-	string presetsFolder = "";
+	string presetsFolder = "_presets/";
+	string presetsFolderNumber = "";
 	bool bw = false;
 
 	// 26 04 2016 - presets
@@ -806,8 +807,13 @@ public:
 	// 22 junho de 2016 pra tentar pegar algo do Illusion e tornar global
 	ofxDmtrUI * uiC = NULL;
 
+	// 3 de julho de 2016 pra tentar fazer o presetsFolder funcionar pro Areia tb.
+	ofxDmtrUI * uiM = NULL;
+
 	float opacity = 255;
 	float opacityRest = 255;
 	bool entireName = false;
+
+	string getPresetsFolder();
 };
 

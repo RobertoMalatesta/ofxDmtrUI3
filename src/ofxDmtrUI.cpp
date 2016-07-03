@@ -150,7 +150,8 @@ void ofxDmtrUI::save(string xml){
 void ofxDmtrUI::load(string xml){
 	cout << "load: " + xml << endl;
 	if (!ofFile::doesFileExist(xml)) {
-		cout << " ----- file doesn't exist" << endl;
+		cout << " ----- file doesn't exist: ";
+		cout << xml << endl;
 	}
 	ofxXmlSettings settings;
 	settings.loadFile(xml);
@@ -202,7 +203,8 @@ void ofxDmtrUI::keyPressed(int key){
 		if (key == '1' || key == '2' || key == '3' || key == '4' || key == '5' || key == '6' || key == '7' ||
 			key == '8' || key == '9' || key == '0'
 			) {
-			string nome = presetsFolder + UINAME + ofToString(char(key)) + ".xml";
+//			string nome = presetsFolder + UINAME + ofToString(char(key)) + ".xml";
+			string nome = getPresetsFolder() + UINAME + ofToString(char(key)) + ".xml";
 			if (ofGetKeyPressed(OF_KEY_COMMAND)) {
 				save(nome);
 			} else {
@@ -1018,15 +1020,43 @@ void	 ofxDmtrUI::expires(int dataInicial, int dias) {
 //--------------------------------------------------------------
 void	 ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 	//cout << e.nome << endl;
+	if (e.nome == "presetsFolder") {
+		string newPresetsFolder = getPresetsFolder();
+		if (!ofFile::doesFileExist(newPresetsFolder)) {
+			ofDirectory::createDirectory(newPresetsFolder);
+		}
+		if (ofFile::doesFileExist(newPresetsFolder)) {
+			for (auto & p : allPresets.presets) {
+				p.fbo.begin();
+				ofClear(0,255);
+				int a = p.index;
+				string filename = getPresetsFolder() + ofToString(a) + ".tif";
+				ofSetColor(0);
+				ofDrawRectangle(0,0,p.fbo.getWidth(), p.fbo.getHeight());
+				if (ofFile::doesFileExist(filename)) {
+					p.img.load(filename);
+					p.img.draw(0,0);
+				} else {
+					p.img.clear();
+				}
+				p.fbo.end();
+			}
+			redraw = true;
+		} else {
+			cout << "Presets Folder Doesnt Exist : ";
+			cout << newPresetsFolder << endl;
+		}
+	}
 
-	if (e.nome == "easing") {
+	else if (e.nome == "easing") {
 		//cout << pFloat["easing"] << endl;
 		easing = pFloat["easing"];
 		for (auto & p : _presetsUIs) {
 			p->easing = pFloat["easing"];
 		}
 	}
-	if (e.nome == "scene") {
+
+	else if (e.nome == "scene") {
 		if (uiC != NULL) {
 			if (pString["sceneAnterior"] != pString["scene"]) {
 				uiC->clear();
@@ -1079,10 +1109,7 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 				offx = (w - neww) / 2.0;
 			}
 			// este fbo nao precisa.
-
 			allPresets.presets[slot].fbo.begin();
-//			fboThumb.allocate(w, h, GL_RGBA);
-//			fboThumb.begin();
 			ofClear(0);
 			ofSetColor(255);
 			_fbo->draw(offx, offy, neww,h);
@@ -1092,9 +1119,9 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 			ofPixels pixels;
 			pixels.allocate( w, h, OF_IMAGE_COLOR_ALPHA);
 			allPresets.presets[slot].fbo.readToPixels(pixels);
-//			string imgPath = presetsFolder + UINAME + ofToString(slot) + ".tif";
-			string imgPath = presetsFolder + ofToString(slot) + ".tif";
-			//cout << "save: " + imgPath << endl;
+//			string imgPath = presetsFolder + ofToString(slot) + ".tif";
+			string imgPath = getPresetsFolder() + ofToString(slot) + ".tif";
+
 			ofSaveImage(pixels, imgPath);
 			allPresets.draw();
 			allPresets.presets[slot].img.setFromPixels(pixels);
@@ -1158,10 +1185,8 @@ void ofxDmtrUI::setRadio(string nome, string val) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::loadPresetAll(int n) {
-	//cout << "loadPresetAll" << endl;
 	for (auto & p : _presetsUIs) {
-		//p->loadPreset(n);
-		string nome = presetsFolder + ofToString(n) + p->UINAME +  ".xml";
+		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
 		p->load(nome);
 	}
 	presetLoaded = n;
@@ -1174,7 +1199,7 @@ void ofxDmtrUI::savePresetAll(int n) {
 	//cout << "savePresetAll" << endl;
 	for (auto & p : _presetsUIs) {
 		//cout << p->UINAME << endl;
-		string nome = presetsFolder + ofToString(n) + p->UINAME +  ".xml";
+		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
 		p->save(nome);
 	}
 	presetLoaded = n;
@@ -1198,7 +1223,6 @@ void ofxDmtrUI::loadPreset(int n) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::savePreset(int n) {
-//	string nome = presetsFolder + UINAME + ofToString(n) + ".xml";
 	string nome = presetsFolder + ofToString(n) + UINAME +  ".xml";
 	save(nome);
 }
@@ -1248,4 +1272,19 @@ void ofxDmtrUI::clear(bool keepVars) {
 float ofxDmtrUI::getNoise(string nome, float a) {
 	return (pFloat[nome+"NoiseMin"] + ofNoise(pFloat[nome+"NoiseSeed"],
 	a * pEasy[nome+"NoiseMult"]) * pFloat[nome+"Noise"]);
+}
+
+//--------------------------------------------------------------
+string ofxDmtrUI::getPresetsFolder() {
+	string out = presetsFolder;
+	if (uiM != NULL) {
+		if (uiM->pString["presetsFolder"] != "") {
+			out += uiM->pString["presetsFolder"] + "/";
+		}
+	} else {
+		if (pString["presetsFolder"] != "") {
+			out += pString["presetsFolder"] + "/";
+		}
+	}
+	return out;
 }
