@@ -34,6 +34,8 @@ http://dmtr.org/
 
 //--------------------------------------------------------------
 void ofxDmtrUI::setup(string uiName) {
+
+	//colunaBackground = (ofColor::fromHex(0xff00aa77));
 	if (uiName != "") {
 		UINAME = uiName;
 	}
@@ -249,10 +251,11 @@ void ofxDmtrUI::load(string xml){
 		}
 	}
 
+	// ATUALIZAR EVENTOS AQUI E EM TODO LADO
 
-	redraw = true;
-	string e = "load";
-	ofNotifyEvent(uiEvent, e);
+//	redraw = true;
+//	string e = "load";
+//	ofNotifyEvent(uiEvent, e);
 }
 
 //--------------------------------------------------------------
@@ -587,6 +590,7 @@ void ofxDmtrUI::createFromLine(string l) {
 		// em portugues?
 		else if (tipo == "colunaBackground") {
 			colunaBackground  = ofColor::fromHex(ofHexToInt(cols[1].substr(1)));
+			colunaBackground.a = 100;
 		}
 
 		else if (tipo == "bw") {
@@ -700,7 +704,9 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 	int hue = int(flow.x/8.0 + flow.y/6.0 + hueStart)%255;
 	int saturation = bw ? 0 : 255;
+//	int brightness = bw ? 127 : 200;
 	int brightness = bw ? 127 : 200;
+
 	ofColor cor = ofColor::fromHsb(hue,saturation,brightness);
 
 	lastHeight = sliderHeight;
@@ -892,6 +898,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		tl._val = &pLabel[nome];
 		tl.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
 		tl.cor = cor;
+		if (bw) { tl.cor =  ofColor(255); }
 		labels.push_back(tl);
 
 		lastHeight = 20;
@@ -1123,6 +1130,12 @@ void	 ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 			pString["sceneAnterior"] = pString["scene"];
 		}
 	}
+
+	// vai precisar?
+	else if (e.nome == "loadPreset") {
+	}
+
+
 	ofNotifyEvent(evento, e);
 }
 
@@ -1131,6 +1144,7 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 	//cout << e << endl;
 
 	// passar isso tudo pro estilo novo de eventos?
+	// pra isso preciso mudar a class preset. ali chama o loadPresetAll, que n‹o Ž acessivel via .h ?
 	if (ofIsStringInString(e, "loadPreset")) {
 		vector <string> split = ofSplitString(e, "_");
 		int slot = ofToInt(split[1]);
@@ -1191,6 +1205,7 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 		pInt[nome] = ofToInt(pString[nome + "_shortcutInt"]);
 	}
 
+	// XAXA Corrigir
 	ofNotifyEvent(uiEvent, e);
 }
 

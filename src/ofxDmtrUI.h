@@ -110,10 +110,10 @@ public:
 
 	int			valorPixels = 0;
 	bool			isInt = false;
-	ofEvent<string> uiEvent;
-
 	// 15 04 2016 - boolean for vertical sliders
 	bool			vert = false;
+
+	ofEvent<string> uiEvent;
 
 	// 27 05 2016 - tipo de evento mais completo
 	ofEvent<dmtrUIEvent> evento;
@@ -745,6 +745,7 @@ public:
 	// precisa?
 	int	lastHeight, lastWidth;
 
+
 	ofEvent<string> uiEvent;
 	ofEvent<dmtrUIEvent> evento;
 
@@ -788,6 +789,7 @@ public:
 
 	//ofColor colunaBackground = ofColor(40,150);
 	ofColor colunaBackground = ofColor(0,100);
+	
 	//ofRectangle coluna = ofRectangle(0,0,620,560);
 	ofRectangle coluna = ofRectangle(0,0,250,250);
 	ofPoint presetDimensions = ofPoint(100,25);
