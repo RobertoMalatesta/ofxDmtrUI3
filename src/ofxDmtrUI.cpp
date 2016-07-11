@@ -1252,6 +1252,7 @@ void ofxDmtrUI::setRadio(string nome, string val) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::loadPresetAll(int n) {
+	cout << "loadPresetAll:" + ofToString(n) << endl;
 	for (auto & p : _presetsUIs) {
 		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
 		p->load(nome);
