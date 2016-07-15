@@ -58,7 +58,10 @@ void ofxDmtrUI::setup(string uiName) {
 	ofAddListener(ofEvents().exit, this, &ofxDmtrUI::onExit);
 
 	if (keepSettings) {
-		load(presetsFolder + UINAME + ".xml");
+		string fileName = presetsFolder + UINAME + ".xml";
+		if (ofFile::doesFileExist(fileName)) {
+			load(fileName);
+		}
 	}
 
 }
@@ -218,9 +221,9 @@ void ofxDmtrUI::load(string xml){
 			e.setValue(ofPoint(x, y));
 		}
 		// assim evita de carregar nos lugares q nao tiver o presets.
-		if (allPresets.ok) {
-			loadPresetAll(settings.getValue("presets", 0));
-		}
+//		if (allPresets.ok) {
+//			loadPresetAll(settings.getValue("presets", 0));
+//		}
 	} else {
 		for (auto & e : sliders) {
 			e.setValue(settings.getValue(e.nome, e.def));
@@ -382,8 +385,6 @@ void ofxDmtrUI::mouseDragged(int x, int y, int button){
 		}
 	}
 
-
-
 	for (auto & s : sliders) {
 		if (s.rect.inside(x - coluna.x, y - coluna.y)) {
 			s.update(x - coluna.x, y - coluna.y);
@@ -518,6 +519,7 @@ vector <string> ofxDmtrUI::textToVector(string file) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::createFromText(string file) {
+
 	if (debug) {
 		cout << "ofxDmtrUI createFromText ::: " + file << endl;
 	}
@@ -1041,6 +1043,10 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		else if (tipo == "_int") {
 			vector<string> vals = ofSplitString(valores," ");
 			pInt[nome] = stof(vals[2]);
+		}
+
+		else if (tipo == "_bool") {
+			pBool[nome] = stoi(valores);
 		}
 	}
 
