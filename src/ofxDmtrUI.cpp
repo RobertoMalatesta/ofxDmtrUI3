@@ -119,7 +119,6 @@ void ofxDmtrUI::save(string xml){
 	bool newVersion = true;
 	if (newVersion) {
 		settings.setValue("ofxDmtrUIVersion", 2.0);
-//		settings.setValue("presets", *allPresets._val);
 		for (auto & e : sliders) {
 			if (e.isInt) {
 				settings.setValue("slider:" + e.nome,   *e._valInt);
@@ -693,20 +692,11 @@ void ofxDmtrUI::createFromLine(string l) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2) {
-
 	// vamos tentar inventar uma variavel aqui nos parametros somente.
 	ofStringReplace(valores, "sliderWidth", ofToString(sliderWidth));
 
-	{
-		elementList t;
-		t.nome = nome;
-		t.tipo = tipo;
-		elementsList.push_back(t);
-	}
-
 	int hue = int(flow.x/8.0 + flow.y/6.0 + hueStart)%255;
 	int saturation = bw ? 0 : 255;
-//	int brightness = bw ? 127 : 200;
 	int brightness = bw ? 127 : 200;
 
 	ofColor cor = ofColor::fromHsb(hue,saturation,brightness);
@@ -724,8 +714,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			cols = ofToInt(vals[0]);
 			rows = ofToInt(vals[1]);
 		}
-//		int w = 100;
-//		int h = 24;
 		int w = presetDimensions.x;
 		int h = presetDimensions.y;
 		int x = flow.x;
@@ -770,11 +758,17 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		}
 
 		flow.y += allPresets.rect.height + sliderMargin;
+
+
 		element te;
-		te._rect = &allPresets.rect;
-//		te._functionPointer = allPresets.draw;
-//		te._functionPointer = &sliders[0].draw();
+		te.set(allPresets);
 		elements.push_back(te);
+
+//		te.tipo = PRESETS;
+//		te._rect = &allPresets.rect;
+//		te._presets = &allPresets;
+//		elements.push_back(te);
+
 	}
 
 	else if (tipo == "slider2d" || tipo == "fbo") {
@@ -792,29 +786,29 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 					ts.rect.height = ofToInt(vals[1]);
 			}
 		}
-//		ts._valx = &pPoint[nome].x;
-//		ts._valy = &pPoint[nome].y;
-
 
 		pPoint[nome] = ofPoint(.5, .5);
 		ts._val = &pPoint[nome];
 		lastHeight = ts.rect.height;
 		lastWidth  = ts.rect.width;
 		indexElement[nome] = sliders2d.size();
+
+
+
 		sliders2d.push_back(ts);
 
-//		elementNeu te;
-//		te._slider2d = &sliders2d[sliders2d.size()-1];
-		elementsMap[nome]._slider2d = &sliders2d[sliders2d.size()-1];
-		elementsMap[nome].ok = true;
-		elementsMap[nome].nome = nome;
+		element te;
+		te.set(sliders2d.back());
+		elements.push_back(te);
 	}
 
 	else if (tipo == "slider" || tipo == "int" || tipo == "sliderVert") {
 		slider ts;
 		ts.nome = nome;
-		ts.vert = (tipo == "sliderVert");
 
+		// 16 julho de 2016
+		ts.tipo = "int" ? SLIDERINT : SLIDER;
+		ts.vert = (tipo == "sliderVert");
 
 		// inverte as coordenadas
 		if (ts.vert) {
@@ -837,16 +831,12 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		}
 
 		//cout << "valores : " + valores << endl;
-
 		if (valores != "") {
 			vector <string> vals = ofSplitString(valores, " ");
 			ofVec3f val = ofVec3f(ofToFloat(vals[0]), ofToFloat(vals[1]), ofToFloat(vals[2]));
 			ts.min = val.x;
 			ts.max = val.y;
 			ts.def = val.z;
-
-			//cout << val << endl;
-
 			// for initialization without mouse.
 			// removed 18 june 2016 for shader reload keeping parameters intact initialization
 			//ts.setValue(ts.def);
@@ -863,13 +853,18 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		lastHeight = ts.rect.height;
 		lastWidth  = ts.rect.width;
 
+
+
 //		element te;
+//		te.tipo = tipo == "int" ? SLIDERINT : SLIDER;
 //		te._slider = &ts;
 //		te._rect = &ts.rect;
 //		elements.push_back(te);
-
 		sliders.push_back(ts);
-//		element te;
+
+		element te;
+		te.set(sliders.back());
+		elements.push_back(te);
 	}
 
 	else if (tipo == "toggle" || tipo == "bang" || tipo == "toggleNolabel") { // bool
@@ -891,7 +886,18 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			tt.showLabel = false;
 			lastWidth  = tt.rect.width;
 		}
+
+//		element te;
+//		te._rect = &tt.rect;
+//		te.tipo = TOGGLE;
+//		te._toggle = &tt;
+//		elements.push_back(te);
+
 		toggles.push_back(tt);
+
+		element te;
+		te.set(toggles.back());
+		elements.push_back(te);
 	}
 
 	else if (tipo == "label") {
@@ -901,7 +907,18 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		tl.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
 		tl.cor = cor;
 		if (bw) { tl.cor =  ofColor(255); }
+
+//		element te;
+//		te._rect = &tl.rect;
+//		te.tipo = LABEL;
+//		te._label = &tl;
+//		elements.push_back(te);
+
 		labels.push_back(tl);
+
+		element te;
+		te.set(labels.back());
+		elements.push_back(te);
 
 		lastHeight = 20;
 	}
@@ -927,16 +944,24 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		temp.init();
 		indexElement[nome] = radios.size();
 
+//		element te;
+//		te._rect = &temp.rect;
+//		te.tipo = RADIO;
+//		te._radio = &temp;
+//		elements.push_back(te);
+
 		radios.push_back(temp);
+
+		element te;
+		te.set(radios.back());
+		elements.push_back(te);
+
 		lastHeight = temp.rect.height;
 	}
 
 	else if (tipo == "dirlist" || tipo == "dirList") {
 		ofDirectory dir;
-		// no futuro colocar o allowext por algum lado
-		//		dir.allowExt("wav");
-
-//		cout << "dirlist:: "  + valores << endl;
+		// no futuro colocar o allowext por algum lado :: dir.allowExt("wav");
 		if (valores2 != "") {
 			vector <string> vals = ofSplitString(valores2, "	");
 			for (auto & c : vals) {
@@ -945,16 +970,13 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		}
 
 		pFolder[nome] = valores;
-
 		dir.listDir(valores);
 
 		vector <string> opcoes;
 		for (auto & d : dir) {
 			if (dirListEntireName) {
-				//cout << "entireName" << endl;
 				opcoes.push_back(d.getFileName());
 			} else {
-				//cout << "baseName" << endl;
 				opcoes.push_back(d.getBaseName());
 			}
 			dirListMap[valores][d.getFileName()] = d.getAbsolutePath();
@@ -971,8 +993,14 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		lastHeight = temp.rect.height;
 
 		radios.push_back(temp);
+
+		element te;
+		te.set(radios.back());
+		elements.push_back(te);
 		//flow.y += temp.rect.height - 25 + 5;
 	}
+
+	// Aqui comeam os tipos compostos
 
 	else if (tipo == "togglematrix") {
 		if (valores != "") {
@@ -988,7 +1016,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 					create(nomeElement, "toggleNolabel");
 				}
 			}
-			//createFromLine("flowVert");
 		}
 	}
 
@@ -997,16 +1024,36 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		createFromLine("slider2d	"+nome+"Paleta	.5 .5");
 		createFromLine("slider2d	"+nome+"Hsv	.5 .5");
 		createFromLine("fbo	"+nome+"PaletaAtual	200 10");
-		createFromLine("slider	"+nome+"S	0 255 255");
-		createFromLine("slider	"+nome+"HRange	0 720 100");
-		createFromLine("slider	"+nome+"HRangeAudio	0 360 0");
-		createFromLine("slider	"+nome+"BRange	0 255 0");
+		createFromLine("float	"+nome+"S	0 255 255");
+		createFromLine("float	"+nome+"HRange	0 720 100");
+		createFromLine("float	"+nome+"HRangeAudio	0 360 0");
+		createFromLine("float	"+nome+"BRange	0 255 0");
 		createFromLine("int	"+nome+"HStep	0 6 0");
-		createFromLine("slider	"+nome+"Alpha	0 255 255");
-		createFromLine("slider	"+nome+"AlphaAudio	0 255 0");
-		createFromLine("slider	"+nome+"AlphaRange	0 255 0");
+		createFromLine("float	"+nome+"Alpha	0 255 255");
+		createFromLine("float	"+nome+"AlphaAudio	0 255 0");
+		createFromLine("float	"+nome+"AlphaRange	0 255 0");
 		colors.push_back(nome);
 		//createFromLine("");
+	}
+
+	else if (tipo == "preview3d") {
+		//createFromLine("label	preview3d");
+		createFromLine("bool	iluminaPreview	1");
+		createFromLine("int	pointSize	1 4 2");
+		createFromLine("float	bgPreview	0 255 60");
+		createFromLine("float	bgPiso	0 255 40");
+		createFromLine("float	lookX	-30 30 0");
+		createFromLine("float	lookY	0 4 1.7");
+		createFromLine("float	lookZ	-30 30 0");
+		createFromLine("_float	rotCamX	-360 360 0");
+		createFromLine("_float	rotCamZ	-360 360 0");
+		createFromLine("float	rotCamY	-360 360 0");
+		createFromLine("float	rotCamYAuto	-1 1 0");
+		createFromLine("float	cameraFov	30 120 36");
+		createFromLine("");
+		createFromLine("float	cameraX	-50 50 0");
+		createFromLine("float	cameraY	0 13.75 1.7");
+		createFromLine("float	cameraZ	-50 50 0");
 	}
 
 	else if (tipo == "noise") {
@@ -1222,9 +1269,21 @@ void	 ofxDmtrUI::autoFit(bool w, bool h) {
 	float maxW = 0;
 	float maxH = 0;
 
-	for (auto & e : elements)
-	{
-		minX = MIN(e._rect->x, minX); minY = MIN(e._rect->y, minY); maxW = MAX(e._rect->x + e._rect->width, maxW); maxH = MAX(e._rect->y + e._rect->height, maxH); }
+	cout << "autofit" << endl;
+
+	// antes era somente usado pro allPresets aqui... agora vamos ver.
+
+	//auto &e = allPresets;
+	minX = MIN(allPresets.rect.x, minX); minY = MIN(allPresets.rect.y, minY); maxW = MAX(allPresets.rect.x + allPresets.rect.width, maxW); maxH = MAX(allPresets.rect.y + allPresets.rect.height, maxH);
+
+	// pro futuro, ainda nao consigo resolver
+	for (auto & e : elements) {
+//		cout << e.nome << endl;
+//		cout << e._rect << endl;
+//		cout << *e._rect << endl;
+//		cout << e._rect->x << endl;
+//		minX = MIN(*e._rect->x, minX); minY = MIN(*e._rect->y, minY); maxW = MAX(*e._rect->x + *e._rect->width, maxW); maxH = MAX(*e._rect->y + *e._rect->height, maxH);
+	}
 
 	for (auto & e : sliders) { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 	for (auto & e : toggles) { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }

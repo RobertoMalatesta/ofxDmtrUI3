@@ -38,7 +38,7 @@ enum flowDir {
 
 // 27 de maio de 2016
 enum elementType {
-	SLIDER, SLIDERINT, TOGGLE, LABEL, RADIO, RADIOITEM, SLIDER2D, FBO
+	SLIDER, SLIDERINT, TOGGLE, LABEL, RADIO, RADIOITEM, SLIDER2D, FBO, PRESETS
 };
 
 enum eventoType {
@@ -50,13 +50,7 @@ enum varType {
 	FLOAT, INT, STRING, BOOLEANO
 };
 
-class elementList {
-public:
-	string nome;
-	string tipo;
-//	slider *_slider;
-//	toggle *_toggle;
-};
+
 
 // 27 de maio de 2016, ainda n‹o sei se vai dar certo.
 class dmtrUIEvent {
@@ -88,6 +82,7 @@ public:
 class slider {
 public:
 	string 		nome;
+	elementType tipo;
 	ofRectangle rect;
 	bool 		inside = false;
 	ofColor 		cor;
@@ -232,7 +227,6 @@ public:
 	ofEvent<string> uiEvent;
 	ofEvent<dmtrUIEvent> evento;
 
-
 	void flip() {
 		*_val = !*_val;
 		string ev = bang ? "bang_" + nome : "updateBool_" + nome;
@@ -276,6 +270,7 @@ public:
 		}
 	}
 };
+
 
 class label {
 public:
@@ -446,6 +441,74 @@ public:
 	}
 };
 
+
+class slider2d {
+public:
+	string nome;
+	ofPoint	 *_val;
+	//	float *_valx;
+	//	float *_valy;
+	float defx = .5;
+	float defy = .5;
+	ofFbo *_fbo;
+	bool		fboSet = false;
+	ofRectangle rect;
+	ofColor cor;
+	ofEvent<string> uiEvent;
+	bool inside = false;
+	bool isSlider = true;
+
+	void setFbo(ofFbo &fbo) {
+		_fbo = &fbo;
+		fboSet = true;
+	}
+
+	void setValue(ofPoint xy) {
+		//cout << "setValue Slider2d " + nome << endl;
+		*_val = xy;
+		// UNIFICAR EVENTOS DEPOIS
+		string ev = "loadSlider2d_" + nome;
+		ofNotifyEvent(uiEvent, ev, this);
+	}
+
+	void checkMouse(int mx, int my) {
+		float x = mx - rect.x;
+		float y = my - rect.y;
+		*_val = ofPoint(
+						ofClamp(ofMap(x, 0, rect.width, 0, 1), 0, 1),
+						ofClamp(ofMap(y, 0, rect.height, 0, 1), 0, 1)
+						);
+		string ev = "updateSlider2d_" + nome;
+		ofNotifyEvent(uiEvent, ev, this);
+	}
+
+	void draw() {
+		if (fboSet) {
+			//ofSetColor(255);
+			_fbo->draw(rect.x, rect.y);
+		}
+		else
+		{
+			//ofSetColor(cor);
+			ofDrawRectangle(rect);
+		}
+
+		if (isSlider) {
+			//ofSetColor(255,0,0);
+			ofNoFill();
+			//ofPushMatrix();
+			ofPoint xy = *_val;
+			float x = xy.x * rect.width + rect.x;
+			float y = xy.y * rect.height + rect.y;
+			ofDrawLine(x, rect.y, x, rect.y + rect.height);
+			ofDrawLine(rect.x, y, rect.x + rect.width, y);
+			ofFill();
+			float raio = 4;
+			ofDrawRectangle(x -raio/2, y-raio/2, raio,raio);
+		}
+	}
+};
+
 class preset {
 public:
 	int index;
@@ -472,8 +535,7 @@ public:
 
 class presets {
 public:
-
-	string nome;
+	string nome = "presets";
 	ofRectangle rect;
 	vector <preset> presets;
 	//int	*_val;
@@ -551,218 +613,143 @@ public:
 
 };
 
-//class fboelement {
-//public:
-//	string nome;
-//	ofFbo *_fbo;
-//	bool fboSet;
-//	ofRectangle rect;
-//
-//	void setFbo(ofFbo &fbo) {
-//		_fbo = &fbo;
-//		fboSet = true;
-//	}
-//};
-
-class slider2d {
-public:
-	string nome;
-	ofPoint	 *_val;
-//	float *_valx;
-//	float *_valy;
-	float defx = .5;
-	float defy = .5;
-	ofFbo *_fbo;
-	bool		fboSet = false;
-	ofRectangle rect;
-	ofColor cor;
-	ofEvent<string> uiEvent;
-	bool inside = false;
-	bool isSlider = true;
-
-	void setFbo(ofFbo &fbo) {
-		_fbo = &fbo;
-		fboSet = true;
-	}
-
-	void setValue(ofPoint xy) {
-		*_val = xy;
-		// UNIFICAR EVENTOS DEPOIS
-		string ev = "loadSlider2d_" + nome;
-		ofNotifyEvent(uiEvent, ev, this);
-	}
-
-	void checkMouse(int mx, int my) {
-		float x = mx - rect.x;
-		float y = my - rect.y;
-		*_val = ofPoint(
-						ofClamp(ofMap(x, 0, rect.width, 0, 1), 0, 1),
-						ofClamp(ofMap(y, 0, rect.height, 0, 1), 0, 1)
-						);
-		string ev = "updateSlider2d_" + nome;
-		ofNotifyEvent(uiEvent, ev, this);
-	}
-
-	void draw() {
-		if (fboSet) {
-			//ofSetColor(255);
-			_fbo->draw(rect.x, rect.y);
-		}
-		else
-		{
-			//ofSetColor(cor);
-			ofDrawRectangle(rect);
-		}
-
-		if (isSlider) {
-			//ofSetColor(255,0,0);
-			ofNoFill();
-			//ofPushMatrix();
-			ofPoint xy = *_val;
-			float x = xy.x * rect.width + rect.x;
-			float y = xy.y * rect.height + rect.y;
-			ofDrawLine(x, rect.y, x, rect.y + rect.height);
-			ofDrawLine(rect.x, y, rect.x + rect.width, y);
-			ofFill();
-			float raio = 4;
-			ofDrawRectangle(x -raio/2, y-raio/2, raio,raio);
-		}
-	}
-};
-
-class elementNeu {
-public:
-	slider2d *_slider2d;
-	bool ok = false;
-	string nome;
-	//	slider *_slider;
-	//	toggle *_toggle;
-};
 
 class element {
 public:
 	string nome;
-	string tipo;
-	//ofRectangle rect; // pointer?
+	elementType tipo;
 	ofRectangle *_rect;
-	slider *_slider;
 
+	slider *_slider = NULL;
+	toggle *_toggle = NULL;
+	label *_label = NULL;
+	radio *_radio = NULL;
+	presets *_presets = NULL;
+	slider2d *_slider2d = NULL;
+
+	void set (slider2d &e) {
+		nome = e.nome;
+		_rect = &e.rect;
+		_slider2d = &e;
+		tipo = SLIDER2D;
+	}
+
+	void set (presets &e) {
+		nome = e.nome;
+		_rect = &e.rect;
+		_presets = &e;
+		tipo = PRESETS;
+	}
+
+	void set (slider &e) {
+		nome = e.nome;
+		_rect = &e.rect;
+		_slider = &e;
+		// ou sliderint?
+		tipo = SLIDER;
+	}
+
+	void set (toggle &e) {
+		nome = e.nome;
+		_rect = &e.rect;
+		_toggle = &e;
+		tipo = TOGGLE;
+	}
+
+	void set (label &e) {
+		nome = e.nome;
+		_rect = &e.rect;
+		_label = &e;
+		tipo = LABEL;
+	}
+
+	void set (radio &e) {
+		nome = e.nome;
+		_rect = &e.rect;
+		_radio = &e;
+		tipo = RADIO;
+	}
+
+
+	/*
+	 busquei o std::bind acho que da pra fazer ponteiro de funcao pro draw
+	*/
+	//void *_draw;
 	// function pointer.
+	void (*_draw)(void);
+
+//	typedef void (*funcao)();
+//	funcao _draw;
 
 	void draw() {
 		if (_slider != NULL) {
 			_slider->draw();
 		}
 	}
-	void (*_functionPointer);
 };
 
-void funcao() {
-	cout << "funcao" << endl;
-}
+//void funcao() {
+//	cout << "funcao" << endl;
+//}
 
 
 class ofxDmtrUI : public ofBaseApp
 {
 public:
-	void		setup(string uiName = "");
-	void		keyPressed(int key);
-	void		keyReleased(int key);
-	void		update();
-	void		draw();
-	void		exit();
-	void 	mouseDragged(int x, int y, int button);
-	void 	mousePressed(int x, int y, int button);
-	void 	mouseReleased(int x, int y, int button);
-	void 	mouseAll(int x, int y, int button);
-	void 	mousePressedDragged(int x, int y, int button);
+	void setup(string uiName = "");
+	void keyPressed(int key);
+	void keyReleased(int key);
+	void update();
+	void draw();
+	void exit();
+	void mouseDragged(int x, int y, int button);
+	void mousePressed(int x, int y, int button);
+	void mouseReleased(int x, int y, int button);
+	void mouseAll(int x, int y, int button);
+	void mousePressedDragged(int x, int y, int button);
 
-	void 	onDraw(ofEventArgs &data);
-	void 	onUpdate(ofEventArgs &data);
-	void 	onKeyPressed(ofKeyEventArgs &data);
-	void 	onKeyReleased(ofKeyEventArgs &data);
-	void 	onMousePressed(ofMouseEventArgs &data);
-	void 	onMouseDragged(ofMouseEventArgs &data);
-	void 	onMouseReleased(ofMouseEventArgs &data);
-	void 	onMouseMoved(ofMouseEventArgs &data);
-	void 	onExit(ofEventArgs &data);
+	void onDraw(ofEventArgs &data);
+	void onUpdate(ofEventArgs &data);
+	void onKeyPressed(ofKeyEventArgs &data);
+	void onKeyReleased(ofKeyEventArgs &data);
+	void onMousePressed(ofMouseEventArgs &data);
+	void onMouseDragged(ofMouseEventArgs &data);
+	void onMouseReleased(ofMouseEventArgs &data);
+	void onMouseMoved(ofMouseEventArgs &data);
+	void onExit(ofEventArgs &data);
+
+	void createFromText(string file);
+	void createFromLine(string line);
+
+	// rename to createelement
+	void create(string nome, string tipo="slider", string valores = "", string valores2 = ""); // NULL
+	void save(string xml);
+	void load(string xml);
+	void expires(int dataInicial, int dias = 10);
+	void uiEvents(string & e);
+	void uiEventsNeu(dmtrUIEvent & e);
+	void autoFit(bool w = true, bool h = true);
+
+	void setFloat(string nome, float val);
+	void setBool(string nome, bool val);
+	void setRadio(string nome, string val);
+
+	void loadPreset(int n);
+	void loadPresetAll(int n);
+	void savePreset(int n);
+	void savePresetAll(int n);
+	void setFbo(ofFbo &fbo);
 
 	vector <string> textToVector(string file);
-	void		createFromText(string file);
-	void		createFromLine(string line);
-	// rename to createelement
-	void		create(string nome, string tipo="slider", string valores = "", string valores2 = ""); // NULL
-	void		save(string xml);
-	void		load(string xml);
-	void		expires(int dataInicial, int dias = 10);
-	void		uiEvents(string & e);
-	void		uiEventsNeu(dmtrUIEvent & e);
-	void		autoFit(bool w = true, bool h = true);
-
-	void		setFloat(string nome, float val);
-	void		setBool(string nome, bool val);
-	void		setRadio(string nome, string val);
-
-	void		loadPreset(int n);
-	void		loadPresetAll(int n);
-	void		savePreset(int n);
-	void		savePresetAll(int n);
-	void		setFbo(ofFbo &fbo);
-
-
-
-	// only internal use to backup some variables.
-	map <string,float>			pFloatBak;
 
 	vector <slider> 	sliders;
 	vector <toggle> 	toggles;
 	vector <label> 	labels;
 	vector <radio> 	radios;
 	vector <slider2d> sliders2d;
+
+	// WOW
 	vector <element> elements;
-
-
-
-	ofFbo fbo;
-	float easing = 5;
-	bool  showGui = true;
-	bool  redraw = true;
-	bool  columnOver = false;
-
-
-	float marginx = 20;
-	float marginy = 20;
-	
-	ofPoint flow = ofPoint(marginx, marginy);
-	flowDir flowDirection = VERT;
-	bool	 saveLoadShortcut = false;
-
-	string UINAME = "ui";
-
-	int sliderHeight = 20;
-	int sliderWidth  = 150;
-	int	sliderMargin = 5;
-	// precisa?
-	int	lastHeight, lastWidth;
-
-
-	ofEvent<string> uiEvent;
-	ofEvent<dmtrUIEvent> evento;
-
-	// ainda ver direitiho se isso vai rolar.
-	map <string, map <string, string> > dirListMap;
-	map <string, int> indexElement;
-	bool keepSettings = false;
-	string presetsFolder = "_presets/";
-	string presetsFolderNumber = "";
-	bool bw = false;
-
-	// 26 04 2016 - presets
-	presets allPresets;
-	ofFbo *_fbo;
-
-	int presetLoaded;
-
 
 	map <string,float>			pEasy;
 	map <string,float>			pFloat;
@@ -774,45 +761,74 @@ public:
 	map <string,ofFloatColor>	pColor;
 	// NOVO
 	map <string,string>			pFolder;
-
-	//ofxDmtrUI *_presetsUI;
-	vector <ofxDmtrUI *> _presetsUIs;
-	bool		useShortcut = false;
-
-
-
-	void re();
-	vector <elementList> elementsList;
-	float getNoise(string nome, float a);
-	void clear(bool keepVars = false);
-
-
-	//ofColor colunaBackground = ofColor(40,150);
-	ofColor colunaBackground = ofColor(0,100);
+	// only internal use to backup some variables.
+	map <string,float>			pFloatBak;
 	
-	//ofRectangle coluna = ofRectangle(0,0,620,560);
-	ofRectangle coluna = ofRectangle(0,0,250,250);
-	ofPoint presetDimensions = ofPoint(100,25);
+
+	// Fbo to draw GUI column
+	ofFbo fbo;
+	float easing = 5;
+	bool showGui = true;
+	bool redraw = true;
+	bool columnOver = false;
+
+	// Layout, default
+	bool bw = false;
+	float marginx = 20;
+	float marginy = 20;
+	int sliderHeight = 20;
+	int sliderWidth  = 150;
+	int	sliderMargin = 5;
+	// precisa?
+	int	lastHeight, lastWidth;
+	
+	ofPoint flow = ofPoint(marginx, marginy);
+	flowDir flowDirection = VERT;
+
+	bool	 saveLoadShortcut = false;
+	bool keepSettings = false;
+	bool useShortcut = false;
+	string presetsFolder = "_presets/";
+	string presetsFolderNumber = "";
+	string UINAME = "ui";
+
 	bool debug = false;
-	map <string, elementNeu> elementsMap;
-	void addAllListeners();
-
 	int hueStart = 100;
-
 	bool learnMode = false;
-
-	vector<string> colors;
-
-	// 22 junho de 2016 pra tentar pegar algo do Illusion e tornar global
-	ofxDmtrUI * uiC = NULL;
-
-	// 3 de julho de 2016 pra tentar fazer o presetsFolder funcionar pro Areia tb.
-	ofxDmtrUI * uiM = NULL;
-
 	float opacity = 255;
 	float opacityRest = 255;
 	bool dirListEntireName = false;
 
+	ofColor colunaBackground = ofColor(0,100);
+	ofRectangle coluna = ofRectangle(0,0,250,250);
+	ofPoint presetDimensions = ofPoint(100,25);
+
+
+	ofEvent<string> uiEvent;
+	ofEvent<dmtrUIEvent> evento;
+
+	// ainda ver direitiho se isso vai rolar.
+	map <string, map <string, string> > dirListMap;
+	map <string, int> indexElement;
+
+	// 26 04 2016 - presets
+	presets allPresets;
+
+	// fbo pointer to save presets.
+	ofFbo *_fbo;
+	int presetLoaded;
+
+	vector <ofxDmtrUI *> _presetsUIs;
+	ofxDmtrUI * uiC = NULL;
+	ofxDmtrUI * uiM = NULL;
+
+	void re();
+	float getNoise(string nome, float a);
+	void clear(bool keepVars = false);
+	void addAllListeners();
+	vector<string> colors;
 	string getPresetsFolder();
+
+
 };
 
