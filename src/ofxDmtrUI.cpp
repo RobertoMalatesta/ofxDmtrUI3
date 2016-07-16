@@ -689,6 +689,21 @@ void ofxDmtrUI::createFromLine(string l) {
 	}
 }
 
+//--------------------------------------------------------------
+void ofxDmtrUI::createRadio(string nome, vector <string> opcoes) {
+	radio temp;
+	temp.nome = nome;
+	temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
+	temp.opcoes = opcoes;
+	temp._val = &pString[nome];
+	temp.init();
+	indexElement[nome] = radios.size();
+	radios.push_back(temp);
+	element te;
+	te.set(radios.back());
+	elements.push_back(te);
+	lastHeight = temp.rect.height;
+}
 
 //--------------------------------------------------------------
 void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2) {
@@ -924,6 +939,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 	}
 
 	else if (tipo == "radio" || tipo == "radioMult") {
+
 		radio temp;
 		temp.nome = nome;
 		temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
@@ -1131,6 +1147,19 @@ void	 ofxDmtrUI::expires(int dataInicial, int dias) {
 //--------------------------------------------------------------
 void	 ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 	//cout << e.nome << endl;
+
+	if (learnMode) {
+		lastLearn = e.nome;
+		// propagar evento aqui...
+		vector <string> serie;
+		serie.push_back(e.nome);
+		//serie.push_back(e.tipo);
+		serie.push_back(UINAME);
+		ofNotifyEvent(uiEventMidi, serie);
+
+//		cout << "lastLearn" << endl;
+//		cout << e.nome << endl;
+	}
 
 	if (e.nome == "presetsFolder") {
 		string newPresetsFolder = getPresetsFolder();

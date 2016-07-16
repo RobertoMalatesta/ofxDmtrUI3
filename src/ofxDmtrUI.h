@@ -58,6 +58,10 @@ public:
 	string *_nome;
 	string nome;
 	string ui;
+
+	// 16 de julho de 2016
+	string msg;
+	
 	elementType element;
 	eventoType tipo;
 	varType var = FLOAT;
@@ -627,6 +631,21 @@ public:
 	presets *_presets = NULL;
 	slider2d *_slider2d = NULL;
 
+//	void uiEvent(string & e) {
+//		cout << "xxxx" + e << endl;
+//	}
+
+	void set (slider &e) {
+		nome = e.nome;
+		_rect = &e.rect;
+		_slider = &e;
+		// ou sliderint?
+		//tipo = SLIDER;
+		tipo = e.tipo;
+
+		//ofAddListener(e.uiEvent,this, &element::uiEvent);
+	}
+
 	void set (slider2d &e) {
 		nome = e.nome;
 		_rect = &e.rect;
@@ -641,13 +660,7 @@ public:
 		tipo = PRESETS;
 	}
 
-	void set (slider &e) {
-		nome = e.nome;
-		_rect = &e.rect;
-		_slider = &e;
-		// ou sliderint?
-		tipo = SLIDER;
-	}
+
 
 	void set (toggle &e) {
 		nome = e.nome;
@@ -723,6 +736,9 @@ public:
 
 	// rename to createelement
 	void create(string nome, string tipo="slider", string valores = "", string valores2 = ""); // NULL
+
+	void createRadio(string nome, vector <string> opcoes);
+
 	void save(string xml);
 	void load(string xml);
 	void expires(int dataInicial, int dias = 10);
@@ -763,6 +779,13 @@ public:
 	map <string,string>			pFolder;
 	// only internal use to backup some variables.
 	map <string,float>			pFloatBak;
+
+
+
+	ofEvent<string> uiEvent;
+	ofEvent<dmtrUIEvent> evento;
+
+	ofEvent<vector <string> > uiEventMidi;
 	
 
 	// Fbo to draw GUI column
@@ -795,6 +818,8 @@ public:
 	bool debug = false;
 	int hueStart = 100;
 	bool learnMode = false;
+	string lastLearn = "";
+
 	float opacity = 255;
 	float opacityRest = 255;
 	bool dirListEntireName = false;
@@ -804,8 +829,6 @@ public:
 	ofPoint presetDimensions = ofPoint(100,25);
 
 
-	ofEvent<string> uiEvent;
-	ofEvent<dmtrUIEvent> evento;
 
 	// ainda ver direitiho se isso vai rolar.
 	map <string, map <string, string> > dirListMap;
