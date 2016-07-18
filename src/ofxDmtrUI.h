@@ -240,9 +240,10 @@ public:
 		dmtrUIEvent te;
 		te._nome = &nome;
 		te.tipo = BANG;
+		//te.tipo = bang == true ? BANG : TOGGLE; // acho que ta errado isso de ser so bang
+
 		te.var = BOOLEANO;
 		ofNotifyEvent(evento, te, this);
-
 	}
 
 	// acho que nao preicsa mais? precisa?

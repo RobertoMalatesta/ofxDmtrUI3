@@ -1054,22 +1054,57 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 	else if (tipo == "preview3d") {
 		//createFromLine("label	preview3d");
-		createFromLine("bool	iluminaPreview	1");
-		createFromLine("int	pointSize	1 4 2");
-		createFromLine("float	bgPreview	0 255 60");
-		createFromLine("float	bgPiso	0 255 40");
-		createFromLine("float	lookX	-30 30 0");
-		createFromLine("float	lookY	0 4 1.7");
-		createFromLine("float	lookZ	-30 30 0");
-		createFromLine("_float	rotCamX	-360 360 0");
-		createFromLine("_float	rotCamZ	-360 360 0");
-		createFromLine("float	rotCamY	-360 360 0");
-		createFromLine("float	rotCamYAuto	-1 1 0");
-		createFromLine("float	cameraFov	30 120 36");
-		createFromLine("");
-		createFromLine("float	cameraX	-50 50 0");
-		createFromLine("float	cameraY	0 13.75 1.7");
-		createFromLine("float	cameraZ	-50 50 0");
+//		createFromLine("bool	iluminaPreview	1");
+//		createFromLine("_int	pointSize	1 4 2");
+//		createFromLine("float	bgPreview	0 255 60");
+//		createFromLine("float	bgPiso	0 255 40");
+//		createFromLine("float	lookX	-30 30 0");
+//		createFromLine("float	lookY	0 4 1.7");
+//		createFromLine("float	lookZ	-30 30 0");
+//		createFromLine("_float	rotCamX	-360 360 0");
+//		createFromLine("_float	rotCamZ	-360 360 0");
+//		createFromLine("float	rotCamY	-360 360 0");
+//		createFromLine("float	rotCamYAuto	-1 1 0");
+//		createFromLine("float	cameraFov	30 120 36");
+//		createFromLine("");
+//		createFromLine("float	cameraX	-50 50 0");
+//		createFromLine("float	cameraY	0 13.75 1.7");
+//		createFromLine("float	cameraZ	-50 50 0");
+
+		string s =
+		R"(bool	iluminaPreview	0
+_int	pointSize	1 4 2
+float	bgPreview	0 255 60
+float	bgPiso	0 255 40
+float	lookX	-30 30 0
+float	lookY	0 4 1.7
+float	lookZ	-30 30 0
+_float	rotCamX	-360 360 0
+_float	rotCamZ	-360 360 0
+float	rotCamY	-360 360 0
+float	rotCamYAuto	-1 1 0
+float	cameraFov	30 120 36
+
+float	cameraX	-50 50 0
+float	cameraY	0 13.75 1.7
+float	cameraZ	-50 50 20)";
+		for (auto & l : ofSplitString(s, "\n")) {
+			createFromLine(l);
+		}
+	}
+
+	else if (tipo == "audioControls") {
+		// 17 de julho de 2016, n‹o sei se compila bem em outras plataformas.
+		string s =
+		R"(slider2d	freq
+float	audioGanho	0.001 .2 0.2
+float	audioOffset	-1 0 -.2
+float	peakhold	0 20 2
+float	decay	0 .98 .85
+toggle	invertAudio	0 1 0)";
+		for (auto & l : ofSplitString(s, "\n")) {
+			createFromLine(l);
+		}
 	}
 
 	else if (tipo == "noise") {
