@@ -130,14 +130,21 @@ void ofxDmtrUI::save(string xml){
 			settings.setValue("toggle:" + e.nome, *e._val);
 		}
 		for (auto & e : radios) {
-			if (!e.multiple) {
-				settings.setValue("radio:"+e.nome, *e._val);
-			} else {
+//			cout << "saving radio: " + e.nome << endl;
+//			cout << e.multiple << endl;
+			if (e.multiple) {
 				int i = 0;
 				for (auto & o : e.opcoes) {
 					settings.setValue("radio:"+e.nome+":"+o, *e._vals[i]);
+//					cout << "radio:"+e.nome+":"+o << endl;
+//					cout << *e._vals[i] << endl;
+//					cout << "-----" << endl;
 					i++;
 				}
+			} else {
+				settings.setValue("radio:"+e.nome, *e._val);
+//				cout << "radio:"+e.nome << endl;
+//				cout << *e._val << endl;
 			}
 		}
 		for (auto & e : sliders2d) {
@@ -202,17 +209,23 @@ void ofxDmtrUI::load(string xml){
 			e.setValue(settings.getValue("toggle:" +e.nome, e.def));
 		}
 		for (auto & e : radios) {
-			if (!e.multiple) {
-				e.setValue(settings.getValue("radio:" + e.nome, ""), 2);
-			}
-			else {
+			if (e.multiple) {
 				int i = 0;
 				for (auto & o : e.opcoes) {
 					*e._vals[i] = settings.getValue("radio:"+e.nome+":"+o, false);
 					i++;
 				}
 				e.draw();
+			} else {
+//				cout << "not multiple" << endl;
+//				cout << e.nome << endl;
+//				cout << "radio:" + e.nome << endl;
+//				cout << settings.getValue("radio:" + e.nome, "") << endl;
+//				cout << e.multiple << endl;
+//				cout << "-----" << endl;
+				e.setValue(settings.getValue("radio:" + e.nome, ""), 2);
 			}
+
 		}
 		for (auto & e : sliders2d) {
 			float x = settings.getValue("slider2d:"+e.nome+":x", 0.0);
@@ -638,6 +651,11 @@ void ofxDmtrUI::createFromLine(string l) {
 		else if (tipo == "flowY") {
 			flow.y = ofToFloat(cols[1]);
 		}
+
+		else if (tipo == "presetDimensions") {
+			vector <string> dimensions = ofSplitString(cols[1], " ");
+			presetDimensions = ofPoint(ofToInt(dimensions[0]), ofToInt(dimensions[1]));
+		}
 		else if (tipo == "autoFit") {
 			autoFit();
 		}
@@ -1053,23 +1071,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 	}
 
 	else if (tipo == "preview3d") {
-		//createFromLine("label	preview3d");
-//		createFromLine("bool	iluminaPreview	1");
-//		createFromLine("_int	pointSize	1 4 2");
-//		createFromLine("float	bgPreview	0 255 60");
-//		createFromLine("float	bgPiso	0 255 40");
-//		createFromLine("float	lookX	-30 30 0");
-//		createFromLine("float	lookY	0 4 1.7");
-//		createFromLine("float	lookZ	-30 30 0");
-//		createFromLine("_float	rotCamX	-360 360 0");
-//		createFromLine("_float	rotCamZ	-360 360 0");
-//		createFromLine("float	rotCamY	-360 360 0");
-//		createFromLine("float	rotCamYAuto	-1 1 0");
-//		createFromLine("float	cameraFov	30 120 36");
-//		createFromLine("");
-//		createFromLine("float	cameraX	-50 50 0");
-//		createFromLine("float	cameraY	0 13.75 1.7");
-//		createFromLine("float	cameraZ	-50 50 0");
 
 		string s =
 		R"(bool	iluminaPreview	0
@@ -1077,7 +1078,7 @@ _int	pointSize	1 4 2
 float	bgPreview	0 255 60
 float	bgPiso	0 255 40
 float	lookX	-30 30 0
-float	lookY	0 4 1.7
+float	lookY	0 20 1.7
 float	lookZ	-30 30 0
 _float	rotCamX	-360 360 0
 _float	rotCamZ	-360 360 0
@@ -1333,7 +1334,7 @@ void	 ofxDmtrUI::autoFit(bool w, bool h) {
 	float maxW = 0;
 	float maxH = 0;
 
-	cout << "autofit" << endl;
+	//cout << "autofit" << endl;
 
 	// antes era somente usado pro allPresets aqui... agora vamos ver.
 
