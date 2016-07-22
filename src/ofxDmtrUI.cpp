@@ -790,8 +790,10 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			}
 		}
 
-		flow.y += allPresets.rect.height + sliderMargin;
+//		flow.y += allPresets.rect.height + sliderMargin;
+		flow.y += allPresets.rect.height ;
 
+		lastHeight = 0;
 
 		element te;
 		te.set(allPresets);
