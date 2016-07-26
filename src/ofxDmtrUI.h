@@ -238,6 +238,7 @@ public:
 
 		// 28 maio 2016
 		dmtrUIEvent te;
+		te.nome = nome;
 		te._nome = &nome;
 		te.tipo = BANG;
 		//te.tipo = bang == true ? BANG : TOGGLE; // acho que ta errado isso de ser so bang
@@ -367,13 +368,15 @@ public:
 						*_val = opcoes[i];
 						string ev = "updateRadio_" + nome;
 						ofNotifyEvent(uiEvent, ev, this);
+						
 						dmtrUIEvent te;
 						te.nome = nome;
 						te._nome = &nome;
 						te.element = RADIO;
 						te.tipo = UPDATE;
 						te.var = STRING;
-						ofNotifyEvent(evento, te, this);					}
+						ofNotifyEvent(evento, te, this);
+					}
 				}
 			}
 			// 12 de maio de 2016. tentando evento do multiple radio
@@ -755,7 +758,12 @@ public:
 	void loadPresetAll(int n);
 	void savePreset(int n);
 	void savePresetAll(int n);
+
+	// to save presets
 	void setFbo(ofFbo &fbo);
+
+
+	void setFboElement(string nome, ofFbo &fbo);
 
 	vector <string> textToVector(string file);
 
@@ -853,6 +861,7 @@ public:
 	vector<string> colors;
 	string getPresetsFolder();
 
+	ofBlendMode blendMode = OF_BLENDMODE_ALPHA;
 
 };
 

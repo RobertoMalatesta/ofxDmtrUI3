@@ -100,6 +100,12 @@ void ofxDmtrUI::draw() {
 		}
 		//ofSetColor(255, columnOver ? 255 : 128);
 		ofSetColor(255, columnOver ? opacity : opacityRest);
+		//ofEnableBlendMode(OF_BLENDMODE_DIFFERENCE);
+		//ofEnableBlendMode(OF_BLENDMODE_ADD);
+		//ofEnableBlendMode(OF_BLENDMODE_SCREEN);
+		if (blendMode) {
+			ofEnableBlendMode(blendMode);
+		}
 		fbo.draw(coluna.x, coluna.y);
 		ofPushMatrix();
 		ofTranslate(coluna.x, coluna.y);
@@ -107,13 +113,18 @@ void ofxDmtrUI::draw() {
 			e.draw();
 		}
 		ofPopMatrix();
+		if (blendMode) {
+			ofEnableAlphaBlending();
+		}
 		ofSetColor(255);
 	}
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::save(string xml){
-	cout << "save: " + xml << endl;
+	if (debug) {
+		cout << "save: " + xml << endl;
+	}
 	ofxXmlSettings settings;
 
 	bool newVersion = true;
@@ -191,7 +202,9 @@ void ofxDmtrUI::save(string xml){
 
 //--------------------------------------------------------------
 void ofxDmtrUI::load(string xml){
-	cout << "load: " + xml << endl;
+	if (debug) {
+		cout << "load: " + xml << endl;
+	}
 	if (!ofFile::doesFileExist(xml)) {
 		cout << " ----- file doesn't exist: ";
 		cout << xml << endl;
@@ -275,10 +288,10 @@ void ofxDmtrUI::load(string xml){
 
 //--------------------------------------------------------------
 void ofxDmtrUI::keyPressed(int key){
-	if (key == 'q') {
-		learnMode = !learnMode;
-		re();
-	}
+//	if (key == 'q') {
+//		learnMode = !learnMode;
+//		re();
+//	}
 	if (key == '=') {
 		showGui = !showGui;
 	}
@@ -296,7 +309,14 @@ void ofxDmtrUI::keyPressed(int key){
 		}
 	}
 
+
 	if (useShortcut) {
+
+		if ((key == 'f' || key == 'F') && ofGetKeyPressed(OF_KEY_COMMAND)) {
+			ofToggleFullscreen();
+		}
+
+
 		if (key == 'a' || key == 'A') {
 			loadPresetAll(0 + pInt["atalhoOffset"]);
 		}
@@ -605,6 +625,15 @@ void ofxDmtrUI::createFromLine(string l) {
 		else if (tipo == "colunaBackground") {
 			colunaBackground  = ofColor::fromHex(ofHexToInt(cols[1].substr(1)));
 			colunaBackground.a = 100;
+		}
+
+		else if (tipo == "blendMode") {
+			if (cols[1] == "ADD") {
+				blendMode = OF_BLENDMODE_ADD;
+			}
+			else if (cols[1] == "SCREEN") {
+				blendMode = OF_BLENDMODE_SCREEN;
+			}
 		}
 
 		else if (tipo == "bw") {
@@ -1056,7 +1085,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 	}
 
 	else if (tipo == "color") {
-		createFromLine("toggle	"+nome+"UsaPaleta	0 1 0");
+		createFromLine("bool	"+nome+"UsaPaleta	0");
 		createFromLine("slider2d	"+nome+"Paleta	.5 .5");
 		createFromLine("slider2d	"+nome+"Hsv	.5 .5");
 		createFromLine("fbo	"+nome+"PaletaAtual	200 10");
@@ -1068,6 +1097,21 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		createFromLine("float	"+nome+"Alpha	0 255 255");
 		createFromLine("float	"+nome+"AlphaAudio	0 255 0");
 		createFromLine("float	"+nome+"AlphaRange	0 255 0");
+		colors.push_back(nome);
+		//createFromLine("");
+	}
+
+	else if (tipo == "colorPaleta") {
+		createFromLine("_bool	"+nome+"UsaPaleta	1");
+		createFromLine("slider2d	"+nome+"Paleta	.5 .5");
+		createFromLine("fbo	"+nome+"PaletaAtual	200 10");
+		createFromLine("float	"+nome+"HRange	0 720 100");
+		createFromLine("float	"+nome+"HRangeAudio	0 360 0");
+//		createFromLine("float	"+nome+"BRange	0 255 0");
+//		createFromLine("int	"+nome+"HStep	0 6 0");
+		createFromLine("float	"+nome+"Alpha	0 255 255");
+//		createFromLine("float	"+nome+"AlphaAudio	0 255 0");
+//		createFromLine("float	"+nome+"AlphaRange	0 255 0");
 		colors.push_back(nome);
 		//createFromLine("");
 	}
@@ -1104,7 +1148,7 @@ float	audioGanho	0.001 .2 0.2
 float	audioOffset	-1 0 -.2
 float	peakhold	0 20 2
 float	decay	0 .98 .85
-toggle	invertAudio	0 1 0)";
+bool	invertAudio	0)";
 		for (auto & l : ofSplitString(s, "\n")) {
 			createFromLine(l);
 		}
@@ -1384,7 +1428,9 @@ void ofxDmtrUI::setRadio(string nome, string val) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::loadPresetAll(int n) {
-	cout << "loadPresetAll:" + ofToString(n) << endl;
+	if (debug) {
+ 		cout << "loadPresetAll:" + ofToString(n) << endl;
+	}
 	for (auto & p : _presetsUIs) {
 		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
 		p->load(nome);
@@ -1431,6 +1477,13 @@ void ofxDmtrUI::savePreset(int n) {
 //--------------------------------------------------------------
 void ofxDmtrUI::setFbo(ofFbo &fbo) {
 	_fbo = &fbo;
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI::setFboElement(string nome, ofFbo &fbo) {
+	if (sliders2d[indexElement[nome]].nome == nome) {
+		sliders2d[indexElement[nome]].setFbo(fbo);
+	}
 }
 
 
