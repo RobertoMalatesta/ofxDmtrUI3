@@ -219,5 +219,13 @@ dirlist creates a radio with files listed in a specific directory, relative or a
 
 
 
+  
+
+  
+    
+_ ._. ._ _. ... .._ ._. .._. .. _. __.
 Dimitre Lima 2016  
-http://dmtr.org/
+Lunar Calendar 2017 now shipping  
+http://dmtr.org/  
+http://dimitre.org/  
+http://dimitrelima.com/  
