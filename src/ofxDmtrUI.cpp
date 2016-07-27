@@ -1003,13 +1003,22 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		lastHeight = 20;
 	}
 
-	else if (tipo == "radio" || tipo == "radioMult") {
+	else if (tipo == "radio" || tipo == "radioMult" || tipo == "radioText") {
 
 		radio temp;
 		temp.nome = nome;
 		temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
 		temp.cor = cor;
-		temp.opcoes = ofSplitString(valores, " ");
+
+		if (tipo == "radioText") {
+			temp.opcoes = textToVector(valores);
+		} else {
+			temp.opcoes = ofSplitString(valores, " ");
+		}
+
+		for (auto & t : temp.opcoes) {
+			cout << t << endl;
+		}
 		temp._val = &pString[nome];
 		// 26 de junho de 2016, teste de null pointer
 		//pString[nome] = "";
@@ -1416,6 +1425,7 @@ void	 ofxDmtrUI::autoFit(bool w, bool h) {
 	for (auto & e : toggles) { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 	for (auto & e : labels)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 	for (auto & e : radios)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
+	for (auto & e : inspectors)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 
 	if (w)
 		coluna.width = maxW + marginx;
@@ -1450,10 +1460,16 @@ void ofxDmtrUI::loadPresetAll(int n) {
 	for (auto & p : _presetsUIs) {
 		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
 		p->load(nome);
+		p->redraw = true;
 	}
 	presetLoaded = n;
 	allPresets.set(n);
 	redraw = true;
+
+	dmtrUIEvent te;
+	te.nome = "loadPresetAll";
+	ofNotifyEvent(evento, te);
+	// fazer um UIEvent aqui.
 }
 
 //--------------------------------------------------------------

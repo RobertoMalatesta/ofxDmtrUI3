@@ -45,6 +45,10 @@ test events in IOs
 Performance : maybe check inside panel rectangle if mouse event is inside before check in each panel element.
 Implement the class Element and make pointers to member functions of draw, check mouse, get val etc.
 
+## 2016 07 27
+I’m not logging a lot of improvements here.
+Now we have radioText which is a radio that loads the options from a text file, separated by new lines.
+
 ## 2016 07 03
 Major overhaul on xml saving / loading. it will recognize the oldstyle xml files and save in 2.0 version automatically for a while. Let me know if you are already using presets, the conversion process will be stripped out in some weeks.  
 
@@ -213,3 +217,7 @@ dirlist	fita1	/Users/dd/Desktop/WORK_DMTR/AREIA_AUDIO
 ```
 dirlist creates a radio with files listed in a specific directory, relative or absolute path.
 
+
+
+Dimitre Lima 2016  
+http://dmtr.org/
