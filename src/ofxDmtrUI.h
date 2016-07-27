@@ -517,6 +517,28 @@ public:
 	}
 };
 
+class inspector {
+public:
+	string nome;
+	ofRectangle rect;
+	ofFbo fbo;
+	string *_val;
+	// nao usado.
+	ofColor cor;
+	void init() {
+		fbo.allocate(200,20,GL_RGBA);
+		
+	}
+	void draw() {
+		ofSetColor(255);
+		fbo.begin();
+		ofClear(0);
+		ofDrawBitmapString(*_val, 4, 18);
+		fbo.end();
+		fbo.draw(rect.x, rect.y);
+	}
+};
+
 class preset {
 public:
 	int index;
@@ -772,6 +794,7 @@ public:
 	vector <label> 	labels;
 	vector <radio> 	radios;
 	vector <slider2d> sliders2d;
+	vector <inspector> inspectors;
 
 	// WOW
 	vector <element> elements;
@@ -786,6 +809,10 @@ public:
 	map <string,ofFloatColor>	pColor;
 	// NOVO
 	map <string,string>			pFolder;
+
+	// 26 jul 2016, Nike
+	map <string,string>			pInspector;
+
 	// only internal use to backup some variables.
 	map <string,float>			pFloatBak;
 

@@ -109,9 +109,8 @@ void ofxDmtrUI::draw() {
 		fbo.draw(coluna.x, coluna.y);
 		ofPushMatrix();
 		ofTranslate(coluna.x, coluna.y);
-		for (auto & e : sliders2d)  {
-			e.draw();
-		}
+		for (auto & e : sliders2d)  { e.draw(); }
+		for (auto & e : inspectors)  { e.draw(); }
 		ofPopMatrix();
 		if (blendMode) {
 			ofEnableAlphaBlending();
@@ -311,68 +310,70 @@ void ofxDmtrUI::keyPressed(int key){
 
 
 	if (useShortcut) {
+		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
+			if ((key == 'f' || key == 'F')) {
+				ofToggleFullscreen();
+			}
+		} else {
 
-		if ((key == 'f' || key == 'F') && ofGetKeyPressed(OF_KEY_COMMAND)) {
-			ofToggleFullscreen();
-		}
 
-
-		if (key == 'a' || key == 'A') {
-			loadPresetAll(0 + pInt["atalhoOffset"]);
-		}
-		else if (key == 's' || key == 'S') {
-			loadPresetAll(1 + pInt["atalhoOffset"]);
-		}
-		else if (key == 'd' || key == 'D') {
-			loadPresetAll(2 + pInt["atalhoOffset"]);
-		}
-		else if (key == 'f' || key == 'F') {
-			loadPresetAll(3 + pInt["atalhoOffset"]);
-		}
-		else if (key == 'g' || key == 'G') {
-			loadPresetAll(4 + pInt["atalhoOffset"]);
-		}
-		else if (key == 'h' || key == 'H') {
-			loadPresetAll(5 + pInt["atalhoOffset"]);
-		}
-		else if (key == 'j' || key == 'J') {
-			loadPresetAll(6 + pInt["atalhoOffset"]);
-		}
-		else if (key == 'k' || key == 'K') {
-			loadPresetAll(7 + pInt["atalhoOffset"]);
-		}
-		else if (key == 'l' || key == 'L') {
-			loadPresetAll(8 + pInt["atalhoOffset"]);
-		}
-		else if (key == ';') {
-			loadPresetAll(9 + pInt["atalhoOffset"]);
-		}
-		else if (key == 39) { //single quote
-			loadPresetAll(10 + pInt["atalhoOffset"]);
-		}
-		if (key == 'z' || key == 'Z') {
-			loadPresetAll(11 + pInt["atalhoOffset"]);
-		}
-		else if (key == 'x' || key == 'X') {
-			loadPresetAll(12 + pInt["atalhoOffset"]);
-		}
-		else if (key == 'c' || key == 'C') {
-			loadPresetAll(13 + pInt["atalhoOffset"]);
-		}
-		else if (key == 'v' || key == 'V') {
-			loadPresetAll(14 + pInt["atalhoOffset"]);
-		}
-		else if (key == 'b' || key == 'B') {
-			loadPresetAll(15 + pInt["atalhoOffset"]);
-		}
-		else if (key == 'n' || key == 'N') {
-			loadPresetAll(16 + pInt["atalhoOffset"]);
-		}
-		else if (key == 'm' || key == 'M') {
-			loadPresetAll(17 + pInt["atalhoOffset"]);
-		}
-		else if (key == ',') {
-			loadPresetAll(18 + pInt["atalhoOffset"]);
+			if (key == 'a' || key == 'A') {
+				loadPresetAll(0 + pInt["atalhoOffset"]);
+			}
+			else if (key == 's' || key == 'S') {
+				loadPresetAll(1 + pInt["atalhoOffset"]);
+			}
+			else if (key == 'd' || key == 'D') {
+				loadPresetAll(2 + pInt["atalhoOffset"]);
+			}
+			else if (key == 'f' || key == 'F') {
+				loadPresetAll(3 + pInt["atalhoOffset"]);
+			}
+			else if (key == 'g' || key == 'G') {
+				loadPresetAll(4 + pInt["atalhoOffset"]);
+			}
+			else if (key == 'h' || key == 'H') {
+				loadPresetAll(5 + pInt["atalhoOffset"]);
+			}
+			else if (key == 'j' || key == 'J') {
+				loadPresetAll(6 + pInt["atalhoOffset"]);
+			}
+			else if (key == 'k' || key == 'K') {
+				loadPresetAll(7 + pInt["atalhoOffset"]);
+			}
+			else if (key == 'l' || key == 'L') {
+				loadPresetAll(8 + pInt["atalhoOffset"]);
+			}
+			else if (key == ';') {
+				loadPresetAll(9 + pInt["atalhoOffset"]);
+			}
+			else if (key == 39) { //single quote
+				loadPresetAll(10 + pInt["atalhoOffset"]);
+			}
+			if (key == 'z' || key == 'Z') {
+				loadPresetAll(11 + pInt["atalhoOffset"]);
+			}
+			else if (key == 'x' || key == 'X') {
+				loadPresetAll(12 + pInt["atalhoOffset"]);
+			}
+			else if (key == 'c' || key == 'C') {
+				loadPresetAll(13 + pInt["atalhoOffset"]);
+			}
+			else if (key == 'v' || key == 'V') {
+				loadPresetAll(14 + pInt["atalhoOffset"]);
+			}
+			else if (key == 'b' || key == 'B') {
+				loadPresetAll(15 + pInt["atalhoOffset"]);
+			}
+			else if (key == 'n' || key == 'N') {
+				loadPresetAll(16 + pInt["atalhoOffset"]);
+			}
+			else if (key == 'm' || key == 'M') {
+				loadPresetAll(17 + pInt["atalhoOffset"]);
+			}
+			else if (key == ',') {
+				loadPresetAll(18 + pInt["atalhoOffset"]);
+			}
 		}
 	}
 }
@@ -857,13 +858,28 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		lastWidth  = ts.rect.width;
 		indexElement[nome] = sliders2d.size();
 
-
-
 		sliders2d.push_back(ts);
 
 		element te;
 		te.set(sliders2d.back());
 		elements.push_back(te);
+	}
+
+	else if (tipo == "inspector") {
+		inspector te;
+		te.nome = nome;
+		te.cor = cor;
+		te.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
+		te._val = &pInspector[nome];
+		pInspector[nome] = "";
+		lastHeight = te.rect.height;
+		lastWidth  = te.rect.width;
+		te.init();
+		//indexElement[nome] = sliders2d.size();
+
+		// Ainda falta todo o resto
+		inspectors.push_back(te);
+
 	}
 
 	else if (tipo == "slider" || tipo == "int" || tipo == "sliderVert") {
@@ -1105,11 +1121,11 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		createFromLine("_bool	"+nome+"UsaPaleta	1");
 		createFromLine("slider2d	"+nome+"Paleta	.5 .5");
 		createFromLine("fbo	"+nome+"PaletaAtual	200 10");
-		createFromLine("float	"+nome+"HRange	0 720 100");
-		createFromLine("float	"+nome+"HRangeAudio	0 360 0");
+		createFromLine("_float	"+nome+"HRange	0 720 0");
+		createFromLine("_float	"+nome+"HRangeAudio	0 360 0");
 //		createFromLine("float	"+nome+"BRange	0 255 0");
 //		createFromLine("int	"+nome+"HStep	0 6 0");
-		createFromLine("float	"+nome+"Alpha	0 255 255");
+		createFromLine("_float	"+nome+"Alpha	0 255 255");
 //		createFromLine("float	"+nome+"AlphaAudio	0 255 0");
 //		createFromLine("float	"+nome+"AlphaRange	0 255 0");
 		colors.push_back(nome);
