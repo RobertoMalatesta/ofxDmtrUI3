@@ -477,7 +477,10 @@ void ofxDmtrUI::mouseAll(int x, int y, int button){
 //--------------------------------------------------------------
 void ofxDmtrUI::exit() {
 	if (keepSettings) {
-		save(presetsFolder + UINAME + ".xml");
+		cout << "ofxDmtrUI exit" << endl;
+		string fileName = presetsFolder + UINAME + ".xml";
+		cout << "Saving::"+fileName << endl;
+		save(fileName);
 	}
 }
 
@@ -552,16 +555,21 @@ vector <string> ofxDmtrUI::textToVector(string file) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::createFromText(string file) {
+	if (ofFile::doesFileExist(file)) {
+		createdFromTextFile = file;
+		
+		if (debug) {
+			cout << "ofxDmtrUI createFromText ::: " + file << endl;
+		}
 
-	if (debug) {
-		cout << "ofxDmtrUI createFromText ::: " + file << endl;
+		vector <string> linhas = textToVector(file);
+		for (auto & l : linhas) {
+			createFromLine(l);
+		}
+		addAllListeners();
+	} else {
+		cout << "ofxDmtrUI createFromText ::: File not found" << endl;
 	}
-
-	vector <string> linhas = textToVector(file);
-	for (auto & l : linhas) {
-		createFromLine(l);
-	}
-	addAllListeners();
 }
 
 //--------------------------------------------------------------
@@ -1016,9 +1024,10 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			temp.opcoes = ofSplitString(valores, " ");
 		}
 
-		for (auto & t : temp.opcoes) {
-			cout << t << endl;
-		}
+//		for (auto & t : temp.opcoes) {
+//			cout << t << endl;
+//		}
+
 		temp._val = &pString[nome];
 		// 26 de junho de 2016, teste de null pointer
 		//pString[nome] = "";
@@ -1142,7 +1151,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 	}
 
 	else if (tipo == "preview3d") {
-
 		string s =
 		R"(bool	iluminaPreview	0
 _int	pointSize	1 4 2
@@ -1153,16 +1161,20 @@ float	lookY	0 20 1.7
 float	lookZ	-30 30 0
 _float	rotCamX	-360 360 0
 _float	rotCamZ	-360 360 0
-float	rotCamY	-360 360 0
-float	rotCamYAuto	-1 1 0
+__float	rotCamY	-360 360 0
+__float	rotCamYAuto	-1 1 0
 float	cameraFov	30 120 36
 
-float	cameraX	-50 50 0
+_bool	cameraPolar	1
+float	cameraDist	0 50 23
+float	cameraAngle	-180 180 0
+_float	cameraX	-50 50 0
 float	cameraY	0 13.75 1.7
-float	cameraZ	-50 50 20)";
+_float	cameraZ	-50 50 20)";
 		for (auto & l : ofSplitString(s, "\n")) {
 			createFromLine(l);
 		}
+		lastHeight = 0;
 	}
 
 	else if (tipo == "audioControls") {
@@ -1177,6 +1189,7 @@ bool	invertAudio	0)";
 		for (auto & l : ofSplitString(s, "\n")) {
 			createFromLine(l);
 		}
+		lastHeight = 0;
 	}
 
 	else if (tipo == "noise") {
@@ -1306,9 +1319,18 @@ void	 ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 
 	else if (e.nome == "scene") {
 		if (uiC != NULL) {
+			if (_uiBak != NULL) {
+				cout << "uibak not null" <<endl;
+				// clonar todas as vari‡veis aqui...
+				// dessa forma nao sei se funciona pq eles sao apenas ponteiros... ou nao?
+				_uiBak->pFloat = uiC->pFloat;
+				_uiBak->pInt = uiC->pInt;
+				_uiBak->pString["scene"] = pString["sceneAnterior"]; // ui.pstring
+			}
 			if (pString["sceneAnterior"] != pString["scene"]) {
 				uiC->clear();
 				uiC->createFromText("uiC.txt");
+				// 
 				string fileName = "_scene/" + pString["scene"] + ".txt";
 				if (ofFile::doesFileExist(fileName)) {
 					uiC->createFromText(fileName);
@@ -1425,6 +1447,8 @@ void	 ofxDmtrUI::autoFit(bool w, bool h) {
 	for (auto & e : toggles) { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 	for (auto & e : labels)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 	for (auto & e : radios)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
+	for (auto & e : sliders2d)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
+
 	for (auto & e : inspectors)  { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 
 	if (w)
@@ -1572,4 +1596,12 @@ string ofxDmtrUI::getPresetsFolder() {
 		}
 	}
 	return out;
+}
+
+// not a very happy function.
+//--------------------------------------------------------------
+slider & ofxDmtrUI::getSlider(string nome) {
+	if (sliders[indexElement[nome]].nome == nome) {
+		return sliders[indexElement[nome]];
+	}
 }

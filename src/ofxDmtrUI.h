@@ -32,6 +32,17 @@
 //	#define DMTRUI_TARGET_TOUCH
 //#endif
 
+//namespace UI {
+//	vector <string> textToVector(string file) {
+//		vector <string> saida;
+//		ofBuffer buff2 = ofBufferFromFile(file);
+//		for(auto & line: buff2.getLines()) {
+//			saida.push_back(line);
+//		}
+//		return saida;
+//	}
+//}
+
 enum flowDir {
 	VERT, HORIZ, NO_FLOW
 };
@@ -880,6 +891,7 @@ public:
 	vector <ofxDmtrUI *> _presetsUIs;
 	ofxDmtrUI * uiC = NULL;
 	ofxDmtrUI * uiM = NULL;
+	ofxDmtrUI * _uiBak = NULL;
 
 	void re();
 	float getNoise(string nome, float a);
@@ -890,5 +902,8 @@ public:
 
 	ofBlendMode blendMode = OF_BLENDMODE_ALPHA;
 
+	slider & getSlider(string nome);
+
+	string createdFromTextFile = "";
 };
 
