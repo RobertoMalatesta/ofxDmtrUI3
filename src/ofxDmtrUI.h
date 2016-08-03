@@ -508,7 +508,7 @@ public:
 		}
 		else
 		{
-			//ofSetColor(cor);
+			ofSetColor(0);
 			ofDrawRectangle(rect);
 		}
 
@@ -560,17 +560,19 @@ public:
 	bool selecionado = false;
 	void draw() {
 		ofSetColor(255);
-		fbo.begin();
-		ofClear(0,255);
-		if (img.isAllocated()) {
-			img.draw(0,0);
+		if (fbo.isAllocated()) {
+			fbo.begin();
+			ofClear(0,255);
+			if (img.isAllocated()) {
+				img.draw(0,0);
+			}
+			if (selecionado) {
+				ofSetColor(255,0,80);
+				ofDrawRectangle(5,5,20,20);
+			}
+			fbo.end();
+			fbo.draw(rect.x, rect.y, rect.width, rect.height);
 		}
-		if (selecionado) {
-			ofSetColor(255,0,80);
-			ofDrawRectangle(5,5,20,20);
-		}
-		fbo.end();
-		fbo.draw(rect.x, rect.y, rect.width, rect.height);
 	}
 };
 
@@ -601,7 +603,7 @@ public:
 			presets[valor].selecionado = false;
 			presets[valor].draw();
 		}
-		if (presets.size() > 0) {
+		if (presets.size() > 0 && valor < presets.size()) {
 			valor = slot;
 			presets[valor].selecionado = true;
 			presets[valor].draw();

@@ -1154,11 +1154,11 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		string s =
 		R"(bool	iluminaPreview	0
 _int	pointSize	1 4 2
-float	bgPreview	0 255 60
-float	bgPiso	0 255 40
-float	lookX	-30 30 0
+_float	bgPreview	0 255 60
+_float	bgPiso	0 255 40
+_float	lookX	-30 30 0
 float	lookY	0 20 1.7
-float	lookZ	-30 30 0
+_float	lookZ	-30 30 0
 _float	rotCamX	-360 360 0
 _float	rotCamZ	-360 360 0
 __float	rotCamY	-360 360 0
@@ -1167,9 +1167,9 @@ float	cameraFov	30 120 36
 
 _bool	cameraPolar	1
 float	cameraDist	0 50 23
-float	cameraAngle	-180 180 0
+float	cameraAngle	-180 180 -45
 _float	cameraX	-50 50 0
-float	cameraY	0 13.75 1.7
+float	cameraY	-1 20 1.7
 _float	cameraZ	-50 50 20)";
 		for (auto & l : ofSplitString(s, "\n")) {
 			createFromLine(l);
@@ -1191,6 +1191,27 @@ bool	invertAudio	0)";
 		}
 		lastHeight = 0;
 	}
+
+	else if (tipo == "audioBpmControls") {
+		// 17 de julho de 2016, n‹o sei se compila bem em outras plataformas.
+		string s =
+		R"(bool	audioOuBpm	0
+int	BPM	80 200 120
+radio	ondaBeats	1 2 4 8
+radio	onda	s w ww r
+slider2d	freq
+float	audioGanho	0.001 .2 0.2
+float	audioOffset	-1 0 -.2
+float	peakhold	0 20 2
+float	decay	0 .98 .85
+bool	invertAudio	0)";
+		for (auto & l : ofSplitString(s, "\n")) {
+			createFromLine(l);
+		}
+		lastHeight = 0;
+	}
+
+
 
 	else if (tipo == "noise") {
 		if (valores == "") {
@@ -1409,6 +1430,7 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 		vector <string> split = ofSplitString(e, "_");
 		string nome = split[1];
 		pFloat[nome] = ofToFloat(pString[nome + "_shortcut"]);
+		cout << "shortcut!" << endl;
 	}
 	if (ofIsStringInString(e, "shortcutInt") && !ofIsStringInString(e, "load")) {
 		vector <string> split = ofSplitString(e, "_");
