@@ -35,6 +35,15 @@ http://dmtr.org/
 //--------------------------------------------------------------
 void ofxDmtrUI::setup(string uiName) {
 
+
+//	receive.setup(8000);
+
+	
+//	cout << "ofxDmtrUISetup" << endl;
+//#ifdef INCLUDED
+//	cout << "YESSSSS" << endl;
+//#endif
+//	cout << "ofxDmtrUISetup2" << endl;
 	//colunaBackground = (ofColor::fromHex(0xff00aa77));
 	if (uiName != "") {
 		UINAME = uiName;
@@ -56,6 +65,12 @@ void ofxDmtrUI::setup(string uiName) {
 	ofAddListener(ofEvents().mouseReleased, this, &ofxDmtrUI::onMouseReleased);
 	ofAddListener(ofEvents().mouseMoved, this, &ofxDmtrUI::onMouseMoved);
 	ofAddListener(ofEvents().exit, this, &ofxDmtrUI::onExit);
+
+#ifdef DMTRUI_TARGET_TOUCH
+	ofAddListener(ofEvents().touchDown, this, &ofxDmtrUI::onTouchDown);
+	ofAddListener(ofEvents().touchMoved, this, &ofxDmtrUI::onTouchMoved);
+	ofAddListener(ofEvents().touchUp, this, &ofxDmtrUI::onTouchUp);
+#endif
 
 	if (keepSettings) {
 		string fileName = presetsFolder + UINAME + ".xml";
@@ -385,47 +400,68 @@ void ofxDmtrUI::keyReleased(int key){
 //--------------------------------------------------------------
 void ofxDmtrUI::mousePressedDragged(int x, int y, int button){
 	redraw = true;
-	for (auto & e : radios) {
-		if (e.rect.inside(x - coluna.x,y - coluna.y)) {
-			e.checkMouse(x - coluna.x,y - coluna.y);
+//	if (slideFree)
+	{
+		for (auto & e : radios) {
+			if (e.rect.inside(x - coluna.x,y - coluna.y)) {
+				e.checkMouse(x - coluna.x,y - coluna.y);
+				// 5 agosto de 2016, pro Nike
+				mousePressedElement = e.nome;
+			}
 		}
-	}
 
-	for (auto & t : toggles) {
-		if (t.rect.inside(x - coluna.x,y - coluna.y) && !t.inside) {
-			t.inside = true;
-			t.flip();
+		for (auto & e : toggles) {
+			if (e.rect.inside(x - coluna.x,y - coluna.y) && !e.inside) {
+				e.inside = true;
+				e.flip();
+				mousePressedElement = e.nome;
+			}
 		}
-	}
 
-	if (allPresets.ok && allPresets.rect.inside(x - coluna.x,y - coluna.y)) {
-		allPresets.checkMouse(x - coluna.x, y - coluna.y);
+		if (allPresets.ok && allPresets.rect.inside(x - coluna.x,y - coluna.y)) {
+			allPresets.checkMouse(x - coluna.x, y - coluna.y);
+		}
 	}
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::mouseDragged(int x, int y, int button){
 	// simplificar, fazer o x - coluna.x antes
-	for (auto & s : sliders2d) {
-		if (s.rect.inside(x - coluna.x, y - coluna.y)) {
-			s.checkMouse(x - coluna.x, y - coluna.y);
-			s.inside = true;
+
+	for (auto & e : sliders2d) {
+		bool check = slideFree || e.nome == mousePressedElement;
+		if (e.rect.inside(x - coluna.x, y - coluna.y)) {
+			if (check) {
+				e.checkMouse(x - coluna.x, y - coluna.y);
+			}
+			e.inside = true;
 		} else {
-			if (s.inside) {
-				s.checkMouse(x - coluna.x, y - coluna.y);
-				s.inside = false;
+			if (e.inside) {
+				if (check) {
+					e.checkMouse(x - coluna.x, y - coluna.y);
+				}
+				if (slideFree) {
+					e.inside = false;
+				}
 			}
 		}
 	}
 
-	for (auto & s : sliders) {
-		if (s.rect.inside(x - coluna.x, y - coluna.y)) {
-			s.update(x - coluna.x, y - coluna.y);
-			s.inside = true;
+	for (auto & e : sliders) {
+		bool check = slideFree || e.nome == mousePressedElement;
+		if (e.rect.inside(x - coluna.x, y - coluna.y)) {
+			if (check) {
+				e.update(x - coluna.x, y - coluna.y);
+			}
+			e.inside = true;
 		} else {
-			if (s.inside) {
-				s.update(x - coluna.x, y - coluna.y);
-				s.inside = false;
+			if (e.inside) {
+				if (check) {
+					e.update(x - coluna.x, y - coluna.y);
+				}
+				if (slideFree) {
+					e.inside = false;
+				}
 			}
 		}
 	}
@@ -433,17 +469,19 @@ void ofxDmtrUI::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofxDmtrUI::mousePressed(int x, int y, int button){
-	for (auto & s : sliders) {
-		if (s.rect.inside(x - coluna.x,y - coluna.y)) {
-			s.update(x - coluna.x, y - coluna.y);
-			s.inside = true;
+	for (auto & e : sliders) {
+		if (e.rect.inside(x - coluna.x,y - coluna.y)) {
+			e.update(x - coluna.x, y - coluna.y);
+			e.inside = true;
+			mousePressedElement = e.nome;
 		}
 	}
 
-	for (auto & s : sliders2d) {
-		if (s.rect.inside(x - coluna.x,y - coluna.y)) {
-			s.checkMouse(x - coluna.x, y - coluna.y);
-			s.inside = true;
+	for (auto & e : sliders2d) {
+		if (e.rect.inside(x - coluna.x,y - coluna.y)) {
+			e.checkMouse(x - coluna.x, y - coluna.y);
+			e.inside = true;
+			mousePressedElement = e.nome;
 		}
 	}
 }
@@ -451,18 +489,18 @@ void ofxDmtrUI::mousePressed(int x, int y, int button){
 //--------------------------------------------------------------
 void ofxDmtrUI::mouseReleased(int x, int y, int button){
 	redraw = false;
-	for (auto & t : toggles) {
-		t.inside = false;
-		if (t.bang) {
-			*t._val = false;
+	for (auto & e : toggles) {
+		e.inside = false;
+		if (e.bang) {
+			*e._val = false;
 			redraw = true;
 		}
 	}
-	for (auto & s : sliders) {
-		s.inside = false;
+	for (auto & e : sliders) {
+		e.inside = false;
 	}
-	for (auto & s : sliders2d) {
-		s.inside = false;
+	for (auto & e : sliders2d) {
+		e.inside = false;
 	}
 	for (auto & s : radios) {
 		//s.clicked = false;
@@ -531,12 +569,37 @@ void ofxDmtrUI::onMouseReleased(ofMouseEventArgs& data) {
 	}
 }
 
+
 //--------------------------------------------------------------
 void ofxDmtrUI::onMouseMoved(ofMouseEventArgs& data) {
 	if (showGui) {
 		mouseAll				(data.x, data.y, data.button);
 	}
 }
+
+//--------------------------------------------------------------
+void ofxDmtrUI::onTouchDown(ofTouchEventArgs &data) {
+	if (showGui) {
+		mousePressed				(data.x, data.y, data.id);
+	}
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI::onTouchMoved(ofTouchEventArgs &data) {
+	if (showGui) {
+		mouseDragged	(data.x, data.y, data.id);
+	}
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI::onTouchUp(ofTouchEventArgs &data) {
+	if (showGui) {
+		mouseReleased	(data.x, data.y, data.id);
+		mouseAll		(data.x, data.y, data.id);
+	}
+
+}
+
 
 //--------------------------------------------------------------
 void ofxDmtrUI::onExit(ofEventArgs &data) {
@@ -622,7 +685,7 @@ void ofxDmtrUI::createFromLine(string l) {
 //		else if (tipo == "uiSetup") {
 //			setup();
 //		}
-		else if (tipo == "uiClear") {
+		else if (tipo == "uiClear" || tipo == "clear") {
 			clear();
 		}
 
@@ -688,6 +751,9 @@ void ofxDmtrUI::createFromLine(string l) {
 		}
 		else if (tipo == "flowY") {
 			flow.y = ofToFloat(cols[1]);
+		}
+		else if (tipo == "slideFree") {
+			slideFree = ofToBool(cols[1]);
 		}
 
 		else if (tipo == "presetDimensions") {

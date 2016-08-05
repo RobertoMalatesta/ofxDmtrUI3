@@ -22,15 +22,28 @@
 
  **********************************************************************************/
 
-
 #pragma once
+
+
+
 #include "ofMain.h"
 #include "ofEvents.h"
 #include "ofxXmlSettings.h"
 
-//#if defined( TARGET_OF_IPHONE ) || defined( TARGET_OF_IOS ) || defined( TARGET_ANDROID )
-//	#define DMTRUI_TARGET_TOUCH
-//#endif
+#ifdef OFXDMTRUI_USE_OSC
+#include "ofxOsc.h"
+
+//asdfasdf
+//#define	INCLUDED 1
+#endif
+
+
+
+#if defined( TARGET_OF_IPHONE ) || defined( TARGET_OF_IOS ) || defined( TARGET_ANDROID )
+	#define DMTRUI_TARGET_TOUCH
+#endif
+
+
 
 //namespace UI {
 //	vector <string> textToVector(string file) {
@@ -768,6 +781,11 @@ public:
 	void onMouseDragged(ofMouseEventArgs &data);
 	void onMouseReleased(ofMouseEventArgs &data);
 	void onMouseMoved(ofMouseEventArgs &data);
+
+	void onTouchDown(ofTouchEventArgs &data);
+	void onTouchMoved(ofTouchEventArgs &data);
+	void onTouchUp(ofTouchEventArgs &data);
+	
 	void onExit(ofEventArgs &data);
 
 	void createFromText(string file);
@@ -907,5 +925,13 @@ public:
 	slider & getSlider(string nome);
 
 	string createdFromTextFile = "";
+
+
+//	ofxOscSender send;
+//	ofxOscReceiver receive;
+
+	//5 de agosto de 2016, testando 
+	string mousePressedElement = "";
+	bool slideFree = true;
 };
 
