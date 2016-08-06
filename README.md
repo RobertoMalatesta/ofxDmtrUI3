@@ -6,11 +6,15 @@ Requires oF 0.9+
 Suggestions and code improvements will be greatly appreciated.   
 Use by your own risk. It is working well here.  
 Tested on OS X. Let me know if you are using it. Examples will be created under demand   
+Related Addons:  
+https://github.com/dimitre/ofxDmtrUIRemote  
+https://github.com/dimitre/ofxDmtrUIMidiController  
+
 http://dmtr.org/ofxDmtrUI  
 
 ![Example](http://hifolio.com/media/1/Screen_Shot_2016-04-15_at_12.45.11_PM.png)
 
-Sister Project:
+Small Sister Project:
 https://github.com/dimitre/Cinder-DmtrUI
 
 

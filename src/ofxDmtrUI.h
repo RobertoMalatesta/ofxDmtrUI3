@@ -923,6 +923,7 @@ public:
 	ofBlendMode blendMode = OF_BLENDMODE_ALPHA;
 
 	slider & getSlider(string nome);
+	radio  & getRadio(string nome);
 
 	string createdFromTextFile = "";
 

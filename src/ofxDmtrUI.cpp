@@ -1693,3 +1693,11 @@ slider & ofxDmtrUI::getSlider(string nome) {
 		return sliders[indexElement[nome]];
 	}
 }
+
+// not a very happy function.
+//--------------------------------------------------------------
+radio & ofxDmtrUI::getRadio(string nome) {
+	if (radios[indexElement[nome]].nome == nome) {
+		return radios[indexElement[nome]];
+	}
+}
