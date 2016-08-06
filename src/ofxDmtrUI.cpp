@@ -502,9 +502,9 @@ void ofxDmtrUI::mouseReleased(int x, int y, int button){
 	for (auto & e : sliders2d) {
 		e.inside = false;
 	}
-	for (auto & s : radios) {
+	//for (auto & s : radios) {
 		//s.clicked = false;
-	}
+	//}
 }
 
 //--------------------------------------------------------------
@@ -1462,7 +1462,7 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 			float aspectThumb = w / (float)h;
 			float aspectFbo = _fbo->getWidth() / (float)_fbo->getHeight();
 			float neww = w;
-			float newh = h;
+			//float newh = h;
 			float offx = 0;
 			float offy = 0;
 
@@ -1523,13 +1523,13 @@ void	 ofxDmtrUI::autoFit(bool w, bool h) {
 	minX = MIN(allPresets.rect.x, minX); minY = MIN(allPresets.rect.y, minY); maxW = MAX(allPresets.rect.x + allPresets.rect.width, maxW); maxH = MAX(allPresets.rect.y + allPresets.rect.height, maxH);
 
 	// pro futuro, ainda nao consigo resolver
-	for (auto & e : elements) {
+//	for (auto & e : elements) {
 //		cout << e.nome << endl;
 //		cout << e._rect << endl;
 //		cout << *e._rect << endl;
 //		cout << e._rect->x << endl;
 //		minX = MIN(*e._rect->x, minX); minY = MIN(*e._rect->y, minY); maxW = MAX(*e._rect->x + *e._rect->width, maxW); maxH = MAX(*e._rect->y + *e._rect->height, maxH);
-	}
+//	}
 
 	for (auto & e : sliders) { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }
 	for (auto & e : toggles) { minX = MIN(e.rect.x, minX); minY = MIN(e.rect.y, minY); maxW = MAX(e.rect.x + e.rect.width, maxW); maxH = MAX(e.rect.y + e.rect.height, maxH); }

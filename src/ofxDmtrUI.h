@@ -439,7 +439,7 @@ public:
 	void draw() {
 		ofSetColor(255);
 		int offy = 15;
-		int offx = 0;
+		//int offx = 0;
 		//ofSetColor(255,0,60,128);
 		//ofDrawRectangle(rect);
 
