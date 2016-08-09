@@ -321,7 +321,7 @@ public:
 	string 			nome;
 	ofRectangle 		rect;
 	ofColor 			cor;
-	string 			*_val;
+	string 			*_val = NULL;
 
 	vector <string>	opcoes;
 	vector <ofRectangle> 	rects;
@@ -338,13 +338,47 @@ public:
 	ofEvent<string> uiEvent;
 	ofEvent<dmtrUIEvent> evento;
 
-
+	// 7 de agosto de 2016 pro Areia + ofxDmtrUIRemote, dirlist, resolver no futuro
+	bool dirList = false;
 	// pra fazer da mareh o lookup de cores.
 	vector <ofColor> cores;
 	bool useColors = false;
 
+	bool isInit = false;
+
+
+	void init() {
+		for (auto & o : opcoes) {
+			clicked.push_back(false);
+			int largura = 6*2 + o.size() * 8;
+			ofRectangle tr = ofRectangle(rect.x + offx, rect.y + offy, largura, height);
+
+			// mudar para sliderwidth
+			if ((offx + tr.width) > rect.width) {
+				offx = 0;
+				offy += 20 + 1;
+				tr = ofRectangle(rect.x + offx, rect.y + offy, largura, height);
+			}
+			rect.height = MAX(rect.height, offy + 21);
+			offx += largura + 1;
+			rects.push_back(tr);
+
+			// temporario pras cores de moving heads mareh
+			cores.push_back(cor);
+		}
+
+		// recalculando a largura total do rect sem mexer no offx e offy.
+		//rect.width = widthAll;
+		// fazer com que o rect principal seja da largura de todos os outros rects.
+	}
+
 	void setValue(string v, int notify = 0) {
-		*_val = v;
+		//cout << v << endl;
+		//if (*_val != NULL) {
+		if (opcoes.size() > 0) {
+			*_val = v;
+		}
+		//}
 		dmtrUIEvent te;
 		te.nome = nome;
 		te._nome = &nome;
@@ -352,6 +386,8 @@ public:
 		// mudar tudo pra ingles?
 		te.element = RADIO;
 		te.var = STRING;
+
+//			UPDATE, LOAD, SET, BANG
 
 		if (notify == 1) {
 			te.tipo = UPDATE;
@@ -363,6 +399,9 @@ public:
 			te.tipo = LOAD;
 			string ev = "loadRadio_" + nome;
 			ofNotifyEvent(uiEvent, ev, this);
+		}
+		if (notify == 3) {
+			te.tipo = SET;
 		}
 		ofNotifyEvent(evento, te, this);
 	}
@@ -411,30 +450,6 @@ public:
 		}
 	}
 
-	void init() {
-		for (auto & o : opcoes) {
-			clicked.push_back(false);
-			int largura = 6*2 + o.size() * 8;
-			ofRectangle tr = ofRectangle(rect.x + offx, rect.y + offy, largura, height);
-
-			// mudar para sliderwidth
-			if ((offx + tr.width) > rect.width) {
-				offx = 0;
-				offy += 20 + 1;
-				tr = ofRectangle(rect.x + offx, rect.y + offy, largura, height);
-			}
-			rect.height = MAX(rect.height, offy + 21);
-			offx += largura + 1;
-			rects.push_back(tr);
-
-			// temporario pras cores de moving heads mareh
-			cores.push_back(cor);
-		}
-
-		// recalculando a largura total do rect sem mexer no offx e offy.
-		//rect.width = widthAll;
-		// fazer com que o rect principal seja da largura de todos os outros rects.
-	}
 
 	void draw() {
 		ofSetColor(255);

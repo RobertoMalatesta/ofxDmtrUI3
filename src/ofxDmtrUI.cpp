@@ -682,6 +682,9 @@ void ofxDmtrUI::createFromLine(string l) {
 			pFloat["maxWidthHorizontal"] = 0;
 		}
 
+		else if (tipo == "dirListExtension") {
+			dirListEntireName = ofToBool(cols[1]);
+		}
 //		else if (tipo == "uiSetup") {
 //			setup();
 //		}
@@ -1148,6 +1151,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		}
 
 		radio temp;
+		temp.dirList = true;
 		temp.nome = nome;
 		temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
 		temp.cor = cor;
@@ -1353,7 +1357,17 @@ void	 ofxDmtrUI::expires(int dataInicial, int dias) {
 
 //--------------------------------------------------------------
 void	 ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
-	//cout << e.nome << endl;
+//	cout << "ofxDmtrUI::uiEventsNeu :: " + e.nome << endl;
+//	cout << e.tipo << endl;
+
+	// este novo serve tanto pro INT quanto pro Float. ta lindo isso
+	if (ofIsStringInString(e.nome, "shortcut") && e.tipo != LOAD) {
+		vector <string> split = ofSplitString(e.nome, "_");
+		string nome = split[0];
+		if (sliders[indexElement[nome]].nome == nome) {
+			sliders[indexElement[nome]].setValue(ofToFloat(pString[e.nome]));
+		}
+	}
 
 	if (learnMode) {
 		lastLearn = e.nome;
@@ -1492,17 +1506,20 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 		}
 	}
 
-	if (ofIsStringInString(e, "shortcut") && !ofIsStringInString(e, "load")) {
-		vector <string> split = ofSplitString(e, "_");
-		string nome = split[1];
-		pFloat[nome] = ofToFloat(pString[nome + "_shortcut"]);
-		cout << "shortcut!" << endl;
-	}
-	if (ofIsStringInString(e, "shortcutInt") && !ofIsStringInString(e, "load")) {
-		vector <string> split = ofSplitString(e, "_");
-		string nome = split[1];
-		pInt[nome] = ofToInt(pString[nome + "_shortcutInt"]);
-	}
+//	if (ofIsStringInString(e, "shortcut") && !ofIsStringInString(e, "load")) {
+//		vector <string> split = ofSplitString(e, "_");
+//		string nome = split[1];
+//
+//		// XAXA forte
+//		getSlider(nome).setValue(ofToFloat(pString[nome + "_shortcut"]));
+//		//pFloat[nome] = ofToFloat(pString[nome + "_shortcut"]);
+//		//cout << "shortcut!" << endl;
+//	}
+//	if (ofIsStringInString(e, "shortcutInt") && !ofIsStringInString(e, "load")) {
+//		vector <string> split = ofSplitString(e, "_");
+//		string nome = split[1];
+//		pInt[nome] = ofToInt(pString[nome + "_shortcutInt"]);
+//	}
 
 	// XAXA Corrigir
 	ofNotifyEvent(uiEvent, e);
@@ -1699,5 +1716,5 @@ slider & ofxDmtrUI::getSlider(string nome) {
 radio & ofxDmtrUI::getRadio(string nome) {
 	if (radios[indexElement[nome]].nome == nome) {
 		return radios[indexElement[nome]];
-	}
+	} 
 }
