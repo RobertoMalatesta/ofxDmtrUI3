@@ -907,7 +907,7 @@ public:
 	bool dirListEntireName = false;
 
 	ofColor colunaBackground = ofColor(0,100);
-	ofRectangle coluna = ofRectangle(0,0,250,250);
+	ofRectangle coluna = ofRectangle(0,0,220,220);
 	ofPoint presetDimensions = ofPoint(100,25);
 
 
@@ -949,5 +949,7 @@ public:
 	//5 de agosto de 2016, testando 
 	string mousePressedElement = "";
 	bool slideFree = true;
+
+	void nextTo(ofxDmtrUI & uiNext);
 };
 

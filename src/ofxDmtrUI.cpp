@@ -1718,3 +1718,9 @@ radio & ofxDmtrUI::getRadio(string nome) {
 		return radios[indexElement[nome]];
 	} 
 }
+
+//--------------------------------------------------------------
+void ofxDmtrUI::nextTo(ofxDmtrUI & uiNext) {
+	coluna.x = uiNext.coluna.x + uiNext.coluna.width + uiNext.marginx;
+	coluna.y = uiNext.coluna.y;
+}
