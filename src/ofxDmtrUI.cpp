@@ -846,7 +846,8 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 	bool flowing = true;
 
-	if (tipo == "presets") {
+	// feiooo. da pra fazer muito melhor depois
+	if (tipo == "presets" || tipo == "presets2") {
 		int cols = 3;
 		int rows = 4;
 		if (nome != "") {
@@ -903,7 +904,10 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		lastHeight = 0;
 
 		element te;
-		te.set(allPresets);
+
+
+
+		te.set(tipo == "presets" ? allPresets : allPresets2);
 		elements.push_back(te);
 
 //		te.tipo = PRESETS;
@@ -1723,4 +1727,10 @@ radio & ofxDmtrUI::getRadio(string nome) {
 void ofxDmtrUI::nextTo(ofxDmtrUI & uiNext) {
 	coluna.x = uiNext.coluna.x + uiNext.coluna.width + uiNext.marginx;
 	coluna.y = uiNext.coluna.y;
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI::downTo(ofxDmtrUI & uiNext) {
+	coluna.y = uiNext.coluna.y + uiNext.coluna.height + uiNext.marginy;
+	coluna.x = uiNext.coluna.x;
 }

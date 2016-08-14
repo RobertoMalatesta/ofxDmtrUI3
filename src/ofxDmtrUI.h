@@ -917,13 +917,14 @@ public:
 	map <string, int> indexElement;
 
 	// 26 04 2016 - presets
-	presets allPresets;
+	presets allPresets, allPresets2;
 
 	// fbo pointer to save presets.
 	ofFbo *_fbo;
 	int presetLoaded;
 
 	vector <ofxDmtrUI *> _presetsUIs;
+	vector <ofxDmtrUI *> _presetsUIs2;
 	ofxDmtrUI * uiC = NULL;
 	ofxDmtrUI * uiM = NULL;
 	ofxDmtrUI * _uiBak = NULL;
@@ -951,5 +952,6 @@ public:
 	bool slideFree = true;
 
 	void nextTo(ofxDmtrUI & uiNext);
+	void downTo(ofxDmtrUI & uiNext);
 };
 
