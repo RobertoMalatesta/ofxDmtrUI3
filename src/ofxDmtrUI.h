@@ -211,6 +211,7 @@ public:
 		valorPixels = ofMap(vvv, min, max, 0, rect.width);
 
 		ofSetColor(cor);
+		//cout << nome << endl;
 		ofDrawRectangle(rect);
 
 		// value rectangle black transparent
@@ -636,6 +637,11 @@ public:
 			presets[valor].selecionado = true;
 			presets[valor].draw();
 		}
+
+		// 18 de agosto, basement. pra fazer o autoadvance selecionar
+		for (auto & p : presets) {
+			p.draw();
+		}
 	}
 
 	void checkMouse(int x, int y) {
@@ -824,6 +830,7 @@ public:
 
 	void loadPreset(int n);
 	void loadPresetAll(int n);
+	void loadNextPresetAll();
 	void savePreset(int n);
 	void savePresetAll(int n);
 
@@ -953,5 +960,10 @@ public:
 
 	void nextTo(ofxDmtrUI & uiNext);
 	void downTo(ofxDmtrUI & uiNext);
+
+	// 16 de agosto de 2016, teste
+	string getFileFullPath(string & nome);
+
+	string allText = "";
 };
 

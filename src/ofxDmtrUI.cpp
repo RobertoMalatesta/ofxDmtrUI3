@@ -53,6 +53,7 @@ void ofxDmtrUI::setup(string uiName) {
 	flow = ofPoint(marginx, marginy);
 
 	fbo.allocate(coluna.width, coluna.height, GL_RGBA);
+	fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 	fbo.begin();
 	ofClear(0);
 	fbo.end();
@@ -1425,7 +1426,7 @@ void	 ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 	else if (e.nome == "scene") {
 		if (uiC != NULL) {
 			if (_uiBak != NULL) {
-				cout << "uibak not null" <<endl;
+				//cout << "uibak not null" <<endl;
 				// clonar todas as vari‡veis aqui...
 				// dessa forma nao sei se funciona pq eles sao apenas ponteiros... ou nao?
 				_uiBak->pFloat = uiC->pFloat;
@@ -1565,6 +1566,8 @@ void	 ofxDmtrUI::autoFit(bool w, bool h) {
 	if (h)
 		coluna.height = maxH + marginy;
 	fbo.allocate(coluna.width, coluna.height, GL_RGBA);
+	fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+
 	redraw = true;
 }
 
@@ -1597,12 +1600,23 @@ void ofxDmtrUI::loadPresetAll(int n) {
 	}
 	presetLoaded = n;
 	allPresets.set(n);
+	
 	redraw = true;
 
 	dmtrUIEvent te;
 	te.nome = "loadPresetAll";
 	ofNotifyEvent(evento, te);
 	// fazer um UIEvent aqui.
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI::loadNextPresetAll() {
+	int n = (presetLoaded + 1) % allPresets.presets.size();
+	cout << "loadNextPresetAll" << endl;
+	cout << n << endl;
+	loadPresetAll(n);
+
+
 }
 
 //--------------------------------------------------------------
@@ -1733,4 +1747,10 @@ void ofxDmtrUI::nextTo(ofxDmtrUI & uiNext) {
 void ofxDmtrUI::downTo(ofxDmtrUI & uiNext) {
 	coluna.y = uiNext.coluna.y + uiNext.coluna.height + uiNext.marginy;
 	coluna.x = uiNext.coluna.x;
+}
+
+//--------------------------------------------------------------
+string ofxDmtrUI::getFileFullPath(string & nome) {
+	string saida = pFolder[nome] + "/" + pString[nome];
+	return saida;
 }
