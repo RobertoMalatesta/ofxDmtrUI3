@@ -1660,8 +1660,10 @@ void ofxDmtrUI::setFbo(ofFbo &fbo) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::setFboElement(string nome, ofFbo &fbo) {
-	if (sliders2d[indexElement[nome]].nome == nome) {
-		sliders2d[indexElement[nome]].setFbo(fbo);
+	if (indexElement.find(nome) != indexElement.end()) {
+		if (sliders2d[indexElement[nome]].nome == nome) {
+			sliders2d[indexElement[nome]].setFbo(fbo);
+		}
 	}
 }
 
