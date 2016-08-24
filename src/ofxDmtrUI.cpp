@@ -645,6 +645,7 @@ void ofxDmtrUI::addAllListeners() {
 	}
 	for (auto & e : sliders2d) {
 		ofAddListener(e.uiEvent,this, &ofxDmtrUI::uiEvents);
+		ofAddListener(e.evento,this, &ofxDmtrUI::uiEventsNeu);
 	}
 
 	for (auto & e : radios) {

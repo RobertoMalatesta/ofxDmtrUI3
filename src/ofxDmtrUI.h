@@ -506,6 +506,10 @@ public:
 	bool inside = false;
 	bool isSlider = true;
 
+	// 24 agosto 2016 - pro ofxLicht
+	ofEvent<dmtrUIEvent> evento;
+
+
 	void setFbo(ofFbo &fbo) {
 		_fbo = &fbo;
 		fboSet = true;
@@ -528,6 +532,15 @@ public:
 						);
 		string ev = "updateSlider2d_" + nome;
 		ofNotifyEvent(uiEvent, ev, this);
+
+		// modularizar este tipo de evento. fazer uma função quem sabe...
+		dmtrUIEvent te;
+		te.nome = nome;
+		te._nome = &nome;
+		te.element = SLIDER2D;
+		te.tipo = UPDATE;
+		te.var = STRING;
+		ofNotifyEvent(evento, te, this);
 	}
 
 	void draw() {
