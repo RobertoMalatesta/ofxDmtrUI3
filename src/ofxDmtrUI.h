@@ -604,9 +604,19 @@ public:
 		ofSetColor(255);
 		if (fbo.isAllocated()) {
 			fbo.begin();
-			ofClear(0,255);
+			ofClear(40,255);
 			if (img.isAllocated()) {
 				img.draw(0,0);
+			} else {
+				ofSetColor(127);
+				ofPushMatrix();
+				ofTranslate(int(fbo.getWidth()/2), int(fbo.getHeight()/2));
+				int d = 5;
+				ofDrawLine(-d, -d, d, d);
+				ofDrawLine(d, -d, -d, d);
+				ofPopMatrix();
+//				ofDrawLine(0,0,fbo.getWidth(), fbo.getHeight());
+//				ofDrawLine(fbo.getWidth(),0,0,fbo.getHeight());
 			}
 			if (selecionado) {
 				ofSetColor(255,0,80);
@@ -928,7 +938,8 @@ public:
 
 	ofColor colunaBackground = ofColor(0,100);
 	ofRectangle coluna = ofRectangle(0,0,220,220);
-	ofPoint presetDimensions = ofPoint(100,25);
+	// 16 x 9 seria 100x56, vou deixar o padrao maior, tipo 35 por enquanto
+	ofPoint presetDimensions = ofPoint(100,35);
 
 
 

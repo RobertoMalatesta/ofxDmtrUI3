@@ -311,6 +311,9 @@ void ofxDmtrUI::keyPressed(int key){
 		showGui = !showGui;
 	}
 
+
+
+
 	if (saveLoadShortcut) {
 		if (key == '1' || key == '2' || key == '3' || key == '4' || key == '5' || key == '6' || key == '7' ||
 			key == '8' || key == '9' || key == '0'
@@ -703,7 +706,9 @@ void ofxDmtrUI::createFromLine(string l) {
 			colunaBackground  = ofColor::fromHex(ofHexToInt(cols[1].substr(1)));
 			colunaBackground.a = 100;
 		}
-
+		else if (tipo == "slideFree") {
+			slideFree = ofToBool(cols[1]);
+		}
 		else if (tipo == "blendMode") {
 			if (cols[1] == "ADD") {
 				blendMode = OF_BLENDMODE_ADD;
@@ -757,9 +762,7 @@ void ofxDmtrUI::createFromLine(string l) {
 		else if (tipo == "flowY") {
 			flow.y = ofToFloat(cols[1]);
 		}
-		else if (tipo == "slideFree") {
-			slideFree = ofToBool(cols[1]);
-		}
+
 
 		else if (tipo == "presetDimensions") {
 			vector <string> dimensions = ofSplitString(cols[1], " ");
@@ -1208,6 +1211,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		createFromLine("float	"+nome+"AlphaAudio	0 255 0");
 		createFromLine("float	"+nome+"AlphaRange	0 255 0");
 		colors.push_back(nome);
+		lastHeight = 0;
 		//createFromLine("");
 	}
 
@@ -1224,6 +1228,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 //		createFromLine("float	"+nome+"AlphaRange	0 255 0");
 		colors.push_back(nome);
 		//createFromLine("");
+		lastHeight = 0;
 	}
 
 	else if (tipo == "preview3d") {
