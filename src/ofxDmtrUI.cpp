@@ -722,6 +722,10 @@ void ofxDmtrUI::createFromLine(string l) {
 			bw  = ofToInt(cols[1]);
 		}
 
+		else if (tipo == "keepSettings") {
+			keepSettings  = ofToBool(cols[1]);
+		}
+
 		else if (tipo == "opacity") {
 			opacity  	= ofToInt(cols[1]);
 			opacityRest = ofToInt(cols[1]);
