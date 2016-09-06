@@ -635,7 +635,7 @@ void ofxDmtrUI::createFromText(string file) {
 		}
 		addAllListeners();
 	} else {
-		cout << "ofxDmtrUI createFromText ::: File not found" << endl;
+		cout << "ofxDmtrUI createFromText ::: File not found " + file << endl;
 	}
 }
 
@@ -1209,7 +1209,8 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		createFromLine("float	"+nome+"S	0 255 255");
 		createFromLine("float	"+nome+"HRange	0 720 100");
 		createFromLine("float	"+nome+"HRangeAudio	0 360 0");
-		createFromLine("float	"+nome+"BRange	0 255 0");
+//		createFromLine("float	"+nome+"BRange	0 255 0");
+		createFromLine("float	"+nome+"BRange	0 512 0");
 		createFromLine("int	"+nome+"HStep	0 6 0");
 		createFromLine("float	"+nome+"Alpha	0 255 255");
 		createFromLine("float	"+nome+"AlphaAudio	0 255 0");
@@ -1266,7 +1267,7 @@ _float	cameraZ	-50 50 20)";
 		// 17 de julho de 2016, n‹o sei se compila bem em outras plataformas.
 		string s =
 		R"(slider2d	freq
-float	audioGanho	0.001 .2 0.2
+float	audioGanho	0.0 .5 0.25
 float	audioOffset	-1 0 -.2
 float	peakhold	0 20 2
 float	decay	0 .98 .85
@@ -1285,7 +1286,7 @@ int	BPM	80 200 120
 radio	ondaBeats	1 2 4 8
 radio	onda	s w ww r
 slider2d	freq
-float	audioGanho	0.001 .2 0.2
+float	audioGanho	0 .5 0.25
 float	audioOffset	-1 0 -.2
 float	peakhold	0 20 2
 float	decay	0 .98 .85
