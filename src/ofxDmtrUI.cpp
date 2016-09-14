@@ -926,7 +926,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 	}
 
-	else if (tipo == "slider2d" || tipo == "fbo") {
+	else if (tipo == "slider2d" || tipo == "fbo" ) {
 		slider2d ts;
 		ts.nome = nome;
 		ts.cor = cor;
@@ -955,13 +955,19 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		elements.push_back(te);
 	}
 
-	else if (tipo == "inspector") {
+	else if (tipo == "inspector" || tipo == "inspectorFloat") {
 		inspector te;
 		te.nome = nome;
 		te.cor = cor;
 		te.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
-		te._val = &pInspector[nome];
-		pInspector[nome] = "";
+		te.tipo = tipo == "inspectorFloat" ? "float" : "string";
+		if (te.tipo == "string") {
+			te._val = &pInspector[nome];
+			pInspector[nome] = "";
+		} else {
+			te._valFloat = &pInspectorFloat[nome];
+			pInspectorFloat[nome] = 0;
+		}
 		lastHeight = te.rect.height;
 		lastWidth  = te.rect.width;
 		te.init();
@@ -969,7 +975,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 		// Ainda falta todo o resto
 		inspectors.push_back(te);
-
 	}
 
 	else if (tipo == "slider" || tipo == "int" || tipo == "sliderVert") {
@@ -1019,6 +1024,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			pInt[nome] = ts.def;
 		}
 		indexElement[nome] = sliders.size();
+		slidersIndex[nome] = sliders.size();
 
 		lastHeight = ts.rect.height;
 		lastWidth  = ts.rect.width;
@@ -1051,21 +1057,28 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		pBool[nome] = tt.def;
 		tt._val = &pBool[nome];
 		indexElement[nome] = toggles.size();
+		togglesIndex[nome] = toggles.size();
 
 		if (tipo == "toggleNolabel") {
 			tt.showLabel = false;
 			lastWidth  = tt.rect.width;
 		}
 
-//		element te;
-//		te._rect = &tt.rect;
-//		te.tipo = TOGGLE;
-//		te._toggle = &tt;
-//		elements.push_back(te);
-
 		toggles.push_back(tt);
 
+		togglesMap[nome] = &toggles.back();
+//		if (toggles.size()>0) {
+//			if (nome == toggles[toggles.size()-1].nome) {
+//				togglesMap[nome] = &toggles[toggles.size()-1];
+//			}
+//		}
+
+//		cout << nome << endl;
+//		cout << toggles.back().nome << endl;
+//		cout << "-----" << endl;
+
 		element te;
+		//te._toggle = &toggles.back();
 		te.set(toggles.back());
 		elements.push_back(te);
 	}
@@ -1123,7 +1136,9 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			}
 		}
 		temp.init();
+		// remover o indexElement em breve
 		indexElement[nome] = radios.size();
+		radiosIndex[nome] = radios.size();
 
 //		element te;
 //		te._rect = &temp.rect;
@@ -1199,6 +1214,66 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 				}
 			}
 		}
+	}
+
+
+	else if (tipo == "cor") {
+		string n = nome + "Cor";
+		vector <string> cores = ofSplitString(valores, " ");
+		ofFbo corFbo;
+		corFbo.allocate(sliderWidth, 20 ,GL_RGBA);
+		corFbo.begin();
+		ofClear(0,255);
+
+		ofSetColor(255,255,0);
+		ofDrawRectangle(0,0,corFbo.getWidth(), corFbo.getHeight());
+		float largura = corFbo.getWidth() / cores.size();
+
+		vector <ofColor> colors;
+		for (int a=0; a<cores.size(); a++) {
+			float x = a*largura;
+			istringstream stream("0x" + cores[a].substr(1));
+			stream.unsetf(ios_base::dec);
+			int cor;
+			stream >> cor;
+			ofColor corzinha = ofColor::fromHex(cor);
+			ofFill();
+			ofSetColor(corzinha);
+			ofDrawRectangle(x, 0, largura, corFbo.getHeight());
+			colors.push_back(corzinha);
+		}
+		corFbo.end();
+		mapFbos[nome] = corFbo;
+
+		createFromLine("label	"+nome);
+
+		slider2d ts;
+		ts.cores = colors;
+		//ts._fbo = &mapFbos[nome];
+		ts.nome = nome;
+		ts.cor = cor;
+		ts.rect = ofRectangle(flow.x, flow.y, sliderWidth, 20);
+		pPoint[nome] = ofPoint(.5, .5);
+		ts._val = &pPoint[nome];
+		ts.setFbo(mapFbos[nome]);
+		ts.isColor = true;
+		ts._valColor = &pColor[nome];
+
+		lastHeight = ts.rect.height;
+		lastWidth  = ts.rect.width;
+		indexElement[nome] = sliders2d.size();
+		sliders2dIndex[nome] = sliders2d.size();
+
+		sliders2d.push_back(ts);
+
+//		element te;
+//		te.set(sliders2d.back());
+//		elements.push_back(te);
+
+//		string createString = "slider2dColor	"+n+"	"+ofToString(sliderWidth)+" 20";
+//		createFromLine(createString);
+//		setFboElement(n, mapFbos[n]);
+//		lastHeight = 0;
 	}
 
 	else if (tipo == "color") {
@@ -1734,21 +1809,38 @@ string ofxDmtrUI::getPresetsFolder() {
 	return out;
 }
 
-// not a very happy function.
+// almost there...
 //--------------------------------------------------------------
-slider & ofxDmtrUI::getSlider(string nome) {
-	if (sliders[indexElement[nome]].nome == nome) {
-		return sliders[indexElement[nome]];
+slider * ofxDmtrUI::getSlider(string nome) {
+	cout << "getSlider" << endl;
+	cout << nome << endl;
+	if (sliders[slidersIndex[nome]].nome == nome) {
+		return &sliders[slidersIndex[nome]];
+		cout << "achamos " << endl;
 	}
 }
 
-// not a very happy function.
 //--------------------------------------------------------------
-radio & ofxDmtrUI::getRadio(string nome) {
-	if (radios[indexElement[nome]].nome == nome) {
-		return radios[indexElement[nome]];
+radio * ofxDmtrUI::getRadio(string nome) {
+	if (radios[radiosIndex[nome]].nome == nome) {
+		return &radios[radiosIndex[nome]];
 	} 
 }
+
+//--------------------------------------------------------------
+toggle * ofxDmtrUI::getToggle(string nome) {
+	if (toggles[togglesIndex[nome]].nome == nome) {
+		return &toggles[togglesIndex[nome]];
+	}
+}
+
+//--------------------------------------------------------------
+slider2d * ofxDmtrUI::getSlider2d(string nome) {
+	if (sliders2d[sliders2dIndex[nome]].nome == nome) {
+		return &sliders2d[sliders2dIndex[nome]];
+	}
+}
+
 
 //--------------------------------------------------------------
 void ofxDmtrUI::nextTo(ofxDmtrUI & uiNext) {

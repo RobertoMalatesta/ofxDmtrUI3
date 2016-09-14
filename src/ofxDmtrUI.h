@@ -243,15 +243,15 @@ public:
 
 class toggle {
 public:
-	string 			nome;
-	ofRectangle 		rect;
-	bool 			inside = false;
-	ofColor 			cor;
+	string nome;
+	ofRectangle rect;
+	bool inside = false;
+	ofColor cor;
 	//bool 			valor = false;
-	bool				showLabel = true;
-	bool				*_val;
-	bool				def = false;
-	bool				bang = false;
+	bool showLabel = true;
+	bool *_val;
+	bool def = false;
+	bool bang = false;
 
 	ofEvent<string> uiEvent;
 	ofEvent<dmtrUIEvent> evento;
@@ -490,8 +490,16 @@ public:
 };
 
 
+
+
+
+
 class slider2d {
 public:
+
+	// 12 de setembro de 2016, paraolimpicos
+	vector <ofColor> cores;
+	ofColor *_valColor;
 	string nome;
 	ofPoint	 *_val;
 	//	float *_valx;
@@ -506,6 +514,8 @@ public:
 	bool inside = false;
 	bool isSlider = true;
 
+	bool isColor = false;
+
 	// 24 agosto 2016 - pro ofxLicht
 	ofEvent<dmtrUIEvent> evento;
 
@@ -519,6 +529,11 @@ public:
 		//cout << "setValue Slider2d " + nome << endl;
 		*_val = xy;
 		// UNIFICAR EVENTOS DEPOIS
+		if (isColor) {
+			int indexColor = xy.x * cores.size();
+			*_valColor = cores[indexColor];
+		}
+
 		string ev = "loadSlider2d_" + nome;
 		ofNotifyEvent(uiEvent, ev, this);
 	}
@@ -530,6 +545,13 @@ public:
 						ofClamp(ofMap(x, 0, rect.width, 0, 1), 0, 1),
 						ofClamp(ofMap(y, 0, rect.height, 0, 1), 0, 1)
 						);
+
+
+		if (isColor) {
+			int indexColor = ofClamp(ofMap(x, 0, rect.width, 0, 1), 0, 1) * cores.size();
+			*_valColor = cores[indexColor];
+		}
+
 		string ev = "updateSlider2d_" + nome;
 		ofNotifyEvent(uiEvent, ev, this);
 
@@ -576,17 +598,27 @@ public:
 	ofRectangle rect;
 	ofFbo fbo;
 	string *_val;
+	float *_valFloat;
+	string tipo = "string";
 	// nao usado.
 	ofColor cor;
 	void init() {
 		fbo.allocate(200,20,GL_RGBA);
-		
 	}
+
 	void draw() {
 		ofSetColor(255);
 		fbo.begin();
 		ofClear(0);
-		ofDrawBitmapString(*_val, 4, 18);
+		if (tipo == "string") {
+			ofDrawBitmapString(*_val, 4, 18);
+		} else if (tipo == "float") {
+			ofSetColor(255,0,0);
+			float x = *_valFloat * fbo.getWidth();
+			ofDrawLine(x,0,x,fbo.getHeight());
+			//ofSetColor(50);
+
+		}
 		fbo.end();
 		fbo.draw(rect.x, rect.y);
 	}
@@ -882,12 +914,16 @@ public:
 	map <string,string>			pString;
 	map <string,string>			pLabel;
 	map <string,ofPoint>			pPoint;
-	map <string,ofFloatColor>	pColor;
+	//map <string,ofFloatColor>	pColor;
+	map <string,ofColor>			pColor;
+
 	// NOVO
 	map <string,string>			pFolder;
 
 	// 26 jul 2016, Nike
 	map <string,string>			pInspector;
+	// 10 setembro 2016, DialogosSonoros. temporario?
+	map <string,float>			pInspectorFloat;
 
 	// only internal use to backup some variables.
 	map <string,float>			pFloatBak;
@@ -909,11 +945,11 @@ public:
 
 	// Layout, default
 	bool bw = false;
-	float marginx = 20;
-	float marginy = 20;
-	int sliderHeight = 20;
-	int sliderWidth  = 150;
-	int	sliderMargin = 5;
+	float marginx = 10;
+	float marginy = 10;
+	int sliderHeight = 18;
+	int sliderWidth  = 200;
+	int	sliderMargin = 2;
 	// precisa?
 	int	lastHeight, lastWidth;
 	
@@ -969,8 +1005,7 @@ public:
 
 	ofBlendMode blendMode = OF_BLENDMODE_ALPHA;
 
-	slider & getSlider(string nome);
-	radio  & getRadio(string nome);
+
 
 	string createdFromTextFile = "";
 
@@ -989,5 +1024,19 @@ public:
 	string getFileFullPath(string & nome);
 
 	string allText = "";
-};
 
+	map <string, ofFbo> mapFbos;
+
+	map <string, toggle * > togglesMap;
+
+	map <string, int> togglesIndex;
+	map <string, int> radiosIndex;
+	map <string, int> slidersIndex;
+	map <string, int> sliders2dIndex;
+
+	// quase bom
+	slider * getSlider(string nome);
+	radio  * getRadio(string nome);
+	toggle * getToggle(string nome);
+	slider2d * getSlider2d(string nome);
+};
