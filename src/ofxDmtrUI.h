@@ -703,6 +703,13 @@ public:
 		for (auto & p : presets) {
 			if (p.rect.inside(x,y)) {
 				// only trigger events if clicked in different preset slot
+				if (ofGetKeyPressed(OF_KEY_CONTROL)) {
+					//
+					string ev = "erasePreset_" + ofToString(valor);
+					ofNotifyEvent(uiEvent, ev, this);
+				}
+
+
 				if (ofGetKeyPressed(OF_KEY_COMMAND)) {
 					if (valor != -1) {
 						presets[valor].selecionado = false;
@@ -1039,4 +1046,7 @@ public:
 	radio  * getRadio(string nome);
 	toggle * getToggle(string nome);
 	slider2d * getSlider2d(string nome);
+
+	ofxDmtrUI *_uiUnder = NULL;
+	ofxDmtrUI *_uiRight = NULL;
 };

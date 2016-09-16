@@ -324,6 +324,8 @@ void ofxDmtrUI::keyPressed(int key){
 			} else {
 				load(nome);
 			}
+
+
 		}
 	}
 
@@ -1548,13 +1550,20 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 
 	// passar isso tudo pro estilo novo de eventos?
 	// pra isso preciso mudar a class preset. ali chama o loadPresetAll, que n‹o Ž acessivel via .h ?
-	if (ofIsStringInString(e, "loadPreset")) {
+
+	if (ofIsStringInString(e, "erasePreset")) {
+		vector <string> split = ofSplitString(e, "_");
+		int slot = ofToInt(split[1]);
+		// terminar isso aqui.
+	}
+
+	else if (ofIsStringInString(e, "loadPreset")) {
 		vector <string> split = ofSplitString(e, "_");
 		int slot = ofToInt(split[1]);
 		loadPresetAll(slot);
 	}
 
-	if (ofIsStringInString(e, "savePreset")) {
+	else if (ofIsStringInString(e, "savePreset")) {
 		vector <string> split = ofSplitString(e, "_");
 		int slot = ofToInt(split[1]);
 		savePresetAll(slot);
@@ -1655,6 +1664,13 @@ void	 ofxDmtrUI::autoFit(bool w, bool h) {
 	fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 
 	redraw = true;
+
+	if (_uiUnder != NULL) {
+		_uiUnder->downTo(*this);
+	}
+	if (_uiRight != NULL) {
+		_uiRight->nextTo(*this);
+	}
 }
 
 
@@ -1846,12 +1862,14 @@ slider2d * ofxDmtrUI::getSlider2d(string nome) {
 void ofxDmtrUI::nextTo(ofxDmtrUI & uiNext) {
 	coluna.x = uiNext.coluna.x + uiNext.coluna.width + uiNext.marginx;
 	coluna.y = uiNext.coluna.y;
+	uiNext._uiRight = this;
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::downTo(ofxDmtrUI & uiNext) {
 	coluna.y = uiNext.coluna.y + uiNext.coluna.height + uiNext.marginy;
 	coluna.x = uiNext.coluna.x;
+	uiNext._uiUnder = this;
 }
 
 //--------------------------------------------------------------
