@@ -156,21 +156,14 @@ void ofxDmtrUI::save(string xml){
 			settings.setValue("toggle:" + e.nome, *e._val);
 		}
 		for (auto & e : radios) {
-//			cout << "saving radio: " + e.nome << endl;
-//			cout << e.multiple << endl;
 			if (e.multiple) {
 				int i = 0;
 				for (auto & o : e.opcoes) {
 					settings.setValue("radio:"+e.nome+":"+o, *e._vals[i]);
-//					cout << "radio:"+e.nome+":"+o << endl;
-//					cout << *e._vals[i] << endl;
-//					cout << "-----" << endl;
 					i++;
 				}
 			} else {
 				settings.setValue("radio:"+e.nome, *e._val);
-//				cout << "radio:"+e.nome << endl;
-//				cout << *e._val << endl;
 			}
 		}
 		for (auto & e : sliders2d) {
@@ -219,10 +212,10 @@ void ofxDmtrUI::save(string xml){
 void ofxDmtrUI::load(string xml){
 	if (debug) {
 		cout << "load: " + xml << endl;
-	}
-	if (!ofFile::doesFileExist(xml)) {
-		cout << " ----- file doesn't exist: ";
-		cout << xml << endl;
+		if (!ofFile::doesFileExist(xml)) {
+			cout << " ----- file doesn't exist: ";
+			cout << xml << endl;
+		}
 	}
 	ofxXmlSettings settings;
 	settings.loadFile(xml);
@@ -245,12 +238,6 @@ void ofxDmtrUI::load(string xml){
 				}
 				e.draw();
 			} else {
-//				cout << "not multiple" << endl;
-//				cout << e.nome << endl;
-//				cout << "radio:" + e.nome << endl;
-//				cout << settings.getValue("radio:" + e.nome, "") << endl;
-//				cout << e.multiple << endl;
-//				cout << "-----" << endl;
 				e.setValue(settings.getValue("radio:" + e.nome, ""), 2);
 			}
 
@@ -260,10 +247,6 @@ void ofxDmtrUI::load(string xml){
 			float y = settings.getValue("slider2d:"+e.nome+":y", 0.0);
 			e.setValue(ofPoint(x, y));
 		}
-		// assim evita de carregar nos lugares q nao tiver o presets.
-//		if (allPresets.ok) {
-//			loadPresetAll(settings.getValue("presets", 0));
-//		}
 	} else {
 		for (auto & e : sliders) {
 			e.setValue(settings.getValue(e.nome, e.def));
@@ -303,16 +286,10 @@ void ofxDmtrUI::load(string xml){
 
 //--------------------------------------------------------------
 void ofxDmtrUI::keyPressed(int key){
-//	if (key == 'q') {
-//		learnMode = !learnMode;
-//		re();
-//	}
+
 	if (key == '=') {
 		showGui = !showGui;
 	}
-
-
-
 
 	if (saveLoadShortcut) {
 		if (key == '1' || key == '2' || key == '3' || key == '4' || key == '5' || key == '6' || key == '7' ||
@@ -324,11 +301,8 @@ void ofxDmtrUI::keyPressed(int key){
 			} else {
 				load(nome);
 			}
-
-
 		}
 	}
-
 
 	if (useShortcut) {
 		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
@@ -336,8 +310,6 @@ void ofxDmtrUI::keyPressed(int key){
 				ofToggleFullscreen();
 			}
 		} else {
-
-
 			if (key == 'a' || key == 'A') {
 				loadPresetAll(0 + pInt["atalhoOffset"]);
 			}
@@ -700,7 +672,8 @@ void ofxDmtrUI::createFromLine(string l) {
 			clear();
 		}
 
-		else if (tipo == "addUI") {
+		else if (tipo == "addUI" || tipo == "addUIDown") {
+			// fazer o tipo adduidown
 			string fileName = nome+".txt";
 			if (ofFile::doesFileExist(fileName)) {
 				uis[nome].createFromText(fileName);
@@ -1495,39 +1468,17 @@ void	 ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 
 
 	if (e.element == RADIO) {
-
-//		cout << "UIS List =-=-=-=-=" << endl;
-//
-//		for (auto & u : _uiFather->uis) {
-//			cout << u.first << endl;
-//			cout << u.second.UINAME << endl;
-//		}
-		cout << "UIS List =-=-=-=-=" << endl;
-//		cout << "radio event" << endl;
-//		cout << e.nome << endl;
-
-//		for (auto & r : radioUIMap) {
-//			cout << "=-=-=-" << endl;
-//
-//			cout << r.first << endl;
-//			cout << r.second << endl;
-//			cout << "=-=-=-" << endl;
-//		}
-
 		if ( radioUIMap.find(e.nome) != radioUIMap.end() ) {
-//			cout << "raioUIMap event found" << endl;
-//			cout << radioUIMap[e.nome] << endl;
-
 			ofxDmtrUI * _u = &_uiFather->uis[radioUIMap[e.nome]];
 			_u->clear();
-//			_u->createFromLine("label	OK");
 			string fileDefault = radioUIMap[e.nome]+".txt";
 			if (ofFile::doesFileExist(fileDefault)) {
 				_u->createFromText(fileDefault);
 			}
 
-			
-			string fileName = "_scene/" + pString[e.nome] + ".txt";
+//			cout << pFolder[e.nome] << endl;
+			string fileName = pFolder[e.nome] + "/" + pString[e.nome] + ".txt";
+			cout << fileName << endl;
 			if (ofFile::doesFileExist(fileName)) {
 				_u->createFromText(fileName);
 			}
@@ -1785,6 +1736,13 @@ void ofxDmtrUI::loadPresetAll(int n) {
 	if (debug) {
  		cout << "loadPresetAll:" + ofToString(n) << endl;
 	}
+
+	for (auto & u : uis) {
+		string nome = getPresetsFolder() + ofToString(n) + u.first +  ".xml";
+		u.second.load(nome);
+		u.second.redraw = true;
+	}
+
 	for (auto & p : _presetsUIs) {
 		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
 		p->load(nome);
@@ -1799,6 +1757,23 @@ void ofxDmtrUI::loadPresetAll(int n) {
 	te.nome = "loadPresetAll";
 	ofNotifyEvent(evento, te);
 	// fazer um UIEvent aqui.
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI::savePresetAll(int n) {
+
+	for (auto & u : uis) {
+		string nome = getPresetsFolder() + ofToString(n) + u.first +  ".xml";
+		u.second.save(nome);
+	}
+	//cout << "savePresetAll" << endl;
+	for (auto & p : _presetsUIs) {
+		//cout << p->UINAME << endl;
+		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
+		p->save(nome);
+	}
+	presetLoaded = n;
+	allPresets.set(n);
 }
 
 //--------------------------------------------------------------
@@ -1820,17 +1795,7 @@ void ofxDmtrUI::erasePresetAll(int n) {
 	allPresets.set(n);
 }
 
-//--------------------------------------------------------------
-void ofxDmtrUI::savePresetAll(int n) {
-	//cout << "savePresetAll" << endl;
-	for (auto & p : _presetsUIs) {
-		//cout << p->UINAME << endl;
-		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
-		p->save(nome);
-	}
-	presetLoaded = n;
-	allPresets.set(n);
-}
+
 
 //--------------------------------------------------------------
 void ofxDmtrUI::loadPreset(int n) {

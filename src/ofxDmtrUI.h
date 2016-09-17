@@ -713,7 +713,6 @@ public:
 					ofNotifyEvent(uiEvent, ev, this);
 				}
 
-
 				if (ofGetKeyPressed(OF_KEY_COMMAND)) {
 					if (valor != -1) {
 						presets[valor].selecionado = false;
