@@ -89,6 +89,7 @@ public:
 	elementType element;
 	eventoType tipo;
 	varType var = FLOAT;
+
 	//ofxDmtrUI *_ui;
 	// unknown type name.
 	//string action; //update, load, etc.
@@ -603,24 +604,27 @@ public:
 	// nao usado.
 	ofColor cor;
 	void init() {
-		fbo.allocate(200,20,GL_RGBA);
+		//fbo.allocate(200,20,GL_RGBA);
 	}
 
 	void draw() {
 		ofSetColor(255);
-		fbo.begin();
-		ofClear(0);
-		if (tipo == "string") {
-			ofDrawBitmapString(*_val, 4, 18);
-		} else if (tipo == "float") {
+//		fbo.begin();
+//		ofClear(0);
+		if (tipo == "fps") {
+			ofDrawBitmapString(ofToString(ofGetFrameRate()), 4 + rect.x, 15 + rect.y);
+		}
+		else if (tipo == "string") {
+//			ofDrawBitmapString(*_val, 4, 18);
+			ofDrawBitmapString(*_val, 4 + rect.x, 18 + rect.y);
+		} else if (tipo == "inspectorFloat") {
 			ofSetColor(255,0,0);
 			float x = *_valFloat * fbo.getWidth();
 			ofDrawLine(x,0,x,fbo.getHeight());
 			//ofSetColor(50);
-
 		}
-		fbo.end();
-		fbo.draw(rect.x, rect.y);
+//		fbo.end();
+//		fbo.draw(rect.x, rect.y);
 	}
 };
 
@@ -875,7 +879,7 @@ public:
 	void createFromLine(string line);
 
 	// rename to createelement
-	void create(string nome, string tipo="slider", string valores = "", string valores2 = ""); // NULL
+	void create(string nome, string tipo="slider", string valores = "", string valores2 = "", string valores3 = ""); // NULL
 
 	void createRadio(string nome, vector <string> opcoes);
 
@@ -896,6 +900,7 @@ public:
 	void savePreset(int n);
 	void savePresetAll(int n);
 
+	void erasePresetAll(int n);
 	// to save presets
 	void setFbo(ofFbo &fbo);
 
@@ -970,7 +975,7 @@ public:
 	string presetsFolderNumber = "";
 	string UINAME = "ui";
 
-	bool debug = false;
+	bool debug = true;
 	int hueStart = 100;
 	bool learnMode = false;
 	string lastLearn = "";
@@ -1049,4 +1054,13 @@ public:
 
 	ofxDmtrUI *_uiUnder = NULL;
 	ofxDmtrUI *_uiRight = NULL;
+
+	map <string, ofxDmtrUI> uis;
+
+	map <string, string> radioUIMap;
+
+	ofxDmtrUI *_uiLast = NULL;
+	ofxDmtrUI *_uiFather = NULL;
+
+	bool newMode = false;
 };

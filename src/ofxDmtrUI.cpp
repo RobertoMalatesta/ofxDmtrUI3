@@ -689,15 +689,47 @@ void ofxDmtrUI::createFromLine(string l) {
 			pFloat["maxWidthHorizontal"] = 0;
 		}
 
+		// dava pra fazer um configbool pra todos, nao ficar inventando nomes exclusivos.
+		//assim pula mais rapido pra fora do loop
+
 		else if (tipo == "dirListExtension") {
 			dirListEntireName = ofToBool(cols[1]);
 		}
-//		else if (tipo == "uiSetup") {
-//			setup();
-//		}
+
 		else if (tipo == "uiClear" || tipo == "clear") {
 			clear();
 		}
+
+		else if (tipo == "addUI") {
+			string fileName = nome+".txt";
+			if (ofFile::doesFileExist(fileName)) {
+				uis[nome].createFromText(fileName);
+			}
+			if (_uiLast == NULL) {
+				uis[nome].nextTo(*this);
+			} else {
+				uis[nome].nextTo(*_uiLast);
+			}
+			_uiLast = &uis[nome];
+			uis[nome]._uiFather = this;
+			uis[nome].UINAME = nome;
+			uis[nome].setup();
+		}
+
+		// talvez remover
+		else if (tipo == "radioUI") {
+			string nome = cols[1];
+			string uiName = cols[2];
+			radioUIMap[nome] = uiName;
+
+
+			/*
+			 se ja existe o ui,
+			 */
+
+			// TODO, associar aqui um ao outro.
+		}
+
 
 		else if (tipo == "hueStart") {
 			hueStart = ofToFloat(cols[1]);
@@ -769,7 +801,6 @@ void ofxDmtrUI::createFromLine(string l) {
 			flow.y = ofToFloat(cols[1]);
 		}
 
-
 		else if (tipo == "presetDimensions") {
 			vector <string> dimensions = ofSplitString(cols[1], " ");
 			presetDimensions = ofPoint(ofToInt(dimensions[0]), ofToInt(dimensions[1]));
@@ -816,6 +847,8 @@ void ofxDmtrUI::createFromLine(string l) {
 						create(nome, tipo, cols[2]);
 					if (cols.size()==4)
 						create(nome, tipo, cols[2], cols[3]);
+					if (cols.size()==5)
+						create(nome, tipo, cols[2], cols[3], cols[4]);
 
 				} else {
 					create(nome, tipo);
@@ -825,24 +858,24 @@ void ofxDmtrUI::createFromLine(string l) {
 	}
 }
 
-//--------------------------------------------------------------
-void ofxDmtrUI::createRadio(string nome, vector <string> opcoes) {
-	radio temp;
-	temp.nome = nome;
-	temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
-	temp.opcoes = opcoes;
-	temp._val = &pString[nome];
-	temp.init();
-	indexElement[nome] = radios.size();
-	radios.push_back(temp);
-	element te;
-	te.set(radios.back());
-	elements.push_back(te);
-	lastHeight = temp.rect.height;
-}
+////--------------------------------------------------------------
+//void ofxDmtrUI::createRadio(string nome, vector <string> opcoes) {
+//	radio temp;
+//	temp.nome = nome;
+//	temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
+//	temp.opcoes = opcoes;
+//	temp._val = &pString[nome];
+//	temp.init();
+//	indexElement[nome] = radios.size();
+//	radios.push_back(temp);
+//	element te;
+//	te.set(radios.back());
+//	elements.push_back(te);
+//	lastHeight = temp.rect.height;
+//}
 
 //--------------------------------------------------------------
-void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2) {
+void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2, string valores3) {
 	// vamos tentar inventar uma variavel aqui nos parametros somente.
 	ofStringReplace(valores, "sliderWidth", ofToString(sliderWidth));
 
@@ -957,16 +990,21 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		elements.push_back(te);
 	}
 
-	else if (tipo == "inspector" || tipo == "inspectorFloat") {
+	else if (tipo == "inspector" || tipo == "inspectorFloat" || tipo == "fps") {
 		inspector te;
 		te.nome = nome;
 		te.cor = cor;
 		te.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
-		te.tipo = tipo == "inspectorFloat" ? "float" : "string";
+//		te.tipo = tipo == "inspectorFloat" ? "float" : "string";
+		te.tipo = tipo;
+//		if (tipo == "fps") {
+//			te.tipo = "fps";
+//		}
 		if (te.tipo == "string") {
 			te._val = &pInspector[nome];
 			pInspector[nome] = "";
-		} else {
+		}
+		else if (te.tipo == "inspectorFloat") {
 			te._valFloat = &pInspectorFloat[nome];
 			pInspectorFloat[nome] = 0;
 		}
@@ -1158,6 +1196,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 	}
 
 	else if (tipo == "dirlist" || tipo == "dirList") {
+
 		ofDirectory dir;
 		// no futuro colocar o allowext por algum lado :: dir.allowExt("wav");
 		if (valores2 != "") {
@@ -1450,13 +1489,59 @@ void	 ofxDmtrUI::expires(int dataInicial, int dias) {
 
 //--------------------------------------------------------------
 void	 ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
-//	cout << "ofxDmtrUI::uiEventsNeu :: " + e.nome << endl;
-//	cout << e.tipo << endl;
+	if (debug) {
+		cout << "ofxDmtrUI::uiEventsNeu :: " + e.nome << endl;
+	}
+
+
+	if (e.element == RADIO) {
+
+//		cout << "UIS List =-=-=-=-=" << endl;
+//
+//		for (auto & u : _uiFather->uis) {
+//			cout << u.first << endl;
+//			cout << u.second.UINAME << endl;
+//		}
+		cout << "UIS List =-=-=-=-=" << endl;
+//		cout << "radio event" << endl;
+//		cout << e.nome << endl;
+
+//		for (auto & r : radioUIMap) {
+//			cout << "=-=-=-" << endl;
+//
+//			cout << r.first << endl;
+//			cout << r.second << endl;
+//			cout << "=-=-=-" << endl;
+//		}
+
+		if ( radioUIMap.find(e.nome) != radioUIMap.end() ) {
+//			cout << "raioUIMap event found" << endl;
+//			cout << radioUIMap[e.nome] << endl;
+
+			ofxDmtrUI * _u = &_uiFather->uis[radioUIMap[e.nome]];
+			_u->clear();
+//			_u->createFromLine("label	OK");
+			string fileDefault = radioUIMap[e.nome]+".txt";
+			if (ofFile::doesFileExist(fileDefault)) {
+				_u->createFromText(fileDefault);
+			}
+
+			
+			string fileName = "_scene/" + pString[e.nome] + ".txt";
+			if (ofFile::doesFileExist(fileName)) {
+				_u->createFromText(fileName);
+			}
+			_u->createFromLine("autoFit");
+			_u->setup();
+		}
+	}
+
 
 	// este novo serve tanto pro INT quanto pro Float. ta lindo isso
 	if (ofIsStringInString(e.nome, "shortcut") && e.tipo != LOAD) {
 		vector <string> split = ofSplitString(e.nome, "_");
 		string nome = split[0];
+//		getSlider(nome)->setValue(ofToFloat(pString[e.nome]));
 		if (sliders[indexElement[nome]].nome == nome) {
 			sliders[indexElement[nome]].setValue(ofToFloat(pString[e.nome]));
 		}
@@ -1478,6 +1563,10 @@ void	 ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 	if (e.nome == "presetsFolder") {
 		string newPresetsFolder = getPresetsFolder();
 		if (!ofFile::doesFileExist(newPresetsFolder)) {
+			if (!ofFile::doesFileExist("_presets")) {
+				ofDirectory::createDirectory("_presets");
+			}
+
 			ofDirectory::createDirectory(newPresetsFolder);
 		}
 		if (ofFile::doesFileExist(newPresetsFolder)) {
@@ -1510,6 +1599,7 @@ void	 ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 			p->easing = pFloat["easing"];
 		}
 	}
+
 
 	else if (e.nome == "scene") {
 		if (uiC != NULL) {
@@ -1717,8 +1807,17 @@ void ofxDmtrUI::loadNextPresetAll() {
 	cout << "loadNextPresetAll" << endl;
 	cout << n << endl;
 	loadPresetAll(n);
+}
 
+void ofxDmtrUI::erasePresetAll(int n) {
+	for (auto & p : _presetsUIs) {
+		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
+		ofFile::removeFile(nome);
+	}
+	ofFile::removeFile(ofToString(n)+".tif");
 
+	presetLoaded = n;
+	allPresets.set(n);
 }
 
 //--------------------------------------------------------------
@@ -1825,14 +1924,11 @@ string ofxDmtrUI::getPresetsFolder() {
 	return out;
 }
 
-// almost there...
+// almost there... still not working 100% for unknown reason
 //--------------------------------------------------------------
 slider * ofxDmtrUI::getSlider(string nome) {
-	cout << "getSlider" << endl;
-	cout << nome << endl;
 	if (sliders[slidersIndex[nome]].nome == nome) {
 		return &sliders[slidersIndex[nome]];
-		cout << "achamos " << endl;
 	}
 }
 
@@ -1857,12 +1953,16 @@ slider2d * ofxDmtrUI::getSlider2d(string nome) {
 	}
 }
 
-
 //--------------------------------------------------------------
 void ofxDmtrUI::nextTo(ofxDmtrUI & uiNext) {
 	coluna.x = uiNext.coluna.x + uiNext.coluna.width + uiNext.marginx;
 	coluna.y = uiNext.coluna.y;
 	uiNext._uiRight = this;
+
+	if (debug) {
+		cout << "interface //" + UINAME << endl;
+		cout << "next to: " + uiNext.UINAME << endl;
+	}
 }
 
 //--------------------------------------------------------------
