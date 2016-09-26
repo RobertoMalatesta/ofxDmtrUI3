@@ -974,7 +974,6 @@ public:
 	string presetsFolderNumber = "";
 	string UINAME = "ui";
 
-	bool debug = true;
 	int hueStart = 100;
 	bool learnMode = false;
 	string lastLearn = "";
@@ -1061,5 +1060,7 @@ public:
 	ofxDmtrUI *_uiLast = NULL;
 	ofxDmtrUI *_uiFather = NULL;
 
-	bool newMode = false;
+//	bool newMode = false;
+	bool debug = false;
+
 };

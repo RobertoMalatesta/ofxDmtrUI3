@@ -679,9 +679,18 @@ void ofxDmtrUI::createFromLine(string l) {
 				uis[nome].createFromText(fileName);
 			}
 			if (_uiLast == NULL) {
-				uis[nome].nextTo(*this);
+				if (tipo == "addUI") {
+					uis[nome].nextTo(*this);
+				} else {
+					uis[nome].downTo(*this);
+				}
 			} else {
-				uis[nome].nextTo(*_uiLast);
+				if (tipo == "addUI") {
+					uis[nome].nextTo(*_uiLast);
+				} else {
+					uis[nome].downTo(*_uiLast);
+				}
+
 			}
 			_uiLast = &uis[nome];
 			uis[nome]._uiFather = this;
@@ -1441,7 +1450,7 @@ bool	invertAudio	0)";
 }
 
 //--------------------------------------------------------------
-void	 ofxDmtrUI::expires(int dataInicial, int dias) {
+void ofxDmtrUI::expires(int dataInicial, int dias) {
 	time_t rawtime;
 	struct tm * timeinfo;
 	time ( &rawtime );
@@ -1461,11 +1470,10 @@ void	 ofxDmtrUI::expires(int dataInicial, int dias) {
 }
 
 //--------------------------------------------------------------
-void	 ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
+void ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 	if (debug) {
 		cout << "ofxDmtrUI::uiEventsNeu :: " + e.nome << endl;
 	}
-
 
 	if (e.element == RADIO) {
 		if ( radioUIMap.find(e.nome) != radioUIMap.end() ) {
@@ -1476,9 +1484,8 @@ void	 ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 				_u->createFromText(fileDefault);
 			}
 
-//			cout << pFolder[e.nome] << endl;
 			string fileName = pFolder[e.nome] + "/" + pString[e.nome] + ".txt";
-			cout << fileName << endl;
+//			cout << fileName << endl;
 			if (ofFile::doesFileExist(fileName)) {
 				_u->createFromText(fileName);
 			}
@@ -1921,13 +1928,21 @@ slider2d * ofxDmtrUI::getSlider2d(string nome) {
 //--------------------------------------------------------------
 void ofxDmtrUI::nextTo(ofxDmtrUI & uiNext) {
 	coluna.x = uiNext.coluna.x + uiNext.coluna.width + uiNext.marginx;
-	coluna.y = uiNext.coluna.y;
+//	coluna.y = uiNext.coluna.y;
+	coluna.y = 0;
 	uiNext._uiRight = this;
 
 	if (debug) {
 		cout << "interface //" + UINAME << endl;
 		cout << "next to: " + uiNext.UINAME << endl;
 	}
+    
+    if (_uiUnder != NULL) {
+        _uiUnder->downTo(*this);
+    }
+    if (_uiRight != NULL) {
+        _uiRight->nextTo(*this);
+    }
 }
 
 //--------------------------------------------------------------
@@ -1935,6 +1950,13 @@ void ofxDmtrUI::downTo(ofxDmtrUI & uiNext) {
 	coluna.y = uiNext.coluna.y + uiNext.coluna.height + uiNext.marginy;
 	coluna.x = uiNext.coluna.x;
 	uiNext._uiUnder = this;
+    
+    if (_uiUnder != NULL) {
+        _uiUnder->downTo(*this);
+    }
+    if (_uiRight != NULL) {
+        _uiRight->nextTo(*this);
+    }
 }
 
 //--------------------------------------------------------------
