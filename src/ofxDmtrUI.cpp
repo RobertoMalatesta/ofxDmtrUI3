@@ -52,11 +52,11 @@ void ofxDmtrUI::setup(string uiName) {
 
 	flow = ofPoint(marginx, marginy);
 
-	fbo.allocate(coluna.width, coluna.height, GL_RGBA);
-	fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
-	fbo.begin();
+	fboColumn.allocate(coluna.width, coluna.height, GL_RGBA);
+	fboColumn.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+	fboColumn.begin();
 	ofClear(0);
-	fbo.end();
+	fboColumn.end();
 	ofAddListener(ofEvents().draw, this, &ofxDmtrUI::onDraw);
 	ofAddListener(ofEvents().update, this, &ofxDmtrUI::onUpdate);
 	ofAddListener(ofEvents().keyPressed, this, &ofxDmtrUI::onKeyPressed);
@@ -79,7 +79,7 @@ void ofxDmtrUI::setup(string uiName) {
 			load(fileName);
 		}
 	}
-
+	allUIs.push_back(this);
 }
 // END SETUP
 
@@ -100,7 +100,7 @@ void ofxDmtrUI::draw() {
 	if (showGui) {
 		ofEnableAlphaBlending();
 		if (redraw) {
-			fbo.begin();
+			fboColumn.begin();
 			ofClear(colunaBackground);
 //			for (auto & e : elements) 	{ e.draw(); }
 			for (auto & e : sliders) 	{ e.draw(learnMode); }
@@ -111,7 +111,7 @@ void ofxDmtrUI::draw() {
 			if (allPresets.ok) {
 				allPresets.draw();
 			}
-			fbo.end();
+			fboColumn.end();
 			redraw = false;
 		}
 		//ofSetColor(255, columnOver ? 255 : 128);
@@ -122,7 +122,7 @@ void ofxDmtrUI::draw() {
 		if (blendMode) {
 			ofEnableBlendMode(blendMode);
 		}
-		fbo.draw(coluna.x, coluna.y);
+		fboColumn.draw(coluna.x, coluna.y);
 		ofPushMatrix();
 		ofTranslate(coluna.x, coluna.y);
 		for (auto & e : sliders2d)  { e.draw(); }
@@ -596,6 +596,10 @@ vector <string> ofxDmtrUI::textToVector(string file) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::createFromText(string file) {
+	// 27 de setembro isso pode quebrar muita coisa
+	string extension = ofSplitString(file, ".")[0];
+	cout << extension << endl;
+	UINAME = extension;
 	if (ofFile::doesFileExist(file)) {
 		createdFromTextFile = file;
 		
@@ -677,6 +681,7 @@ void ofxDmtrUI::createFromLine(string l) {
 			string fileName = nome+".txt";
 			if (ofFile::doesFileExist(fileName)) {
 				uis[nome].createFromText(fileName);
+				allUIs.push_back(&uis[nome]);
 			}
 			if (_uiLast == NULL) {
 				if (tipo == "addUI") {
@@ -1708,8 +1713,8 @@ void	 ofxDmtrUI::autoFit(bool w, bool h) {
 		coluna.width = maxW + marginx;
 	if (h)
 		coluna.height = maxH + marginy;
-	fbo.allocate(coluna.width, coluna.height, GL_RGBA);
-	fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+	fboColumn.allocate(coluna.width, coluna.height, GL_RGBA);
+	fboColumn.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 
 	redraw = true;
 
@@ -1964,3 +1969,6 @@ string ofxDmtrUI::getFileFullPath(string & nome) {
 	string saida = pFolder[nome] + "/" + pString[nome];
 	return saida;
 }
+
+//vector <ofxDmtrUI *> ofxDmtrUI::allUIs() {
+//}
