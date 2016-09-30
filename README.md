@@ -49,6 +49,13 @@ test events in IOs
 Performance : maybe check inside panel rectangle if mouse event is inside before check in each panel element.
 Implement the class Element and make pointers to member functions of draw, check mouse, get val etc.
 
+## 2016 09 27
+Improvements. Software mode which handles automatically presets, multiple columns, presets folders. More documentation to follow.
+UI used in lots of differents projects now:
+http://dmtr.org/nikecube/
+Paralympics Rio Opening Ceremony
+Paralympics Rio Closing Ceremony
+
 ## 2016 07 27
 I’m not logging a lot of improvements here.
 Now we have radioText which is a radio that loads the options from a text file, separated by new lines.

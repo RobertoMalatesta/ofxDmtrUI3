@@ -66,6 +66,7 @@ public:
 
 	void createFromText(string file);
 	void createFromLine(string line);
+	void createSoftwareFromText(string file);
 
 	// rename to createelement
 	void create(string nome, string tipo="slider", string valores = "", string valores2 = "", string valores3 = ""); // NULL
@@ -209,10 +210,6 @@ public:
 
 	string createdFromTextFile = "";
 
-
-//	ofxOscSender send;
-//	ofxOscReceiver receive;
-
 	//5 de agosto de 2016, testando 
 	string mousePressedElement = "";
 	bool slideFree = true;
@@ -250,10 +247,11 @@ public:
 	ofxDmtrUI *_uiLast = NULL;
 	ofxDmtrUI *_uiFather = NULL;
 
-//	bool newMode = false;
 	bool debug = false;
-
-
-//	vector <ofxDmtrUI *> allUIs();
 	vector <ofxDmtrUI *> allUIs;
+
+	int hue;
+
+	// 27 de setembro. convertendo em software agora
+	ofFbo fbo, fboRastros, fboFade;
 };

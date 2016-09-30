@@ -34,17 +34,6 @@ http://dmtr.org/
 
 //--------------------------------------------------------------
 void ofxDmtrUI::setup(string uiName) {
-
-
-//	receive.setup(8000);
-
-	
-//	cout << "ofxDmtrUISetup" << endl;
-//#ifdef INCLUDED
-//	cout << "YESSSSS" << endl;
-//#endif
-//	cout << "ofxDmtrUISetup2" << endl;
-	//colunaBackground = (ofColor::fromHex(0xff00aa77));
 	if (uiName != "") {
 		UINAME = uiName;
 	}
@@ -596,10 +585,14 @@ vector <string> ofxDmtrUI::textToVector(string file) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::createFromText(string file) {
+	//cout << file << endl;
 	// 27 de setembro isso pode quebrar muita coisa
-	string extension = ofSplitString(file, ".")[0];
-	cout << extension << endl;
-	UINAME = extension;
+	// se tiver multiplas pastas fazer o seguinte
+	string f = ofSplitString(file, "/").back();
+	//cout << f << endl;
+	string onlyName = ofSplitString(f, ".")[0];
+	//cout << onlyName << endl;
+	UINAME = onlyName;
 	if (ofFile::doesFileExist(file)) {
 		createdFromTextFile = file;
 		
@@ -678,8 +671,15 @@ void ofxDmtrUI::createFromLine(string l) {
 
 		else if (tipo == "addUI" || tipo == "addUIDown") {
 			// fazer o tipo adduidown
+
+
 			string fileName = nome+".txt";
 			if (ofFile::doesFileExist(fileName)) {
+				if (ofFile::doesFileExist("uiAll.txt")) {
+					uis[nome].createFromText("uiAll.txt");
+				}
+				//cout << hueStart << endl;
+				uis[nome].hueStart = hue;
 				uis[nome].createFromText(fileName);
 				allUIs.push_back(&uis[nome]);
 			}
@@ -699,7 +699,6 @@ void ofxDmtrUI::createFromLine(string l) {
 			}
 			_uiLast = &uis[nome];
 			uis[nome]._uiFather = this;
-			uis[nome].UINAME = nome;
 			uis[nome].setup();
 		}
 
@@ -708,15 +707,7 @@ void ofxDmtrUI::createFromLine(string l) {
 			string nome = cols[1];
 			string uiName = cols[2];
 			radioUIMap[nome] = uiName;
-
-
-			/*
-			 se ja existe o ui,
-			 */
-
-			// TODO, associar aqui um ao outro.
 		}
-
 
 		else if (tipo == "hueStart") {
 			hueStart = ofToFloat(cols[1]);
@@ -866,7 +857,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 	// vamos tentar inventar uma variavel aqui nos parametros somente.
 	ofStringReplace(valores, "sliderWidth", ofToString(sliderWidth));
 
-	int hue = int(flow.x/8.0 + flow.y/6.0 + hueStart)%255;
+	hue = int(flow.x/8.0 + flow.y/6.0 + hueStart)%255;
 	int saturation = bw ? 0 : 255;
 	int brightness = bw ? 127 : 200;
 
@@ -1490,7 +1481,6 @@ void ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 			}
 
 			string fileName = pFolder[e.nome] + "/" + pString[e.nome] + ".txt";
-//			cout << fileName << endl;
 			if (ofFile::doesFileExist(fileName)) {
 				_u->createFromText(fileName);
 			}
@@ -1968,7 +1958,65 @@ void ofxDmtrUI::downTo(ofxDmtrUI & uiNext) {
 string ofxDmtrUI::getFileFullPath(string & nome) {
 	string saida = pFolder[nome] + "/" + pString[nome];
 	return saida;
+//	if (pString[nome] != "") {
+//	} else {
+//		return false;
+//	}
 }
 
 //vector <ofxDmtrUI *> ofxDmtrUI::allUIs() {
 //}
+
+
+//--------------------------------------------------------------
+void ofxDmtrUI::createSoftwareFromText(string file) {
+	keepSettings = true;
+	useShortcut = true;
+	if (ofFile::doesFileExist("uiAll.txt")) {
+		createFromText("uiAll.txt");
+	}
+	createFromText(file);
+	setup();
+
+	int w,h;
+
+	if (ofFile::doesFileExist("output.txt")) {
+		vector <string> output = textToVector("output.txt");
+		vector <string> dimensoes = ofSplitString(output[0], " ");
+		w = ofToInt(dimensoes[0]);
+		h = ofToInt(dimensoes[1]);
+	} else {
+		w = 1920;
+		h = 1080;
+	}
+
+	int format = GL_RGBA32F_ARB; //GL_RGBA32F_ARB  //GL_RGBA32F
+	int multiSampling = 0;
+	if (multiSampling == 0) {
+		fbo.allocate			(w,h, format);
+	} else {
+		fbo.allocate			(w,h, format, multiSampling);
+	}
+
+	if (multiSampling == 0) {
+		fboRastros.allocate			(w,h, format);
+	} else {
+		fboRastros.allocate			(w,h, format, multiSampling);
+	}
+
+	if (multiSampling == 0) {
+		fboFade.allocate			(w,h, format);
+	} else {
+		fboFade.allocate			(w,h, format, multiSampling);
+	}
+
+	fbo.begin();
+	ofClear(0,255);
+	fbo.end();
+
+	fboRastros.begin();
+	ofClear(0,255);
+	fboRastros.end();
+
+	setFbo(fboRastros);
+}
