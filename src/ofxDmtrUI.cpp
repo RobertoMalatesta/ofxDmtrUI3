@@ -1236,8 +1236,8 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 	}
 
 
-	else if (tipo == "cor") {
-		string n = nome + "Cor";
+	else if (tipo == "color") {
+		//string n = nome + "Cor";
 		vector <string> cores = ofSplitString(valores, " ");
 		ofFbo corFbo;
 		corFbo.allocate(sliderWidth, 20 ,GL_RGBA);
@@ -1280,22 +1280,16 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 		lastHeight = ts.rect.height;
 		lastWidth  = ts.rect.width;
+
+		// descontinuar com o tempo
 		indexElement[nome] = sliders2d.size();
 		sliders2dIndex[nome] = sliders2d.size();
 
 		sliders2d.push_back(ts);
 
-//		element te;
-//		te.set(sliders2d.back());
-//		elements.push_back(te);
-
-//		string createString = "slider2dColor	"+n+"	"+ofToString(sliderWidth)+" 20";
-//		createFromLine(createString);
-//		setFboElement(n, mapFbos[n]);
-//		lastHeight = 0;
 	}
 
-	else if (tipo == "color") {
+	else if (tipo == "colorLicht") {
 		createFromLine("bool	"+nome+"UsaPaleta	0");
 		createFromLine("slider2d	"+nome+"Paleta	.5 .5");
 		createFromLine("slider2d	"+nome+"Hsv	.5 .5");
