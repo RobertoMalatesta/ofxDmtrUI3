@@ -33,19 +33,18 @@ http://dmtr.org/
 #include "ofxDmtrUI.h"
 
 //--------------------------------------------------------------
-void ofxDmtrUI::setup(string uiName) {
-	if (uiName != "") {
-		UINAME = uiName;
-	}
+void ofxDmtrUI::setup() {
 	ofSetEscapeQuitsApp(false);
 
 	flow = ofPoint(marginx, marginy);
 
-	fboColumn.allocate(coluna.width, coluna.height, GL_RGBA);
-	fboColumn.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
-	fboColumn.begin();
-	ofClear(0);
-	fboColumn.end();
+	if (!fboColumn.isAllocated()) {
+		fboColumn.allocate(coluna.width, coluna.height, GL_RGBA);
+		fboColumn.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+		fboColumn.begin();
+		ofClear(0);
+		fboColumn.end();
+	}
 	ofAddListener(ofEvents().draw, this, &ofxDmtrUI::onDraw);
 	ofAddListener(ofEvents().update, this, &ofxDmtrUI::onUpdate);
 	ofAddListener(ofEvents().keyPressed, this, &ofxDmtrUI::onKeyPressed);
@@ -68,7 +67,9 @@ void ofxDmtrUI::setup(string uiName) {
 			load(fileName);
 		}
 	}
-	allUIs.push_back(this);
+	dmtrUIEvent te;
+	te.nome = "setup";
+	ofNotifyEvent(evento, te);
 }
 // END SETUP
 
@@ -127,7 +128,7 @@ void ofxDmtrUI::draw() {
 //--------------------------------------------------------------
 void ofxDmtrUI::save(string xml){
 	if (debug) {
-		cout << "save: " + xml << endl;
+		cout << "save xml in interface " +UINAME+ ": " + xml << endl;
 	}
 	ofxXmlSettings settings;
 
@@ -266,11 +267,10 @@ void ofxDmtrUI::load(string xml){
 		}
 	}
 
-	// ATUALIZAR EVENTOS AQUI E EM TODO LADO
+	dmtrUIEvent te;
+	te.nome = "loadPreset";
+	ofNotifyEvent(evento, te);
 
-//	redraw = true;
-//	string e = "load";
-//	ofNotifyEvent(uiEvent, e);
 }
 
 //--------------------------------------------------------------
@@ -544,6 +544,8 @@ void ofxDmtrUI::onMouseMoved(ofMouseEventArgs& data) {
 	}
 }
 
+#ifdef DMTRUI_TARGET_TOUCH
+
 //--------------------------------------------------------------
 void ofxDmtrUI::onTouchDown(ofTouchEventArgs &data) {
 	if (showGui) {
@@ -566,7 +568,7 @@ void ofxDmtrUI::onTouchUp(ofTouchEventArgs &data) {
 	}
 
 }
-
+#endif
 
 //--------------------------------------------------------------
 void ofxDmtrUI::onExit(ofEventArgs &data) {
@@ -592,7 +594,9 @@ void ofxDmtrUI::createFromText(string file) {
 	//cout << f << endl;
 	string onlyName = ofSplitString(f, ".")[0];
 	//cout << onlyName << endl;
-	UINAME = onlyName;
+//	if (UINAME == "") {
+//		UINAME = onlyName;
+//	}
 	if (ofFile::doesFileExist(file)) {
 		createdFromTextFile = file;
 		
@@ -602,12 +606,17 @@ void ofxDmtrUI::createFromText(string file) {
 
 		vector <string> linhas = textToVector(file);
 		for (auto & l : linhas) {
+			//cout << l << endl;
 			createFromLine(l);
 		}
 		addAllListeners();
 	} else {
 		cout << "ofxDmtrUI createFromText ::: File not found " + file << endl;
 	}
+
+	dmtrUIEvent te;
+	te.nome = "createFromText";
+	ofNotifyEvent(evento, te);
 }
 
 //--------------------------------------------------------------
@@ -670,19 +679,18 @@ void ofxDmtrUI::createFromLine(string l) {
 		}
 
 		else if (tipo == "addUI" || tipo == "addUIDown") {
-			// fazer o tipo adduidown
+			uis[nome].UINAME = nome;
+			uis[nome].hueStart = hue;
 
+			if (ofFile::doesFileExist("uiAll.txt")) {
+				uis[nome].createFromText("uiAll.txt");
+			}
 
 			string fileName = nome+".txt";
 			if (ofFile::doesFileExist(fileName)) {
-				if (ofFile::doesFileExist("uiAll.txt")) {
-					uis[nome].createFromText("uiAll.txt");
-				}
-				//cout << hueStart << endl;
-				uis[nome].hueStart = hue;
 				uis[nome].createFromText(fileName);
-				allUIs.push_back(&uis[nome]);
 			}
+
 			if (_uiLast == NULL) {
 				if (tipo == "addUI") {
 					uis[nome].nextTo(*this);
@@ -695,11 +703,12 @@ void ofxDmtrUI::createFromLine(string l) {
 				} else {
 					uis[nome].downTo(*_uiLast);
 				}
-
 			}
 			_uiLast = &uis[nome];
 			uis[nome]._uiFather = this;
 			uis[nome].setup();
+			
+			allUIs.push_back(&uis[nome]);
 		}
 
 		// talvez remover
@@ -715,8 +724,13 @@ void ofxDmtrUI::createFromLine(string l) {
 
 		// em portugues?
 		else if (tipo == "colunaBackground") {
-			colunaBackground  = ofColor::fromHex(ofHexToInt(cols[1].substr(1)));
-			colunaBackground.a = 100;
+			colunaBackground  = ofColor::fromHex(ofHexToInt(cols[1].substr(1,6)));
+			// fazer aqui o lance pro alpha
+			if (cols[1].length() > 7) {
+				colunaBackground.a = ofHexToInt(cols[1].substr(7));
+			} else {
+				colunaBackground.a = 100;
+			}
 		}
 		else if (tipo == "slideFree") {
 			slideFree = ofToBool(cols[1]);
@@ -859,7 +873,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 	hue = int(flow.x/8.0 + flow.y/6.0 + hueStart)%255;
 	int saturation = bw ? 0 : 255;
-	int brightness = bw ? 127 : 200;
+	int brightness = bw ? 50 : 200;
 
 	ofColor cor = ofColor::fromHsb(hue,saturation,brightness);
 
@@ -1048,12 +1062,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		lastWidth  = ts.rect.width;
 
 
-
-//		element te;
-//		te.tipo = tipo == "int" ? SLIDERINT : SLIDER;
-//		te._slider = &ts;
-//		te._rect = &ts.rect;
-//		elements.push_back(te);
+		ts.init();
 		sliders.push_back(ts);
 
 		element te;
@@ -1082,6 +1091,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			lastWidth  = tt.rect.width;
 		}
 
+		tt.init();
 		toggles.push_back(tt);
 
 		togglesMap[nome] = &toggles.back();
@@ -1153,6 +1163,8 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 				temp.cores.push_back(cor);
 			}
 		}
+
+		temp.height = sliderHeight;
 		temp.init();
 		// remover o indexElement em breve
 		indexElement[nome] = radios.size();
@@ -1205,7 +1217,9 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		temp.opcoes = opcoes;
 		pString[nome] = "";
 		temp._val = &pString[nome];
+		temp.height = sliderHeight;
 		temp.init();
+
 		lastHeight = temp.rect.height;
 
 		radios.push_back(temp);
@@ -1468,18 +1482,25 @@ void ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 	if (e.element == RADIO) {
 		if ( radioUIMap.find(e.nome) != radioUIMap.end() ) {
 			ofxDmtrUI * _u = &_uiFather->uis[radioUIMap[e.nome]];
-			_u->clear();
-			string fileDefault = radioUIMap[e.nome]+".txt";
-			if (ofFile::doesFileExist(fileDefault)) {
-				_u->createFromText(fileDefault);
-			}
 
 			string fileName = pFolder[e.nome] + "/" + pString[e.nome] + ".txt";
-			if (ofFile::doesFileExist(fileName)) {
-				_u->createFromText(fileName);
+			if (_u->createdFromTextFile != fileName) {
+				_u->clear();
+
+				string fileDefault = radioUIMap[e.nome]+".txt";
+				if (ofFile::doesFileExist(fileDefault)) {
+					_u->createFromText(fileDefault);
+				}
+
+				if (ofFile::doesFileExist(fileName)) {
+					_u->createFromText(fileName);
+				}
+				_u->createFromLine("autoFit");
 			}
-			_u->createFromLine("autoFit");
-			_u->setup();
+
+			// setup novamente adicionaria os listeners novamente
+			// xaxa
+			//_u->setup();
 		}
 	}
 
@@ -1542,9 +1563,12 @@ void ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 	else if (e.nome == "easing") {
 		//cout << pFloat["easing"] << endl;
 		easing = pFloat["easing"];
-		for (auto & p : _presetsUIs) {
-			p->easing = pFloat["easing"];
+		for (auto & p : uis) {
+			p.second.easing = pFloat["easing"];
 		}
+//		for (auto & p : _presetsUIs) {
+//			p->easing = pFloat["easing"];
+//		}
 	}
 
 
@@ -1735,15 +1759,20 @@ void ofxDmtrUI::loadPresetAll(int n) {
 
 	for (auto & u : uis) {
 		string nome = getPresetsFolder() + ofToString(n) + u.first +  ".xml";
+//		cout << u.first << endl;
+//		cout << u.second.UINAME << endl;
+//		cout << nome << endl;
+//		cout << "----" << endl;
 		u.second.load(nome);
 		u.second.redraw = true;
 	}
 
-	for (auto & p : _presetsUIs) {
-		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
-		p->load(nome);
-		p->redraw = true;
-	}
+//	for (auto & p : _presetsUIs) {
+//		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
+//		p->load(nome);
+//		p->redraw = true;
+//	}
+
 	presetLoaded = n;
 	allPresets.set(n);
 	
@@ -1763,11 +1792,11 @@ void ofxDmtrUI::savePresetAll(int n) {
 		u.second.save(nome);
 	}
 	//cout << "savePresetAll" << endl;
-	for (auto & p : _presetsUIs) {
-		//cout << p->UINAME << endl;
-		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
-		p->save(nome);
-	}
+//	for (auto & p : _presetsUIs) {
+//		//cout << p->UINAME << endl;
+//		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
+//		p->save(nome);
+//	}
 	presetLoaded = n;
 	allPresets.set(n);
 }
@@ -1781,10 +1810,10 @@ void ofxDmtrUI::loadNextPresetAll() {
 }
 
 void ofxDmtrUI::erasePresetAll(int n) {
-	for (auto & p : _presetsUIs) {
-		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
-		ofFile::removeFile(nome);
-	}
+//	for (auto & p : _presetsUIs) {
+//		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
+//		ofFile::removeFile(nome);
+//	}
 	ofFile::removeFile(ofToString(n)+".tif");
 
 	presetLoaded = n;
@@ -1838,6 +1867,7 @@ void ofxDmtrUI::re() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::clear(bool keepVars) {
+	createdFromTextFile = "";
 	if (debug) {
 		cout << "ofxDmtrUI Clear!" << endl;
 	}
@@ -1964,6 +1994,8 @@ string ofxDmtrUI::getFileFullPath(string & nome) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::createSoftwareFromText(string file) {
+	UINAME = "master";
+
 	keepSettings = true;
 	useShortcut = true;
 	if (ofFile::doesFileExist("uiAll.txt")) {
@@ -1971,6 +2003,8 @@ void ofxDmtrUI::createSoftwareFromText(string file) {
 	}
 	createFromText(file);
 	setup();
+
+	allUIs.push_back(this);
 
 	int w,h;
 
@@ -1984,8 +2018,12 @@ void ofxDmtrUI::createSoftwareFromText(string file) {
 		h = 1080;
 	}
 
+#ifdef DMTRUI_TARGET_TOUCH
+	int format = GL_RGBA; //GL_RGBA32F_ARB  //GL_RGBA32F
+#else
 	int format = GL_RGBA32F_ARB; //GL_RGBA32F_ARB  //GL_RGBA32F
-	int multiSampling = 0;
+#endif
+	int multiSampling = 2;
 	if (multiSampling == 0) {
 		fbo.allocate			(w,h, format);
 	} else {

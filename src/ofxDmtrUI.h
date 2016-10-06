@@ -37,7 +37,7 @@
 class ofxDmtrUI : public ofBaseApp
 {
 public:
-	void setup(string uiName = "");
+	void setup();
 	void keyPressed(int key);
 	void keyReleased(int key);
 	void update();
@@ -58,10 +58,12 @@ public:
 	void onMouseReleased(ofMouseEventArgs &data);
 	void onMouseMoved(ofMouseEventArgs &data);
 
+#ifdef DMTRUI_TARGET_TOUCH
 	void onTouchDown(ofTouchEventArgs &data);
 	void onTouchMoved(ofTouchEventArgs &data);
 	void onTouchUp(ofTouchEventArgs &data);
-	
+#endif
+
 	void onExit(ofEventArgs &data);
 
 	void createFromText(string file);
@@ -163,7 +165,7 @@ public:
 	bool useShortcut = false;
 	string presetsFolder = "_presets/";
 	string presetsFolderNumber = "";
-	string UINAME = "ui";
+	string UINAME = "";
 
 	int hueStart = 100;
 	bool learnMode = false;
@@ -191,8 +193,8 @@ public:
 	ofFbo *_fbo;
 	int presetLoaded;
 
-	vector <ofxDmtrUI *> _presetsUIs;
-	vector <ofxDmtrUI *> _presetsUIs2;
+//	vector <ofxDmtrUI *> _presetsUIs;
+//	vector <ofxDmtrUI *> _presetsUIs2;
 	ofxDmtrUI * uiC = NULL;
 	ofxDmtrUI * uiM = NULL;
 	ofxDmtrUI * _uiBak = NULL;
@@ -247,11 +249,11 @@ public:
 	ofxDmtrUI *_uiLast = NULL;
 	ofxDmtrUI *_uiFather = NULL;
 
-	bool debug = false;
 	vector <ofxDmtrUI *> allUIs;
 
 	int hue;
 
 	// 27 de setembro. convertendo em software agora
 	ofFbo fbo, fboRastros, fboFade;
+	bool debug = false;
 };

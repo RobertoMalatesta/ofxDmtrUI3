@@ -126,6 +126,13 @@ public:
 	// 27 05 2016 - tipo de evento mais completo
 	ofEvent<dmtrUIEvent> evento;
 
+	// 05 10 2016 - UI maior pra iPhone
+	int labelOffsetY;
+
+	void init() {
+		labelOffsetY = rect.height/2 + 7;
+	}
+
 	void update(int x, int y) {
 		dmtrUIEvent te;
 		te.nome = nome;
@@ -203,17 +210,15 @@ public:
 		ofSetColor(0,128);
 		if (vert) {
 			valorPixels = ofMap(vvv, min, max, 0, rect.height);
-
 			//ofDrawRectangle(rect.x, rect.y, rect.width, valorPixels);
 			ofDrawRectangle(rect.x, rect.y + rect.height-valorPixels, rect.width, valorPixels);
 		} else {
 			ofDrawRectangle(rect.x, rect.y, valorPixels, rect.height);
 			string label = nome + " "+ofToString(isInt ? *_valInt : *_val);
 			ofSetColor(0,128);
-			int offy = rect.height - 2;
-			ofDrawBitmapString(label, rect.x+11, rect.y+offy);
+			ofDrawBitmapString(label, rect.x+11, rect.y + labelOffsetY);
 			ofSetColor(255);
-			ofDrawBitmapString(label, rect.x+10, rect.y+offy-1);
+			ofDrawBitmapString(label, rect.x+10, rect.y + labelOffsetY-1);
 		}
 
 		if (learn) {
@@ -241,6 +246,12 @@ public:
 
 	ofEvent<string> uiEvent;
 	ofEvent<dmtrUIEvent> evento;
+
+	int labelOffsetY;
+
+	void init() {
+		labelOffsetY = rect.height/2 + 7;
+	}
 
 	void flip() {
 		*_val = !*_val;
@@ -274,13 +285,13 @@ public:
 		// toggle Label
 		if (showLabel) {
 			ofSetColor(255);
-			ofDrawBitmapString(nome, rect.x + rect.width + 5, rect.y+16);
+			ofDrawBitmapString(nome, rect.x + rect.width + 5, rect.y + labelOffsetY);
 		}
 
 		if (*_val) {
 			ofSetColor(0);
 			ofNoFill();
-			int off = 3;
+			float off = rect.height / 6.0;
 			ofDrawLine(rect.x + off, rect.y + off, 			     rect.x + rect.width -off, rect.y + rect.height -off);
 			ofDrawLine(rect.x + off, rect.y + rect.height - off, rect.x + rect.width -off, rect.y + off);
 			ofFill();
@@ -334,20 +345,25 @@ public:
 
 	bool isInit = false;
 
+	int labelOffsetY;
+
 
 	void init() {
+		labelOffsetY = height/2 + 5;
 		for (auto & o : opcoes) {
 			clicked.push_back(false);
 			int largura = 6*2 + o.size() * 8;
 			ofRectangle tr = ofRectangle(rect.x + offx, rect.y + offy, largura, height);
+			//cout << tr << endl;
 
 			// mudar para sliderwidth
 			if ((offx + tr.width) > rect.width) {
 				offx = 0;
-				offy += 20 + 1;
+				offy += height + 1;
 				tr = ofRectangle(rect.x + offx, rect.y + offy, largura, height);
 			}
-			rect.height = MAX(rect.height, offy + 21);
+			// redimensiona o retangulo pai.
+			rect.height = MAX(rect.height, offy + height + 1);
 			offx += largura + 1;
 			rects.push_back(tr);
 
@@ -456,7 +472,10 @@ public:
 				}
 				ofDrawRectangle (r);
 				ofSetColor(*_vals[i] ? 0 : 255);
-				ofDrawBitmapString(o, r.x + 6, r.y + offy);
+
+				//labelOffsetY
+//				ofDrawBitmapString(o, r.x + 6, r.y + offy);
+				ofDrawBitmapString(o, r.x + 6, r.y + labelOffsetY);
 				i++;
 			}
 		} else {
@@ -469,7 +488,8 @@ public:
 				}
 				ofDrawRectangle (r);
 				ofSetColor(*_val == o ? 0 : 255);
-				ofDrawBitmapString(o, r.x + 6, r.y + offy);
+//				ofDrawBitmapString(o, r.x + 6, r.y + offy);
+				ofDrawBitmapString(o, r.x + 6, r.y + labelOffsetY);
 				i++;
 			}
 		}
