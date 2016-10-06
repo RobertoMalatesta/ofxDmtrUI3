@@ -104,11 +104,7 @@ void ofxDmtrUI::draw() {
 			fboColumn.end();
 			redraw = false;
 		}
-		//ofSetColor(255, columnOver ? 255 : 128);
 		ofSetColor(255, columnOver ? opacity : opacityRest);
-		//ofEnableBlendMode(OF_BLENDMODE_DIFFERENCE);
-		//ofEnableBlendMode(OF_BLENDMODE_ADD);
-		//ofEnableBlendMode(OF_BLENDMODE_SCREEN);
 		if (blendMode) {
 			ofEnableBlendMode(blendMode);
 		}
@@ -132,69 +128,35 @@ void ofxDmtrUI::save(string xml){
 	}
 	ofxXmlSettings settings;
 
-	bool newVersion = true;
-	if (newVersion) {
-		settings.setValue("ofxDmtrUIVersion", 2.0);
-		for (auto & e : sliders) {
-			if (e.isInt) {
-				settings.setValue("slider:" + e.nome,   *e._valInt);
-			} else {
-				settings.setValue("slider:" + e.nome, *e._val);
-			}
+	settings.setValue("ofxDmtrUIVersion", 2.0);
+	for (auto & e : sliders) {
+		if (e.isInt) {
+			settings.setValue("slider:" + e.nome,   *e._valInt);
+		} else {
+			settings.setValue("slider:" + e.nome, *e._val);
 		}
-		for (auto & e : toggles) {
-			settings.setValue("toggle:" + e.nome, *e._val);
-		}
-		for (auto & e : radios) {
-			if (e.multiple) {
-				int i = 0;
-				for (auto & o : e.opcoes) {
-					settings.setValue("radio:"+e.nome+":"+o, *e._vals[i]);
-					i++;
-				}
-			} else {
-				settings.setValue("radio:"+e.nome, *e._val);
-			}
-		}
-		for (auto & e : sliders2d) {
-			ofPoint xy = *e._val;
-			settings.setValue("slider2d:" + e.nome + ":x", xy.x);
-			settings.setValue("slider2d:" + e.nome + ":y", xy.y);
-		}
-		settings.setValue("presets", allPresets.valor);
 	}
-	else {
-		for (auto & s : sliders) {
-			if (s.isInt) {
-				settings.setValue(s.nome, *s._valInt);
-			} else {
-				settings.setValue(s.nome, *s._val);
-			}
-		}
-
-		for (auto & t : toggles) {
-			settings.setValue(t.nome, *t._val);
-		}
-
-		for (auto & r : radios) {
-			if (!r.multiple) {
-				settings.setValue(r.nome, *r._val);
-			} else {
-				int i = 0;
-				for (auto & o : r.opcoes) {
-					settings.setValue(o, *r._vals[i]);
-					i++;
-				}
-			}
-		}
-		// ainda nao sei se funciona
-		for (auto & e : sliders2d) {
-			ofPoint xy = *e._val;
-			settings.setValue(e.nome + "x", xy.x);
-			settings.setValue(e.nome + "y", xy.y);
-		}
-		// salvar tb o presets.
+	for (auto & e : toggles) {
+		settings.setValue("toggle:" + e.nome, *e._val);
 	}
+	for (auto & e : radios) {
+		if (e.multiple) {
+			int i = 0;
+			for (auto & o : e.opcoes) {
+				settings.setValue("radio:"+e.nome+":"+o, *e._vals[i]);
+				i++;
+			}
+		} else {
+			settings.setValue("radio:"+e.nome, *e._val);
+		}
+	}
+	for (auto & e : sliders2d) {
+		ofPoint xy = *e._val;
+		settings.setValue("slider2d:" + e.nome + ":x", xy.x);
+		settings.setValue("slider2d:" + e.nome + ":y", xy.y);
+	}
+	settings.setValue("presets", allPresets.valor);
+
 	settings.save(xml);
 }
 
@@ -211,7 +173,6 @@ void ofxDmtrUI::load(string xml){
 	settings.loadFile(xml);
 
 	int UIVersion = settings.getValue("ofxDmtrUIVersion", 0);
-
 	if (UIVersion == 2) {
 		for (auto & e : sliders) {
 			e.setValue(settings.getValue("slider:" +e.nome, e.def));
@@ -237,45 +198,14 @@ void ofxDmtrUI::load(string xml){
 			float y = settings.getValue("slider2d:"+e.nome+":y", 0.0);
 			e.setValue(ofPoint(x, y));
 		}
-	} else {
-		for (auto & e : sliders) {
-			e.setValue(settings.getValue(e.nome, e.def));
-		}
-		for (auto & e : toggles) {
-			e.setValue(settings.getValue(e.nome, e.def));
-		}
-		for (auto & e : radios) {
-			// default? algo como asterisco no txt? ou um parametro novo, um tab a mais.
-			//if (*e._val != settings.getValue(e.nome, ""))
-			if (!e.multiple) {
-				e.setValue(settings.getValue(e.nome, ""), 2);
-			}
-
-			else {
-				int i = 0;
-				for (auto & o : e.opcoes) {
-					*e._vals[i] = settings.getValue(o, false);
-					i++;
-				}
-				e.draw();
-			}
-		}
-		for (auto & e : sliders2d) {
-			float x = settings.getValue(e.nome+"x", 0.0);
-			float y = settings.getValue(e.nome+"y", 0.0);
-			e.setValue(ofPoint(x, y));
-		}
 	}
-
 	dmtrUIEvent te;
 	te.nome = "loadPreset";
 	ofNotifyEvent(evento, te);
-
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI::keyPressed(int key){
-
 	if (key == '=') {
 		showGui = !showGui;
 	}
@@ -299,6 +229,7 @@ void ofxDmtrUI::keyPressed(int key){
 				ofToggleFullscreen();
 			}
 		} else {
+			// fazer um map aqui
 			if (key == 'a' || key == 'A') {
 				loadPresetAll(0 + pInt["atalhoOffset"]);
 			}
@@ -469,9 +400,6 @@ void ofxDmtrUI::mouseReleased(int x, int y, int button){
 	for (auto & e : sliders2d) {
 		e.inside = false;
 	}
-	//for (auto & s : radios) {
-		//s.clicked = false;
-	//}
 }
 
 //--------------------------------------------------------------
@@ -488,7 +416,6 @@ void ofxDmtrUI::exit() {
 		save(fileName);
 	}
 }
-
 
 //--------------------------------------------------------------
 void ofxDmtrUI::onDraw(ofEventArgs &data) {
@@ -545,7 +472,6 @@ void ofxDmtrUI::onMouseMoved(ofMouseEventArgs& data) {
 }
 
 #ifdef DMTRUI_TARGET_TOUCH
-
 //--------------------------------------------------------------
 void ofxDmtrUI::onTouchDown(ofTouchEventArgs &data) {
 	if (showGui) {
@@ -587,16 +513,6 @@ vector <string> ofxDmtrUI::textToVector(string file) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::createFromText(string file) {
-	//cout << file << endl;
-	// 27 de setembro isso pode quebrar muita coisa
-	// se tiver multiplas pastas fazer o seguinte
-	string f = ofSplitString(file, "/").back();
-	//cout << f << endl;
-	string onlyName = ofSplitString(f, ".")[0];
-	//cout << onlyName << endl;
-//	if (UINAME == "") {
-//		UINAME = onlyName;
-//	}
 	if (ofFile::doesFileExist(file)) {
 		createdFromTextFile = file;
 		
@@ -606,7 +522,6 @@ void ofxDmtrUI::createFromText(string file) {
 
 		vector <string> linhas = textToVector(file);
 		for (auto & l : linhas) {
-			//cout << l << endl;
 			createFromLine(l);
 		}
 		addAllListeners();
@@ -622,6 +537,7 @@ void ofxDmtrUI::createFromText(string file) {
 //--------------------------------------------------------------
 void ofxDmtrUI::addAllListeners() {
 	// end reading from text files
+	// remove uiEvents soon
 	for (auto & e : sliders) {
 		ofAddListener(e.uiEvent,this, &ofxDmtrUI::uiEvents);
 		ofAddListener(e.evento ,this, &ofxDmtrUI::uiEventsNeu);
@@ -645,10 +561,8 @@ void ofxDmtrUI::addAllListeners() {
 //--------------------------------------------------------------
 void ofxDmtrUI::createFromLine(string l) {
 	if (l == "") { // spacer
-		//flow.y += 25;
 		flow.y += sliderHeight + sliderMargin;
 	} else {
-
 		vector <string> cols = ofSplitString(l, "	");
 		string tipo = cols[0];
 		string nome = "";
@@ -850,22 +764,6 @@ void ofxDmtrUI::createFromLine(string l) {
 	}
 }
 
-////--------------------------------------------------------------
-//void ofxDmtrUI::createRadio(string nome, vector <string> opcoes) {
-//	radio temp;
-//	temp.nome = nome;
-//	temp.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
-//	temp.opcoes = opcoes;
-//	temp._val = &pString[nome];
-//	temp.init();
-//	indexElement[nome] = radios.size();
-//	radios.push_back(temp);
-//	element te;
-//	te.set(radios.back());
-//	elements.push_back(te);
-//	lastHeight = temp.rect.height;
-//}
-
 //--------------------------------------------------------------
 void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2, string valores3) {
 	// vamos tentar inventar uma variavel aqui nos parametros somente.
@@ -914,7 +812,9 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			ofClear(0,255);
 
 			// checks if the key exists in the map, in the case, not found
-			if (indexElement.find("presetsFolder") == indexElement.end()) {
+
+			if (radiosIndex.find("presetsFolder") == radiosIndex.end()) {
+//			if (indexElement.find("presetsFolder") == indexElement.end()) {
 				string filename = getPresetsFolder() + ofToString(a) + ".tif";
 				if (ofFile::doesFileExist(filename)) {
 					tp.img.load(filename);
@@ -934,23 +834,12 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			}
 		}
 
-//		flow.y += allPresets.rect.height + sliderMargin;
 		flow.y += allPresets.rect.height ;
-
 		lastHeight = 0;
 
 		element te;
-
-
-
 		te.set(tipo == "presets" ? allPresets : allPresets2);
 		elements.push_back(te);
-
-//		te.tipo = PRESETS;
-//		te._rect = &allPresets.rect;
-//		te._presets = &allPresets;
-//		elements.push_back(te);
-
 	}
 
 	else if (tipo == "slider2d" || tipo == "fbo" ) {
@@ -973,7 +862,9 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		ts._val = &pPoint[nome];
 		lastHeight = ts.rect.height;
 		lastWidth  = ts.rect.width;
+
 		indexElement[nome] = sliders2d.size();
+		sliders2dIndex[nome] = sliders2d.size();
 
 		sliders2d.push_back(ts);
 
@@ -987,11 +878,8 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		te.nome = nome;
 		te.cor = cor;
 		te.rect = ofRectangle(flow.x, flow.y, sliderWidth, sliderHeight);
-//		te.tipo = tipo == "inspectorFloat" ? "float" : "string";
 		te.tipo = tipo;
-//		if (tipo == "fps") {
-//			te.tipo = "fps";
-//		}
+
 		if (te.tipo == "string") {
 			te._val = &pInspector[nome];
 			pInspector[nome] = "";
@@ -1003,7 +891,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		lastHeight = te.rect.height;
 		lastWidth  = te.rect.width;
 		te.init();
-		//indexElement[nome] = sliders2d.size();
 
 		// Ainda falta todo o resto
 		inspectors.push_back(te);
@@ -1037,16 +924,12 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			ts._val = &pFloat[ts.nome];
 		}
 
-		//cout << "valores : " + valores << endl;
 		if (valores != "") {
 			vector <string> vals = ofSplitString(valores, " ");
 			ofVec3f val = ofVec3f(ofToFloat(vals[0]), ofToFloat(vals[1]), ofToFloat(vals[2]));
 			ts.min = val.x;
 			ts.max = val.y;
 			ts.def = val.z;
-			// for initialization without mouse.
-			// removed 18 june 2016 for shader reload keeping parameters intact initialization
-			//ts.setValue(ts.def);
 		}
 
 		if (!pFloat[nome])
@@ -1055,12 +938,11 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		if (ts.isInt) {
 			pInt[nome] = ts.def;
 		}
-		indexElement[nome] = sliders.size();
+		//indexElement[nome] = sliders.size();
 		slidersIndex[nome] = sliders.size();
 
 		lastHeight = ts.rect.height;
 		lastWidth  = ts.rect.width;
-
 
 		ts.init();
 		sliders.push_back(ts);
@@ -1083,7 +965,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		}
 		pBool[nome] = tt.def;
 		tt._val = &pBool[nome];
-		indexElement[nome] = toggles.size();
+		//indexElement[nome] = toggles.size();
 		togglesIndex[nome] = toggles.size();
 
 		if (tipo == "toggleNolabel") {
@@ -1095,15 +977,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		toggles.push_back(tt);
 
 		togglesMap[nome] = &toggles.back();
-//		if (toggles.size()>0) {
-//			if (nome == toggles[toggles.size()-1].nome) {
-//				togglesMap[nome] = &toggles[toggles.size()-1];
-//			}
-//		}
-
-//		cout << nome << endl;
-//		cout << toggles.back().nome << endl;
-//		cout << "-----" << endl;
 
 		element te;
 		//te._toggle = &toggles.back();
@@ -1167,7 +1040,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		temp.height = sliderHeight;
 		temp.init();
 		// remover o indexElement em breve
-		indexElement[nome] = radios.size();
+		//indexElement[nome] = radios.size();
 		radiosIndex[nome] = radios.size();
 
 //		element te;
@@ -1296,7 +1169,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		lastWidth  = ts.rect.width;
 
 		// descontinuar com o tempo
-		indexElement[nome] = sliders2d.size();
+		//indexElement[nome] = sliders2d.size();
 		sliders2dIndex[nome] = sliders2d.size();
 
 		sliders2d.push_back(ts);
@@ -1510,8 +1383,8 @@ void ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 		vector <string> split = ofSplitString(e.nome, "_");
 		string nome = split[0];
 //		getSlider(nome)->setValue(ofToFloat(pString[e.nome]));
-		if (sliders[indexElement[nome]].nome == nome) {
-			sliders[indexElement[nome]].setValue(ofToFloat(pString[e.nome]));
+		if (sliders[slidersIndex[nome]].nome == nome) {
+			sliders[slidersIndex[nome]].setValue(ofToFloat(pString[e.nome]));
 		}
 	}
 
@@ -1561,14 +1434,10 @@ void ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 	}
 
 	else if (e.nome == "easing") {
-		//cout << pFloat["easing"] << endl;
 		easing = pFloat["easing"];
 		for (auto & p : uis) {
 			p.second.easing = pFloat["easing"];
 		}
-//		for (auto & p : _presetsUIs) {
-//			p->easing = pFloat["easing"];
-//		}
 	}
 
 
@@ -1667,21 +1536,6 @@ void	 ofxDmtrUI::uiEvents(string & e) {
 		}
 	}
 
-//	if (ofIsStringInString(e, "shortcut") && !ofIsStringInString(e, "load")) {
-//		vector <string> split = ofSplitString(e, "_");
-//		string nome = split[1];
-//
-//		// XAXA forte
-//		getSlider(nome).setValue(ofToFloat(pString[nome + "_shortcut"]));
-//		//pFloat[nome] = ofToFloat(pString[nome + "_shortcut"]);
-//		//cout << "shortcut!" << endl;
-//	}
-//	if (ofIsStringInString(e, "shortcutInt") && !ofIsStringInString(e, "load")) {
-//		vector <string> split = ofSplitString(e, "_");
-//		string nome = split[1];
-//		pInt[nome] = ofToInt(pString[nome + "_shortcutInt"]);
-//	}
-
 	// XAXA Corrigir
 	ofNotifyEvent(uiEvent, e);
 }
@@ -1739,15 +1593,17 @@ void	 ofxDmtrUI::autoFit(bool w, bool h) {
 void ofxDmtrUI::setFloat(string nome, float val) {
 }
 
+// remove
 //--------------------------------------------------------------
 void ofxDmtrUI::setBool(string nome, bool val) {
-	toggles[indexElement[nome]].setValue(val);
+	toggles[togglesIndex[nome]].setValue(val);
 	redraw = true;
 }
 
+// remove
 //--------------------------------------------------------------
 void ofxDmtrUI::setRadio(string nome, string val) {
-	radios[indexElement[nome]].setValue(val, true);
+	radios[radiosIndex[nome]].setValue(val, true);
 	redraw = true;
 }
 
@@ -1786,17 +1642,10 @@ void ofxDmtrUI::loadPresetAll(int n) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::savePresetAll(int n) {
-
 	for (auto & u : uis) {
 		string nome = getPresetsFolder() + ofToString(n) + u.first +  ".xml";
 		u.second.save(nome);
 	}
-	//cout << "savePresetAll" << endl;
-//	for (auto & p : _presetsUIs) {
-//		//cout << p->UINAME << endl;
-//		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
-//		p->save(nome);
-//	}
 	presetLoaded = n;
 	allPresets.set(n);
 }
@@ -1804,8 +1653,8 @@ void ofxDmtrUI::savePresetAll(int n) {
 //--------------------------------------------------------------
 void ofxDmtrUI::loadNextPresetAll() {
 	int n = (presetLoaded + 1) % allPresets.presets.size();
-	cout << "loadNextPresetAll" << endl;
-	cout << n << endl;
+//	cout << "loadNextPresetAll" << endl;
+//	cout << n << endl;
 	loadPresetAll(n);
 }
 
@@ -1824,17 +1673,10 @@ void ofxDmtrUI::erasePresetAll(int n) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::loadPreset(int n) {
-//	string nome = presetsFolder + UINAME + ofToString(n) + ".xml";
 	string nome = presetsFolder + ofToString(n) + UINAME +  ".xml";
 	load(nome);
 	presetLoaded = n;
-
 	allPresets.set(n);
-//	redraw = true;
-	//re();
-	//cout << allPresets.valor << endl;
-	//allPresets.presets[allPresets.valor].selecionado = false;
-	//allPresets.presets[n].selecionado = true;
 }
 
 //--------------------------------------------------------------
@@ -1851,9 +1693,15 @@ void ofxDmtrUI::setFbo(ofFbo &fbo) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::setFboElement(string nome, ofFbo &fbo) {
-	if (indexElement.find(nome) != indexElement.end()) {
-		if (sliders2d[indexElement[nome]].nome == nome) {
-			sliders2d[indexElement[nome]].setFbo(fbo);
+	//sliders2dIndex
+//	if (indexElement.find(nome) != indexElement.end()) {
+//		if (sliders2d[indexElement[nome]].nome == nome) {
+//			sliders2d[indexElement[nome]].setFbo(fbo);
+//		}
+//	}
+	if (sliders2dIndex.find(nome) != sliders2dIndex.end()) {
+		if (sliders2d[sliders2dIndex[nome]].nome == nome) {
+			sliders2d[sliders2dIndex[nome]].setFbo(fbo);
 		}
 	}
 }
@@ -1980,17 +1828,8 @@ void ofxDmtrUI::downTo(ofxDmtrUI & uiNext) {
 
 //--------------------------------------------------------------
 string ofxDmtrUI::getFileFullPath(string & nome) {
-	string saida = pFolder[nome] + "/" + pString[nome];
-	return saida;
-//	if (pString[nome] != "") {
-//	} else {
-//		return false;
-//	}
+	return pFolder[nome] + "/" + pString[nome];
 }
-
-//vector <ofxDmtrUI *> ofxDmtrUI::allUIs() {
-//}
-
 
 //--------------------------------------------------------------
 void ofxDmtrUI::createSoftwareFromText(string file) {
