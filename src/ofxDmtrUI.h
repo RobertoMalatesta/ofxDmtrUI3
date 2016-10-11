@@ -254,6 +254,9 @@ public:
 	int hue;
 
 	// 27 de setembro. convertendo em software agora
-	ofFbo fbo, fboRastros, fboFade;
-	bool debug = false;
+	ofFbo fbo, fboTrails, fboFade;
+	bool debug = true;
+
+	float flowXhuefactor = 0.125;
+	float flowYhuefactor = 0.17;
 };

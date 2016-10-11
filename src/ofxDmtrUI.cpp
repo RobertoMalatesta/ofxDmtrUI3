@@ -45,6 +45,7 @@ void ofxDmtrUI::setup() {
 		ofClear(0);
 		fboColumn.end();
 	}
+
 	ofAddListener(ofEvents().draw, this, &ofxDmtrUI::onDraw);
 	ofAddListener(ofEvents().update, this, &ofxDmtrUI::onUpdate);
 	ofAddListener(ofEvents().keyPressed, this, &ofxDmtrUI::onKeyPressed);
@@ -522,6 +523,7 @@ void ofxDmtrUI::createFromText(string file) {
 
 		vector <string> linhas = textToVector(file);
 		for (auto & l : linhas) {
+			//cout << l << endl;
 			createFromLine(l);
 		}
 		addAllListeners();
@@ -662,6 +664,14 @@ void ofxDmtrUI::createFromLine(string l) {
 			bw  = ofToInt(cols[1]);
 		}
 
+		else if (tipo == "setMobileRetina") {
+			createFromLine("margin	40");
+			createFromLine("sliderMargin	28");
+			createFromLine("sliderWidth	560");
+			createFromLine("sliderHeight	84");
+			createFromLine("colunaBackground	#000000ff");
+		}
+
 		else if (tipo == "keepSettings") {
 			keepSettings  = ofToBool(cols[1]);
 		}
@@ -769,7 +779,9 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 	// vamos tentar inventar uma variavel aqui nos parametros somente.
 	ofStringReplace(valores, "sliderWidth", ofToString(sliderWidth));
 
-	hue = int(flow.x/8.0 + flow.y/6.0 + hueStart)%255;
+
+
+	hue = int(flow.x * flowXhuefactor + flow.y * flowYhuefactor + hueStart)%255;
 	int saturation = bw ? 0 : 255;
 	int brightness = bw ? 50 : 200;
 
@@ -1870,9 +1882,9 @@ void ofxDmtrUI::createSoftwareFromText(string file) {
 	}
 
 	if (multiSampling == 0) {
-		fboRastros.allocate			(w,h, format);
+		fboTrails.allocate			(w,h, format);
 	} else {
-		fboRastros.allocate			(w,h, format, multiSampling);
+		fboTrails.allocate			(w,h, format, multiSampling);
 	}
 
 	if (multiSampling == 0) {
@@ -1885,9 +1897,9 @@ void ofxDmtrUI::createSoftwareFromText(string file) {
 	ofClear(0,255);
 	fbo.end();
 
-	fboRastros.begin();
+	fboTrails.begin();
 	ofClear(0,255);
-	fboRastros.end();
+	fboTrails.end();
 
-	setFbo(fboRastros);
+	setFbo(fboTrails);
 }
