@@ -826,7 +826,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			// checks if the key exists in the map, in the case, not found
 
 			if (radiosIndex.find("presetsFolder") == radiosIndex.end()) {
-//			if (indexElement.find("presetsFolder") == indexElement.end()) {
 				string filename = getPresetsFolder() + ofToString(a) + ".tif";
 				if (ofFile::doesFileExist(filename)) {
 					tp.img.load(filename);
@@ -875,7 +874,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		lastHeight = ts.rect.height;
 		lastWidth  = ts.rect.width;
 
-		indexElement[nome] = sliders2d.size();
 		sliders2dIndex[nome] = sliders2d.size();
 
 		sliders2d.push_back(ts);
@@ -950,7 +948,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		if (ts.isInt) {
 			pInt[nome] = ts.def;
 		}
-		//indexElement[nome] = sliders.size();
+
 		slidersIndex[nome] = sliders.size();
 
 		lastHeight = ts.rect.height;
@@ -977,7 +975,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		}
 		pBool[nome] = tt.def;
 		tt._val = &pBool[nome];
-		//indexElement[nome] = toggles.size();
+
 		togglesIndex[nome] = toggles.size();
 
 		if (tipo == "toggleNolabel") {
@@ -1051,8 +1049,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 		temp.height = sliderHeight;
 		temp.init();
-		// remover o indexElement em breve
-		//indexElement[nome] = radios.size();
+
 		radiosIndex[nome] = radios.size();
 
 //		element te;
@@ -1167,7 +1164,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 		slider2d ts;
 		ts.cores = colors;
-		//ts._fbo = &mapFbos[nome];
 		ts.nome = nome;
 		ts.cor = cor;
 		ts.rect = ofRectangle(flow.x, flow.y, sliderWidth, 20);
@@ -1180,12 +1176,8 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		lastHeight = ts.rect.height;
 		lastWidth  = ts.rect.width;
 
-		// descontinuar com o tempo
-		//indexElement[nome] = sliders2d.size();
 		sliders2dIndex[nome] = sliders2d.size();
-
 		sliders2d.push_back(ts);
-
 	}
 
 	else if (tipo == "colorLicht") {
@@ -1202,6 +1194,8 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		createFromLine("float	"+nome+"Alpha	0 255 255");
 		createFromLine("float	"+nome+"AlphaAudio	0 255 0");
 		createFromLine("float	"+nome+"AlphaRange	0 255 0");
+
+		cout << "colorLicht ::: " + nome << endl;
 		colors.push_back(nome);
 		lastHeight = 0;
 		//createFromLine("");
@@ -1213,13 +1207,10 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		createFromLine("fbo	"+nome+"PaletaAtual	200 10");
 		createFromLine("_float	"+nome+"HRange	0 720 0");
 		createFromLine("_float	"+nome+"HRangeAudio	0 360 0");
-//		createFromLine("float	"+nome+"BRange	0 255 0");
-//		createFromLine("int	"+nome+"HStep	0 6 0");
 		createFromLine("_float	"+nome+"Alpha	0 255 255");
-//		createFromLine("float	"+nome+"AlphaAudio	0 255 0");
-//		createFromLine("float	"+nome+"AlphaRange	0 255 0");
+
+		cout << "colorPaleta ::: " + nome << endl;
 		colors.push_back(nome);
-		//createFromLine("");
 		lastHeight = 0;
 	}
 
@@ -1627,19 +1618,9 @@ void ofxDmtrUI::loadPresetAll(int n) {
 
 	for (auto & u : uis) {
 		string nome = getPresetsFolder() + ofToString(n) + u.first +  ".xml";
-//		cout << u.first << endl;
-//		cout << u.second.UINAME << endl;
-//		cout << nome << endl;
-//		cout << "----" << endl;
 		u.second.load(nome);
 		u.second.redraw = true;
 	}
-
-//	for (auto & p : _presetsUIs) {
-//		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
-//		p->load(nome);
-//		p->redraw = true;
-//	}
 
 	presetLoaded = n;
 	allPresets.set(n);
@@ -1649,7 +1630,6 @@ void ofxDmtrUI::loadPresetAll(int n) {
 	dmtrUIEvent te;
 	te.nome = "loadPresetAll";
 	ofNotifyEvent(evento, te);
-	// fazer um UIEvent aqui.
 }
 
 //--------------------------------------------------------------
@@ -1665,23 +1645,16 @@ void ofxDmtrUI::savePresetAll(int n) {
 //--------------------------------------------------------------
 void ofxDmtrUI::loadNextPresetAll() {
 	int n = (presetLoaded + 1) % allPresets.presets.size();
-//	cout << "loadNextPresetAll" << endl;
-//	cout << n << endl;
 	loadPresetAll(n);
 }
 
+// TODO:
+//--------------------------------------------------------------
 void ofxDmtrUI::erasePresetAll(int n) {
-//	for (auto & p : _presetsUIs) {
-//		string nome = getPresetsFolder() + ofToString(n) + p->UINAME +  ".xml";
-//		ofFile::removeFile(nome);
-//	}
 	ofFile::removeFile(ofToString(n)+".tif");
-
 	presetLoaded = n;
 	allPresets.set(n);
 }
-
-
 
 //--------------------------------------------------------------
 void ofxDmtrUI::loadPreset(int n) {
@@ -1705,19 +1678,14 @@ void ofxDmtrUI::setFbo(ofFbo &fbo) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI::setFboElement(string nome, ofFbo &fbo) {
-	//sliders2dIndex
-//	if (indexElement.find(nome) != indexElement.end()) {
-//		if (sliders2d[indexElement[nome]].nome == nome) {
-//			sliders2d[indexElement[nome]].setFbo(fbo);
-//		}
-//	}
+	//cout << "----> setFboElement :: " + UINAME + " ::: " + nome << endl;
+	// TODO , modificar pra getSlider2d
 	if (sliders2dIndex.find(nome) != sliders2dIndex.end()) {
 		if (sliders2d[sliders2dIndex[nome]].nome == nome) {
 			sliders2d[sliders2dIndex[nome]].setFbo(fbo);
 		}
 	}
 }
-
 
 //--------------------------------------------------------------
 void ofxDmtrUI::re() {
@@ -1874,11 +1842,13 @@ void ofxDmtrUI::createSoftwareFromText(string file) {
 #else
 	int format = GL_RGBA32F_ARB; //GL_RGBA32F_ARB  //GL_RGBA32F
 #endif
-	int multiSampling = 2;
+
 	if (multiSampling == 0) {
-		fbo.allocate			(w,h, format);
+		//fbo.allocate			(w,h, format);
+		mapFbos["fbo"].allocate(w, h, format);
 	} else {
-		fbo.allocate			(w,h, format, multiSampling);
+		//fbo.allocate			(w,h, format, multiSampling);
+		mapFbos["fbo"].allocate(w, h, format, multiSampling);
 	}
 
 	if (multiSampling == 0) {
@@ -1893,13 +1863,18 @@ void ofxDmtrUI::createSoftwareFromText(string file) {
 		fboFade.allocate			(w,h, format, multiSampling);
 	}
 
-	fbo.begin();
+	mapFbos["fbo"].begin();
 	ofClear(0,255);
-	fbo.end();
+	mapFbos["fbo"].end();
 
 	fboTrails.begin();
 	ofClear(0,255);
 	fboTrails.end();
 
+	fboFade.begin();
+	ofClear(0,255);
+	fboFade.end();
+
+	//mudar tudo pra fbo map aqui
 	setFbo(fboTrails);
 }

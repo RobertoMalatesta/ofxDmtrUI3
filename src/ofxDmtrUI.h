@@ -22,10 +22,14 @@
 
  **********************************************************************************/
 
+
+//#define NOXML
+
 #pragma once
 
 #include "ofMain.h"
 #include "ofEvents.h"
+
 #include "ofxXmlSettings.h"
 #include "ofxDmtrUIElements.h"
 
@@ -180,21 +184,15 @@ public:
 	// 16 x 9 seria 100x56, vou deixar o padrao maior, tipo 35 por enquanto
 	ofPoint presetDimensions = ofPoint(100,35);
 
-
-
 	// ainda ver direitiho se isso vai rolar.
 	map <string, map <string, string> > dirListMap;
-	map <string, int> indexElement;
 
-	// 26 04 2016 - presets
 	presets allPresets, allPresets2;
 
 	// fbo pointer to save presets.
 	ofFbo *_fbo;
 	int presetLoaded;
 
-//	vector <ofxDmtrUI *> _presetsUIs;
-//	vector <ofxDmtrUI *> _presetsUIs2;
 	ofxDmtrUI * uiC = NULL;
 	ofxDmtrUI * uiM = NULL;
 	ofxDmtrUI * _uiBak = NULL;
@@ -203,12 +201,9 @@ public:
 	float getNoise(string nome, float a);
 	void clear(bool keepVars = false);
 	void addAllListeners();
-	vector<string> colors;
 	string getPresetsFolder();
 
 	ofBlendMode blendMode = OF_BLENDMODE_ALPHA;
-
-
 
 	string createdFromTextFile = "";
 
@@ -219,13 +214,11 @@ public:
 	void nextTo(ofxDmtrUI & uiNext);
 	void downTo(ofxDmtrUI & uiNext);
 
-	// 16 de agosto de 2016, teste
 	string getFileFullPath(string & nome);
 
 	string allText = "";
 
 	map <string, ofFbo> mapFbos;
-
 	map <string, toggle * > togglesMap;
 
 	map <string, int> togglesIndex;
@@ -234,9 +227,9 @@ public:
 	map <string, int> sliders2dIndex;
 
 	// quase bom
-	slider * getSlider(string nome);
-	radio  * getRadio(string nome);
-	toggle * getToggle(string nome);
+	slider   * getSlider(string nome);
+	radio    * getRadio(string nome);
+	toggle   * getToggle(string nome);
 	slider2d * getSlider2d(string nome);
 
 	ofxDmtrUI *_uiUnder = NULL;
@@ -254,9 +247,15 @@ public:
 	int hue;
 
 	// 27 de setembro. convertendo em software agora
-	ofFbo fbo, fboTrails, fboFade;
-	bool debug = true;
+	// 11 de outubro, ja removendo aqui e convertendo pra mapFbos
+	//ofFbo fbo,
+	ofFbo fboTrails, fboFade;
+	bool debug = false;
 
 	float flowXhuefactor = 0.125;
 	float flowYhuefactor = 0.17;
+
+	vector<string> colors;
+	int multiSampling = 0;
+
 };
