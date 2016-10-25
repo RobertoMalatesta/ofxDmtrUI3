@@ -189,13 +189,7 @@ public:
 
 	presets allPresets, allPresets2;
 
-	// fbo pointer to save presets.
-	ofFbo *_fbo;
 	int presetLoaded;
-
-	ofxDmtrUI * uiC = NULL;
-	ofxDmtrUI * uiM = NULL;
-	ofxDmtrUI * _uiBak = NULL;
 
 	void re();
 	float getNoise(string nome, float a);
@@ -232,23 +226,35 @@ public:
 	toggle   * getToggle(string nome);
 	slider2d * getSlider2d(string nome);
 
-	ofxDmtrUI *_uiUnder = NULL;
-	ofxDmtrUI *_uiRight = NULL;
-
-	map <string, ofxDmtrUI> uis;
 
 	map <string, string> radioUIMap;
 
+
+	//ofxDmtrUI * uiC = NULL;
+	//ofxDmtrUI * uiM = NULL;
+	// teste. limpar depois?
+	ofxDmtrUI * _uiBak = NULL;
+	
+	ofxDmtrUI *_uiUnder = NULL;
+	ofxDmtrUI *_uiRight = NULL;
 	ofxDmtrUI *_uiLast = NULL;
 	ofxDmtrUI *_uiFather = NULL;
 
+	map <string, ofxDmtrUI> uis;
+
+	// ponteiro para todas, talvez aqui eu possa atrelar os listeners
 	vector <ofxDmtrUI *> allUIs;
 
 	int hue;
 
 	// 27 de setembro. convertendo em software agora
 	// 11 de outubro, ja removendo aqui e convertendo pra mapFbos
-	//ofFbo fbo,
+
+
+	// fbo pointer to save presets.
+	ofFbo *_fbo;
+	
+	ofFbo fbo;
 	ofFbo fboTrails, fboFade;
 	bool debug = false;
 

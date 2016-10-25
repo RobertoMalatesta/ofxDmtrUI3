@@ -875,7 +875,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		lastWidth  = ts.rect.width;
 
 		sliders2dIndex[nome] = sliders2d.size();
-
 		sliders2d.push_back(ts);
 
 		element te;
@@ -949,12 +948,11 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			pInt[nome] = ts.def;
 		}
 
-		slidersIndex[nome] = sliders.size();
-
 		lastHeight = ts.rect.height;
 		lastWidth  = ts.rect.width;
-
 		ts.init();
+
+		slidersIndex[nome] = sliders.size();
 		sliders.push_back(ts);
 
 		element te;
@@ -1030,10 +1028,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			temp.opcoes = ofSplitString(valores, " ");
 		}
 
-//		for (auto & t : temp.opcoes) {
-//			cout << t << endl;
-//		}
-
 		temp._val = &pString[nome];
 		// 26 de junho de 2016, teste de null pointer
 		//pString[nome] = "";
@@ -1051,12 +1045,6 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		temp.init();
 
 		radiosIndex[nome] = radios.size();
-
-//		element te;
-//		te._rect = &temp.rect;
-//		te.tipo = RADIO;
-//		te._radio = &temp;
-//		elements.push_back(te);
 
 		radios.push_back(temp);
 
@@ -1190,6 +1178,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		createFromLine("float	"+nome+"HRangeAudio	0 360 0");
 //		createFromLine("float	"+nome+"BRange	0 255 0");
 		createFromLine("float	"+nome+"BRange	0 512 0");
+		createFromLine("float	"+nome+"BStop	0 1 1");
 		createFromLine("int	"+nome+"HStep	0 6 0");
 		createFromLine("float	"+nome+"Alpha	0 255 255");
 		createFromLine("float	"+nome+"AlphaAudio	0 255 0");
@@ -1444,30 +1433,30 @@ void ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 	}
 
 
-	else if (e.nome == "scene") {
-		if (uiC != NULL) {
-			if (_uiBak != NULL) {
-				//cout << "uibak not null" <<endl;
-				// clonar todas as vari‡veis aqui...
-				// dessa forma nao sei se funciona pq eles sao apenas ponteiros... ou nao?
-				_uiBak->pFloat = uiC->pFloat;
-				_uiBak->pInt = uiC->pInt;
-				_uiBak->pString["scene"] = pString["sceneAnterior"]; // ui.pstring
-			}
-			if (pString["sceneAnterior"] != pString["scene"]) {
-				uiC->clear();
-				uiC->createFromText("uiC.txt");
-				// 
-				string fileName = "_scene/" + pString["scene"] + ".txt";
-				if (ofFile::doesFileExist(fileName)) {
-					uiC->createFromText(fileName);
-				}
-				uiC->createFromLine("autoFit");
-				uiC->setup();
-			}
-			pString["sceneAnterior"] = pString["scene"];
-		}
-	}
+//	else if (e.nome == "scene") {
+//		if (uiC != NULL) {
+//			if (_uiBak != NULL) {
+//				//cout << "uibak not null" <<endl;
+//				// clonar todas as vari‡veis aqui...
+//				// dessa forma nao sei se funciona pq eles sao apenas ponteiros... ou nao?
+//				_uiBak->pFloat = uiC->pFloat;
+//				_uiBak->pInt = uiC->pInt;
+//				_uiBak->pString["scene"] = pString["sceneAnterior"]; // ui.pstring
+//			}
+//			if (pString["sceneAnterior"] != pString["scene"]) {
+//				uiC->clear();
+//				uiC->createFromText("uiC.txt");
+//				// 
+//				string fileName = "_scene/" + pString["scene"] + ".txt";
+//				if (ofFile::doesFileExist(fileName)) {
+//					uiC->createFromText(fileName);
+//				}
+//				uiC->createFromLine("autoFit");
+//				uiC->setup();
+//			}
+//			pString["sceneAnterior"] = pString["scene"];
+//		}
+//	}
 
 	// vai precisar?
 	else if (e.nome == "loadPreset") {
@@ -1731,15 +1720,20 @@ float ofxDmtrUI::getNoise(string nome, float a) {
 //--------------------------------------------------------------
 string ofxDmtrUI::getPresetsFolder() {
 	string out = presetsFolder;
-	if (uiM != NULL) {
-		if (uiM->pString["presetsFolder"] != "") {
-			out += uiM->pString["presetsFolder"] + "/";
-		}
-	} else {
-		if (pString["presetsFolder"] != "") {
-			out += pString["presetsFolder"] + "/";
-		}
+//	if (uiM != NULL) {
+//		if (uiM->pString["presetsFolder"] != "") {
+//			out += uiM->pString["presetsFolder"] + "/";
+//		}
+//	} else {
+//		if (pString["presetsFolder"] != "") {
+//			out += pString["presetsFolder"] + "/";
+//		}
+//	}
+
+	if (pString["presetsFolder"] != "") {
+		out += pString["presetsFolder"] + "/";
 	}
+
 	return out;
 }
 
