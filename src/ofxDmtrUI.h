@@ -264,4 +264,5 @@ public:
 	vector<string> colors;
 	int multiSampling = 0;
 
+	string futureLine;
 };

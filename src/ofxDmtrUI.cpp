@@ -772,6 +772,14 @@ void ofxDmtrUI::createFromLine(string l) {
 			}
 		}
 	}
+
+
+	if (futureLine != "") {
+		string c = futureLine;
+		futureLine = "";
+		createFromLine(c);
+	}
+
 }
 
 //--------------------------------------------------------------
@@ -939,6 +947,14 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			ts.min = val.x;
 			ts.max = val.y;
 			ts.def = val.z;
+
+			// this is a fix to fix my shaders
+
+			if (vals.size() > 3) {
+				if (vals[3] == "audio") {
+					futureLine = "float	" + nome + "Audio	0 " + ofToString(ts.max) + " 0";
+				}
+			}
 		}
 
 		if (!pFloat[nome])
@@ -1102,6 +1118,18 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 	// Aqui começam os tipos compostos
 
+	else if (tipo == "ints") {
+		//cc[40-59]
+		vector <string> nomes = ofSplitString(nome, "[");
+		string n = nomes[0];
+		string intervalo = ofSplitString(nomes[1], "]")[0];
+		int start = ofToInt(ofSplitString(intervalo, "-")[0]);
+		int end = ofToInt(ofSplitString(intervalo, "-")[1]);
+		for (int a=start; a<=end; a++) {
+			createFromLine("int	"+n + ofToString(a)+"	"+valores);
+		}
+	}
+
 	else if (tipo == "togglematrix") {
 		if (valores != "") {
 			vector <string> vals = ofSplitString(valores, " ");
@@ -1109,16 +1137,27 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			int maxy = ofToInt(vals[1]);
 
 			for (int y=0; y<maxy; y++) {
-				createFromLine("flowVert");
 				createFromLine("flowHoriz");
 				for (int x=0; x<maxx; x++) {
 					string nomeElement = nome + ofToString(x) + ofToString(y);
 					create(nomeElement, "toggleNolabel");
 				}
+				createFromLine("flowVert");
 			}
 		}
+		flow.y -= sliderHeight;
 	}
 
+	else if (tipo == "sliderVertMatrix") {
+		//createFromLine("flowVert");
+		createFromLine("label	" + nome);
+		createFromLine("flowHoriz");
+		for (int a=0; a<ofToInt(valores); a++) {
+			createFromLine("sliderVert	" + nome + "_" + ofToString(a) + "	0 1 0");
+		}
+		createFromLine("flowVert");
+		flow.y -= sliderWidth;
+	}
 
 	else if (tipo == "color") {
 		//string n = nome + "Cor";
@@ -1264,8 +1303,6 @@ bool	invertAudio	0)";
 		lastHeight = 0;
 	}
 
-
-
 	else if (tipo == "noise") {
 		if (valores == "") {
 			valores = ".5 .1 .5 10";
@@ -1278,16 +1315,6 @@ bool	invertAudio	0)";
 		createFromLine("float	"+nome+"NoiseMult	.1 30 " + vals[3]);
 		createFromLine("fbo	"+nome+"NoiseFbo	sliderWidth 30");
 		lastHeight = 0;
-	}
-
-	else if (tipo == "sliderVertMatrix") {
-		createFromLine("label	" + nome);
-		createFromLine("flowHoriz");
-		for (int a=0; a<ofToInt(valores); a++) {
-			createFromLine("sliderVert	" + nome + "_" + ofToString(a) + "	0 1 0");
-		}
-		createFromLine("flowVert");
-		flow.y -= sliderWidth;
 	}
 
 	else {
@@ -1306,6 +1333,9 @@ bool	invertAudio	0)";
 			pBool[nome] = stoi(valores);
 		}
 	}
+
+
+
 
 	if (flowing) {
 		if (flowDirection == VERT) {
@@ -1781,9 +1811,11 @@ void ofxDmtrUI::nextTo(ofxDmtrUI & uiNext) {
     if (_uiUnder != NULL) {
         _uiUnder->downTo(*this);
     }
-    if (_uiRight != NULL) {
-        _uiRight->nextTo(*this);
-    }
+
+	// nossa criei um loop infinito aqui
+//    if (_uiRight != NULL) {
+//        _uiRight->nextTo(*this);
+//    }
 }
 
 //--------------------------------------------------------------
@@ -1838,10 +1870,10 @@ void ofxDmtrUI::createSoftwareFromText(string file) {
 #endif
 
 	if (multiSampling == 0) {
-		//fbo.allocate			(w,h, format);
+		fbo.allocate			(w,h, format);
 		mapFbos["fbo"].allocate(w, h, format);
 	} else {
-		//fbo.allocate			(w,h, format, multiSampling);
+		fbo.allocate			(w,h, format, multiSampling);
 		mapFbos["fbo"].allocate(w, h, format, multiSampling);
 	}
 
