@@ -1118,15 +1118,16 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 	// Aqui começam os tipos compostos
 
-	else if (tipo == "ints") {
-		//cc[40-59]
+	else if (tipo == "ints" || tipo == "floats") {
 		vector <string> nomes = ofSplitString(nome, "[");
 		string n = nomes[0];
 		string intervalo = ofSplitString(nomes[1], "]")[0];
 		int start = ofToInt(ofSplitString(intervalo, "-")[0]);
 		int end = ofToInt(ofSplitString(intervalo, "-")[1]);
 		for (int a=start; a<=end; a++) {
-			createFromLine("int	"+n + ofToString(a)+"	"+valores);
+			string newTipo = tipo == "ints" ? "int" : "float";
+//			createFromLine(newTipo + "int	"+n + ofToString(a)+"	"+valores);
+			createFromLine(newTipo + "	"+n + ofToString(a)+"	"+valores);
 		}
 	}
 
