@@ -641,7 +641,6 @@ public:
 	ofFbo fbo;
 	bool selecionado = false;
 	void draw() {
-		ofSetColor(255);
 		if (fbo.isAllocated()) {
 			fbo.begin();
 			ofClear(40,255);
@@ -655,15 +654,17 @@ public:
 				ofDrawLine(-d, -d, d, d);
 				ofDrawLine(d, -d, -d, d);
 				ofPopMatrix();
-				//				ofDrawLine(0,0,fbo.getWidth(), fbo.getHeight());
-				//				ofDrawLine(fbo.getWidth(),0,0,fbo.getHeight());
 			}
 			if (selecionado) {
 				ofSetColor(255,0,80);
 				ofDrawRectangle(5,5,20,20);
 			}
 			fbo.end();
-			fbo.draw(rect.x, rect.y, rect.width, rect.height);
+
+			ofSetColor(255);
+			//fbo.draw(rect.x, rect.y, rect.width, rect.height);
+			//cout << rect.x << endl;
+			fbo.draw(rect.x, rect.y);
 		}
 	}
 };

@@ -1118,7 +1118,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 	// Aqui começam os tipos compostos
 
-	else if (tipo == "ints" || tipo == "floats") {
+	else if (tipo == "ints" || tipo == "floats" || tipo == "bools") {
 		vector <string> nomes = ofSplitString(nome, "[");
 		string n = nomes[0];
 		string intervalo = ofSplitString(nomes[1], "]")[0];
@@ -1126,7 +1126,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		int end = ofToInt(ofSplitString(intervalo, "-")[1]);
 		for (int a=start; a<=end; a++) {
 			string newTipo = tipo == "ints" ? "int" : "float";
-//			createFromLine(newTipo + "int	"+n + ofToString(a)+"	"+valores);
+            if (tipo == "bools") newTipo = "bool";
 			createFromLine(newTipo + "	"+n + ofToString(a)+"	"+valores);
 		}
 	}
@@ -1377,7 +1377,17 @@ void ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 
 	if (e.element == RADIO) {
 		if ( radioUIMap.find(e.nome) != radioUIMap.end() ) {
-			ofxDmtrUI * _u = &_uiFather->uis[radioUIMap[e.nome]];
+//			cout << e.nome << endl;
+//			cout << radioUIMap[e.nome] << endl;
+//			cout << &_uiFather->UINAME << endl;
+
+			ofxDmtrUI * _u;
+			if (_uiFather != NULL) {
+				_u = &_uiFather->uis[radioUIMap[e.nome]];
+			} else {
+				_u = &uis[radioUIMap[e.nome]];
+			}
+			//ofxDmtrUI * _u = allUIs
 
 			string fileName = pFolder[e.nome] + "/" + pString[e.nome] + ".txt";
 			if (_u->createdFromTextFile != fileName) {
@@ -1463,31 +1473,6 @@ void ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 		}
 	}
 
-
-//	else if (e.nome == "scene") {
-//		if (uiC != NULL) {
-//			if (_uiBak != NULL) {
-//				//cout << "uibak not null" <<endl;
-//				// clonar todas as variáveis aqui...
-//				// dessa forma nao sei se funciona pq eles sao apenas ponteiros... ou nao?
-//				_uiBak->pFloat = uiC->pFloat;
-//				_uiBak->pInt = uiC->pInt;
-//				_uiBak->pString["scene"] = pString["sceneAnterior"]; // ui.pstring
-//			}
-//			if (pString["sceneAnterior"] != pString["scene"]) {
-//				uiC->clear();
-//				uiC->createFromText("uiC.txt");
-//				// 
-//				string fileName = "_scene/" + pString["scene"] + ".txt";
-//				if (ofFile::doesFileExist(fileName)) {
-//					uiC->createFromText(fileName);
-//				}
-//				uiC->createFromLine("autoFit");
-//				uiC->setup();
-//			}
-//			pString["sceneAnterior"] = pString["scene"];
-//		}
-//	}
 
 	// vai precisar?
 	else if (e.nome == "loadPreset") {
@@ -1598,6 +1583,11 @@ void	 ofxDmtrUI::autoFit(bool w, bool h) {
 		coluna.width = maxW + marginx;
 	if (h)
 		coluna.height = maxH + marginy;
+
+	//XAXA
+//	cout << coluna.width << endl;
+//	cout << coluna.height << endl;
+//	cout << UINAME << endl;
 	fboColumn.allocate(coluna.width, coluna.height, GL_RGBA);
 	fboColumn.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 
@@ -1739,7 +1729,7 @@ void ofxDmtrUI::clear(bool keepVars) {
 		pFolder.clear();
 	}
 	
-	redraw = true;
+	//redraw = true;
 }
 
 //--------------------------------------------------------------

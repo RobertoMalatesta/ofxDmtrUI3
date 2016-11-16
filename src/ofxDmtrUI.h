@@ -265,4 +265,5 @@ public:
 	int multiSampling = 0;
 
 	string futureLine;
+
 };
