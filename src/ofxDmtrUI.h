@@ -29,7 +29,6 @@
 
 #include "ofMain.h"
 #include "ofEvents.h"
-
 #include "ofxXmlSettings.h"
 #include "ofxDmtrUIElements.h"
 

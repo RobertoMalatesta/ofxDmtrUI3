@@ -43,6 +43,8 @@
 //	}
 //}
 
+//#include "ofxDmtrUI.h"
+
 enum flowDir {
 	VERT, HORIZ, NO_FLOW
 };
@@ -61,7 +63,8 @@ enum varType {
 	FLOAT, INT, STRING, BOOLEANO
 };
 
-// 27 de maio de 2016, ainda não sei se vai dar certo.
+
+// 27 de maio de 2016
 class dmtrUIEvent {
 public:
 	string *_nome;
@@ -74,6 +77,7 @@ public:
 	elementType element;
 	eventoType tipo;
 	varType var = FLOAT;
+    
 
 	//ofxDmtrUI *_ui;
 	// unknown type name.

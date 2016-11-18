@@ -1131,17 +1131,23 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		}
 	}
 
-	else if (tipo == "togglematrix") {
+	else if (tipo == "togglematrix" || tipo == "toggleMatrix" || tipo == "toggleMatrixLinear") {
 		if (valores != "") {
 			vector <string> vals = ofSplitString(valores, " ");
 			int maxx = ofToInt(vals[0]);
 			int maxy = ofToInt(vals[1]);
 
+            int contagem = 0;
 			for (int y=0; y<maxy; y++) {
 				createFromLine("flowHoriz");
 				for (int x=0; x<maxx; x++) {
 					string nomeElement = nome + ofToString(x) + ofToString(y);
+                    
+                    if (tipo == "toggleMatrixLinear") {
+                        nomeElement = nome + ofToString(contagem);
+                    }
 					create(nomeElement, "toggleNolabel");
+                    contagem++;
 				}
 				createFromLine("flowVert");
 			}
