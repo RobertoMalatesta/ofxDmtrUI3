@@ -264,5 +264,6 @@ public:
 	int multiSampling = 0;
 
 	string futureLine;
+    vector <int> nextPreset;
 
 };

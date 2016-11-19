@@ -84,6 +84,11 @@ void ofxDmtrUI::update() {
 			pEasy[p.first] = pFloat[p.first];
 		}
 	}
+    
+    if (nextPreset.size()) {
+        loadPresetAll(nextPreset.back());
+        nextPreset.clear();
+    }
 }
 
 //--------------------------------------------------------------
@@ -1900,4 +1905,5 @@ void ofxDmtrUI::createSoftwareFromText(string file) {
 
 	//mudar tudo pra fbo map aqui
 	setFbo(fboTrails);
+    
 }
