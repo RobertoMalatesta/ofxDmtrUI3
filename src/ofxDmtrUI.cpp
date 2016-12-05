@@ -332,6 +332,16 @@ void ofxDmtrUI::mousePressedDragged(int x, int y, int button){
 void ofxDmtrUI::mouseDragged(int x, int y, int button){
 	// simplificar, fazer o x - coluna.x antes
 
+	//2 de dezembro ledcom
+	for (auto & e : toggles) {
+		if (e.hold) {
+			
+			if (e.inside && !e.rect.inside(x - coluna.x, y - coluna.y)) {
+				e.mouseRelease();
+			}
+		}
+	}
+	
 	for (auto & e : sliders2d) {
 		bool check = slideFree || e.nome == mousePressedElement;
 		if (e.rect.inside(x - coluna.x, y - coluna.y)) {
@@ -395,10 +405,13 @@ void ofxDmtrUI::mouseReleased(int x, int y, int button){
 	redraw = false;
 	for (auto & e : toggles) {
 		e.inside = false;
-		if (e.bang) {
-			*e._val = false;
+		// this is behaving as hold, not as bang.
+		if ((e.hold || e.hold) && e.rect.inside(x - coluna.x,y - coluna.y)) {
+			e.mouseRelease();
+//			*e._val = false;
 			redraw = true;
 		}
+
 	}
 	for (auto & e : sliders) {
 		e.inside = false;
@@ -981,7 +994,7 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		elements.push_back(te);
 	}
 
-	else if (tipo == "toggle" || tipo == "bang" || tipo == "toggleNolabel") { // bool
+	else if (tipo == "toggle" || tipo == "bang" || tipo == "hold" || tipo == "toggleNolabel") { // bool
 		toggle tt;
 		tt.nome = nome;
 		tt.rect = ofRectangle(flow.x, flow.y, sliderHeight, sliderHeight);
@@ -992,6 +1005,10 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 		if (tipo == "bang") {
 			tt.bang = true;
 		}
+		if (tipo == "hold") {
+			tt.hold = true;
+		}
+		
 		pBool[nome] = tt.def;
 		tt._val = &pBool[nome];
 
@@ -1123,15 +1140,19 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 	// Aqui começam os tipos compostos
 
-	else if (tipo == "ints" || tipo == "floats" || tipo == "bools") {
+	else if (tipo == "ints" || tipo == "floats" || tipo == "bools" || tipo == "bangs" || tipo == "holds") {
 		vector <string> nomes = ofSplitString(nome, "[");
 		string n = nomes[0];
 		string intervalo = ofSplitString(nomes[1], "]")[0];
 		int start = ofToInt(ofSplitString(intervalo, "-")[0]);
 		int end = ofToInt(ofSplitString(intervalo, "-")[1]);
 		for (int a=start; a<=end; a++) {
+			
+			// lacks elegancy
 			string newTipo = tipo == "ints" ? "int" : "float";
             if (tipo == "bools") newTipo = "bool";
+			if (tipo == "bangs") newTipo = "bang";
+			if (tipo == "holds") newTipo = "hold";
 			createFromLine(newTipo + "	"+n + ofToString(a)+"	"+valores);
 		}
 	}
@@ -1422,14 +1443,23 @@ void ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 	}
 
 
-	// este novo serve tanto pro INT quanto pro Float. ta lindo isso
+	if (ofIsStringInString(e.nome, "actionSum") && e.tipo != LOAD) {
+		vector <string> split = ofSplitString(e.nome, "_");
+		string nome = split[0];
+		if (pString[e.nome] != "") {
+			getSlider(nome)->setValue(getSlider(nome)->getValue() + ofToFloat(pString[e.nome]));
+			getRadio(e.nome)->setValue("");
+		}
+	}
+	
 	if (ofIsStringInString(e.nome, "shortcut") && e.tipo != LOAD) {
 		vector <string> split = ofSplitString(e.nome, "_");
 		string nome = split[0];
 //		getSlider(nome)->setValue(ofToFloat(pString[e.nome]));
-		if (sliders[slidersIndex[nome]].nome == nome) {
-			sliders[slidersIndex[nome]].setValue(ofToFloat(pString[e.nome]));
-		}
+		getSlider(nome)->setValue(ofToFloat(pString[e.nome]));
+//		if (sliders[slidersIndex[nome]].nome == nome) {
+//			sliders[slidersIndex[nome]].setValue(ofToFloat(pString[e.nome]));
+//		}
 	}
 
 	if (learnMode) {
@@ -1891,6 +1921,10 @@ void ofxDmtrUI::createSoftwareFromText(string file) {
 		fboFade.allocate			(w,h, format, multiSampling);
 	}
 
+	fbo.begin();
+	ofClear(0,255);
+	fbo.end();
+	
 	mapFbos["fbo"].begin();
 	ofClear(0,255);
 	mapFbos["fbo"].end();

@@ -54,9 +54,13 @@ enum elementType {
 	SLIDER, SLIDERINT, TOGGLE, LABEL, RADIO, RADIOITEM, SLIDER2D, FBO, PRESETS
 };
 
+enum toggleType {
+	SWITCH, BANG, HOLD
+};
+
 enum eventoType {
 	// bang fica aqui mesmo?
-	UPDATE, LOAD, SET, BANG
+	UPDATE, LOAD, SET
 };
 
 enum varType {
@@ -176,29 +180,36 @@ public:
 		ofNotifyEvent(evento, te, this);
 	}
 
+	float getValue() {
+		return isInt ? *_valInt : *_val;
+	}
+
 	void setValue(float v, string eventName = "set") {
+		v = ofClamp(v, min, max);
+		
+		// so seta o trigger se o valor for diferente
+		if (v != getValue()) {
+			// posso colocar o evento aqui mas no caso vou dar um trigger qdo estiver carregando XML
+			// trigando todos os All e baguncando presets.
 
-		// posso colocar o evento aqui mas no caso vou dar um trigger qdo estiver carregando XML
-		// trigando todos os All e baguncando presets.
+			// hoje coloquei eventos aqui pra poder usar o pan_All desde o midi controller
+			string ev;
+			if (isInt) {
+				*_valInt = v;
+				ev = eventName + "Int_" + nome;
+			} else {
+				*_val = v;
+				ev = eventName + "Float_" + nome;
+			}
+			valorPixels = ofMap(v, min, max, 0, rect.width);
 
-		// hoje coloquei eventos aqui pra poder usar o pan_All desde o midi controller
-		string ev;
-		if (isInt) {
-			*_valInt = v;
-			ev = eventName + "Int_" + nome;
-		} else {
-			*_val = v;
-			ev = eventName + "Float_" + nome;
+			if (ev != "") {
+				ofNotifyEvent(uiEvent, ev, this);
+			}
+
+			//		dmtrUIEvent e = sendEvent(nome, isInt ? INT : FLOAT, isInt ? SLIDERINT : SLIDER, SET);
+			//		ofNotifyEvent(evento, e, this);
 		}
-		valorPixels = ofMap(v, min, max, 0, rect.width);
-
-		if (ev != "") {
-			ofNotifyEvent(uiEvent, ev, this);
-		}
-
-		//		dmtrUIEvent e = sendEvent(nome, isInt ? INT : FLOAT, isInt ? SLIDERINT : SLIDER, SET);
-		//		ofNotifyEvent(evento, e, this);
-
 	}
 
 	//	void draw() {
@@ -238,6 +249,7 @@ public:
 
 class toggle {
 public:
+	
 	string nome;
 	ofRectangle rect;
 	bool inside = false;
@@ -246,7 +258,11 @@ public:
 	bool showLabel = true;
 	bool *_val;
 	bool def = false;
-	bool bang = false;
+	bool bang = false; // bang is in fact hold. fix this with available time.
+	bool hold = false;
+	
+	toggleType kind = SWITCH;
+	//bool holdType = false;
 
 	ofEvent<string> uiEvent;
 	ofEvent<dmtrUIEvent> evento;
@@ -266,7 +282,7 @@ public:
 		dmtrUIEvent te;
 		te.nome = nome;
 		te._nome = &nome;
-		te.tipo = BANG;
+		//te.tipo = BANG;
 		//te.tipo = bang == true ? BANG : TOGGLE; // acho que ta errado isso de ser so bang
 
 		te.var = BOOLEANO;
@@ -280,6 +296,17 @@ public:
 		// 19 de abril. vai atrapalhar?
 		string ev = "loadBool_" + nome;
 		ofNotifyEvent(uiEvent, ev, this);
+	}
+	
+	void mouseRelease() {
+		*_val = false;
+		if (hold) {
+			dmtrUIEvent te;
+			te.nome = nome;
+			te._nome = &nome;
+			te.var = BOOLEANO;
+			ofNotifyEvent(evento, te, this);
+		}
 	}
 
 	void draw() {
