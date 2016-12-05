@@ -684,9 +684,9 @@ void ofxDmtrUI::createFromLine(string l) {
 
 		else if (tipo == "setMobileRetina") {
 			createFromLine("margin	40");
-			createFromLine("sliderMargin	28");
+			createFromLine("sliderMargin	20");
 			createFromLine("sliderWidth	560");
-			createFromLine("sliderHeight	84");
+			createFromLine("sliderHeight	80");
 			createFromLine("colunaBackground	#000000ff");
 		}
 
@@ -893,10 +893,10 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 				if (vals[1] != "")
 					ts.rect.height = ofToInt(vals[1]);
 			}
+		} else {
+			pPoint[nome] = ofPoint(.5, .5);
+			ts._val = &pPoint[nome];
 		}
-
-		pPoint[nome] = ofPoint(.5, .5);
-		ts._val = &pPoint[nome];
 		lastHeight = ts.rect.height;
 		lastWidth  = ts.rect.width;
 
@@ -1179,6 +1179,9 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 			}
 		}
 		flow.y -= sliderHeight;
+		
+		// precisa? adicionei no 5 de dezembro
+		createFromLine("flowVert");
 	}
 
 	else if (tipo == "sliderVertMatrix") {

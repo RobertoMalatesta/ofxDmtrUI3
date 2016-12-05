@@ -595,7 +595,7 @@ public:
 		te._nome = &nome;
 		te.element = SLIDER2D;
 		te.tipo = UPDATE;
-		te.var = STRING;
+		//te.var = STRING;
 		ofNotifyEvent(evento, te, this);
 	}
 
