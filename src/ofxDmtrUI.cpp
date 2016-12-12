@@ -1458,11 +1458,7 @@ void ofxDmtrUI::uiEventsNeu(dmtrUIEvent & e) {
 	if (ofIsStringInString(e.nome, "shortcut") && e.tipo != LOAD) {
 		vector <string> split = ofSplitString(e.nome, "_");
 		string nome = split[0];
-//		getSlider(nome)->setValue(ofToFloat(pString[e.nome]));
 		getSlider(nome)->setValue(ofToFloat(pString[e.nome]));
-//		if (sliders[slidersIndex[nome]].nome == nome) {
-//			sliders[slidersIndex[nome]].setValue(ofToFloat(pString[e.nome]));
-//		}
 	}
 
 	if (learnMode) {

@@ -188,7 +188,8 @@ public:
 		v = ofClamp(v, min, max);
 		
 		// so seta o trigger se o valor for diferente
-		if (v != getValue()) {
+		//if (v != getValue())
+		{
 			// posso colocar o evento aqui mas no caso vou dar um trigger qdo estiver carregando XML
 			// trigando todos os All e baguncando presets.
 
@@ -320,7 +321,8 @@ public:
 		}
 
 		if (*_val) {
-			ofSetColor(0);
+//			ofSetColor(0);
+			ofSetColor(255);
 			ofNoFill();
 			float off = rect.height / 6.0;
 			ofDrawLine(rect.x + off, rect.y + off, 			     rect.x + rect.width -off, rect.y + rect.height -off);
