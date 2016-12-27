@@ -613,6 +613,9 @@ void ofxDmtrUI::createFromLine(string l) {
 		}
 
 		else if (tipo == "addUI" || tipo == "addUIDown") {
+			
+			// aqui tenho tres ponteiros. o _uiLast o uiNext e o uiRight. nao sei se precisa tantos.
+			// de repente fazer um vector de ponteiros?
 			uis[nome].UINAME = nome;
 			uis[nome].hueStart = hue;
 
@@ -1830,6 +1833,9 @@ slider2d * ofxDmtrUI::getSlider2d(string nome) {
 //--------------------------------------------------------------
 void ofxDmtrUI::nextTo(ofxDmtrUI & uiNext) {
 	coluna.x = uiNext.coluna.x + uiNext.coluna.width + uiNext.marginx;
+	cout << "nextTo:: " + UINAME << endl;
+	cout << "uiNext:: " + uiNext.UINAME << endl;
+	cout << coluna.x << endl;
 //	coluna.y = uiNext.coluna.y;
 	coluna.y = 0;
 	uiNext._uiRight = this;
@@ -1842,7 +1848,9 @@ void ofxDmtrUI::nextTo(ofxDmtrUI & uiNext) {
     if (_uiUnder != NULL) {
         _uiUnder->downTo(*this);
     }
-
+//	if (_uiRight != NULL) {
+//		_uiRight->nextTo(*this);
+//	}
 	// nossa criei um loop infinito aqui
 //    if (_uiRight != NULL) {
 //        _uiRight->nextTo(*this);
@@ -1855,9 +1863,9 @@ void ofxDmtrUI::downTo(ofxDmtrUI & uiNext) {
 	coluna.x = uiNext.coluna.x;
 	uiNext._uiUnder = this;
     
-    if (_uiUnder != NULL) {
-        _uiUnder->downTo(*this);
-    }
+//    if (_uiUnder != NULL) {
+//        _uiUnder->downTo(*this);
+//    }
     if (_uiRight != NULL) {
         _uiRight->nextTo(*this);
     }
