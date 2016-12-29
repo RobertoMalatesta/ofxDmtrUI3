@@ -562,6 +562,7 @@ public:
 	}
 
 	void setValue(ofPoint xy) {
+
 		//cout << "setValue Slider2d " + nome << endl;
 		*_val = xy;
 		// UNIFICAR EVENTOS DEPOIS

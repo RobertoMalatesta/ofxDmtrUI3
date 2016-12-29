@@ -266,4 +266,5 @@ public:
 	string futureLine;
     vector <int> nextPreset;
 
+	int minimumWidth = 100;
 };

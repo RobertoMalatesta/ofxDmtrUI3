@@ -157,9 +157,11 @@ void ofxDmtrUI::save(string xml){
 		}
 	}
 	for (auto & e : sliders2d) {
-		ofPoint xy = *e._val;
-		settings.setValue("slider2d:" + e.nome + ":x", xy.x);
-		settings.setValue("slider2d:" + e.nome + ":y", xy.y);
+		if (e.isSlider) {
+			ofPoint xy = *e._val;
+			settings.setValue("slider2d:" + e.nome + ":x", xy.x);
+			settings.setValue("slider2d:" + e.nome + ":y", xy.y);
+		}
 	}
 	settings.setValue("presets", allPresets.valor);
 
@@ -202,7 +204,9 @@ void ofxDmtrUI::load(string xml){
 		for (auto & e : sliders2d) {
 			float x = settings.getValue("slider2d:"+e.nome+":x", 0.0);
 			float y = settings.getValue("slider2d:"+e.nome+":y", 0.0);
-			e.setValue(ofPoint(x, y));
+			if (e.isSlider) {
+				e.setValue(ofPoint(x, y));
+			}
 		}
 	}
 	dmtrUIEvent te;
@@ -628,6 +632,7 @@ void ofxDmtrUI::createFromLine(string l) {
 				uis[nome].createFromText(fileName);
 			}
 
+			// uilast diz a ultima ui que foi adicionada. se nao houver Ž a master
 			if (_uiLast == NULL) {
 				if (tipo == "addUI") {
 					uis[nome].nextTo(*this);
@@ -641,9 +646,13 @@ void ofxDmtrUI::createFromLine(string l) {
 					uis[nome].downTo(*_uiLast);
 				}
 			}
-			_uiLast = &uis[nome];
 			uis[nome]._uiFather = this;
+			if (tipo == "addUIDown") {
+				uis[nome].minimumWidth = _uiLast->coluna.width;
+			}
+			_uiLast = &uis[nome];
 			uis[nome].setup();
+			uis[nome].autoFit();
 			
 			allUIs.push_back(&uis[nome]);
 		}
@@ -812,7 +821,8 @@ void ofxDmtrUI::create(string nome, string tipo, string valores, string valores2
 
 	hue = int(flow.x * flowXhuefactor + flow.y * flowYhuefactor + hueStart)%255;
 	int saturation = bw ? 0 : 255;
-	int brightness = bw ? 50 : 200;
+//	int brightness = bw ? 50 : 200;
+	int brightness = bw ? 100 : 200;
 
 	ofColor cor = ofColor::fromHsb(hue,saturation,brightness);
 
@@ -1627,6 +1637,8 @@ void	 ofxDmtrUI::autoFit(bool w, bool h) {
 	if (h)
 		coluna.height = maxH + marginy;
 
+	coluna.width = MAX(coluna.width, minimumWidth);
+
 	//XAXA
 //	cout << coluna.width << endl;
 //	cout << coluna.height << endl;
@@ -1833,9 +1845,9 @@ slider2d * ofxDmtrUI::getSlider2d(string nome) {
 //--------------------------------------------------------------
 void ofxDmtrUI::nextTo(ofxDmtrUI & uiNext) {
 	coluna.x = uiNext.coluna.x + uiNext.coluna.width + uiNext.marginx;
-	cout << "nextTo:: " + UINAME << endl;
-	cout << "uiNext:: " + uiNext.UINAME << endl;
-	cout << coluna.x << endl;
+//	cout << "nextTo:: " + UINAME << endl;
+//	cout << "uiNext:: " + uiNext.UINAME << endl;
+//	cout << coluna.x << endl;
 //	coluna.y = uiNext.coluna.y;
 	coluna.y = 0;
 	uiNext._uiRight = this;
