@@ -9,8 +9,8 @@ public:
 	ofEvent<string> uiEvent;
 	bool redraw = true;
 
-	map <string,float>	pFloat;
-	map <string,bool>	pBool;
+	map <string,float>	* pFloat;
+	map <string,bool>	* pBool;
 };
 
 // acho que nao vai mais precisar disso...
@@ -71,7 +71,12 @@ public:
 	}
 
 
-	virtual void set() {}
+	virtual void set(float i) {
+		cout << "set function on primitive element" << endl;
+	}
+//	virtual void set(bool i) {
+//		cout << "set function on primitive element" << endl;
+//	}
 	virtual float getVal() {	return 1;}
 
 	virtual void draw() {
@@ -94,17 +99,24 @@ public:
 	//string name;
 	float val;
 
-	slider(string n, int x, int y, float v) : val(v)  {
+	slider(string n, uiConfig & u, float v) {
+		settings = &u;
 		name = n;
-		setRect(x,y,200,20);
-		labelPos.x = x + 5;
-		labelPos.y = y + 16;
+		// fazer um rect la dentro dos settings e copiar. q lindo.
+		setRect(settings->flow.x, settings->flow.y, 200,20);
+		labelPos.x = rect.x + 5;
+		labelPos.y = rect.y + 16;
 		labelColor = ofColor(0);
+		set(v);
 	}
 
-	void set(int v) {
+	// slider
+	void set(float v) {
 		val = v;
+		//cout << "set slider " + name + " to val : " + ofToString(val) << endl;
 		redraw = true;
+		//(*settings->pFloat)[name] = val;
+		(*settings->pFloat)[name] = val;
 	}
 
 	float getVal() {
@@ -128,8 +140,7 @@ public:
 
 	void setValFromMouse(int x, int y) {
 		int xx = ofClamp(x, rect.x, rect.x + rect.width);
-		val = float(xx-rect.x)/(float) rect.width;
-		redraw = true;
+		set(float(xx-rect.x)/(float) rect.width);
 	}
 
 	void checkMouse(int x,int y) {
@@ -151,53 +162,45 @@ public:
 };
 
 
-class label : public element {
-public:
-	label(string n, int x, int y) {
-		name = n;
-		labelPos.x = x + 5;
-		labelPos.y = y + 16;
-	}
-};
-
-
 class toggle : public element {
 public:
 	bool val;
 	ofRectangle checked;
 
-	toggle(string n, int x, int y, bool v) : val(v) {
+	toggle(string n, uiConfig & u, bool v) {
+		settings = &u;
+		int x = settings->flow.x;
+		int y = settings->flow.y;
 		name = n;
 		setRect(x,y,20,20);
 		float margem = 4;
 		checked = ofRectangle(
-			rect.x + margem, rect.y + margem,
-			rect.width-margem*2, rect.height-margem*2
-		);
+							  rect.x + margem, rect.y + margem,
+							  rect.width-margem*2, rect.height-margem*2
+							  );
 
-//		ofRectangle r = getBitmapStringBoundingBox(name);
-//		int w = 25 +
+		//		ofRectangle r = getBitmapStringBoundingBox(name);
+		//		int w = 25 +
 		setActiveRect(x,y,200,20);
 		labelPos.x = x + 25;
 		labelPos.y = y + 16;
+		set(v);
 	}
 
 	void set(bool v) {
 		val = v;
+		(*settings->pBool)[name] = val;
 		redraw = true;
+		string s = name + " :: " + (val ? "true" : "false");
+		ofNotifyEvent(settings->uiEvent, s);
 	}
 
 	void checkMouse(int x,int y) {
 		if (activeRect.inside(x,y)) {
 			if (!isPressed) {
-				val ^= 1;
-				redraw = true;
-				if (settings != NULL) {
-					settings->pBool[name] = val;
-					//cout << "not null" << endl;
-					string s = name + " :: " + (val ? "true" : "false");
-					ofNotifyEvent(settings->uiEvent, s);
-				}
+				set(val ^ 1);
+				//val ^= 1;
+
 				isPressed = true;
 			}
 		} else {
@@ -216,6 +219,18 @@ public:
 		ofSetColor(255,30);
 		ofDrawRectangle(activeRect);
 		drawLabel();
+	}
+};
+
+
+
+
+class label : public element {
+public:
+	label(string n, int x, int y) {
+		name = n;
+		labelPos.x = x + 5;
+		labelPos.y = y + 16;
 	}
 };
 

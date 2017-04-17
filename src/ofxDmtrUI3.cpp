@@ -42,11 +42,15 @@ ofxDmtrUI3::~ofxDmtrUI3() {
 	ofRemoveListener(ofEvents().mousePressed, this, &ofxDmtrUI3::onMousePressed);
 	ofRemoveListener(ofEvents().mouseDragged, this, &ofxDmtrUI3::onMouseDragged);
 	ofRemoveListener(ofEvents().mouseReleased, this, &ofxDmtrUI3::onMouseReleased);
+	ofRemoveListener(ofEvents().exit, this, &ofxDmtrUI3::onExit);
 	ofRemoveListener(settings.uiEvent,this, &ofxDmtrUI3::uiEvents);
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::setup() {
+
+	settings.pFloat = &pFloat;
+	settings.pBool = &pBool;
 
 	fboUI.allocate(ofGetWindowWidth(), ofGetWindowHeight(), GL_RGBA);
 	fboUI.begin();
@@ -58,8 +62,7 @@ void ofxDmtrUI3::setup() {
 	ofAddListener(ofEvents().mousePressed, this, &ofxDmtrUI3::onMousePressed);
 	ofAddListener(ofEvents().mouseDragged, this, &ofxDmtrUI3::onMouseDragged);
 	ofAddListener(ofEvents().mouseReleased, this, &ofxDmtrUI3::onMouseReleased);
-
-
+	ofAddListener(ofEvents().exit, this, &ofxDmtrUI3::onExit);
 	ofAddListener(settings.uiEvent,this, &ofxDmtrUI3::uiEvents);
 
 }
@@ -150,7 +153,9 @@ void ofxDmtrUI3::createFromLine(string l) {
 			if (tipo == "slider" || tipo == "int" || tipo == "sliderVert") {
 				vector <string> v = ofSplitString(valores, " ");
 				float val = ofToFloat(v[2]);
-				elements.push_back(new slider(nome, flow.x, flow.y, val));
+				// remover
+				settings.flow = flow;
+				elements.push_back(new slider(nome, settings, val));
 			}
 
 			else if (tipo == "label") {
@@ -159,7 +164,9 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 			else if (tipo == "toggle") {
 				bool val = valores == "1";
-				elements.push_back(new toggle(nome, flow.x, flow.y, val));
+				// remover em breve
+				settings.flow = flow;
+				elements.push_back(new toggle(nome, settings, val));
 			}
 
 			else if (tipo == "ints" || tipo == "floats" || tipo == "bools" || tipo == "bangs" || tipo == "holds" || tipo == "colors" || tipo == "slider2ds") {
@@ -227,9 +234,6 @@ void ofxDmtrUI3::onMouseDragged(ofMouseEventArgs& data) {
 void ofxDmtrUI3::onMouseReleased(ofMouseEventArgs& data) {
 	for (auto & e : elements) {
 		e->isPressed = false;
-		// mouserelease
-		//e->draw();
-		//cout << typeid(e).name() << endl;
 	}
 	settings.redraw = true;
 }
@@ -253,10 +257,38 @@ auto ofxDmtrUI3::getVal(string n) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onExit(ofEventArgs &data) {
-	ofxXmlSettings xmlSettings;
+	cout << "onexit dmtrui3" << endl;
+	save("default.xml");
+}
 
+//--------------------------------------------------------------
+void ofxDmtrUI3::save(string xml) {
+	//cout << "save file :: " + xml << endl;
+	ofxXmlSettings xmlSettings;
 	xmlSettings.setValue("ofxDmtrUIVersion", 3.0);
 	for (auto & e : elements) {
-		xmlSettings.setValue("element:" + e->name, (float)e->getVal());
+		//cout << typeid(e->getVal()).name() << endl;
+		xmlSettings.setValue("element:" + e->name, e->getVal());
 	}
+	xmlSettings.save(xml);
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::load(string xml) {
+	ofxXmlSettings xmlSettings;
+	xmlSettings.loadFile(xml);
+	//cout << "load file :: " + xml << endl;
+
+	int UIVersion = xmlSettings.getValue("ofxDmtrUIVersion", 0);
+	for (auto & e : elements) {
+		string tagName = "element:" + e->name;
+		if (xmlSettings.tagExists(tagName)) {
+			auto valor = xmlSettings.getValue("element:" +e->name, e->getVal());
+			e->set(valor);
+//				cout << e->name + " :: " + ofToString( valor) << endl;
+//				cout << typeid(e).name() << endl;
+			//e->set(xmlSettings.getValue(tagName, e->getVal()));
+		}
+	}
+	settings.redraw = true;
 }

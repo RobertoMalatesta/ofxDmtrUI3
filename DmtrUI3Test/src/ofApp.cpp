@@ -6,10 +6,10 @@ void ofApp::setup(){
 	u.createFromText("u.txt");
 
 	ofAddListener(u.settings.uiEvent,this, &ofApp::uiEvents);
-	ofSetFrameRate(60);
+	ofSetFrameRate(24);
 
-	u.onlyDrawOnRedraw = false;
-
+	//u.onlyDrawOnRedraw = false;
+	u.load("default.xml");
 	//ofSetBackgroundAuto(false);
 
 }
@@ -31,13 +31,20 @@ void ofApp::draw(){
 	float x = ofNoise(ofGetElapsedTimef()*.2) * ofGetWindowWidth();
 	float y = ofNoise(ofGetElapsedTimef()*.3)* ofGetWindowHeight();
 	//if (u.getVal("verdadeiro")) {
-	if (u.settings.pBool["verdadeiro"]){
+	if (u.pBool["verdadeiro"]){
+		ofSetColor(ofFloatColor(u.pFloat["r"],u.pFloat["g"],u.pFloat["b"]));
 		ofDrawCircle(x, y, raio, raio);
 	}
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+	if (key == 'a') {
+		u.save("uis.xml");
+	}
+	if (key == 's') {
+		u.load("uis.xml");
+	}
 
 }
 

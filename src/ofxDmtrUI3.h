@@ -73,4 +73,9 @@ public:
 	map <string,bool>	pBool;
 	
 	auto getVal(string n);
+
+	void save(string xml);
+	void load(string xml);
+
+
 };
