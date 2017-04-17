@@ -29,7 +29,7 @@
 
 #include "ofMain.h"
 #include "ofEvents.h"
-//#include "ofxXmlSettings.h"
+#include "ofxXmlSettings.h"
 #include "ofxDmtrUIElements.h"
 
 #if defined( TARGET_OF_IPHONE ) || defined( TARGET_OF_IOS ) || defined( TARGET_ANDROID )
@@ -40,9 +40,33 @@
 class ofxDmtrUI3 : public ofBaseApp
 {
 public:
+	~ofxDmtrUI3();
 	void setup();
 	void update();
 	void draw();
+	void createFromText(string file);
+	void createFromLine(string line);
 
-	vector <element> elements;
+	vector <string> textToVector(string file);
+	
+	vector <element*> elements;
+
+	void onDraw(ofEventArgs &data);
+	void onUpdate(ofEventArgs &data);
+
+	void onMousePressed(ofMouseEventArgs &data);
+	void onMouseDragged(ofMouseEventArgs &data);
+	void onMouseReleased(ofMouseEventArgs &data);
+//	void onMouseMoved(ofMouseEventArgs &data);
+	void onExit(ofEventArgs &data);
+
+	void uiEvents(string & e);
+
+	ofPoint flow = ofPoint(10, 10);
+	uiConfig settings;
+
+	ofFbo fboUI;
+	//bool redraw = true;
+	bool onlyDrawOnRedraw = false;
+	auto getVal(string n);
 };
