@@ -9,8 +9,8 @@ public:
 	ofEvent<string> uiEvent;
 	bool redraw = true;
 
-	map <string,float>			pFloat;
-	map <string,bool>			pBool;
+	map <string,float>	pFloat;
+	map <string,bool>	pBool;
 };
 
 // acho que nao vai mais precisar disso...

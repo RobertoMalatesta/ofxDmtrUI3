@@ -68,5 +68,9 @@ public:
 	ofFbo fboUI;
 	//bool redraw = true;
 	bool onlyDrawOnRedraw = false;
+
+	map <string,float>	pFloat;
+	map <string,bool>	pBool;
+	
 	auto getVal(string n);
 };
