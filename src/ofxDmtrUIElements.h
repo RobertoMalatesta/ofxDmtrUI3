@@ -2,15 +2,36 @@
 
 struct uiConfig {
 public:
-	ofPoint flow;
-	ofPoint sliderDimensions = ofPoint(200, 20);
-	ofPoint margin = ofPoint(10,10);
 	float hue = 60;
+	ofPoint sliderDimensions = ofPoint(200, 20);
+	ofPoint margin = ofPoint(20,20);
+	ofPoint flow = margin;
 	ofEvent<string> uiEvent;
 	bool redraw = true;
 
 	map <string,float>	* pFloat;
 	map <string,bool>	* pBool;
+	int spacing = 5;
+	ofColor color;
+
+	uiConfig() {
+		color = ofColor::fromHsb(hue, 155, 255, 220);
+ 	}
+
+	void update(int height) {
+		flow.y += height + spacing;
+		hue = int(hue + 6)%255;
+		color = ofColor::fromHsb(hue, 155, 255, 220);
+	}
+
+	void newLine() {
+		flow.y += sliderDimensions.y + spacing;
+	}
+	void newCol() {
+		cout << "newcol" << endl;
+		flow.x += sliderDimensions.x + margin.x;
+		flow.y =  margin.y;
+	}
 };
 
 // acho que nao vai mais precisar disso...
@@ -35,7 +56,18 @@ public:
 	string name;
 	//ofEvent*<string> uiEvent;
 
+	void getProperties() {
+		color = settings->color;
+		settings->update(rect.height);
 
+		// AUTOFLOW
+		int altura = ofGetWindowHeight() - settings->margin.y*2;
+		if (rect.y + rect.height > altura) {
+			settings->newCol();
+			rect.x = settings->flow.x;
+			rect.y = settings->flow.y;
+		}
+	}
 
 	void addSettings (uiConfig & u) {
 		settings = &u;
@@ -107,6 +139,7 @@ public:
 		labelPos.x = rect.x + 5;
 		labelPos.y = rect.y + 16;
 		labelColor = ofColor(0);
+		getProperties();
 		set(v);
 	}
 
@@ -175,15 +208,13 @@ public:
 		setRect(x,y,20,20);
 		float margem = 4;
 		checked = ofRectangle(
-							  rect.x + margem, rect.y + margem,
-							  rect.width-margem*2, rect.height-margem*2
-							  );
-
-		//		ofRectangle r = getBitmapStringBoundingBox(name);
-		//		int w = 25 +
+			rect.x + margem, rect.y + margem,
+			rect.width-margem*2, rect.height-margem*2
+		);
 		setActiveRect(x,y,200,20);
 		labelPos.x = x + 25;
 		labelPos.y = y + 16;
+		getProperties();
 		set(v);
 	}
 
@@ -206,7 +237,6 @@ public:
 		} else {
 			if (isPressed) { isPressed = false; }
 		}
-
 	}
 
 	void draw() {
@@ -227,10 +257,18 @@ public:
 
 class label : public element {
 public:
-	label(string n, int x, int y) {
+	label (string n, uiConfig & u) {
 		name = n;
+		int x = settings->flow.x;
+		int y = settings->flow.y;
 		labelPos.x = x + 5;
 		labelPos.y = y + 16;
 	}
+
+//	label(string n, int x, int y) {
+//		name = n;
+//		labelPos.x = x + 5;
+//		labelPos.y = y + 16;
+//	}
 };
 

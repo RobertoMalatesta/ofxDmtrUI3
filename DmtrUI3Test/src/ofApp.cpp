@@ -27,6 +27,7 @@ void ofApp::desenha() {
 //--------------------------------------------------------------
 void ofApp::draw(){
 	//ofBackground(40);
+	ofBackground(ofFloatColor(u.pFloat["bg_r"],u.pFloat["bg_g"],u.pFloat["bg_b"]));
 	float raio = 100;
 	float x = ofNoise(ofGetElapsedTimef()*.2) * ofGetWindowWidth();
 	float y = ofNoise(ofGetElapsedTimef()*.3)* ofGetWindowHeight();

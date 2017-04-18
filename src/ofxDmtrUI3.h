@@ -47,8 +47,11 @@ public:
 	void createFromText(string file);
 	void createFromLine(string line);
 
+	auto getVal(string n);
+	void save(string xml);
+	void load(string xml);
+
 	vector <string> textToVector(string file);
-	
 	vector <element*> elements;
 
 	void onDraw(ofEventArgs &data);
@@ -62,7 +65,7 @@ public:
 
 	void uiEvents(string & e);
 
-	ofPoint flow = ofPoint(10, 10);
+	//ofPoint flow = ofPoint(10, 10);
 	uiConfig settings;
 
 	ofFbo fboUI;
@@ -71,11 +74,6 @@ public:
 
 	map <string,float>	pFloat;
 	map <string,bool>	pBool;
-	
-	auto getVal(string n);
-
-	void save(string xml);
-	void load(string xml);
 
 
 };

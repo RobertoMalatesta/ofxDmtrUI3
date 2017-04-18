@@ -103,21 +103,8 @@ void ofxDmtrUI3::createFromText(string file) {
 	if (ofFile::doesFileExist(file)) {
 		vector <string> linhas = textToVector(file);
 		for (auto & l : linhas) {
-			//cout << l << endl;
 			createFromLine(l);
 		}
-
-		// colore todos depois
-		float hue = 60;
-		for (auto & e : elements) {
-			e->addSettings(settings);
-			e->setColor(ofColor::fromHsb(int(hue)%255, 155, 255, 220));
-
-			// para apagar partes do fbo
-			//e->isPressed = true;
-			hue += 6;
-		}
-
 	} else {
 		cout << "ofxDmtrUI createFromText ::: File not found " + file << endl;
 	}
@@ -126,18 +113,17 @@ void ofxDmtrUI3::createFromText(string file) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::createFromLine(string l) {
 
-	// passar pra global depois
-	int sliderHeight = 20;
-	int sliderMargin = 5;
 	if (l == "") { // spacer
-		flow.y += sliderHeight + sliderMargin;
+		settings.newLine();
+		//flow.y += sliderHeight + sliderMargin;
 	} else {
 		vector <string> cols = ofSplitString(l, "	");
 		string tipo = cols[0];
 		if (cols.size() == 1) {
-			if (tipo == "newcol") {
-				flow.x += 220;
-				flow.y = 10;
+			if (tipo == "newcol" || tipo == "newCol") {
+				settings.newCol();
+//				flow.x += 220;
+//				flow.y = 10;
 			}
 		}
 		else {
@@ -154,18 +140,19 @@ void ofxDmtrUI3::createFromLine(string l) {
 				vector <string> v = ofSplitString(valores, " ");
 				float val = ofToFloat(v[2]);
 				// remover
-				settings.flow = flow;
+				//settings.flow = flow;
 				elements.push_back(new slider(nome, settings, val));
 			}
 
 			else if (tipo == "label") {
-				elements.push_back(new label(nome, flow.x, flow.y));
+//				elements.push_back(new label(nome, flow.x, flow.y));
+				elements.push_back(new label(nome, settings));
 			}
 
 			else if (tipo == "toggle") {
 				bool val = valores == "1";
 				// remover em breve
-				settings.flow = flow;
+				//settings.flow = flow;
 				elements.push_back(new toggle(nome, settings, val));
 			}
 
@@ -188,7 +175,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 				}
 			}
 
-			flow.y += sliderHeight + sliderMargin;
+			//flow.y += sliderHeight + sliderMargin;
 		}
 	}
 }
