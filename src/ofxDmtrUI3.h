@@ -62,6 +62,7 @@ public:
 	void onMouseReleased(ofMouseEventArgs &data);
 //	void onMouseMoved(ofMouseEventArgs &data);
 	void onExit(ofEventArgs &data);
+	void onWindowResized(ofResizeEventArgs &data);
 
 	void uiEvents(string & e);
 
@@ -75,5 +76,6 @@ public:
 	map <string,float>	pFloat;
 	map <string,bool>	pBool;
 
+	void reFlow();
 
 };

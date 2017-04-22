@@ -28,26 +28,25 @@ public:
 		flow.y += sliderDimensions.y + spacing;
 	}
 	void newCol() {
-		cout << "newcol" << endl;
+		//cout << "newcol" << endl;
 		flow.x += sliderDimensions.x + margin.x;
 		flow.y =  margin.y;
 	}
 };
 
 // acho que nao vai mais precisar disso...
-//enum elementType {
-//	SLIDER, LABEL, TOGGLE
-//};
+enum elementType {
+	SLIDER, LABEL, TOGGLE
+};
 
 class element {
 protected:
 	ofColor labelColor = ofColor(255);
 	ofColor color = ofColor(255);
-	int min;
-	int max;
 	ofRectangle rect, activeRect;
 	ofPoint labelPos;
 	uiConfig * settings = NULL;
+	elementType kind = SLIDER;
 	// as vezes Ž igual, as vezes diferente.
 	// fazer ou nao aqui uma string label?
 public:
@@ -56,9 +55,18 @@ public:
 	string name;
 	//ofEvent*<string> uiEvent;
 
+	virtual void updateToggle() {}
+
 	void getProperties() {
+		int x = settings->flow.x;
+		int y = settings->flow.y;
+		setActiveRect(x,y,settings->sliderDimensions.x, settings->sliderDimensions.y);
 		color = settings->color;
-		settings->update(rect.height);
+		rect.x = settings->flow.x;
+		rect.y = settings->flow.y;
+		rect.width = kind == TOGGLE ? settings->sliderDimensions.y : settings->sliderDimensions.x;
+		rect.height = settings->sliderDimensions.y;
+
 
 		// AUTOFLOW
 		int altura = ofGetWindowHeight() - settings->margin.y*2;
@@ -67,6 +75,20 @@ public:
 			rect.x = settings->flow.x;
 			rect.y = settings->flow.y;
 		}
+
+		if (kind == SLIDER) {
+			labelPos.x = rect.x + 5;
+			labelPos.y = rect.y + 16;
+			labelColor = ofColor(0);
+		}
+
+		else if (kind == TOGGLE) {
+			labelPos.x = rect.x + 25;
+			labelPos.y = rect.y + 16;
+			updateToggle();
+		}
+
+		settings->update(rect.height);
 	}
 
 	void addSettings (uiConfig & u) {
@@ -81,10 +103,15 @@ public:
 		ofDrawRectangle(activeRect);
 	}
 
-	void setRect(int x, int y, int w, int h) {
-		rect.x = x; rect.y = y;
-		rect.width = w; rect.height = h;
+
+	void rectFromSettings() {
+
 	}
+
+//	void setRect(int x, int y, int w, int h) {
+//		rect.x = x; rect.y = y;
+//		rect.width = w; rect.height = h;
+//	}
 
 	void setActiveRect(int x, int y, int w, int h) {
 		activeRect.x = x; activeRect.y = y;
@@ -129,16 +156,13 @@ public:
 class slider : public element {
 public:
 	//string name;
+	float min, max;
 	float val;
 
 	slider(string n, uiConfig & u, float v) {
 		settings = &u;
 		name = n;
 		// fazer um rect la dentro dos settings e copiar. q lindo.
-		setRect(settings->flow.x, settings->flow.y, 200,20);
-		labelPos.x = rect.x + 5;
-		labelPos.y = rect.y + 16;
-		labelColor = ofColor(0);
 		getProperties();
 		set(v);
 	}
@@ -183,7 +207,7 @@ public:
 		} else {
 			if (isPressed) {
 				setValFromMouse(x,y);
-				cout << "last captured value :: " + ofToString(val) << endl;
+				//cout << "last captured value :: " + ofToString(val) << endl;
 				// ispressed nao Ž redraw.. ?
 				draw();
 
@@ -198,24 +222,25 @@ public:
 class toggle : public element {
 public:
 	bool val;
-	ofRectangle checked;
+	ofRectangle rectChecked;
 
 	toggle(string n, uiConfig & u, bool v) {
+		kind = TOGGLE;
 		settings = &u;
 		int x = settings->flow.x;
 		int y = settings->flow.y;
 		name = n;
-		setRect(x,y,20,20);
-		float margem = 4;
-		checked = ofRectangle(
-			rect.x + margem, rect.y + margem,
-			rect.width-margem*2, rect.height-margem*2
-		);
-		setActiveRect(x,y,200,20);
-		labelPos.x = x + 25;
-		labelPos.y = y + 16;
 		getProperties();
+		updateToggle();
 		set(v);
+	}
+
+	void updateToggle() {
+		float margem = 4;
+		rectChecked = ofRectangle(
+		  rect.x + margem, rect.y + margem,
+		  rect.width-margem*2, rect.height-margem*2
+		  );
 	}
 
 	void set(bool v) {
@@ -244,14 +269,13 @@ public:
 		ofDrawRectangle(rect);
 		if (val) {
 			ofSetColor(0, 127);
-			ofDrawRectangle(checked);
+			ofDrawRectangle(rectChecked);
 		}
 		ofSetColor(255,30);
 		ofDrawRectangle(activeRect);
 		drawLabel();
 	}
 };
-
 
 
 
@@ -264,11 +288,5 @@ public:
 		labelPos.x = x + 5;
 		labelPos.y = y + 16;
 	}
-
-//	label(string n, int x, int y) {
-//		name = n;
-//		labelPos.x = x + 5;
-//		labelPos.y = y + 16;
-//	}
 };
 

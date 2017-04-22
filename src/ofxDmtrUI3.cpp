@@ -63,6 +63,8 @@ void ofxDmtrUI3::setup() {
 	ofAddListener(ofEvents().mouseDragged, this, &ofxDmtrUI3::onMouseDragged);
 	ofAddListener(ofEvents().mouseReleased, this, &ofxDmtrUI3::onMouseReleased);
 	ofAddListener(ofEvents().exit, this, &ofxDmtrUI3::onExit);
+	ofAddListener(ofEvents().windowResized, this, &ofxDmtrUI3::onWindowResized);
+
 	ofAddListener(settings.uiEvent,this, &ofxDmtrUI3::uiEvents);
 
 }
@@ -74,9 +76,10 @@ void ofxDmtrUI3::update() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::draw() {
+	ofPushStyle();
 	if (settings.redraw) {
 		fboUI.begin();
-		//ofClear(0);
+		ofClear(0);
 		for (auto & e : elements) {
 			if (e->redraw) {
 				e->draw();
@@ -96,6 +99,7 @@ void ofxDmtrUI3::draw() {
 	if (settings.redraw) {
 		settings.redraw = false;
 	}
+	ofPopStyle();
 }
 
 //--------------------------------------------------------------
@@ -244,8 +248,13 @@ auto ofxDmtrUI3::getVal(string n) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onExit(ofEventArgs &data) {
-	cout << "onexit dmtrui3" << endl;
+	//cout << "onexit dmtrui3" << endl;
 	save("default.xml");
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::onWindowResized(ofResizeEventArgs &data) {
+	reFlow();
 }
 
 //--------------------------------------------------------------
@@ -277,5 +286,19 @@ void ofxDmtrUI3::load(string xml) {
 			//e->set(xmlSettings.getValue(tagName, e->getVal()));
 		}
 	}
+	settings.redraw = true;
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::reFlow() {
+	cout << "==== reflow" << endl;
+	settings.flow = settings.margin;
+	for (auto & e : elements) {
+		e->getProperties();
+	}
+	fboUI.allocate(ofGetWindowWidth(), ofGetWindowHeight(), GL_RGBA);
+	fboUI.begin();
+	ofClear(0,0);
+	fboUI.end();
 	settings.redraw = true;
 }
