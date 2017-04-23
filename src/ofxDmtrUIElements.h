@@ -43,13 +43,12 @@ class element {
 protected:
 	ofColor labelColor = ofColor(255);
 	ofColor color = ofColor(255);
+	ofColor activeRectColor = ofColor(0, 90);
 	ofRectangle rect, activeRect;
 	ofPoint labelPos;
 	uiConfig * settings = NULL;
-	elementType kind = SLIDER;
-	// as vezes é igual, as vezes diferente.
-	// fazer ou nao aqui uma string label?
 public:
+	elementType kind = SLIDER;
 	bool isPressed = false;
 	bool redraw = true;
 	string name;
@@ -67,7 +66,6 @@ public:
 		rect.width = kind == TOGGLE ? settings->sliderDimensions.y : settings->sliderDimensions.x;
 		rect.height = settings->sliderDimensions.y;
 
-
 		// AUTOFLOW
 		int altura = ofGetWindowHeight() - settings->margin.y*2;
 		if (rect.y + rect.height > altura) {
@@ -80,12 +78,15 @@ public:
 			labelPos.x = rect.x + 5;
 			labelPos.y = rect.y + 16;
 			labelColor = ofColor(0);
+			activeRect = rect;
 		}
 
 		else if (kind == TOGGLE) {
 			labelPos.x = rect.x + 25;
 			labelPos.y = rect.y + 16;
 			updateToggle();
+			//int w = getBitmapStringBoundingBox(name) + labelPos.x + 4*2;
+			//activeRect.width = w;
 		}
 
 		settings->update(rect.height);
@@ -95,23 +96,13 @@ public:
 		settings = &u;
 	}
 
-	element() {} // constructor
-	~element() {} // destructor
+	element() {}
+	~element() {}
 
 	virtual void clear() {
 		ofSetColor(0,0);
 		ofDrawRectangle(activeRect);
 	}
-
-
-	void rectFromSettings() {
-
-	}
-
-//	void setRect(int x, int y, int w, int h) {
-//		rect.x = x; rect.y = y;
-//		rect.width = w; rect.height = h;
-//	}
 
 	void setActiveRect(int x, int y, int w, int h) {
 		activeRect.x = x; activeRect.y = y;
@@ -121,22 +112,21 @@ public:
 	void setColor(ofColor c) {
 		color = c;
 	}
-	// The word virtual means ‘‘may be redefined later in a class
-	// derived from this one’’ in Simula and C++
 
 	virtual void drawLabel() {
 		ofSetColor(labelColor);
 		ofDrawBitmapString(name, labelPos.x, labelPos.y);
 	}
 
-
 	virtual void set(float i) {
-		cout << "set function on primitive element" << endl;
+		cout << "set function on primitive element " + name << endl;
 	}
+
 //	virtual void set(bool i) {
 //		cout << "set function on primitive element" << endl;
 //	}
-	virtual float getVal() {	return 1;}
+
+	virtual float getVal() {	 return 1; }
 
 	virtual void draw() {
 		ofSetColor(color);
@@ -152,28 +142,34 @@ public:
 };
 
 
-// virtual function table pra fazer o draw de cada um elemento
 class slider : public element {
 public:
-	//string name;
-	float min, max;
-	float val;
+	string label;
+	float min = 0;
+	float max = 1;
+	float val = .5;
 
-	slider(string n, uiConfig & u, float v) {
+//	slider(string n, uiConfig & u, float v = .5) {
+//		settings = &u;
+//		name = n;
+//		getProperties();
+//		set(v);
+//	}
+
+	slider(string n, uiConfig & u, float mi, float ma, float v) : min(mi), max(ma) {
 		settings = &u;
 		name = n;
-		// fazer um rect la dentro dos settings e copiar. q lindo.
 		getProperties();
 		set(v);
 	}
 
-	// slider
 	void set(float v) {
 		val = v;
-		//cout << "set slider " + name + " to val : " + ofToString(val) << endl;
+		activeRect.width = rect.width * ((val-min) / (max-min));
+		label = name + " " + ofToString(val);
 		redraw = true;
-		//(*settings->pFloat)[name] = val;
 		(*settings->pFloat)[name] = val;
+		// ofEvent here, criar um evento na classe pai.
 	}
 
 	float getVal() {
@@ -182,22 +178,24 @@ public:
 
 	void drawLabel() {
 		ofSetColor(labelColor);
-		ofDrawBitmapString(name + " " + ofToString(val), labelPos.x, labelPos.y);
+		ofDrawBitmapString(label, labelPos.x, labelPos.y);
 	}
 
 	void draw() {
 		clear();
 		ofSetColor(color);
 		ofDrawRectangle(rect);
-		float w = rect.width * val;
-		ofSetColor(0,90);
-		ofDrawRectangle(rect.x, rect.y, w, rect.height);
+		ofSetColor(activeRectColor);
+		ofDrawRectangle(activeRect);
 		drawLabel();
 	}
 
 	void setValFromMouse(int x, int y) {
 		int xx = ofClamp(x, rect.x, rect.x + rect.width);
-		set(float(xx-rect.x)/(float) rect.width);
+		//this one is not needed, repeat on function set
+		activeRect.width = xx - rect.x;
+		float valFloat = min + (max-min)*(float(xx-rect.x)/(float)rect.width);
+		set(valFloat);
 	}
 
 	void checkMouse(int x,int y) {
@@ -207,10 +205,7 @@ public:
 		} else {
 			if (isPressed) {
 				setValFromMouse(x,y);
-				//cout << "last captured value :: " + ofToString(val) << endl;
-				// ispressed nao é redraw.. ?
 				draw();
-
 				settings->redraw = true;
 				isPressed = false;
 			}
@@ -222,6 +217,7 @@ public:
 class toggle : public element {
 public:
 	bool val;
+	// esse vai pro pai e vira outro nome
 	ofRectangle rectChecked;
 
 	toggle(string n, uiConfig & u, bool v) {
@@ -243,7 +239,9 @@ public:
 		  );
 	}
 
+	//void set(int v) {
 	void set(bool v) {
+		cout << "void set in bool " + name + "::" + ofToString(v) << endl;
 		val = v;
 		(*settings->pBool)[name] = val;
 		redraw = true;
@@ -264,10 +262,15 @@ public:
 		}
 	}
 
+	float getVal() {
+		return val;
+	}
+
 	void draw() {
 		ofSetColor(color);
 		ofDrawRectangle(rect);
 		if (val) {
+			// transformar em color active, algo em settings talvez.
 			ofSetColor(0, 127);
 			ofDrawRectangle(rectChecked);
 		}
@@ -282,11 +285,14 @@ public:
 class label : public element {
 public:
 	label (string n, uiConfig & u) {
+		kind = LABEL;
+		settings = &u;
 		name = n;
 		int x = settings->flow.x;
 		int y = settings->flow.y;
 		labelPos.x = x + 5;
 		labelPos.y = y + 16;
+		getProperties();
 	}
 };
 

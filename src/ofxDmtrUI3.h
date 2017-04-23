@@ -44,6 +44,9 @@ public:
 	void setup();
 	void update();
 	void draw();
+	void keyPressed(int key);
+	void keyReleased(int key);
+
 	void createFromText(string file);
 	void createFromLine(string line);
 
@@ -60,6 +63,9 @@ public:
 	void onMousePressed(ofMouseEventArgs &data);
 	void onMouseDragged(ofMouseEventArgs &data);
 	void onMouseReleased(ofMouseEventArgs &data);
+	void onKeyPressed(ofKeyEventArgs &data);
+	void onKeyReleased(ofKeyEventArgs &data);
+
 //	void onMouseMoved(ofMouseEventArgs &data);
 	void onExit(ofEventArgs &data);
 	void onWindowResized(ofResizeEventArgs &data);

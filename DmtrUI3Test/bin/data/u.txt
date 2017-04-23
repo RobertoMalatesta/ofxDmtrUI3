@@ -1,3 +1,6 @@
+float	raio	100 300 200
+
+bool	drawCircle	1
 float	r	0 1 .5
 float	g	0 1 .5
 float	b	0 1 .5
@@ -12,15 +15,13 @@ float	scale	0 1 .5
 float	scale2	0 1 .5
 float	scale3	0 1 .5
 #newCol
-bool	verdadeiro	1
 
+label	batch commands
 ints	sliders[0-5]	0 1000 0
-bools	radios[0-5]	1
+bools	toggles[0-5]	1
 
 #newcol
 int	fboX	0 1000 0
 int	fboY	0 1000 0
-bool	falso	0
-bool	verdadeiro	1
-ints	sliders[0-5]	0 1000 0
-bools	radios[0-5]	1
+ints	newsliders[0-5]	0 1000 0
+bools	newtoggles[0-5]	0
