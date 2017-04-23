@@ -41,6 +41,7 @@ class ofxDmtrUI3 : public ofBaseApp
 {
 public:
 	~ofxDmtrUI3();
+	ofxDmtrUI3();
 	void setup();
 	void update();
 	void draw();
@@ -50,7 +51,7 @@ public:
 	void createFromText(string file);
 	void createFromLine(string line);
 
-	auto getVal(string n);
+	//auto getVal(string n);
 	void save(string xml);
 	void load(string xml);
 

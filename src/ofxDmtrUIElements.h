@@ -89,6 +89,11 @@ public:
 			//activeRect.width = w;
 		}
 
+		else if (kind == LABEL) {
+			labelPos.x = rect.x;
+			labelPos.y = rect.y + 16;
+		}
+
 		settings->update(rect.height);
 	}
 
@@ -176,10 +181,10 @@ public:
 		return val;
 	}
 
-	void drawLabel() {
-		ofSetColor(labelColor);
-		ofDrawBitmapString(label, labelPos.x, labelPos.y);
-	}
+//	void drawLabel() {
+//		ofSetColor(labelColor);
+//		ofDrawBitmapString(label, labelPos.x, labelPos.y);
+//	}
 
 	void draw() {
 		clear();
@@ -281,18 +286,17 @@ public:
 };
 
 
-
 class label : public element {
 public:
 	label (string n, uiConfig & u) {
 		kind = LABEL;
 		settings = &u;
 		name = n;
-		int x = settings->flow.x;
-		int y = settings->flow.y;
-		labelPos.x = x + 5;
-		labelPos.y = y + 16;
 		getProperties();
+	}
+
+	void draw() {
+		drawLabel();
 	}
 };
 

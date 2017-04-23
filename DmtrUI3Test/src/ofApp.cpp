@@ -3,21 +3,19 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 	u.setup();
+	// ALL Elements definitions are loaded from this file:
 	u.createFromText("u.txt");
+
+	// change to keepsettings
 	u.load("default.xml");
 
 	ofAddListener(u.settings.uiEvent,this, &ofApp::uiEvents);
 	ofSetFrameRate(60);
-
+	ofSetCircleResolution(120);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-}
-
-//--------------------------------------------------------------
-void ofApp::desenha() {
-	
 }
 
 //--------------------------------------------------------------
@@ -31,9 +29,6 @@ void ofApp::draw(){
 		ofSetColor(ofFloatColor(u.pFloat["r"],u.pFloat["g"],u.pFloat["b"]));
 		ofDrawCircle(x, y, raio, raio);
 	}
-
-//	ofSetColor(255);
-//	ofDrawBitmapString(ofToString(raio), 100, 100);
 }
 
 //--------------------------------------------------------------

@@ -32,25 +32,11 @@ http://dmtr.org/
 
 #include "ofxDmtrUI3.h"
 
-//--------------------------------------------------------------
-ofxDmtrUI3::~ofxDmtrUI3() {
-	//cout << "destruct" << endl;
-	// remove listeners here
 
-	ofRemoveListener(ofEvents().draw, this, &ofxDmtrUI3::onDraw);
-	ofRemoveListener(ofEvents().update, this, &ofxDmtrUI3::onUpdate);
-	ofRemoveListener(ofEvents().mousePressed, this, &ofxDmtrUI3::onMousePressed);
-	ofRemoveListener(ofEvents().mouseDragged, this, &ofxDmtrUI3::onMouseDragged);
-	ofRemoveListener(ofEvents().mouseReleased, this, &ofxDmtrUI3::onMouseReleased);
-	ofRemoveListener(ofEvents().exit, this, &ofxDmtrUI3::onExit);
-	ofRemoveListener(ofEvents().windowResized, this, &ofxDmtrUI3::onWindowResized);
-
-	ofRemoveListener(settings.uiEvent,this, &ofxDmtrUI3::uiEvents);
-}
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::setup() {
-
+	cout << "setup" << endl;
 	settings.pFloat = &pFloat;
 	settings.pBool = &pBool;
 
@@ -74,13 +60,35 @@ void ofxDmtrUI3::setup() {
 }
 // END SETUP
 
+ofxDmtrUI3::ofxDmtrUI3() {
+	setup();
+}
+
+//--------------------------------------------------------------
+ofxDmtrUI3::~ofxDmtrUI3() {
+	//cout << "destruct" << endl;
+	// remove listeners here
+
+	ofRemoveListener(ofEvents().draw, this, &ofxDmtrUI3::onDraw);
+	ofRemoveListener(ofEvents().update, this, &ofxDmtrUI3::onUpdate);
+	ofRemoveListener(ofEvents().mousePressed, this, &ofxDmtrUI3::onMousePressed);
+	ofRemoveListener(ofEvents().mouseDragged, this, &ofxDmtrUI3::onMouseDragged);
+	ofRemoveListener(ofEvents().mouseReleased, this, &ofxDmtrUI3::onMouseReleased);
+	ofRemoveListener(ofEvents().keyPressed, this, &ofxDmtrUI3::onKeyPressed);
+	ofRemoveListener(ofEvents().keyReleased, this, &ofxDmtrUI3::onKeyReleased);
+	ofRemoveListener(ofEvents().exit, this, &ofxDmtrUI3::onExit);
+	ofRemoveListener(ofEvents().windowResized, this, &ofxDmtrUI3::onWindowResized);
+
+	ofRemoveListener(settings.uiEvent,this, &ofxDmtrUI3::uiEvents);
+}
+
 //--------------------------------------------------------------
 void ofxDmtrUI3::update() {
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::draw() {
-	ofPushStyle();
+	//ofPushStyle();
 	if (settings.redraw) {
 		fboUI.begin();
 		ofClear(0);
@@ -103,7 +111,7 @@ void ofxDmtrUI3::draw() {
 	if (settings.redraw) {
 		settings.redraw = false;
 	}
-	ofPopStyle();
+	//ofPopStyle();
 }
 
 
@@ -256,14 +264,6 @@ void ofxDmtrUI3::uiEvents(string & e) {
 	//cout << e << endl;
 }
 
-auto ofxDmtrUI3::getVal(string n) {
-	for (auto & e : elements) {
-		if (e->name == n) {
-			return e->getVal();
-		}
-	}
-}
-
 //--------------------------------------------------------------
 void ofxDmtrUI3::onExit(ofEventArgs &data) {
 	//cout << "onexit dmtrui3" << endl;
@@ -272,7 +272,9 @@ void ofxDmtrUI3::onExit(ofEventArgs &data) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onWindowResized(ofResizeEventArgs &data) {
-	reFlow();
+	if (!ofGetMousePressed()) {
+		reFlow();
+	}
 }
 
 //--------------------------------------------------------------
@@ -330,3 +332,15 @@ void ofxDmtrUI3::reFlow() {
 	fboUI.end();
 	settings.redraw = true;
 }
+
+/*
+ c++14 only
+//--------------------------------------------------------------
+auto ofxDmtrUI3::getVal(string n) {
+	for (auto & e : elements) {
+		if (e->name == n) {
+			return e->getVal();
+		}
+	}
+}
+*/
