@@ -55,6 +55,7 @@ public:
 	//ofEvent*<string> uiEvent;
 
 	virtual void updateToggle() {}
+	virtual void setBool(bool v) {}
 
 	void getProperties() {
 		int x = settings->flow.x;
@@ -105,8 +106,9 @@ public:
 	~element() {}
 
 	virtual void clear() {
-		ofSetColor(0,0);
-		ofDrawRectangle(activeRect);
+		cout << "clear " + name + ofToString(ofRandom(0,100)) << endl;
+		ofSetColor(0, 0);
+		ofDrawRectangle(rect);
 	}
 
 	void setActiveRect(int x, int y, int w, int h) {
@@ -127,10 +129,6 @@ public:
 		cout << "set function on primitive element " + name << endl;
 	}
 
-//	virtual void set(bool i) {
-//		cout << "set function on primitive element" << endl;
-//	}
-
 	virtual float getVal() {	 return 1; }
 
 	virtual void draw() {
@@ -148,18 +146,13 @@ public:
 
 
 class slider : public element {
-public:
+private:
 	string label;
 	float min = 0;
 	float max = 1;
+public:
 	float val = .5;
-
-//	slider(string n, uiConfig & u, float v = .5) {
-//		settings = &u;
-//		name = n;
-//		getProperties();
-//		set(v);
-//	}
+	float lastVal;
 
 	slider(string n, uiConfig & u, float mi, float ma, float v) : min(mi), max(ma) {
 		settings = &u;
@@ -172,19 +165,21 @@ public:
 		val = v;
 		activeRect.width = rect.width * ((val-min) / (max-min));
 		label = name + " " + ofToString(val);
-		redraw = true;
 		(*settings->pFloat)[name] = val;
+
+		if (lastVal != val) {
+			redraw = true;
+		}
+		lastVal = val;
+
+		string s = name + " :: SLIDER :: " + (val ? "true" : "false");
+		ofNotifyEvent(settings->uiEvent, s);
 		// ofEvent here, criar um evento na classe pai.
 	}
 
 	float getVal() {
 		return val;
 	}
-
-//	void drawLabel() {
-//		ofSetColor(labelColor);
-//		ofDrawBitmapString(label, labelPos.x, labelPos.y);
-//	}
 
 	void draw() {
 		clear();
@@ -211,7 +206,6 @@ public:
 			if (isPressed) {
 				setValFromMouse(x,y);
 				draw();
-				settings->redraw = true;
 				isPressed = false;
 			}
 		}
@@ -228,11 +222,8 @@ public:
 	toggle(string n, uiConfig & u, bool v) {
 		kind = TOGGLE;
 		settings = &u;
-		int x = settings->flow.x;
-		int y = settings->flow.y;
 		name = n;
 		getProperties();
-		updateToggle();
 		set(v);
 	}
 
@@ -244,13 +235,16 @@ public:
 		  );
 	}
 
-	//void set(int v) {
+	void setBool(bool v) {
+		set(v);
+	}
+
 	void set(bool v) {
-		cout << "void set in bool " + name + "::" + ofToString(v) << endl;
 		val = v;
 		(*settings->pBool)[name] = val;
 		redraw = true;
-		string s = name + " :: " + (val ? "true" : "false");
+
+		string s = name + " :: TOGGLE :: " + (val ? "true" : "false");
 		ofNotifyEvent(settings->uiEvent, s);
 	}
 

@@ -1,6 +1,7 @@
 # ofxDmtrUI3
 
 Still not for production use. Handle with care.  
+Just float slider and bool toggle working now.
 
 2017 apr 17
 It has been one year since the first version of ofxDmtrUI came out.
@@ -8,9 +9,14 @@ Now it is time to commemorate and write another UI, with similar ideas and look,
 
 I'll use temporarly this name to test ideas, concepts developed after original ofxDmtrUI, and Cinder-DmtrUI and if it works great and backwards compatible I'll make it the official ofxDmtrUI.
 
+## Example
+Example features autoflow, try resizing window.
+Press keys from 1 to 4 to load presets
+Holding command they save presets.
+
 ## Performance.
 This ui has been made with two things in mind: ease of use, create and update elements, change order and layout all of them. automatize repetitive tasks. 
-And performance in mind. It only redraws when needed and most of the time is an static FBO texture with a picture of the elements.
+And performance in mind. It only redraws the updated element when needed and most of the time is an static FBO texture with a picture of the elements.
 There are no animation on elements, scrolling or any features that can slow down your software, eat cpu cycles or battery time. only the raw things needed to work.
 
 ## Improvisation

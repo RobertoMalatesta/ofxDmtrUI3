@@ -88,30 +88,31 @@ void ofxDmtrUI3::update() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::draw() {
-	//ofPushStyle();
 	if (settings.redraw) {
 		fboUI.begin();
 		ofClear(0);
 		for (auto & e : elements) {
-			if (e->redraw) {
-				e->draw();
-			}
-			//cout << typeid(e).name() << endl;
+			e->draw();
 		}
 		fboUI.end();
-		//cout << "redraw" + ofToString(ofRandom(0,1)) << endl;
 	}
 
-
-	if (settings.redraw || !onlyDrawOnRedraw) {
-		ofSetColor(255);
-		fboUI.draw(0,0);
+	fboUI.begin();
+	for (auto & e : elements) {
+		if (e->redraw) {
+			e->clear();
+			e->draw();
+			e->redraw = false;
+		}
 	}
+	fboUI.end();
+
+	ofSetColor(255);
+	fboUI.draw(0,0);
 
 	if (settings.redraw) {
 		settings.redraw = false;
 	}
-	//ofPopStyle();
 }
 
 
@@ -230,13 +231,11 @@ void ofxDmtrUI3::onKeyReleased(ofKeyEventArgs& data) {
 	keyReleased(data.key);
 }
 
-
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMousePressed(ofMouseEventArgs& data) {
 	for (auto & e : elements) {
 		e->checkMouse(data.x, data.y);
 	}
-	settings.redraw = true;
 }
 
 //--------------------------------------------------------------
@@ -244,7 +243,6 @@ void ofxDmtrUI3::onMouseDragged(ofMouseEventArgs& data) {
 	for (auto & e : elements) {
 		e->checkMouse(data.x, data.y);
 	}
-	settings.redraw = true;
 }
 
 //--------------------------------------------------------------
@@ -252,7 +250,6 @@ void ofxDmtrUI3::onMouseReleased(ofMouseEventArgs& data) {
 	for (auto & e : elements) {
 		e->isPressed = false;
 	}
-	settings.redraw = true;
 }
 
 ////--------------------------------------------------------------
@@ -307,7 +304,10 @@ void ofxDmtrUI3::load(string xml) {
 			//cout << e->name << endl;
 			if (e->kind == TOGGLE) {
 				bool valor = xmlSettings.getValue("element:" +e->name, (bool)e->getVal());
-				e->set(valor);
+				//cout << "set function on toggle" << endl;
+				//cout << valor << endl;
+				e->setBool(valor);
+				//e->set(valor);
 			} else {
 				auto valor = xmlSettings.getValue("element:" +e->name, e->getVal());
 				e->set(valor);

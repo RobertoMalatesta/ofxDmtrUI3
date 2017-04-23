@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-	u.setup();
+	//u.setup();
 	// ALL Elements definitions are loaded from this file:
 	u.createFromText("u.txt");
 

@@ -77,8 +77,7 @@ public:
 	uiConfig settings;
 
 	ofFbo fboUI;
-	//bool redraw = true;
-	bool onlyDrawOnRedraw = false;
+//	bool onlyDrawOnRedraw = false;
 
 	map <string,float>	pFloat;
 	map <string,bool>	pBool;
