@@ -1,13 +1,18 @@
+bool	flowFree	1
+
 float	raio	100 300 200
 
 bool	drawCircle	1
-float	r	0 1 .5
-float	g	0 1 .5
-float	b	0 1 .5
+#float	r	0 1 .5
+#float	g	0 1 .5
+#float	b	0 1 .5
+float	r	0 255 127
+float	g	0 255 127
+float	b	0 255 128
 
-float	bg_r	0 1 .5
-float	bg_g	0 1 .5
-float	bg_b	0 1 .5
+float	bg_r	0 255 127
+float	bg_g	0 255 127
+float	bg_b	0 255 127
 
 bool	falso	0
 
@@ -25,3 +30,7 @@ int	fboX	0 1000 0
 int	fboY	0 1000 0
 ints	newsliders[0-5]	0 1000 0
 bools	newtoggles[0-5]	0
+
+toggleNoLabel	noLabel1	0
+toggleNoLabel	noLabel2	0
+toggleNoLabel	noLabel3	0

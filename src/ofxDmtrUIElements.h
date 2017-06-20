@@ -1,7 +1,35 @@
-//#pragma once
+/**********************************************************************************
+
+ Copyright (C) 2017 Dimitre Lima (www.dmtr.org)
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal in
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do
+ so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+ **********************************************************************************/
+
+
+#pragma once
+
+
 
 struct uiConfig {
 public:
+	bool	 flowFree = true;
 	float hue = 60;
 	ofPoint sliderDimensions = ofPoint(200, 20);
 	ofPoint margin = ofPoint(20,20);
@@ -44,7 +72,7 @@ protected:
 	ofColor labelColor = ofColor(255);
 	ofColor color = ofColor(255);
 	ofColor activeRectColor = ofColor(0, 90);
-	ofRectangle rect, activeRect;
+	ofRectangle rect, activeRect, boundsRect;
 	ofPoint labelPos;
 	uiConfig * settings = NULL;
 public:
@@ -52,6 +80,9 @@ public:
 	bool isPressed = false;
 	bool redraw = true;
 	string name;
+
+	// 19 june 2017
+	bool firstClicked = false;
 	//ofEvent*<string> uiEvent;
 
 	virtual void updateToggle() {}
@@ -60,39 +91,50 @@ public:
 	void getProperties() {
 		int x = settings->flow.x;
 		int y = settings->flow.y;
-		setActiveRect(x,y,settings->sliderDimensions.x, settings->sliderDimensions.y);
 		color = settings->color;
-		rect.x = settings->flow.x;
-		rect.y = settings->flow.y;
+
 		rect.width = kind == TOGGLE ? settings->sliderDimensions.y : settings->sliderDimensions.x;
 		rect.height = settings->sliderDimensions.y;
 
 		// AUTOFLOW
 		int altura = ofGetWindowHeight() - settings->margin.y*2;
-		if (rect.y + rect.height > altura) {
+		if (y + rect.height > altura) {
 			settings->newCol();
-			rect.x = settings->flow.x;
-			rect.y = settings->flow.y;
+			x = settings->flow.x;
+			y = settings->flow.y;
+
 		}
+		rect.x = x;
+		rect.y = y;
+
+		// never draw.
+		boundsRect.x = x;
+		boundsRect.y = y;
+		boundsRect.width = settings->sliderDimensions.x;
+		boundsRect.height = settings->sliderDimensions.y;
+
+		activeRect.x = x; activeRect.y = y;
+		activeRect.height = settings->sliderDimensions.y;
 
 		if (kind == SLIDER) {
-			labelPos.x = rect.x + 5;
-			labelPos.y = rect.y + 16;
+			labelPos.x = x + 5;
+			labelPos.y = y + 16;
 			labelColor = ofColor(0);
-			activeRect = rect;
+			activeRect.x = x;
+			activeRect.y = y;
 		}
 
 		else if (kind == TOGGLE) {
-			labelPos.x = rect.x + 25;
-			labelPos.y = rect.y + 16;
+			labelPos.x = x + 25;
+			labelPos.y = y + 16;
 			updateToggle();
 			//int w = getBitmapStringBoundingBox(name) + labelPos.x + 4*2;
 			//activeRect.width = w;
 		}
 
 		else if (kind == LABEL) {
-			labelPos.x = rect.x;
-			labelPos.y = rect.y + 16;
+			labelPos.x = x;
+			labelPos.y = y + 16;
 		}
 
 		settings->update(rect.height);
@@ -103,18 +145,17 @@ public:
 	}
 
 	element() {}
-	~element() {}
+	~element() {
+		//cout << "element distruktr" << endl;
+	}
 
 	virtual void clear() {
-		cout << "clear " + name + ofToString(ofRandom(0,100)) << endl;
+
+		//cout << "clear " + name + "::" + ofToString(ofRandom(0,100)) << endl;
 		ofSetColor(0, 0);
 		ofDrawRectangle(rect);
 	}
 
-	void setActiveRect(int x, int y, int w, int h) {
-		activeRect.x = x; activeRect.y = y;
-		activeRect.width = w; activeRect.height = h;
-	}
 
 	void setColor(ofColor c) {
 		color = c;
@@ -123,6 +164,12 @@ public:
 	virtual void drawLabel() {
 		ofSetColor(labelColor);
 		ofDrawBitmapString(name, labelPos.x, labelPos.y);
+
+		if (kind == SLIDER) {
+			string n = name; //+ "::" + ofToString(_valFloat);
+			ofSetColor(255);
+			ofDrawBitmapString(n, labelPos.x + 1, labelPos.y - 1);
+		}
 	}
 
 	virtual void set(float i) {
@@ -137,11 +184,34 @@ public:
 		drawLabel();
 	}
 
-	virtual void checkMouse(int x, int y) {
-		if (rect.inside(x,y)) {
-			cout << "inside " + name << endl;
+	virtual void setValFromMouse(int x, int y) {
+	}
+
+	virtual void checkMousePress(int x, int y) {
+		if (boundsRect.inside(x,y)) {
+			firstClicked = true;
+			checkMouse(x, y);
 		}
 	}
+
+	virtual void checkMouse(int x, int y) {
+		// este check define se o click vai rodar livre ou nao
+		if (firstClicked || settings->flowFree)
+		{
+			if (boundsRect.inside(x,y)) {
+				setValFromMouse(x,y);
+				isPressed = true;
+			} else {
+				if (isPressed) {
+					setValFromMouse(x,y);
+					draw();
+					isPressed = false;
+				}
+			}
+		}
+	}
+
+
 };
 
 
@@ -185,6 +255,7 @@ public:
 		clear();
 		ofSetColor(color);
 		ofDrawRectangle(rect);
+
 		ofSetColor(activeRectColor);
 		ofDrawRectangle(activeRect);
 		drawLabel();
@@ -197,29 +268,16 @@ public:
 		float valFloat = min + (max-min)*(float(xx-rect.x)/(float)rect.width);
 		set(valFloat);
 	}
-
-	void checkMouse(int x,int y) {
-		if (rect.inside(x,y)) {
-			setValFromMouse(x,y);
-			isPressed = true;
-		} else {
-			if (isPressed) {
-				setValFromMouse(x,y);
-				draw();
-				isPressed = false;
-			}
-		}
-	}
 };
 
 
 class toggle : public element {
 public:
 	bool val;
-	// esse vai pro pai e vira outro nome
-	ofRectangle rectChecked;
+	// mudar pra showlabel?
+	bool label;
 
-	toggle(string n, uiConfig & u, bool v) {
+	toggle(string n, uiConfig & u, bool v, bool l = true) : label(l) {
 		kind = TOGGLE;
 		settings = &u;
 		name = n;
@@ -229,10 +287,14 @@ public:
 
 	void updateToggle() {
 		float margem = 4;
-		rectChecked = ofRectangle(
+		activeRect = ofRectangle(
 		  rect.x + margem, rect.y + margem,
 		  rect.width-margem*2, rect.height-margem*2
 		  );
+
+		if (!label) {
+			boundsRect.width = boundsRect.height;
+		}
 	}
 
 	void setBool(bool v) {
@@ -248,16 +310,10 @@ public:
 		ofNotifyEvent(settings->uiEvent, s);
 	}
 
-	void checkMouse(int x,int y) {
-		if (activeRect.inside(x,y)) {
-			if (!isPressed) {
-				set(val ^ 1);
-				//val ^= 1;
-
-				isPressed = true;
-			}
-		} else {
-			if (isPressed) { isPressed = false; }
+	void setValFromMouse(int x, int y) {
+		if (!isPressed) {
+			set(val ^ 1);
+			isPressed = true;
 		}
 	}
 
@@ -271,11 +327,13 @@ public:
 		if (val) {
 			// transformar em color active, algo em settings talvez.
 			ofSetColor(0, 127);
-			ofDrawRectangle(rectChecked);
+			ofDrawRectangle(activeRect);
 		}
 		ofSetColor(255,30);
-		ofDrawRectangle(activeRect);
-		drawLabel();
+		ofDrawRectangle(boundsRect);
+		if (label) {
+			drawLabel();
+		}
 	}
 };
 
@@ -293,4 +351,3 @@ public:
 		drawLabel();
 	}
 };
-

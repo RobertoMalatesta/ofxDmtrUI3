@@ -1,6 +1,6 @@
 /**********************************************************************************
 
- Copyright (C) 2016 Dimitre Lima (www.dmtr.org)
+ Copyright (C) 2017 Dimitre Lima (www.dmtr.org)
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of
  this software and associated documentation files (the "Software"), to deal in

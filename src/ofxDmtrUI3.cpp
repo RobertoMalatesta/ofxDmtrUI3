@@ -1,6 +1,6 @@
 /**********************************************************************************
 
- Copyright (C) 2016 Dimitre Lima (www.dmtr.org)
+ Copyright (C) 2017 Dimitre Lima (www.dmtr.org)
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of
  this software and associated documentation files (the "Software"), to deal in
@@ -24,19 +24,17 @@
 
 /*
 
-ofxDmtrUI.h
-Created by Dimitre Lima on 04/06/2016.
+ofxDmtrUI3.h
+Created by Dimitre Lima on 17/06/2017.
 http://dmtr.org/
 
 */
 
 #include "ofxDmtrUI3.h"
 
-
-
 //--------------------------------------------------------------
 void ofxDmtrUI3::setup() {
-	cout << "setup" << endl;
+	//cout << "setup" << endl;
 	settings.pFloat = &pFloat;
 	settings.pBool = &pBool;
 
@@ -186,6 +184,13 @@ void ofxDmtrUI3::createFromLine(string l) {
 				elements.push_back(new toggle(nome, settings, val));
 			}
 
+			else if (tipo == "toggleNoLabel") {
+				
+				bool val = valores == "1";
+				elements.push_back(new toggle(nome, settings, val, false));
+			}
+
+
 			else if (tipo == "ints" || tipo == "floats" || tipo == "bools" || tipo == "bangs" || tipo == "holds" || tipo == "colors" || tipo == "slider2ds") {
 				vector <string> nomes = ofSplitString(nome, "[");
 				string n = nomes[0];
@@ -234,7 +239,8 @@ void ofxDmtrUI3::onKeyReleased(ofKeyEventArgs& data) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMousePressed(ofMouseEventArgs& data) {
 	for (auto & e : elements) {
-		e->checkMouse(data.x, data.y);
+//		e->checkMouse(data.x, data.y);
+		e->checkMousePress(data.x, data.y);
 	}
 }
 
@@ -249,6 +255,7 @@ void ofxDmtrUI3::onMouseDragged(ofMouseEventArgs& data) {
 void ofxDmtrUI3::onMouseReleased(ofMouseEventArgs& data) {
 	for (auto & e : elements) {
 		e->isPressed = false;
+		e->firstClicked = false;
 	}
 }
 
