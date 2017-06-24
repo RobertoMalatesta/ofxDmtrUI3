@@ -12,6 +12,7 @@ void ofApp::setup(){
 	ofAddListener(u.settings.uiEvent,this, &ofApp::uiEvents);
 	ofSetFrameRate(60);
 	ofSetCircleResolution(120);
+	ofEnableAlphaBlending();
 }
 
 //--------------------------------------------------------------
@@ -20,14 +21,12 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-//	ofBackground(ofFloatColor(u.pFloat["bg_r"],u.pFloat["bg_g"],u.pFloat["bg_b"]));
 	ofBackground(ofColor(u.pFloat["bg_r"],u.pFloat["bg_g"],u.pFloat["bg_b"]));
 
 	float raio = u.pFloat["raio"];
 	float x = ofNoise(ofGetElapsedTimef()*.2) * ofGetWindowWidth();
 	float y = ofNoise(ofGetElapsedTimef()*.3)* ofGetWindowHeight();
 	if (u.pBool["drawCircle"]){
-//		ofSetColor(ofFloatColor(u.pFloat["r"],u.pFloat["g"],u.pFloat["b"]));
 		ofSetColor(ofColor(u.pFloat["r"],u.pFloat["g"],u.pFloat["b"]));
 		ofDrawCircle(x, y, raio, raio);
 	}
@@ -36,6 +35,17 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+//	if (key == 'a') {
+//		for (auto & e : u.elements) {
+//			if (e->name == "blend") {
+//				for (auto & i : e->elements) {
+//					cout << (i->valBool ? "x " : ". ");
+//				}
+//				cout << endl;
+//				e->draw();
+//			}
+//		}
+//	}
 }
 
 //--------------------------------------------------------------
@@ -45,5 +55,5 @@ void ofApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void ofApp::uiEvents(string & e) {
-	cout << e << endl;
+	//cout << e << endl;
 }

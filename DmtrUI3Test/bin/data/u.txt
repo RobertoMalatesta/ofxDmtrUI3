@@ -1,5 +1,14 @@
 bool	flowFree	1
 
+flowHoriz
+radioitem	teste	1
+radioitem	teste2	1
+radioitem	teste3	1
+radioitem	teste4	1
+flowVert
+
+radio	blend	no test a another muito_grande alpha add screen multiply subtract
+
 float	raio	100 300 200
 
 bool	drawCircle	1
@@ -31,6 +40,14 @@ int	fboY	0 1000 0
 ints	newsliders[0-5]	0 1000 0
 bools	newtoggles[0-5]	0
 
+flowHoriz
 toggleNoLabel	noLabel1	0
 toggleNoLabel	noLabel2	0
 toggleNoLabel	noLabel3	0
+toggleNoLabel	noLabel4	0
+toggleNoLabel	noLabel5	0
+toggleNoLabel	noLabel6	0
+toggleNoLabel	noLabel7	0
+toggleNoLabel	noLabel8	0
+
+flowVert

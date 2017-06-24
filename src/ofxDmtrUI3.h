@@ -76,7 +76,9 @@ public:
 	//ofPoint flow = ofPoint(10, 10);
 	uiConfig settings;
 
-	ofFbo fboUI;
+	ofFbo fboUI, fboUI2;
+	ofShader shader;
+
 //	bool onlyDrawOnRedraw = false;
 
 	map <string,float>	pFloat;

@@ -30,24 +30,45 @@
 struct uiConfig {
 public:
 	bool	 flowFree = true;
+	bool flowVert = true;
 	float hue = 60;
+
+
 	ofPoint sliderDimensions = ofPoint(200, 20);
 	ofPoint margin = ofPoint(20,20);
 	ofPoint flow = margin;
 	ofEvent<string> uiEvent;
-	bool redraw = true;
+	bool needsRedraw = false;
+	bool redraw = false;
 
 	map <string,float>	* pFloat;
 	map <string,bool>	* pBool;
 	int spacing = 5;
 	ofColor color;
+	float flowxbak = -100;
+
+	ofColor activeColor = ofColor(0,0,0,127);
 
 	uiConfig() {
-		color = ofColor::fromHsb(hue, 155, 255, 220);
+//		color = ofColor::fromHsb(hue, 155, 255, 220);
+		color = ofColor::fromHsb(hue, 155, 255, 255);
  	}
 
-	void update(int height) {
-		flow.y += height + spacing;
+	void setMarginChildren(bool m) {
+		spacing = m ? 1 : 5;
+	}
+
+	void update(ofRectangle & r) {
+		if (flowVert) {
+			flow.y += r.height + spacing;
+		} else {
+			if ((flow.x + r.width + spacing + margin.x) > (flowxbak + sliderDimensions.x)) {
+				flow.x = flowxbak;
+				flow.y += r.height + spacing;
+			} else {
+				flow.x += r.width + spacing;
+			}
+		}
 		hue = int(hue + 6)%255;
 		color = ofColor::fromHsb(hue, 155, 255, 220);
 	}
@@ -60,32 +81,59 @@ public:
 		flow.x += sliderDimensions.x + margin.x;
 		flow.y =  margin.y;
 	}
+
+	void setFlowVert(bool f) {
+		flowVert = f;
+		if (f) {
+			if (flowxbak > -100) {
+				flow.x = flowxbak;
+			}
+			//newLine();
+		} else {
+			flowxbak = flow.x;
+		}
+	}
 };
 
 // acho que nao vai mais precisar disso...
 enum elementType {
-	SLIDER, LABEL, TOGGLE
+	SLIDER, LABEL, TOGGLE, RADIO, RADIOITEM
 };
 
 class element {
 protected:
 	ofColor labelColor = ofColor(255);
 	ofColor color = ofColor(255);
-	ofColor activeRectColor = ofColor(0, 90);
-	ofRectangle rect, activeRect, boundsRect;
+	//ofColor activeRectColor = ofColor(0, 90);
 	ofPoint labelPos;
 	uiConfig * settings = NULL;
+	bool showLabel = true;
+
 public:
+	// medida provisoria ate resolver o radioitem
+	bool valBool = false;
+
+	vector <element*> elements;
+
+	// passei pra publico pra melhorar pro radio
+	ofRectangle rect, activeRect, boundsRect;
+
+	// 21 de junho, nao tem serventia ainda, vou tentar fazer o radioitem
+	element * _parent = NULL;
 	elementType kind = SLIDER;
 	bool isPressed = false;
-	bool redraw = true;
+	bool redraw = false;
 	string name;
 
 	// 19 june 2017
 	bool firstClicked = false;
 	//ofEvent*<string> uiEvent;
 
-	virtual void updateToggle() {}
+	void needsRedraw(bool need = true) {
+		redraw = need;
+		settings->needsRedraw = need;
+	}
+
 	virtual void setBool(bool v) {}
 
 	void getProperties() {
@@ -93,8 +141,16 @@ public:
 		int y = settings->flow.y;
 		color = settings->color;
 
-		rect.width = kind == TOGGLE ? settings->sliderDimensions.y : settings->sliderDimensions.x;
-		rect.height = settings->sliderDimensions.y;
+		if (kind != LABEL) {
+			rect.x = x;
+			rect.y = y;
+			rect.width = kind == TOGGLE ? settings->sliderDimensions.y : settings->sliderDimensions.x;
+			rect.height = settings->sliderDimensions.y;
+			activeRect.x = x;
+			activeRect.y = y;
+			activeRect.width = settings->sliderDimensions.x;
+			activeRect.height = settings->sliderDimensions.y;
+		}
 
 		// AUTOFLOW
 		int altura = ofGetWindowHeight() - settings->margin.y*2;
@@ -104,8 +160,7 @@ public:
 			y = settings->flow.y;
 
 		}
-		rect.x = x;
-		rect.y = y;
+
 
 		// never draw.
 		boundsRect.x = x;
@@ -113,31 +168,65 @@ public:
 		boundsRect.width = settings->sliderDimensions.x;
 		boundsRect.height = settings->sliderDimensions.y;
 
-		activeRect.x = x; activeRect.y = y;
-		activeRect.height = settings->sliderDimensions.y;
 
-		if (kind == SLIDER) {
+
+		if (kind == LABEL) {
+			labelPos.x = x;
+			labelPos.y = y + 16;
+		}
+
+		else if (kind == RADIO) {
+			labelPos.x = x;
+			labelPos.y = y + 16;
+			rect.width = 0;
+			rect.height = 0;
+			//boundsRect.height = settings->sliderDimensions.y * 2;
+
+		}
+
+		else if (kind == SLIDER) {
 			labelPos.x = x + 5;
 			labelPos.y = y + 16;
 			labelColor = ofColor(0);
-			activeRect.x = x;
-			activeRect.y = y;
 		}
 
 		else if (kind == TOGGLE) {
 			labelPos.x = x + 25;
 			labelPos.y = y + 16;
-			updateToggle();
-			//int w = getBitmapStringBoundingBox(name) + labelPos.x + 4*2;
-			//activeRect.width = w;
+
+			float margem = 4;
+			activeRect = ofRectangle(
+				rect.x + margem, rect.y + margem,
+				rect.width-margem*2, rect.height-margem*2
+			);
+
+			if (!showLabel) {
+				boundsRect.width = boundsRect.height;
+			} else {
+				int contaletras = 0;
+				for(auto c: ofUTF8Iterator(name)){
+					contaletras++;
+				}
+				boundsRect.width = boundsRect.height + margem*2 + contaletras * 8;
+			}
 		}
 
-		else if (kind == LABEL) {
-			labelPos.x = x;
+		else if (kind == RADIOITEM) {
+			float margem = 4;
+
+			labelPos.x = x + margem;
 			labelPos.y = y + 16;
+
+			int contaletras = 0;
+			for(auto c: ofUTF8Iterator(name)){
+				contaletras++;
+			}
+			boundsRect.width = margem*2 + contaletras * 8;
+			rect.width = boundsRect.width;
+			activeRect = rect;
 		}
 
-		settings->update(rect.height);
+		settings->update(boundsRect);
 	}
 
 	void addSettings (uiConfig & u) {
@@ -150,10 +239,11 @@ public:
 	}
 
 	virtual void clear() {
-
+		// rever aqui como limpar o estado anterior
 		//cout << "clear " + name + "::" + ofToString(ofRandom(0,100)) << endl;
-		ofSetColor(0, 0);
-		ofDrawRectangle(rect);
+//		ofSetColor(0, 0);
+//		ofDrawRectangle(activeRect);
+//		ofDrawRectangle(boundsRect);
 	}
 
 
@@ -179,18 +269,35 @@ public:
 	virtual float getVal() {	 return 1; }
 
 	virtual void draw() {
+		//clear();
 		ofSetColor(color);
 		ofDrawRectangle(rect);
-		drawLabel();
+
+		drawSpecific();
+
+		if (showLabel) {
+			drawLabel();
+		}
+//		ofSetColor(255,0,0, 50);
+//		ofDrawRectangle(boundsRect);
 	}
 
-	virtual void setValFromMouse(int x, int y) {
-	}
+	virtual void drawSpecific() {}
+
+	virtual void setValFromMouse(int x, int y) {}
+
+	virtual void setRadioVal(element * e) {}
 
 	virtual void checkMousePress(int x, int y) {
 		if (boundsRect.inside(x,y)) {
+			cout << "checkMousePress :: " + name << endl;
 			firstClicked = true;
 			checkMouse(x, y);
+//			for (auto & e : elements) {
+//				if (e->boundsRect.inside(x,y)) {
+//					setRadioVal(e);
+//				}
+//			}
 		}
 	}
 
@@ -198,6 +305,8 @@ public:
 		// este check define se o click vai rodar livre ou nao
 		if (firstClicked || settings->flowFree)
 		{
+			//cout << "checkMouse :: " + name << endl;
+
 			if (boundsRect.inside(x,y)) {
 				setValFromMouse(x,y);
 				isPressed = true;
@@ -210,8 +319,6 @@ public:
 			}
 		}
 	}
-
-
 };
 
 
@@ -238,7 +345,7 @@ public:
 		(*settings->pFloat)[name] = val;
 
 		if (lastVal != val) {
-			redraw = true;
+			needsRedraw();
 		}
 		lastVal = val;
 
@@ -251,14 +358,11 @@ public:
 		return val;
 	}
 
-	void draw() {
-		clear();
-		ofSetColor(color);
-		ofDrawRectangle(rect);
-
-		ofSetColor(activeRectColor);
+	// slider
+	void drawSpecific() {
+		ofSetColor(settings->activeColor);
+		//ofSetColor(activeRectColor);
 		ofDrawRectangle(activeRect);
-		drawLabel();
 	}
 
 	void setValFromMouse(int x, int y) {
@@ -274,27 +378,15 @@ public:
 class toggle : public element {
 public:
 	bool val;
-	// mudar pra showlabel?
-	bool label;
 
-	toggle(string n, uiConfig & u, bool v, bool l = true) : label(l) {
+
+	toggle(string n, uiConfig & u, bool v, bool l = true)  {
 		kind = TOGGLE;
 		settings = &u;
 		name = n;
+		showLabel = l;
 		getProperties();
 		set(v);
-	}
-
-	void updateToggle() {
-		float margem = 4;
-		activeRect = ofRectangle(
-		  rect.x + margem, rect.y + margem,
-		  rect.width-margem*2, rect.height-margem*2
-		  );
-
-		if (!label) {
-			boundsRect.width = boundsRect.height;
-		}
 	}
 
 	void setBool(bool v) {
@@ -304,7 +396,7 @@ public:
 	void set(bool v) {
 		val = v;
 		(*settings->pBool)[name] = val;
-		redraw = true;
+		needsRedraw();
 
 		string s = name + " :: TOGGLE :: " + (val ? "true" : "false");
 		ofNotifyEvent(settings->uiEvent, s);
@@ -321,18 +413,12 @@ public:
 		return val;
 	}
 
-	void draw() {
-		ofSetColor(color);
-		ofDrawRectangle(rect);
+	// toggle
+	void drawSpecific() {
 		if (val) {
-			// transformar em color active, algo em settings talvez.
-			ofSetColor(0, 127);
+			//ofSetColor(0, 127);
+			ofSetColor(settings->activeColor);
 			ofDrawRectangle(activeRect);
-		}
-		ofSetColor(255,30);
-		ofDrawRectangle(boundsRect);
-		if (label) {
-			drawLabel();
 		}
 	}
 };
@@ -346,8 +432,105 @@ public:
 		name = n;
 		getProperties();
 	}
+};
 
-	void draw() {
-		drawLabel();
+
+class radioitem : public element {
+public:
+	bool val = false;
+
+	radioitem (string n, uiConfig & u) {
+		kind = RADIOITEM;
+		settings = &u;
+		name = n;
+		getProperties();
+	}
+
+	void setValFromMouse(int x, int y) {
+		if (!isPressed) {
+			setBool(val ^ 1);
+			isPressed = true;
+		}
+	}
+
+	void setBool(bool v) {
+		val = v;
+		valBool = v;
+//		cout << "set radioitem :: " ;
+//		cout << (val ? "." : "x") << endl;
+		needsRedraw();
+		//draw();
+	}
+
+	void drawSpecific() {
+		if (val) {
+			ofSetColor(settings->activeColor);
+			ofDrawRectangle(activeRect);
+		}
+	}
+};
+
+
+class radio : public element {
+public:
+	vector <string> items;
+	radio (string n, uiConfig & u, vector <string> its) {
+		kind = RADIO;
+		settings = &u;
+		name = n;
+		items = its;
+		getProperties();
+		settings->setFlowVert(false);
+
+		u.setMarginChildren(true);
+		for (auto & i : items) {
+			elements.push_back(new radioitem(i, u));
+		}
+		u.setMarginChildren(false);
+
+		for (auto & e : elements) {
+			e->_parent = this;
+			boundsRect.growToInclude(e->boundsRect.getBottomRight());
+		}
+
+		settings->setFlowVert(true);
+	}
+
+	void drawSpecific() {
+		
+//		cout << "DRAW SPECIFIC RADIO" << endl;
+//		ofSetColor(0,255);
+//		ofDrawRectangle(boundsRect);
+//		cout << boundsRect << endl;
+
+		for (auto & e : elements) {
+			e->draw();
+		}
+	}
+
+	void setValFromMouse(int x, int y) {
+		for (auto & e : elements) {
+			if (e->boundsRect.inside(x,y)) {
+				setRadioVal(e);
+			}
+		}
+	}
+
+	void setRadioVal(element * ee) {
+		//cout << "setradioval" << endl;
+		for (auto & e : elements) {
+			if (e->name == ee->name) {
+				e->setBool(1);
+			}
+			else {
+				// apenas clarear o radioitem que estava selecionado
+				//if (!e->val)
+				{
+					e->setBool(0);
+				}
+			}
+		}
+		needsRedraw();
+		//drawSpecific();
 	}
 };
