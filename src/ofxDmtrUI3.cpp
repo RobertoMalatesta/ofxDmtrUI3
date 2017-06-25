@@ -156,7 +156,7 @@ void ofxDmtrUI3::draw() {
 		fboUI.begin();
 		for (auto & e : elements) {
 			if (e->redraw) {
-				cout << "redraw :: " + e->name << endl;
+				//cout << "redraw :: " + e->name << endl;
 				ofSetColor(255, 1);
 				ofDrawRectangle(e->boundsRect);
 				e->draw();
@@ -219,7 +219,7 @@ void ofxDmtrUI3::draw() {
 		fboUI.end();
 		settings.redraw = false;
 	}
-	ofSetColor(255);
+	ofSetColor(255, settings.opacity);
 	fboUI.draw(0,0);
 
 }
@@ -321,6 +321,20 @@ void ofxDmtrUI3::createFromLine(string l) {
 			}
 
 
+			else if (tipo == "dirList" || tipo == "dirListNoExt") {
+				ofDirectory dir;
+				dir.listDir(valores);
+				vector <string> opcoes;
+				for (auto & d : dir) {
+					if (tipo == "dirListNoExt") {
+						opcoes.push_back(d.getBaseName());
+					} else {
+						opcoes.push_back(d.getFileName());
+					}
+				}
+				elements.push_back(new radio(nome, settings, opcoes));
+			}
+
 			else if (tipo == "ints" || tipo == "floats" || tipo == "bools" || tipo == "bangs" || tipo == "holds" || tipo == "colors" || tipo == "slider2ds") {
 				vector <string> nomes = ofSplitString(nome, "[");
 				string n = nomes[0];
@@ -417,11 +431,15 @@ void ofxDmtrUI3::save(string xml) {
 	xmlSettings.setValue("ofxDmtrUIVersion", 3.0);
 	for (auto & e : elements) {
 		//cout << typeid(e->getVal()).name() << endl;
-		if (e->kind == TOGGLE) {
+		if (e->kind == TOGGLE || e->kind == RADIOITEM) {
 			xmlSettings.setValue("element:" + e->name, (bool)e->getVal());
 		}
+		else if (e->kind == RADIO) {
+			cout << "saving radio " + e->getValString() << endl;
+			xmlSettings.setValue("element:" + e->name, (string)e->getValString());
+		}
 
-		if (e->kind != LABEL) {
+		else if (e->kind != LABEL) {
 			xmlSettings.setValue("element:" + e->name, e->getVal());
 		}
 	}
@@ -435,15 +453,28 @@ void ofxDmtrUI3::load(string xml) {
 
 	int UIVersion = xmlSettings.getValue("ofxDmtrUIVersion", 0);
 	for (auto & e : elements) {
-		string tagName = "element:" + e->name;
-		if (xmlSettings.tagExists(tagName)) {
-			if (e->kind == TOGGLE) {
-				bool valor = xmlSettings.getValue("element:" +e->name, (bool)e->getVal());
-				e->setBool(valor);
-			} else {
-				auto valor = xmlSettings.getValue("element:" +e->name, e->getVal());
+		//string tagName = "element:" + e->name;
+		//if (xmlSettings.tagExists(tagName))
+		{
+			if (e->kind == TOGGLE || e->kind == RADIOITEM) {
+				bool valor = xmlSettings.getValue("element:" +e->name, false); //(bool)e->getVal()
+				e->set(valor);
+				cout << "getting value for bool :: " +e->name + " :: "+ ofToString(valor) << endl;
+
+			}
+			else if (e->kind == RADIO) {
+				string valor = xmlSettings.getValue("element:" +e->name, "");
+				e->set(valor);
+				//cout << "setting value for radio :: " +e->name + " :: "+ valor << endl;
+			}
+
+			else if (e->kind == SLIDER) {
+				float valor = xmlSettings.getValue("element:" +e->name, e->getVal());
 				e->set(valor);
 			}
+
+			// nao usar nada pra label aqui
+
 //			cout << e->name + " :: " + ofToString( valor) << endl;
 //			cout << typeid(e).name() << endl;
 		}

@@ -16,4 +16,6 @@ class ofApp : public ofBaseApp{
 
 	void uiEvents(string & e);
 	ofxDmtrUI3 u;
+
+	string * cena = &u.settings.pString["scene"];
 };

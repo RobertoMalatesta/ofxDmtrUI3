@@ -33,6 +33,7 @@ public:
 	bool flowVert = true;
 	float hue = 60;
 
+	float opacity = 200;
 
 	ofPoint sliderDimensions = ofPoint(200, 20);
 	ofPoint margin = ofPoint(20,20);
@@ -41,22 +42,29 @@ public:
 	bool needsRedraw = false;
 	bool redraw = false;
 
-	map <string,float>	* pFloat;
-	map <string,bool>	* pBool;
+	map <string, float>		* pFloat;
+	map <string, bool>		* pBool;
+	map <string, string> 	pString;
 	int spacing = 5;
 	ofColor color;
 	float flowxbak = -100;
 
 	ofColor activeColor = ofColor(0,0,0,127);
 
+	void updateColor() {
+		hue = int(hue + 6)%255;
+		color = ofColor::fromHsb(hue, 155, 210, 255);
+	}
+
 	uiConfig() {
-//		color = ofColor::fromHsb(hue, 155, 255, 220);
-		color = ofColor::fromHsb(hue, 155, 255, 255);
+		updateColor();
+		//color = ofColor::fromHsb(hue, 155, 255, 255);
  	}
 
 	void setMarginChildren(bool m) {
 		spacing = m ? 1 : 5;
 	}
+
 
 	void update(ofRectangle & r) {
 		if (flowVert) {
@@ -69,9 +77,10 @@ public:
 				flow.x += r.width + spacing;
 			}
 		}
-		hue = int(hue + 6)%255;
-		color = ofColor::fromHsb(hue, 155, 255, 220);
+		updateColor();
 	}
+
+
 
 	void newLine() {
 		flow.y += sliderDimensions.y + spacing;
@@ -111,7 +120,9 @@ protected:
 
 public:
 	// medida provisoria ate resolver o radioitem
-	bool valBool = false;
+	string valString = "";
+
+
 
 	vector <element*> elements;
 
@@ -134,12 +145,18 @@ public:
 		settings->needsRedraw = need;
 	}
 
-	virtual void setBool(bool v) {}
-
 	void getProperties() {
 		int x = settings->flow.x;
 		int y = settings->flow.y;
 		color = settings->color;
+
+		// AUTOFLOW
+		int altura = ofGetWindowHeight() - settings->margin.y*2;
+		if (y + rect.height > altura) {
+			settings->newCol();
+			x = settings->flow.x;
+			y = settings->flow.y;
+		}
 
 		if (kind != LABEL) {
 			rect.x = x;
@@ -152,14 +169,7 @@ public:
 			activeRect.height = settings->sliderDimensions.y;
 		}
 
-		// AUTOFLOW
-		int altura = ofGetWindowHeight() - settings->margin.y*2;
-		if (y + rect.height > altura) {
-			settings->newCol();
-			x = settings->flow.x;
-			y = settings->flow.y;
 
-		}
 
 
 		// never draw.
@@ -262,11 +272,27 @@ public:
 		}
 	}
 
-	virtual void set(float i) {
-		cout << "set function on primitive element " + name << endl;
+	// remover daqui a pouco
+	//virtual void setBool(bool v) {}
+
+	virtual void set(bool i) {
+		cout << "set function on primitive element, using bool " + name << endl;
 	}
 
-	virtual float getVal() {	 return 1; }
+	virtual void set(float i) {
+		cout << "set function on primitive element, using float " + name << endl;
+	}
+
+	virtual void set(string i) {
+		cout << "set function on primitive element, using string " + name << endl;
+	}
+
+
+	virtual float getVal() {
+		cout << "getval function on primitive element" + name << endl;
+	} //return 1;
+
+	virtual string getValString() { return ""; } // never to be used
 
 	virtual void draw() {
 		//clear();
@@ -293,11 +319,6 @@ public:
 			cout << "checkMousePress :: " + name << endl;
 			firstClicked = true;
 			checkMouse(x, y);
-//			for (auto & e : elements) {
-//				if (e->boundsRect.inside(x,y)) {
-//					setRadioVal(e);
-//				}
-//			}
 		}
 	}
 
@@ -305,8 +326,6 @@ public:
 		// este check define se o click vai rodar livre ou nao
 		if (firstClicked || settings->flowFree)
 		{
-			//cout << "checkMouse :: " + name << endl;
-
 			if (boundsRect.inside(x,y)) {
 				setValFromMouse(x,y);
 				isPressed = true;
@@ -361,7 +380,6 @@ public:
 	// slider
 	void drawSpecific() {
 		ofSetColor(settings->activeColor);
-		//ofSetColor(activeRectColor);
 		ofDrawRectangle(activeRect);
 	}
 
@@ -375,23 +393,21 @@ public:
 };
 
 
-class toggle : public element {
+class label : public element {
 public:
-	bool val;
-
-
-	toggle(string n, uiConfig & u, bool v, bool l = true)  {
-		kind = TOGGLE;
+	label (string n, uiConfig & u) {
+		kind = LABEL;
 		settings = &u;
 		name = n;
-		showLabel = l;
 		getProperties();
-		set(v);
 	}
+};
 
-	void setBool(bool v) {
-		set(v);
-	}
+
+
+class booleano : public element {
+public:
+	bool val;
 
 	void set(bool v) {
 		val = v;
@@ -412,11 +428,22 @@ public:
 	float getVal() {
 		return val;
 	}
+};
 
-	// toggle
+
+class toggle : public booleano {
+public:
+	toggle(string n, uiConfig & u, bool v, bool l = true)  {
+		kind = TOGGLE;
+		settings = &u;
+		name = n;
+		showLabel = l;
+		getProperties();
+		set(v);
+	}
+
 	void drawSpecific() {
 		if (val) {
-			//ofSetColor(0, 127);
 			ofSetColor(settings->activeColor);
 			ofDrawRectangle(activeRect);
 		}
@@ -424,22 +451,76 @@ public:
 };
 
 
-class label : public element {
+class radioitem : public booleano {
 public:
-	label (string n, uiConfig & u) {
-		kind = LABEL;
+	radioitem (string n, uiConfig & u) {
+		kind = RADIOITEM;
 		settings = &u;
 		name = n;
 		getProperties();
 	}
+
+	void drawSpecific() {
+		if (val) {
+			ofSetColor(settings->activeColor);
+			ofDrawRectangle(activeRect);
+		}
+	}
 };
 
 
-class radioitem : public element {
+
+//class toggleOld : public element {
+//public:
+//	bool val;
+//
+//	toggleOld(string n, uiConfig & u, bool v, bool l = true)  {
+//		kind = TOGGLE;
+//		settings = &u;
+//		name = n;
+//		showLabel = l;
+//		getProperties();
+//		set(v);
+//	}
+//
+//	void set(bool v) {
+//		val = v;
+//		(*settings->pBool)[name] = val;
+//		needsRedraw();
+//
+//		string s = name + " :: TOGGLE :: " + (val ? "true" : "false");
+//		ofNotifyEvent(settings->uiEvent, s);
+//	}
+//
+//	void setValFromMouse(int x, int y) {
+//		if (!isPressed) {
+//			set(val ^ 1);
+//			isPressed = true;
+//		}
+//	}
+//
+//	float getVal() {
+//		return val;
+//	}
+//
+//	// toggle
+//	void drawSpecific() {
+//		if (val) {
+//			ofSetColor(settings->activeColor);
+//			ofDrawRectangle(activeRect);
+//		}
+//	}
+//};
+
+
+
+
+// estes dois poderiam ser um subgrupo em comum, tipo class radioitem : public bool : public element
+class radioitemOld : public element {
 public:
 	bool val = false;
 
-	radioitem (string n, uiConfig & u) {
+	radioitemOld (string n, uiConfig & u) {
 		kind = RADIOITEM;
 		settings = &u;
 		name = n;
@@ -448,18 +529,20 @@ public:
 
 	void setValFromMouse(int x, int y) {
 		if (!isPressed) {
-			setBool(val ^ 1);
+			set(val ^ 1);
 			isPressed = true;
 		}
 	}
 
-	void setBool(bool v) {
+	void set(bool v) {
 		val = v;
-		valBool = v;
-//		cout << "set radioitem :: " ;
-//		cout << (val ? "." : "x") << endl;
 		needsRedraw();
-		//draw();
+	}
+
+	float getVal() {
+		return val;
+		cout << "get val boolean for radioitem " + name << endl;
+		cout << val << endl;
 	}
 
 	void drawSpecific() {
@@ -473,8 +556,12 @@ public:
 
 class radio : public element {
 public:
+
 	vector <string> items;
 	radio (string n, uiConfig & u, vector <string> its) {
+
+		//(*settings).pString[name] = valString;
+
 		kind = RADIO;
 		settings = &u;
 		name = n;
@@ -492,17 +579,10 @@ public:
 			e->_parent = this;
 			boundsRect.growToInclude(e->boundsRect.getBottomRight());
 		}
-
 		settings->setFlowVert(true);
 	}
 
 	void drawSpecific() {
-		
-//		cout << "DRAW SPECIFIC RADIO" << endl;
-//		ofSetColor(0,255);
-//		ofDrawRectangle(boundsRect);
-//		cout << boundsRect << endl;
-
 		for (auto & e : elements) {
 			e->draw();
 		}
@@ -516,21 +596,53 @@ public:
 		}
 	}
 
+	string getValString() {
+		return valString;
+	}
+
+//	void getVal() {
+//		return valString;
+//	}
+
+	void set(string s) {
+		cout << "set on radio, string :: "+s << endl;
+		for (auto & e : elements) {
+			if (e->name == s) {
+				//if (valString != e->name)
+				{
+					valString = e->name;
+					e->set(true);
+					needsRedraw();
+				}
+			} else {
+				e->set(false);
+			}
+		}
+		settings->pString[name] = valString;
+
+	}
+
 	void setRadioVal(element * ee) {
 		//cout << "setradioval" << endl;
 		for (auto & e : elements) {
 			if (e->name == ee->name) {
-				e->setBool(1);
+				if (valString != e->name) {
+					valString = e->name;
+					cout << e->name << endl;
+					e->set(true);
+					needsRedraw();
+				}
 			}
 			else {
 				// apenas clarear o radioitem que estava selecionado
 				//if (!e->val)
 				{
-					e->setBool(0);
+					e->set(false);
 				}
 			}
 		}
-		needsRedraw();
+		settings->pString[name] = valString;
+
 		//drawSpecific();
 	}
 };
