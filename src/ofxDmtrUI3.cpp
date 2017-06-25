@@ -435,7 +435,7 @@ void ofxDmtrUI3::save(string xml) {
 			xmlSettings.setValue("element:" + e->name, (bool)e->getVal());
 		}
 		else if (e->kind == RADIO) {
-			cout << "saving radio " + e->getValString() << endl;
+			//cout << "saving radio " + e->getValString() << endl;
 			xmlSettings.setValue("element:" + e->name, (string)e->getValString());
 		}
 
@@ -459,7 +459,7 @@ void ofxDmtrUI3::load(string xml) {
 			if (e->kind == TOGGLE || e->kind == RADIOITEM) {
 				bool valor = xmlSettings.getValue("element:" +e->name, false); //(bool)e->getVal()
 				e->set(valor);
-				cout << "getting value for bool :: " +e->name + " :: "+ ofToString(valor) << endl;
+				//cout << "getting value for bool :: " +e->name + " :: "+ ofToString(valor) << endl;
 
 			}
 			else if (e->kind == RADIO) {
@@ -479,7 +479,7 @@ void ofxDmtrUI3::load(string xml) {
 //			cout << typeid(e).name() << endl;
 		}
 	}
-	settings.redraw = true;
+	//settings.redraw = true;
 }
 
 //--------------------------------------------------------------

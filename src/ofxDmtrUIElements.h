@@ -58,7 +58,6 @@ public:
 
 	uiConfig() {
 		updateColor();
-		//color = ofColor::fromHsb(hue, 155, 255, 255);
  	}
 
 	void setMarginChildren(bool m) {
@@ -316,7 +315,7 @@ public:
 
 	virtual void checkMousePress(int x, int y) {
 		if (boundsRect.inside(x,y)) {
-			cout << "checkMousePress :: " + name << endl;
+			//cout << "checkMousePress :: " + name << endl;
 			firstClicked = true;
 			checkMouse(x, y);
 		}
@@ -393,6 +392,7 @@ public:
 };
 
 
+
 class label : public element {
 public:
 	label (string n, uiConfig & u) {
@@ -404,7 +404,7 @@ public:
 };
 
 
-
+// TYPE TO HANDLE BOTH RADIOITEM AND TOGGLE
 class booleano : public element {
 public:
 	bool val;
@@ -470,98 +470,10 @@ public:
 
 
 
-//class toggleOld : public element {
-//public:
-//	bool val;
-//
-//	toggleOld(string n, uiConfig & u, bool v, bool l = true)  {
-//		kind = TOGGLE;
-//		settings = &u;
-//		name = n;
-//		showLabel = l;
-//		getProperties();
-//		set(v);
-//	}
-//
-//	void set(bool v) {
-//		val = v;
-//		(*settings->pBool)[name] = val;
-//		needsRedraw();
-//
-//		string s = name + " :: TOGGLE :: " + (val ? "true" : "false");
-//		ofNotifyEvent(settings->uiEvent, s);
-//	}
-//
-//	void setValFromMouse(int x, int y) {
-//		if (!isPressed) {
-//			set(val ^ 1);
-//			isPressed = true;
-//		}
-//	}
-//
-//	float getVal() {
-//		return val;
-//	}
-//
-//	// toggle
-//	void drawSpecific() {
-//		if (val) {
-//			ofSetColor(settings->activeColor);
-//			ofDrawRectangle(activeRect);
-//		}
-//	}
-//};
-
-
-
-
-// estes dois poderiam ser um subgrupo em comum, tipo class radioitem : public bool : public element
-class radioitemOld : public element {
-public:
-	bool val = false;
-
-	radioitemOld (string n, uiConfig & u) {
-		kind = RADIOITEM;
-		settings = &u;
-		name = n;
-		getProperties();
-	}
-
-	void setValFromMouse(int x, int y) {
-		if (!isPressed) {
-			set(val ^ 1);
-			isPressed = true;
-		}
-	}
-
-	void set(bool v) {
-		val = v;
-		needsRedraw();
-	}
-
-	float getVal() {
-		return val;
-		cout << "get val boolean for radioitem " + name << endl;
-		cout << val << endl;
-	}
-
-	void drawSpecific() {
-		if (val) {
-			ofSetColor(settings->activeColor);
-			ofDrawRectangle(activeRect);
-		}
-	}
-};
-
-
 class radio : public element {
 public:
-
 	vector <string> items;
 	radio (string n, uiConfig & u, vector <string> its) {
-
-		//(*settings).pString[name] = valString;
-
 		kind = RADIO;
 		settings = &u;
 		name = n;
@@ -591,7 +503,8 @@ public:
 	void setValFromMouse(int x, int y) {
 		for (auto & e : elements) {
 			if (e->boundsRect.inside(x,y)) {
-				setRadioVal(e);
+				//setRadioVal(e);
+				set(e->name);
 			}
 		}
 	}
@@ -600,49 +513,26 @@ public:
 		return valString;
 	}
 
-//	void getVal() {
-//		return valString;
-//	}
-
 	void set(string s) {
-		cout << "set on radio, string :: "+s << endl;
+		//cout << "set on radio, string :: "+s << endl;
 		for (auto & e : elements) {
 			if (e->name == s) {
-				//if (valString != e->name)
+				if (valString != e->name)
 				{
 					valString = e->name;
 					e->set(true);
 					needsRedraw();
 				}
 			} else {
-				e->set(false);
-			}
-		}
-		settings->pString[name] = valString;
-
-	}
-
-	void setRadioVal(element * ee) {
-		//cout << "setradioval" << endl;
-		for (auto & e : elements) {
-			if (e->name == ee->name) {
-				if (valString != e->name) {
-					valString = e->name;
-					cout << e->name << endl;
-					e->set(true);
-					needsRedraw();
-				}
-			}
-			else {
-				// apenas clarear o radioitem que estava selecionado
-				//if (!e->val)
-				{
+				if (e->getVal() == true) {
 					e->set(false);
 				}
 			}
 		}
 		settings->pString[name] = valString;
-
-		//drawSpecific();
 	}
+
+//	void setRadioVal(element * ee) {
+//		set(ee->name);
+//	}
 };

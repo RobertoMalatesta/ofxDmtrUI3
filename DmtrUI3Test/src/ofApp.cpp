@@ -43,7 +43,7 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-	cout << u.settings.pString["blend"] << endl;
+	//cout << u.settings.pString["blend"] << endl;
 }
 
 //--------------------------------------------------------------
