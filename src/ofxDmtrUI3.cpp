@@ -144,14 +144,6 @@ void ofxDmtrUI3::update() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::draw() {
-
-//	ofEnableAlphaBlending();
-
-	if (settings.needsRedraw) {
-	}
-
-	//
-
 	if (settings.needsRedraw) {
 		fboUI.begin();
 		for (auto & e : elements) {
@@ -163,6 +155,8 @@ void ofxDmtrUI3::draw() {
 				e->redraw = false;
 			}
 		}
+//		ofSetColor(255,0,0,40);
+//		ofDrawRectangle(settings.rect);
 		fboUI.end();
 		settings.needsRedraw = false;
 	}
@@ -186,7 +180,6 @@ void ofxDmtrUI3::draw() {
 				shader.end();
 				fboUI2.end();
 
-
 				fboUI.begin();
 				ofClear(0,0);
 				fboUI2.draw(0,0);
@@ -208,6 +201,7 @@ void ofxDmtrUI3::draw() {
 
 	}
 
+	// lately we never redraw fully, only on allocate (autofit?)
 	if (settings.redraw) {
 		cout << "SETTINGS redraw" << endl;
 		fboUI.begin();
@@ -285,16 +279,17 @@ void ofxDmtrUI3::createFromLine(string l) {
 				valores = cols[2];
 			}
 
-			if (tipo == "float") tipo = "slider";
+			if (tipo == "slider") tipo = "float";
+			if (tipo == "sliderInt") tipo = "int";
 			if (tipo == "bool") tipo = "toggle";
 
-			if (tipo == "slider" || tipo == "int" || tipo == "sliderVert") {
+			if (tipo == "float" || tipo == "int" || tipo == "sliderVert") {
 				vector <string> v = ofSplitString(valores, " ");
 				float min = ofToFloat(v[0]);
 				float max = ofToFloat(v[1]);
 				float val = ofToFloat(v[2]);
 //				elements.push_back(new slider(nome, settings, val));
-				elements.push_back(new slider(nome, settings, min, max, val));
+				elements.push_back(new slider(nome, settings, min, max, val, tipo=="int"));
 			}
 
 			else if (tipo == "label") {
@@ -320,7 +315,6 @@ void ofxDmtrUI3::createFromLine(string l) {
 				elements.push_back(new radio(nome, settings, opcoes));
 			}
 
-
 			else if (tipo == "dirList" || tipo == "dirListNoExt") {
 				ofDirectory dir;
 				dir.listDir(valores);
@@ -344,6 +338,31 @@ void ofxDmtrUI3::createFromLine(string l) {
 				for (int a=start; a<=end; a++) {
 					string newTipo = tipo.substr(0, tipo.size()-1);
 					createFromLine(newTipo + "	"+n + ofToString(a)+"	"+valores);
+				}
+			}
+
+			else if (tipo == "toggleMatrix") {
+				if (valores != "") {
+					vector <string> vals = ofSplitString(valores, " ");
+					int maxx = ofToInt(vals[0]);
+					int maxy = ofToInt(vals[1]);
+
+					int contagem = 0;
+					for (int y=0; y<maxy; y++) {
+						createFromLine("flowHoriz");
+						for (int x=0; x<maxx; x++) {
+							string nomeElement = nome + ofToString(x) + ofToString(y);
+
+							if (tipo == "toggleMatrixLinear") {
+								nomeElement = nome + ofToString(contagem);
+							}
+							string n = nome + "_" + ofToString(x) + "_" +ofToString(y);
+							createFromLine("toggleNoLabel	" + n + "	0");
+							contagem++;
+						}
+						createFromLine("flowVert");
+						createFromLine("");
+					}
 				}
 			}
 		}

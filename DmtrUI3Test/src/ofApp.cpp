@@ -2,6 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+	ofSetWindowPosition(40, 40);
 	//u.setup();
 	// ALL Elements definitions are loaded from this file:
 	u.createFromText("u.txt");
@@ -52,5 +53,5 @@ void ofApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void ofApp::uiEvents(string & e) {
-	//cout << e << endl;
+	cout << e << endl;
 }

@@ -26,9 +26,11 @@
 #pragma once
 
 
-
 struct uiConfig {
 public:
+	ofRectangle rect;
+
+	// mouse flows free from one item to another.
 	bool	 flowFree = true;
 	bool flowVert = true;
 	float hue = 60;
@@ -38,6 +40,7 @@ public:
 	ofPoint sliderDimensions = ofPoint(200, 20);
 	ofPoint margin = ofPoint(20,20);
 	ofPoint flow = margin;
+	float colx = margin.x;
 	ofEvent<string> uiEvent;
 	bool needsRedraw = false;
 	bool redraw = false;
@@ -46,13 +49,14 @@ public:
 	map <string, bool>		* pBool;
 	map <string, string> 	pString;
 	int spacing = 5;
+	int hueStep = 6;
 	ofColor color;
 	float flowxbak = -100;
 
-	ofColor activeColor = ofColor(0,0,0,127);
+	ofColor activeColor = ofColor(0,0,0,140);
 
 	void updateColor() {
-		hue = int(hue + 6)%255;
+		hue = int(hue + hueStep)%255;
 		color = ofColor::fromHsb(hue, 155, 210, 255);
 	}
 
@@ -60,23 +64,27 @@ public:
 		updateColor();
  	}
 
+	// only to make children items of radio.
 	void setMarginChildren(bool m) {
 		spacing = m ? 1 : 5;
+		hueStep = m ? 3 : 6;
 	}
+
 
 
 	void update(ofRectangle & r) {
 		if (flowVert) {
 			flow.y += r.height + spacing;
 		} else {
-			if ((flow.x + r.width + spacing + margin.x) > (flowxbak + sliderDimensions.x)) {
-				flow.x = flowxbak;
+			if ((flow.x + r.width) > (colx + sliderDimensions.x)) {
+				flow.x = colx;
 				flow.y += r.height + spacing;
 			} else {
 				flow.x += r.width + spacing;
 			}
 		}
 		updateColor();
+		rect.growToInclude(r);
 	}
 
 
@@ -86,20 +94,24 @@ public:
 	}
 	void newCol() {
 		//cout << "newcol" << endl;
-		flow.x += sliderDimensions.x + margin.x;
+		colx +=  sliderDimensions.x + margin.x;
+		//flow.x += sliderDimensions.x + margin.x;
+		flow.x = colx;
 		flow.y =  margin.y;
 	}
 
 	void setFlowVert(bool f) {
 		flowVert = f;
 		if (f) {
-			if (flowxbak > -100) {
-				flow.x = flowxbak;
-			}
+			flow.x = colx;
+//			if (flowxbak > -100) {
+//				flow.x = flowxbak;
+//			}
 			//newLine();
-		} else {
-			flowxbak = flow.x;
 		}
+//			else {
+//			flowxbak = flow.x;
+//		}
 	}
 };
 
@@ -118,8 +130,10 @@ protected:
 	bool showLabel = true;
 
 public:
+	bool useLabelShadow = true;
 	// medida provisoria ate resolver o radioitem
 	string valString = "";
+
 
 
 
@@ -134,10 +148,31 @@ public:
 	bool isPressed = false;
 	bool redraw = false;
 	string name;
+	string label = "";
+
 
 	// 19 june 2017
 	bool firstClicked = false;
 	//ofEvent*<string> uiEvent;
+
+	void notify() {
+		string tipo;
+//		SLIDER, LABEL, TOGGLE, RADIO, RADIOITEM
+
+		if (kind == SLIDER) { tipo = "SLIDER"; }
+		if (kind == TOGGLE) { tipo = "TOGGLE"; }
+		if (kind == RADIO) { tipo = "RADIO"; }
+		if (kind == RADIOITEM) { tipo = "RADIOITEM"; }
+
+		string valor = ofToString(getVal());
+		if (kind == RADIO) {
+			valor = getValString();
+		}
+
+		string s = name + " :: " + tipo + " :: " + valor;
+		ofNotifyEvent(settings->uiEvent, s);
+
+	}
 
 	void needsRedraw(bool need = true) {
 		redraw = need;
@@ -233,9 +268,20 @@ public:
 			boundsRect.width = margem*2 + contaletras * 8;
 			rect.width = boundsRect.width;
 			activeRect = rect;
+
+			// ugly solution to overflow but working
+			if ((settings->flow.x + boundsRect.width) >
+				(settings->colx + settings->sliderDimensions.x)) {
+				settings->update(boundsRect);
+				getProperties();
+				settings->flow.x -= boundsRect.width + settings->spacing;
+			}
 		}
 
 		settings->update(boundsRect);
+//		if (!settings->flowVert) {
+//			getProperties();
+//		}
 	}
 
 	void addSettings (uiConfig & u) {
@@ -247,32 +293,28 @@ public:
 		//cout << "element distruktr" << endl;
 	}
 
-	virtual void clear() {
-		// rever aqui como limpar o estado anterior
-		//cout << "clear " + name + "::" + ofToString(ofRandom(0,100)) << endl;
-//		ofSetColor(0, 0);
-//		ofDrawRectangle(activeRect);
-//		ofDrawRectangle(boundsRect);
-	}
-
 
 	void setColor(ofColor c) {
 		color = c;
 	}
 
 	virtual void drawLabel() {
-		ofSetColor(labelColor);
-		ofDrawBitmapString(name, labelPos.x, labelPos.y);
+		string n = name + label;
+		if (useLabelShadow) {
+			ofSetColor(0,180);
+			ofDrawBitmapString(n, labelPos.x - 1, labelPos.y + 1);
+		}
 
-		if (kind == SLIDER) {
-			string n = name; //+ "::" + ofToString(_valFloat);
+		//if (kind == SLIDER)
+		//if (useLabelShadow)
+		{
+			//decidir se remover o labelcolor totalmente
+			ofSetColor(labelColor);
 			ofSetColor(255);
-			ofDrawBitmapString(n, labelPos.x + 1, labelPos.y - 1);
+			ofDrawBitmapString(n, labelPos.x, labelPos.y);
 		}
 	}
 
-	// remover daqui a pouco
-	//virtual void setBool(bool v) {}
 
 	virtual void set(bool i) {
 		cout << "set function on primitive element, using bool " + name << endl;
@@ -288,16 +330,14 @@ public:
 
 
 	virtual float getVal() {
-		cout << "getval function on primitive element" + name << endl;
+		cout << "getVal function on primitive element " + name << endl;
 	} //return 1;
 
 	virtual string getValString() { return ""; } // never to be used
 
 	virtual void draw() {
-		//clear();
 		ofSetColor(color);
 		ofDrawRectangle(rect);
-
 		drawSpecific();
 
 		if (showLabel) {
@@ -340,22 +380,24 @@ public:
 };
 
 
+
 class slider : public element {
 private:
-	string label;
 	float min = 0;
 	float max = 1;
+	bool isInt;
 public:
 	float val = .5;
 	float lastVal;
 
-	slider(string n, uiConfig & u, float mi, float ma, float v) : min(mi), max(ma) {
+	slider(string n, uiConfig & u, float mi, float ma, float v, bool i) : min(mi), max(ma), isInt(i) {
 		settings = &u;
 		name = n;
 		getProperties();
 		set(v);
 	}
 
+	// slider
 	void set(float v) {
 		val = v;
 		activeRect.width = rect.width * ((val-min) / (max-min));
@@ -363,12 +405,12 @@ public:
 		(*settings->pFloat)[name] = val;
 
 		if (lastVal != val) {
+			lastVal = val;
 			needsRedraw();
-		}
-		lastVal = val;
+			label = " " + ofToString(val);
 
-		string s = name + " :: SLIDER :: " + (val ? "true" : "false");
-		ofNotifyEvent(settings->uiEvent, s);
+			notify();
+		}
 		// ofEvent here, criar um evento na classe pai.
 	}
 
@@ -386,8 +428,14 @@ public:
 		int xx = ofClamp(x, rect.x, rect.x + rect.width);
 		//this one is not needed, repeat on function set
 		activeRect.width = xx - rect.x;
-		float valFloat = min + (max-min)*(float(xx-rect.x)/(float)rect.width);
-		set(valFloat);
+		if (isInt) {
+			int valInt = min + ((max+1)-min)*(float(xx-rect.x)/(float)rect.width);
+			valInt = ofClamp(valInt, min, max);
+			set(valInt);
+		} else {
+			float valFloat = min + (max-min)*(float(xx-rect.x)/(float)rect.width);
+			set(valFloat);
+		}
 	}
 };
 
@@ -413,9 +461,7 @@ public:
 		val = v;
 		(*settings->pBool)[name] = val;
 		needsRedraw();
-
-		string s = name + " :: TOGGLE :: " + (val ? "true" : "false");
-		ofNotifyEvent(settings->uiEvent, s);
+		notify();
 	}
 
 	void setValFromMouse(int x, int y) {
@@ -489,6 +535,7 @@ public:
 
 		for (auto & e : elements) {
 			e->_parent = this;
+			// lindo isso. usar pra um retangulo da UI mesmo.
 			boundsRect.growToInclude(e->boundsRect.getBottomRight());
 		}
 		settings->setFlowVert(true);
@@ -505,6 +552,8 @@ public:
 			if (e->boundsRect.inside(x,y)) {
 				//setRadioVal(e);
 				set(e->name);
+				// checar apenas se muda o valor
+				notify();
 			}
 		}
 	}

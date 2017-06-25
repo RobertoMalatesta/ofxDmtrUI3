@@ -1,16 +1,10 @@
 bool	flowFree	1
-float	opacity	0 255 200
-
-flowHoriz
-radioitem	teste	1
-radioitem	teste2	1
-radioitem	teste3	1
-radioitem	teste4	1
-flowVert
-
+float	opacity	50 255 180
 dirListNoExt	scene	_scene
 
-radio	blend	no test a another muito_grande alpha add screen multiply subtract
+int	teste	0 4 2
+
+radio	blend	no test another a s d f g h muito_grande alpha add screen z x c v b n multiply subtract
 
 float	raio	100 300 200
 
@@ -28,7 +22,7 @@ float	bg_b	0 255 127
 
 newCol
 bool	falso	0
-radio	blend2	no test a another muito_grande alpha add screen multiply subtract
+#radio	blend2	no test a another a b c d e f g h muito_grande alpha add screen multiply subtract
 
 float	scale	0 1 .5
 float	scale2	0 1 .5
@@ -39,12 +33,16 @@ label	batch commands
 ints	sliders[0-5]	0 1000 0
 bools	toggles[0-5]	1
 
-#newcol
+newcol
 int	fboX	0 1000 0
 int	fboY	0 1000 0
+
+toggleMatrix	drum	8 3
+
 ints	newsliders[0-5]	0 1000 0
 bools	newtoggles[0-5]	0
 
+#fazer um toggle matrix
 flowHoriz
 toggleNoLabel	noLabel1	0
 toggleNoLabel	noLabel2	0
@@ -54,5 +52,11 @@ toggleNoLabel	noLabel5	0
 toggleNoLabel	noLabel6	0
 toggleNoLabel	noLabel7	0
 toggleNoLabel	noLabel8	0
-
 flowVert
+
+#flowHoriz
+radioitem	teste	1
+radioitem	teste2	1
+radioitem	teste3	1
+radioitem	teste4	1
+#flowVert
