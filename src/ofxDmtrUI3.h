@@ -30,16 +30,19 @@
 #include "ofMain.h"
 #include "ofEvents.h"
 #include "ofxXmlSettings.h"
-#include "ofxDmtrUIElements.h"
 
 #if defined( TARGET_OF_IPHONE ) || defined( TARGET_OF_IOS ) || defined( TARGET_ANDROID )
 	#define DMTRUI_TARGET_TOUCH
 #endif
 
+#include "ofxDmtrUIElements.h"
 
 class ofxDmtrUI3 : public ofBaseApp
 {
 public:
+
+
+
 	~ofxDmtrUI3();
 	ofxDmtrUI3();
 	void setup();
@@ -100,6 +103,11 @@ public:
 		}
 	}
 
+	void fboClear();
+
+
+	
+
 	// Straight from old ofxDmtrUI
 	
 	map <string, ofxDmtrUI3> uis;
@@ -127,6 +135,4 @@ public:
 		elements.push_back(new radio(name, settings, options));
 	}
 	void autoFit();
-
-	void fboClear();
 };

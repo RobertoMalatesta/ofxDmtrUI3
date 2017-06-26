@@ -27,7 +27,7 @@
 
 
 enum elementType {
-	SLIDER, LABEL, TOGGLE, RADIO, RADIOITEM, SLIDER2D
+	SLIDER, LABEL, TOGGLE, RADIO, RADIOITEM, SLIDER2D, PRESET, PRESETS
 };
 
 struct uiEv {
@@ -124,7 +124,7 @@ public:
 			}
 		}
 		updateColor();
-		//rect.growToInclude(r);
+		//rect.growToInclude(r.getBottomRight());
 	}
 
 	void newLine() {
@@ -167,7 +167,7 @@ public:
 
 	void (*invokeBool)(bool) = NULL;
 	void (*invokeFloat)(float) = NULL;
-	void (*invokeInt)(float) = NULL;
+	void (*invokeInt)(int) = NULL;
 	void (*invokeString)(string) = NULL;
 
 	bool useLabelShadow = true;
@@ -204,12 +204,15 @@ public:
 		if (kind == RADIO) { tipo = "RADIO"; }
 		if (kind == RADIOITEM) { tipo = "RADIOITEM"; }
 		if (kind == SLIDER2D) { tipo = "SLIDER2D"; }
+		if (kind == PRESETS) { tipo = "PRESETS"; }
 
 		string valor;
 
-		if (kind == RADIO) {
+		// irmaos
+		if (kind == RADIO || kind == PRESETS) {
 			valor = getValString();
-
+//			cout << "inside notify()" << endl;
+//			cout << valor << endl;
 			uiEv e = uiEv(name, kind, (string)valor);
 			ofNotifyEvent(settings->uiEvent, e);
 		}
@@ -218,16 +221,18 @@ public:
 			uiEv e = uiEv(name, kind, getValPoint());
 			ofNotifyEvent(settings->uiEvent, e);
 		}
-		else {
+
+		// avoid notification
+		//else {
+		else if (kind != PRESET && kind != RADIOITEM) {
 			valor = ofToString(getVal());
 			uiEv e = uiEv(name, kind, getVal());
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 
+		// LEGACY TEST
 		string s = name + " :: " + tipo + " :: " + valor;
 		ofNotifyEvent(settings->uiEventString, s);
-
-
 	}
 
 	void needsRedraw(bool need = true) {
@@ -240,13 +245,13 @@ public:
 		int y = settings->flow.y;
 		color = settings->color;
 
-		// AUTOFLOW
-		int altura = ofGetWindowHeight() - settings->margin.y*2;
-		if (y + rect.height > altura) {
-			settings->newCol();
-			x = settings->flow.x;
-			y = settings->flow.y;
-		}
+		// AUTOFLOW // nao desejavem por agora
+//		int altura = ofGetWindowHeight() - settings->margin.y*2;
+//		if (y + rect.height > altura) {
+//			settings->newCol();
+//			x = settings->flow.x;
+//			y = settings->flow.y;
+//		}
 
 		if (kind != LABEL) {
 			rect.x = x;
@@ -265,16 +270,36 @@ public:
 		boundsRect.width = settings->sliderDimensions.x;
 		boundsRect.height = settings->sliderDimensions.y;
 
+		// generic
+		labelPos.x = x + 5;
+		labelPos.y = y + 16;
+
+		// temporario
+		if (kind == PRESETS) {
+			rect.width = activeRect.width = 0;
+//			boundsRect.height = 400;
+//			rect = boundsRect;
+//			activeRect.width = 0;
+//			activeRect.height = 0;
+		}
+
+		if (kind == PRESET) {
+			boundsRect.width = 64;
+			boundsRect.height = 48;
+			activeRect = rect = boundsRect;
+
+		}
+
 		if (kind == SLIDER2D) {
-			labelPos.x = x + 5;
-			labelPos.y = y + 16;
+//			labelPos.x = x + 5;
+//			labelPos.y = y + 16;
 			boundsRect.height = settings->sliderDimensions.y * 2 + settings->spacing;
 			rect.height = boundsRect.height;
 			activeRect.width = 0;
 			activeRect.height = 0;
 		}
 
-		if (kind == LABEL) {
+		else if (kind == LABEL) {
 			labelPos.x = x;
 			labelPos.y = y + 16;
 		}
@@ -648,35 +673,12 @@ public:
 
 
 
-class radio : public element {
+
+// primitive class to radio and presets, classes that has children elements
+class mult : public element {
 public:
-
-
-
 	vector <string> items;
 	string lastVal;
-	radio (string n, uiConfig & u, vector <string> its) {
-		kind = RADIO;
-		settings = &u;
-		name = n;
-		items = its;
-		getProperties();
-		settings->setFlowVert(false);
-
-		u.setMarginChildren(true);
-		for (auto & i : items) {
-			elements.push_back(new radioitem(i, u));
-		}
-		u.setMarginChildren(false);
-
-		for (auto & e : elements) {
-			e->_parent = this;
-			// lindo isso. usar pra um retangulo da UI mesmo.
-			boundsRect.growToInclude(e->boundsRect.getBottomRight());
-		}
-		settings->setFlowVert(true);
-		settings->newLine();
-	}
 
 	void drawSpecific() {
 		for (auto & e : elements) {
@@ -687,7 +689,6 @@ public:
 	void setValFromMouse(int x, int y) {
 		for (auto & e : elements) {
 			if (e->boundsRect.inside(x,y)) {
-				//setRadioVal(e);
 				set(e->name);
 			}
 		}
@@ -698,7 +699,7 @@ public:
 	}
 
 	void set(string s) {
-		//cout << "set on radio, string :: "+s << endl;
+		cout << "set on radio OR presets, string :: "+s << endl;
 		int index = 0;
 		for (auto & e : elements) {
 			if (e->name == s) {
@@ -708,11 +709,16 @@ public:
 					e->set(true);
 					needsRedraw();
 					notify();
+
+					// provisorio
+					selectedId = index;
+
 					if ((*invokeString) != NULL) {
 						(*invokeString)(valString);
 					}
-					// provisorio
-					selectedId = index;
+					if ((*invokeInt) != NULL) {
+						(*invokeInt)(selectedId);
+					}
 				}
 			} else {
 				if (e->getVal() == true) {
@@ -722,7 +728,116 @@ public:
 			index++;
 		}
 		(*settings->pString)[name] = valString;
-		//settings->pString[name] = valString;
+	}
+
+
+};
+
+
+//class radio : public element {
+class radio : public mult {
+public:
+	radio (string n, uiConfig & u, vector <string> its) {
+		kind = RADIO;
+		settings = &u;
+		name = n;
+		items = its;
+		getProperties();
+
+		settings->setFlowVert(false);
+		u.setMarginChildren(true);
+		for (auto & i : items) {
+			elements.push_back(new radioitem(i, u));
+		}
+		u.setMarginChildren(false);
+
+		for (auto & e : elements) {
+			e->_parent = this;
+			boundsRect.growToInclude(e->boundsRect.getBottomRight());
+		}
+		settings->setFlowVert(true);
+		settings->newLine();
+	}
+};
+
+
+
+class preset : public booleano {
+public:
+	ofImage img;
+	ofFbo fbo;
+	ofPoint dimensions = ofPoint(64,48);
+	preset (string n, uiConfig & u) {
+		kind = PRESET;
+		settings = &u;
+		name = n;
+		getProperties();
+
+		// carregar imagem aqui
+		// presetsfolder
+		string presetsFolder = "_presets/";
+		string file = presetsFolder + name + ".tif";
+		fbo.allocate(dimensions.x, dimensions.y, GL_RGBA);
+		fbo.begin();
+		ofClear(30,255);
+		if (ofFile::doesFileExist(file)) {
+			img.load(file);
+			img.draw(0,0);
+		} else {
+			ofSetColor(255,0,40);
+			ofTranslate(fbo.getWidth()/2, fbo.getHeight()/2);
+			int n = 12;
+			ofDrawLine(-n, n, n, -n);
+			ofDrawLine(-n, -n, n, n);
+
+		}
+		fbo.end();
+	}
+
+	void drawSpecific() {
+		ofSetColor(255);
+
+		fbo.draw(rect.x, rect.y);
+		if (val) {
+			ofSetColor(settings->activeColor);
+			ofDrawRectangle(activeRect);
+		}
+	}
+};
+
+class presets : public mult {
+	public:
+	// ja tem na classe mae
+	//vector <element*> elements;
+	presets(string n, uiConfig & u) {
+		kind = PRESETS;
+		settings = &u;
+		name = n;
+		getProperties();
+
+		vector <string> items;
+		for (auto a=0; a<20; a++) {
+			items.push_back(ofToString(a));
+		}
+
+		settings->setFlowVert(false);
+		u.setMarginChildren(true);
+		for (auto & i : items) {
+			elements.push_back(new preset(i, u));
+		}
+		u.setMarginChildren(false);
+
+		for (auto & e : elements) {
+			e->_parent = this;
+			boundsRect.growToInclude(e->boundsRect.getBottomRight());
+		}
+		settings->setFlowVert(true);
+		settings->newLine();
+
+//		for (auto a=0; a<20; a++) {
+//			elements.push_back(new preset(ofToString(a), u));
+//			boundsRect.growToInclude(elements.back()->boundsRect.getBottomRight());
+//		}
 	}
 
 };

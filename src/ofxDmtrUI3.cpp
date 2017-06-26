@@ -117,6 +117,7 @@ void ofxDmtrUI3::setup() {
 	ofAddListener(settings.uiEvent,this, &ofxDmtrUI3::uiEvents);
 	ofAddListener(settings.uiEventString,this, &ofxDmtrUI3::uiEventsString);
 
+
 }
 // END SETUP
 
@@ -190,6 +191,13 @@ void ofxDmtrUI3::draw() {
 //--------------------------------------------------------------
 void ofxDmtrUI3::keyPressed(int key){
 
+	// bad access
+	if (key == 'a') {
+		if (UINAME == "master") {
+			getElement("allPresets")->set("3");
+		}
+	}
+
 	if ((key == 'f' || key == 'F')) {
 		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
 			ofToggleFullscreen();
@@ -239,6 +247,11 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 			else if (tipo == "autoFit") {
 				autoFit();
+			}
+
+			else if (tipo == "presets") {
+				elements.push_back(new presets("allPresets", settings));
+				cout << elements.back()->boundsRect << endl;
 			}
 
 			else if (tipo == "flowVert") {
@@ -445,11 +458,6 @@ void ofxDmtrUI3::uiEventsString(string & e) {
 }
 
 //--------------------------------------------------------------
-void ofxDmtrUI3::uiEvents(uiEv & e) {
-	//cout << e->name << endl;
-}
-
-//--------------------------------------------------------------
 void ofxDmtrUI3::onExit(ofEventArgs &data) {
 	//cout << "onexit dmtrui3" << endl;
 	save("default.xml");
@@ -569,10 +577,10 @@ auto ofxDmtrUI3::getVal(string n) {
 */
 
 
-
+// Dividir em outra pagina, legacy algo assim
 //--------------------------------------------------------------
 void ofxDmtrUI3::createSoftwareFromText(string file) {
-//	UINAME = "master";
+	UINAME = "master";
 //	keepSettings = true;
 //	useShortcut = true;
 
@@ -639,7 +647,7 @@ void ofxDmtrUI3::loadPresetAll(int n) {
 //	ofNotifyEvent(evento, te);
 }
 
-
+//--------------------------------------------------------------
 void ofxDmtrUI3::addUI(string nome, bool down) {
 	// aqui tenho tres ponteiros. o _uiLast o uiNext e o uiRight. nao sei se precisa tantos.
 	// de repente fazer um vector de ponteiros?
@@ -660,7 +668,6 @@ void ofxDmtrUI3::addUI(string nome, bool down) {
 
 	string fileName = nome+".txt";
 	if (ofFile::doesFileExist(fileName)) {
-		//cout << "file exists" << endl;
 		uis[nome].createFromText(fileName);
 	}
 
@@ -684,7 +691,6 @@ void ofxDmtrUI3::addUI(string nome, bool down) {
 	uis[nome]._uiFather = this;
 
 	_uiLast = &uis[nome];
-	//uis[nome].setup();
 	uis[nome].autoFit();
 
 	allUIs.push_back(&uis[nome]);
@@ -693,9 +699,7 @@ void ofxDmtrUI3::addUI(string nome, bool down) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::nextTo(ofxDmtrUI3 & u) {
-	//settings.hue = u.settings.hue;
 	u.autoFit();
-	
 	settings.rect.x = u.settings.rect.x + u.settings.rect.width + u.settings.margin.x;
 	settings.rect.y = 0;
 	u._uiRight = this;
@@ -707,15 +711,13 @@ void ofxDmtrUI3::nextTo(ofxDmtrUI3 & u) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::downTo(ofxDmtrUI3 & u) {
-	//cout << UINAME << endl;
 	u.autoFit();
-	//settings.hue = u.settings.hue;
 	settings.rect.x  = u.settings.rect.x ;
 	settings.rect.y  = u.settings.rect.y + u.settings.rect.height + u.settings.margin.y ;
 
-	cout << settings.rect.x << endl;
-	cout << settings.rect.y << endl;
-	cout << "------" << endl;
+//	cout << settings.rect.x << endl;
+//	cout << settings.rect.y << endl;
+//	cout << "------" << endl;
 	u._uiUnder = this;
 
 	if (_uiUnder != NULL) {
@@ -751,8 +753,10 @@ void ofxDmtrUI3::autoFit() {
 
 	fboSettings.width = settings.rect.width;
 	fboSettings.height = settings.rect.height;
-//	cout << settings.rect.width << endl;
-//	cout << settings.rect.height << endl;
+	cout << UINAME << endl;
+	cout << settings.rect.width << endl;
+	cout << settings.rect.height << endl;
+	cout << "------" << endl;
 
 	fboUI.allocate(fboSettings);
 	settings.redraw = true;
@@ -767,4 +771,21 @@ void ofxDmtrUI3::fboClear() {
 	ofSetColor(settings.bgColor);
 	ofDrawRectangle(0,0,fboUI.getWidth(), fboUI.getHeight());
 	fboUI.end();
+}
+
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::uiEvents(uiEv & e) {
+	//cout << "uiEvents from inside addon " + e.name + ":: " + e.s << endl;
+
+	//getElement("allPresets")->invokeInt = &ofxDmtrUI3::loadPresetAll;
+
+	// fazer somente se tiver o software invocado.
+	if (e.name == "allPresets") {
+		string p = getElement("allPresets")->getValString();
+		//cout << "allPresets val:: " << p << endl;
+		loadPresetAll(ofToInt(p));
+		// xaxa claramente com defeito aqui
+		//cout << "pString allPresets val:: " << pString["allPresets"] << endl;
+	}
 }
