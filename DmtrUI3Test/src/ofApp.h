@@ -4,7 +4,6 @@
 #include "ofxDmtrUI3.h"
 
 
-
 class ofApp : public ofBaseApp{
 
 	public:
@@ -15,10 +14,11 @@ class ofApp : public ofBaseApp{
 		void keyPressed(int key);
 		void keyReleased(int key);
 
-	void uiEvents(string & e);
-	ofxDmtrUI3 u;
+	void uiEventsString(string & e);
+	void uiEvents(uiEv & e);
 
-	string * cena = &u.settings.pString["scene"];
+	ofxDmtrUI3 u;
+	string * cena = &u.pString["scene"];
 
 	void setBoolApp(bool b) {
 		ofSystemAlertDialog(b ? "yes" : "no");

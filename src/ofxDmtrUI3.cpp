@@ -37,8 +37,10 @@ ofFbo::Settings fboSettings;
 //--------------------------------------------------------------
 void ofxDmtrUI3::setup() {
 
-	fboSettings.width = ofGetWindowWidth();
-	fboSettings.height = ofGetWindowHeight();
+//	fboSettings.width = ofGetWindowWidth();
+//	fboSettings.height = ofGetWindowHeight();
+	fboSettings.width = 10;
+	fboSettings.height = 10;
 	fboSettings.internalformat = GL_RGBA;
 //	fboSettings.numSamples = 0;
 //	fboSettings.useDepth = false;
@@ -86,21 +88,22 @@ void ofxDmtrUI3::setup() {
 
 
 	//cout << "setup" << endl;
-	settings.pFloat = &pFloat;
-	settings.pBool = &pBool;
+	settings.pFloat	 	= &pFloat;
+	settings.pInt	 	= &pInt;
+	settings.pBool 		= &pBool;
+	settings.pString	 	= &pString;
+	settings.pPoint 		= &pPoint;
 
 //	fboUI.allocate(ofGetWindowWidth(), ofGetWindowHeight(), GL_RGBA);
 	fboUI.allocate(fboSettings);
-	fboUI.begin();
-	ofClear(0,0);
-	fboUI.end();
 
-	fboUI2.allocate(fboSettings);
-	//fboUI2.allocate(ofGetWindowWidth(), ofGetWindowHeight(), GL_RGBA);
-	fboUI2.begin();
-	ofClear(0,0);
-	fboUI2.end();
-	
+	fboClear();
+
+//	fboUI2.allocate(fboSettings);
+//	fboUI2.begin();
+//	ofClear(0,0);
+//	fboUI2.end();
+
 	ofAddListener(ofEvents().draw, this, &ofxDmtrUI3::onDraw);
 	//ofAddListener(ofEvents().update, this, &ofxDmtrUI3::onUpdate);
 	ofAddListener(ofEvents().mousePressed, this, &ofxDmtrUI3::onMousePressed);
@@ -112,6 +115,7 @@ void ofxDmtrUI3::setup() {
 	ofAddListener(ofEvents().windowResized, this, &ofxDmtrUI3::onWindowResized);
 
 	ofAddListener(settings.uiEvent,this, &ofxDmtrUI3::uiEvents);
+	ofAddListener(settings.uiEventString,this, &ofxDmtrUI3::uiEventsString);
 
 }
 // END SETUP
@@ -136,6 +140,7 @@ ofxDmtrUI3::~ofxDmtrUI3() {
 	ofRemoveListener(ofEvents().windowResized, this, &ofxDmtrUI3::onWindowResized);
 
 	ofRemoveListener(settings.uiEvent,this, &ofxDmtrUI3::uiEvents);
+	ofRemoveListener(settings.uiEventString,this, &ofxDmtrUI3::uiEventsString);
 }
 
 //--------------------------------------------------------------
@@ -161,51 +166,14 @@ void ofxDmtrUI3::draw() {
 		settings.needsRedraw = false;
 	}
 
-	// modo com shader e FBO. legal.
-	if (2==3)
-	if (settings.needsRedraw) {
-		ofSetColor(255);
-		for (auto & e : elements) {
-			if (e->redraw) {
-				cout << "redraw :: " + e->name << endl;
-				fboUI2.begin();
-				ofClear(0,0);
-				shader.begin();
-				shader.setUniform1i("x", e->boundsRect.x);
-				shader.setUniform1i("y", e->boundsRect.y);
-				shader.setUniform1i("w", e->boundsRect.width);
-				shader.setUniform1i("h", e->boundsRect.height);
-				cout << e->boundsRect << endl;
-				fboUI.draw(0,0);
-				shader.end();
-				fboUI2.end();
-
-				fboUI.begin();
-				ofClear(0,0);
-				fboUI2.draw(0,0);
-				fboUI.end();
-
-			}
-		}
-
-		fboUI.begin();
-		for (auto & e : elements) {
-			if (e->redraw) {
-				e->draw();
-				e->needsRedraw(false);
-				e->redraw = false;
-			}
-		}
-		fboUI.end();
-		settings.needsRedraw = false;
-
-	}
 
 	// lately we never redraw fully, only on allocate (autofit?)
 	if (settings.redraw) {
-		cout << "SETTINGS redraw" << endl;
+		cout << "SETTINGS redraw :: " + UINAME << endl;
+
+		fboClear();
+
 		fboUI.begin();
-		ofClear(0,0);
 		ofSetColor(255);
 		for (auto & e : elements) {
 			e->draw();
@@ -214,13 +182,21 @@ void ofxDmtrUI3::draw() {
 		settings.redraw = false;
 	}
 	ofSetColor(255, settings.opacity);
-	fboUI.draw(0,0);
 
+	fboUI.draw(settings.rect.x, settings.rect.y);
 }
 
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::keyPressed(int key){
+
+	if ((key == 'f' || key == 'F')) {
+		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
+			ofToggleFullscreen();
+			// falta um needsredraw por aqui
+		}
+	}
+
 	if (key == '1' || key == '2' || key == '3' || key == '4' ) {
 		string nome = ofToString(char(key)) + ".xml";
 		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
@@ -259,6 +235,10 @@ void ofxDmtrUI3::createFromLine(string l) {
 		if (cols.size() == 1) {
 			if (tipo == "newcol" || tipo == "newCol") {
 				settings.newCol();
+			}
+
+			else if (tipo == "autoFit") {
+				autoFit();
 			}
 
 			else if (tipo == "flowVert") {
@@ -342,6 +322,11 @@ void ofxDmtrUI3::createFromLine(string l) {
 			else if (tipo == "sliderHeight") {
 				settings.sliderDimensions.y = ofToInt(nome);
 			}
+
+			else if (tipo == "addUI" || tipo == "addUIDown") {
+				addUI(nome, tipo == "addUIDown");
+			}
+
 
 
 			else if (tipo == "ints" || tipo == "floats" || tipo == "bools" || tipo == "bangs" || tipo == "holds" || tipo == "colors" || tipo == "slider2ds") {
@@ -429,14 +414,16 @@ void ofxDmtrUI3::onKeyReleased(ofKeyEventArgs& data) {
 void ofxDmtrUI3::onMousePressed(ofMouseEventArgs& data) {
 	for (auto & e : elements) {
 //		e->checkMouse(data.x, data.y);
-		e->checkMousePress(data.x, data.y);
+//		e->checkMousePress(data.x, data.y);
+		e->checkMousePress(data.x - settings.rect.x, data.y - settings.rect.y);
 	}
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMouseDragged(ofMouseEventArgs& data) {
 	for (auto & e : elements) {
-		e->checkMouse(data.x, data.y);
+//		e->checkMouse(data.x, data.y);
+		e->checkMouse(data.x - settings.rect.x, data.y - settings.rect.y);
 	}
 }
 
@@ -453,8 +440,13 @@ void ofxDmtrUI3::onMouseReleased(ofMouseEventArgs& data) {
 //}
 
 //--------------------------------------------------------------
-void ofxDmtrUI3::uiEvents(string & e) {
+void ofxDmtrUI3::uiEventsString(string & e) {
 	//cout << e << endl;
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::uiEvents(uiEv & e) {
+	//cout << e->name << endl;
 }
 
 //--------------------------------------------------------------
@@ -543,18 +535,24 @@ void ofxDmtrUI3::load(string xml) {
 void ofxDmtrUI3::reFlow() {
 	cout << "==== reflow" << endl;
 	settings.flow = settings.margin;
-	for (auto & e : elements) {
-		e->getProperties();
-	}
+//	for (auto & e : elements) {
+//		e->getProperties();
+//	}
+
+	// xaxa
+	// growtoinclude not working here
+//	settings.rect.width = 0;
+//	settings.rect.height = 0;
+//	for (auto & e : elements) {
+//		settings.rect.growToInclude(e->boundsRect);
+//	}
+//	fboSettings.width = settings.rect.width;
+//	fboSettings.height = settings.rect.height;
+//	cout << settings.rect.width << endl;
+//	cout << settings.rect.height << endl;
 
 
-	fboUI.allocate(fboSettings);
-
-	//fboUI.allocate(ofGetWindowWidth(), ofGetWindowHeight(), GL_RGBA);
-	fboUI.begin();
-	ofClear(0,0);
-	fboUI.end();
-	settings.redraw = true;
+	autoFit();
 }
 
 
@@ -569,3 +567,204 @@ auto ofxDmtrUI3::getVal(string n) {
 	}
 }
 */
+
+
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::createSoftwareFromText(string file) {
+//	UINAME = "master";
+//	keepSettings = true;
+//	useShortcut = true;
+
+	if (ofFile::doesFileExist("uiAll.txt")) {
+		createFromText("uiAll.txt");
+	}
+	createFromText(file);
+	//software.setup();
+
+	if (ofFile::doesFileExist("output.txt")) {
+		vector <string> output = textToVector("output.txt");
+		vector <string> dimensoes = ofSplitString(output[0], " ");
+		software.w = ofToInt(dimensoes[0]);
+		software.h = ofToInt(dimensoes[1]);
+	}
+
+#ifdef DMTRUI_TARGET_TOUCH
+	int format = GL_RGBA; //GL_RGBA32F_ARB  //GL_RGBA32F
+#else
+	int format = GL_RGBA32F_ARB; //GL_RGBA32F_ARB  //GL_RGBA32F
+#endif
+	ofFbo * fbo = &mapFbos["fbo"];
+	if (software.multiSampling == 0) {
+		fbo->allocate			(software.w, software.h, format);
+	} else {
+		fbo->allocate			(software.w, software.h, format, software.multiSampling);
+	}
+
+	fbo->begin();
+	ofClear(0,255);
+	fbo->end();
+
+	allUIs.push_back(this);
+
+	//mudar tudo pra fbo map aqui
+	//setFbo(fbo);
+	
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::setFbo(ofFbo &fbo) {
+	_fbo = &fbo;
+}
+
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::loadPresetAll(int n) {
+	for (auto & u : uis) {
+		string nome = software.presetsFolder + ofToString(n) + u.first +  ".xml";
+		u.second.load(nome);
+		//u.second.redraw = true;
+	}
+
+	software.presetLoaded = n;
+	//allPresets.set(n);
+
+	//redraw = true;
+
+	// fazer aqui um tipo de evento especial
+
+	// notify event
+//	dmtrUIEvent te;
+//	te.nome = "loadPresetAll";
+//	ofNotifyEvent(evento, te);
+}
+
+
+void ofxDmtrUI3::addUI(string nome, bool down) {
+	// aqui tenho tres ponteiros. o _uiLast o uiNext e o uiRight. nao sei se precisa tantos.
+	// de repente fazer um vector de ponteiros?
+	uis[nome].UINAME = nome;
+	//uis[nome].settings.bgColor = ofColor(ofRandom(255),ofRandom(255),ofRandom(255));
+	if (ofFile::doesFileExist("uiAll.txt")) {
+		uis[nome].createFromText("uiAll.txt");
+	}
+
+	if (down)
+	{
+		if (_uiLast != NULL) {
+			uis[nome].minimumWidth = _uiLast->settings.rect.width;
+		} else {
+			uis[nome].minimumWidth = settings.rect.width;
+		}
+	}
+
+	string fileName = nome+".txt";
+	if (ofFile::doesFileExist(fileName)) {
+		//cout << "file exists" << endl;
+		uis[nome].createFromText(fileName);
+	}
+
+	// uilast diz a ultima ui que foi adicionada. se nao houver Ž a master
+	if (_uiLast == NULL) {
+		uis[nome].settings.hue = settings.hue;
+
+		if (!down) {
+			uis[nome].nextTo(*this);
+		} else {
+			uis[nome].downTo(*this);
+		}
+	} else {
+		uis[nome].settings.hue = _uiLast->settings.hue;
+		if (!down) {
+			uis[nome].nextTo(*_uiLast);
+		} else {
+			uis[nome].downTo(*_uiLast);
+		}
+	}
+	uis[nome]._uiFather = this;
+
+	_uiLast = &uis[nome];
+	//uis[nome].setup();
+	uis[nome].autoFit();
+
+	allUIs.push_back(&uis[nome]);
+
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::nextTo(ofxDmtrUI3 & u) {
+	//settings.hue = u.settings.hue;
+	u.autoFit();
+	
+	settings.rect.x = u.settings.rect.x + u.settings.rect.width + u.settings.margin.x;
+	settings.rect.y = 0;
+	u._uiRight = this;
+
+	if (_uiUnder != NULL) {
+		_uiUnder->downTo(*this);
+	}
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::downTo(ofxDmtrUI3 & u) {
+	//cout << UINAME << endl;
+	u.autoFit();
+	//settings.hue = u.settings.hue;
+	settings.rect.x  = u.settings.rect.x ;
+	settings.rect.y  = u.settings.rect.y + u.settings.rect.height + u.settings.margin.y ;
+
+	cout << settings.rect.x << endl;
+	cout << settings.rect.y << endl;
+	cout << "------" << endl;
+	u._uiUnder = this;
+
+	if (_uiUnder != NULL) {
+		_uiUnder->downTo(*this);
+	}
+
+	if (_uiRight != NULL) {
+		_uiRight->nextTo(*this);
+	}
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::autoFit() {
+	//cout << "autoFit, still empty" << endl;
+
+//	if (_uiFather != NULL) {
+//		_uiFather->autoFit();
+//	}
+
+	int maxw = 0;
+	int maxh = 0;
+	for (auto & e : elements) {
+		//e->getProperties();
+		maxw = MAX(maxw, e->boundsRect.x + e->boundsRect.width);
+		maxh = MAX(maxh, e->boundsRect.y + e->boundsRect.height);
+	}
+
+//	settings.rect.width = maxw + settings.spacing;
+//	settings.rect.height = maxh + settings.spacing;
+
+	settings.rect.width  = maxw + settings.margin.x;
+	settings.rect.height = maxh + settings.margin.y;
+
+	fboSettings.width = settings.rect.width;
+	fboSettings.height = settings.rect.height;
+//	cout << settings.rect.width << endl;
+//	cout << settings.rect.height << endl;
+
+	fboUI.allocate(fboSettings);
+	settings.redraw = true;
+
+
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::fboClear() {
+	fboUI.begin();
+	ofClear(0,0);
+	ofSetColor(settings.bgColor);
+	ofDrawRectangle(0,0,fboUI.getWidth(), fboUI.getHeight());
+	fboUI.end();
+}

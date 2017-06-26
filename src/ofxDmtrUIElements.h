@@ -26,9 +26,46 @@
 #pragma once
 
 
+enum elementType {
+	SLIDER, LABEL, TOGGLE, RADIO, RADIOITEM, SLIDER2D
+};
+
+struct uiEv {
+public:
+	string name;
+	elementType kind;
+	bool b;
+	int i;
+	float f;
+	ofPoint p;
+	string s;
+	//uiEv();
+	uiEv(string n, elementType k) 				: name(n), kind(k) {}
+	uiEv(string n, elementType k, float ff)		: name(n), kind(k), f(ff) {}
+	uiEv(string n, elementType k, int ii) 		: name(n), kind(k), i(ii) {}
+	uiEv(string n, elementType k, bool bb) 		: name(n), kind(k), b(bb) {}
+	uiEv(string n, elementType k, ofPoint pp) 	: name(n), kind(k), p(pp) {}
+	uiEv(string n, elementType k, string ss) 	: name(n), kind(k), s(ss) {}
+};
+
+
+struct soft {
+public:
+	string presetsFolder;
+	int presetLoaded = -1;
+	int multiSampling = 0;
+	int w = 1280;
+	int h = 720;
+	
+	soft() {}
+};
+
+
 struct uiConfig {
 public:
 	ofRectangle rect;
+
+	ofColor bgColor = ofColor(40, 180);
 
 	// mouse flows free from one item to another.
 	bool	 flowFree = true;
@@ -41,14 +78,18 @@ public:
 	ofPoint margin = ofPoint(20,20);
 	ofPoint flow = margin;
 	float colx = margin.x;
-	ofEvent<string> uiEvent;
+	// legacy
+	ofEvent<string> uiEventString;
+	// complete
+	ofEvent<uiEv> uiEvent;
 	bool needsRedraw = false;
 	bool redraw = false;
 
 	map <string, float>		* pFloat;
+	map <string, int>		* pInt;
 	map <string, bool>		* pBool;
-	map <string, string> 	pString;
-	map <string, ofPoint>	pPoint;
+	map <string, string> 	* pString;
+	map <string, ofPoint>	* pPoint;
 	int spacing = 5;
 	int hueStep = 6;
 	ofColor color;
@@ -71,8 +112,6 @@ public:
 		hueStep = m ? 3 : 6;
 	}
 
-
-
 	void update(ofRectangle & r) {
 		if (flowVert) {
 			flow.y += r.height + spacing;
@@ -85,10 +124,8 @@ public:
 			}
 		}
 		updateColor();
-		rect.growToInclude(r);
+		//rect.growToInclude(r);
 	}
-
-
 
 	void newLine() {
 		flow.y += sliderDimensions.y + spacing;
@@ -105,20 +142,12 @@ public:
 		flowVert = f;
 		if (f) {
 			flow.x = colx;
-//			if (flowxbak > -100) {
-//				flow.x = flowxbak;
-//			}
-			//newLine();
 		}
-//			else {
-//			flowxbak = flow.x;
-//		}
 	}
 };
 
-enum elementType {
-	SLIDER, LABEL, TOGGLE, RADIO, RADIOITEM, SLIDER2D
-};
+
+
 
 class element {
 protected:
@@ -130,6 +159,12 @@ protected:
 	bool showLabel = true;
 
 public:
+	// 24 june 2017 - webcams
+	int selectedId = -1;
+
+
+	void (*invoke)(void) = NULL;
+
 	void (*invokeBool)(bool) = NULL;
 	void (*invokeFloat)(float) = NULL;
 	void (*invokeInt)(float) = NULL;
@@ -154,9 +189,13 @@ public:
 
 	// 19 june 2017
 	bool firstClicked = false;
-	//ofEvent*<string> uiEvent;
 
 	void notify() {
+		// fires any kind of void on any change
+		if ((*invoke) != NULL) {
+			(*invoke)();
+		}
+
 		string tipo;
 //		SLIDER, LABEL, TOGGLE, RADIO, RADIOITEM
 
@@ -167,18 +206,28 @@ public:
 		if (kind == SLIDER2D) { tipo = "SLIDER2D"; }
 
 		string valor;
+
 		if (kind == RADIO) {
 			valor = getValString();
+
+			uiEv e = uiEv(name, kind, (string)valor);
+			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (kind == SLIDER2D) {
 			valor = ofToString(getValPoint().x) + ":" + ofToString(getValPoint().y);
+			uiEv e = uiEv(name, kind, getValPoint());
+			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else {
 			valor = ofToString(getVal());
+			uiEv e = uiEv(name, kind, getVal());
+			ofNotifyEvent(settings->uiEvent, e);
 		}
 
 		string s = name + " :: " + tipo + " :: " + valor;
-		ofNotifyEvent(settings->uiEvent, s);
+		ofNotifyEvent(settings->uiEventString, s);
+
+
 	}
 
 	void needsRedraw(bool need = true) {
@@ -289,6 +338,9 @@ public:
 		}
 
 		settings->update(boundsRect);
+		// pra todos que precisam disso na inicializacao
+		// posteriormente remover pro toggle laembaixo;
+		needsRedraw();
 	}
 
 	void addSettings (uiConfig & u) {
@@ -413,13 +465,11 @@ public:
 	void set(ofPoint v) {
 		val = v;
 		if (lastVal != val) {
-			(settings->pPoint)[name] = val;
-			notify();
+			(*settings->pPoint)[name] = val;
 			lastVal = val;
 			needsRedraw();
 			label = " " + ofToString(val.x) + ":" + ofToString(val.y);
 			notify();
-
 		}
 	}
 
@@ -457,9 +507,9 @@ private:
 	bool isInt;
 public:
 	float val = .5;
-	float lastVal = val;
+	float lastVal;
 
-	slider(string n, uiConfig & u, float mi, float ma, float v, bool i) : min(mi), max(ma), isInt(i) {
+	slider(string n, uiConfig & u, float mi, float ma, float v, bool i=false) : min(mi), max(ma), isInt(i) {
 		settings = &u;
 		name = n;
 		getProperties();
@@ -472,7 +522,12 @@ public:
 
 		if (lastVal != val) {
 			activeRect.width = rect.width * ((val-min) / (max-min));
-			(*settings->pFloat)[name] = val;
+			if (isInt) {
+				val = int(val);
+				(*settings->pInt)[name] = val;
+			} else {
+				(*settings->pFloat)[name] = val;
+			}
 			lastVal = val;
 			needsRedraw();
 			label = " " + ofToString(val);
@@ -595,6 +650,9 @@ public:
 
 class radio : public element {
 public:
+
+
+
 	vector <string> items;
 	string lastVal;
 	radio (string n, uiConfig & u, vector <string> its) {
@@ -617,6 +675,7 @@ public:
 			boundsRect.growToInclude(e->boundsRect.getBottomRight());
 		}
 		settings->setFlowVert(true);
+		settings->newLine();
 	}
 
 	void drawSpecific() {
@@ -640,6 +699,7 @@ public:
 
 	void set(string s) {
 		//cout << "set on radio, string :: "+s << endl;
+		int index = 0;
 		for (auto & e : elements) {
 			if (e->name == s) {
 				if (valString != e->name)
@@ -651,14 +711,18 @@ public:
 					if ((*invokeString) != NULL) {
 						(*invokeString)(valString);
 					}
+					// provisorio
+					selectedId = index;
 				}
 			} else {
 				if (e->getVal() == true) {
 					e->set(false);
 				}
 			}
+			index++;
 		}
-		settings->pString[name] = valString;
+		(*settings->pString)[name] = valString;
+		//settings->pString[name] = valString;
 	}
 
 };

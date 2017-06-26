@@ -54,5 +54,6 @@ radioitem	teste2	1
 radioitem	teste3	1
 radioitem	teste4	1
 flowVert
-newCol
+
 togglesList	beam1 beam2 on off allright
+autoFit

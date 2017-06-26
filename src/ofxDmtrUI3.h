@@ -71,7 +71,8 @@ public:
 	void onExit(ofEventArgs &data);
 	void onWindowResized(ofResizeEventArgs &data);
 
-	void uiEvents(string & e);
+	void uiEventsString(string & e);
+	void uiEvents(uiEv & e);
 
 	//ofPoint flow = ofPoint(10, 10);
 	uiConfig settings;
@@ -81,8 +82,11 @@ public:
 
 //	bool onlyDrawOnRedraw = false;
 
-	map <string,float>	pFloat;
-	map <string,bool>	pBool;
+	map <string,float>		pFloat;
+	map <string,int>			pInt;
+	map <string,bool>		pBool;
+	map <string,string>		pString;
+	map <string,ofPoint>		pPoint;
 
 	void reFlow();
 
@@ -95,4 +99,34 @@ public:
 			}
 		}
 	}
+
+	// Straight from old ofxDmtrUI
+	
+	map <string, ofxDmtrUI3> uis;
+	vector <ofxDmtrUI3 *> allUIs;
+	map <string, ofFbo> mapFbos;
+	void createSoftwareFromText(string file);
+	void loadPresetAll(int n);
+	void setFbo(ofFbo &fbo);
+	// pointer to save presets from
+	ofFbo *_fbo;
+	soft software;
+	void addUI(string nome, bool down = false);
+
+	ofxDmtrUI3 *_uiUnder = NULL;
+	ofxDmtrUI3 *_uiRight = NULL;
+	ofxDmtrUI3 *_uiLast = NULL;
+	ofxDmtrUI3 *_uiFather = NULL;
+	string UINAME = "";
+	int minimumWidth = 100;
+
+	//ofRectangle rect;
+	void nextTo(ofxDmtrUI3 & uiNext);
+	void downTo(ofxDmtrUI3 & uiNext);
+	void addRadio(string name, vector<string> options, string sel = "") {
+		elements.push_back(new radio(name, settings, options));
+	}
+	void autoFit();
+
+	void fboClear();
 };
