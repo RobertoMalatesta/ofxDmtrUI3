@@ -426,17 +426,19 @@ void ofxDmtrUI3::onKeyReleased(ofKeyEventArgs& data) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMousePressed(ofMouseEventArgs& data) {
 	for (auto & e : elements) {
-//		e->checkMouse(data.x, data.y);
-//		e->checkMousePress(data.x, data.y);
-		e->checkMousePress(data.x - settings.rect.x, data.y - settings.rect.y);
+		//		e->checkMouse(data.x, data.y);
+		//		e->checkMousePress(data.x, data.y);
+		//e->checkMousePress(data.x - settings.rect.x, data.y - settings.rect.y);
+		e->checkMouseNeu(data.x - settings.rect.x, data.y - settings.rect.y, true);
 	}
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMouseDragged(ofMouseEventArgs& data) {
 	for (auto & e : elements) {
-//		e->checkMouse(data.x, data.y);
-		e->checkMouse(data.x - settings.rect.x, data.y - settings.rect.y);
+		//		e->checkMouse(data.x, data.y);
+		//e->checkMouse(data.x - settings.rect.x, data.y - settings.rect.y);
+		e->checkMouseNeu(data.x - settings.rect.x, data.y - settings.rect.y);
 	}
 }
 
@@ -445,12 +447,10 @@ void ofxDmtrUI3::onMouseReleased(ofMouseEventArgs& data) {
 	for (auto & e : elements) {
 		e->isPressed = false;
 		e->firstClicked = false;
+		e->dragging = false;
 	}
 }
 
-////--------------------------------------------------------------
-//void ofxDmtrUI3::onMouseMoved(ofMouseEventArgs& data) {
-//}
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::uiEventsString(string & e) {
@@ -626,26 +626,7 @@ void ofxDmtrUI3::setFbo(ofFbo &fbo) {
 }
 
 
-//--------------------------------------------------------------
-void ofxDmtrUI3::loadPresetAll(int n) {
-	for (auto & u : uis) {
-		string nome = software.presetsFolder + ofToString(n) + u.first +  ".xml";
-		u.second.load(nome);
-		//u.second.redraw = true;
-	}
 
-	software.presetLoaded = n;
-	//allPresets.set(n);
-
-	//redraw = true;
-
-	// fazer aqui um tipo de evento especial
-
-	// notify event
-//	dmtrUIEvent te;
-//	te.nome = "loadPresetAll";
-//	ofNotifyEvent(evento, te);
-}
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::addUI(string nome, bool down) {
@@ -784,8 +765,52 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 	if (e.name == "allPresets") {
 		string p = getElement("allPresets")->getValString();
 		//cout << "allPresets val:: " << p << endl;
-		loadPresetAll(ofToInt(p));
+
+		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
+			savePresetAll(ofToInt(p));
+		}
+		else {
+			loadPresetAll(ofToInt(p));
+		}
 		// xaxa claramente com defeito aqui
 		//cout << "pString allPresets val:: " << pString["allPresets"] << endl;
 	}
+}
+
+
+
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::savePresetAll(int n) {
+	cout << "savePresetAll" << n << endl;
+
+	for (auto & u : uis) {
+		//string nome = getPresetsFolder() + ofToString(n) + u.first +  ".xml";
+		string nome = ofToString(n) + u.first +  ".xml";
+		u.second.save(nome);
+	}
+	//presetLoaded = n;
+	//allPresets.set(n);
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::loadPresetAll(int n) {
+	cout << "loadPresetAll" << n << endl;
+	for (auto & u : uis) {
+		string nome = software.presetsFolder + ofToString(n) + u.first +  ".xml";
+		u.second.load(nome);
+		//u.second.redraw = true;
+	}
+
+	software.presetLoaded = n;
+	//allPresets.set(n);
+
+	//redraw = true;
+
+	// fazer aqui um tipo de evento especial
+
+	// notify event
+	//	dmtrUIEvent te;
+	//	te.nome = "loadPresetAll";
+	//	ofNotifyEvent(evento, te);
 }

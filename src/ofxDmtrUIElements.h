@@ -435,22 +435,27 @@ public:
 //		ofDrawRectangle(boundsRect);
 	}
 
+	// temporario somente pra resolver
+	bool dragging = false;
+
 	virtual void drawSpecific() {}
 
 	virtual void setValFromMouse(int x, int y) {}
 
 	virtual void setRadioVal(element * e) {}
 
-	virtual void checkMousePress(int x, int y) {
-		if (boundsRect.inside(x,y)) {
-			//cout << "checkMousePress :: " + name << endl;
-			firstClicked = true;
-			checkMouse(x, y);
+	virtual void checkMouseNeu(int x, int y, bool first = false) {
+		//cout << "checkmouseneu" << ":" << x << ":" << y << endl;
+		if (first) {
+			dragging = false;
+			if (boundsRect.inside(x,y)) {
+				firstClicked = true;
+				//checkMouseNeu(x, y);
+			}
+		} else {
+			dragging = true;
 		}
-	}
 
-	virtual void checkMouse(int x, int y) {
-		// este check define se o click vai rodar livre ou nao
 		if (firstClicked || settings->flowFree)
 		{
 			if (boundsRect.inside(x,y)) {
@@ -465,6 +470,32 @@ public:
 			}
 		}
 	}
+
+	// remover?
+//	virtual void checkMousePress(int x, int y) {
+//		if (boundsRect.inside(x,y)) {
+//			//cout << "checkMousePress :: " + name << endl;
+//			firstClicked = true;
+//			checkMouse(x, y);
+//		}
+//	}
+//
+//	virtual void checkMouse(int x, int y) {
+//		// este check define se o click vai rodar livre ou nao
+//		if (firstClicked || settings->flowFree)
+//		{
+//			if (boundsRect.inside(x,y)) {
+//				setValFromMouse(x,y);
+//				isPressed = true;
+//			} else {
+//				if (isPressed) {
+//					setValFromMouse(x,y);
+//					draw();
+//					isPressed = false;
+//				}
+//			}
+//		}
+//	}
 };
 
 
@@ -514,6 +545,7 @@ public:
 	}
 
 	void setValFromMouse(int x, int y) {
+		//cout << "setValFromMouse" << endl;
 		int xx = ofClamp(x, rect.x, rect.x + rect.width);
 		int yy = ofClamp(y, rect.y, rect.y + rect.height);
 		ofPoint xy = ofPoint (xx,yy) - ofPoint(rect.x, rect.y);
@@ -679,6 +711,7 @@ class mult : public element {
 public:
 	vector <string> items;
 	string lastVal;
+	bool eventWhenSameSelectedIndex = false;
 
 	void drawSpecific() {
 		for (auto & e : elements) {
@@ -699,12 +732,12 @@ public:
 	}
 
 	void set(string s) {
-		cout << "set on radio OR presets, string :: "+s << endl;
 		int index = 0;
 		for (auto & e : elements) {
 			if (e->name == s) {
-				if (valString != e->name)
+				if (valString != e->name || (eventWhenSameSelectedIndex && !dragging))
 				{
+					//cout << "set on radio OR presets, string :: "+s << endl;
 					valString = e->name;
 					e->set(true);
 					needsRedraw();
@@ -810,6 +843,9 @@ class presets : public mult {
 	// ja tem na classe mae
 	//vector <element*> elements;
 	presets(string n, uiConfig & u) {
+
+		eventWhenSameSelectedIndex = true;
+
 		kind = PRESETS;
 		settings = &u;
 		name = n;

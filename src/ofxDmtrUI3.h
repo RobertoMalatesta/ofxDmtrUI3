@@ -115,6 +115,7 @@ public:
 	map <string, ofFbo> mapFbos;
 	void createSoftwareFromText(string file);
 	void loadPresetAll(int n);
+	void savePresetAll(int n);
 	void setFbo(ofFbo &fbo);
 	// pointer to save presets from
 	ofFbo *_fbo;
@@ -135,4 +136,6 @@ public:
 		elements.push_back(new radio(name, settings, options));
 	}
 	void autoFit();
+
+
 };
