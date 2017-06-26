@@ -4,6 +4,7 @@
 #include "ofxDmtrUI3.h"
 
 
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -18,4 +19,8 @@ class ofApp : public ofBaseApp{
 	ofxDmtrUI3 u;
 
 	string * cena = &u.settings.pString["scene"];
+
+	void setBoolApp(bool b) {
+		ofSystemAlertDialog(b ? "yes" : "no");
+	}
 };

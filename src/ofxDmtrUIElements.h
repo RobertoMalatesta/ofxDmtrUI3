@@ -48,6 +48,7 @@ public:
 	map <string, float>		* pFloat;
 	map <string, bool>		* pBool;
 	map <string, string> 	pString;
+	map <string, ofPoint>	pPoint;
 	int spacing = 5;
 	int hueStep = 6;
 	ofColor color;
@@ -115,9 +116,8 @@ public:
 	}
 };
 
-// acho que nao vai mais precisar disso...
 enum elementType {
-	SLIDER, LABEL, TOGGLE, RADIO, RADIOITEM
+	SLIDER, LABEL, TOGGLE, RADIO, RADIOITEM, SLIDER2D
 };
 
 class element {
@@ -130,12 +130,14 @@ protected:
 	bool showLabel = true;
 
 public:
+	void (*invokeBool)(bool) = NULL;
+	void (*invokeFloat)(float) = NULL;
+	void (*invokeInt)(float) = NULL;
+	void (*invokeString)(string) = NULL;
+
 	bool useLabelShadow = true;
 	// medida provisoria ate resolver o radioitem
 	string valString = "";
-
-
-
 
 	vector <element*> elements;
 
@@ -150,7 +152,6 @@ public:
 	string name;
 	string label = "";
 
-
 	// 19 june 2017
 	bool firstClicked = false;
 	//ofEvent*<string> uiEvent;
@@ -163,15 +164,21 @@ public:
 		if (kind == TOGGLE) { tipo = "TOGGLE"; }
 		if (kind == RADIO) { tipo = "RADIO"; }
 		if (kind == RADIOITEM) { tipo = "RADIOITEM"; }
+		if (kind == SLIDER2D) { tipo = "SLIDER2D"; }
 
-		string valor = ofToString(getVal());
+		string valor;
 		if (kind == RADIO) {
 			valor = getValString();
+		}
+		else if (kind == SLIDER2D) {
+			valor = ofToString(getValPoint().x) + ":" + ofToString(getValPoint().y);
+		}
+		else {
+			valor = ofToString(getVal());
 		}
 
 		string s = name + " :: " + tipo + " :: " + valor;
 		ofNotifyEvent(settings->uiEvent, s);
-
 	}
 
 	void needsRedraw(bool need = true) {
@@ -203,16 +210,20 @@ public:
 			activeRect.height = settings->sliderDimensions.y;
 		}
 
-
-
-
 		// never draw.
 		boundsRect.x = x;
 		boundsRect.y = y;
 		boundsRect.width = settings->sliderDimensions.x;
 		boundsRect.height = settings->sliderDimensions.y;
 
-
+		if (kind == SLIDER2D) {
+			labelPos.x = x + 5;
+			labelPos.y = y + 16;
+			boundsRect.height = settings->sliderDimensions.y * 2 + settings->spacing;
+			rect.height = boundsRect.height;
+			activeRect.width = 0;
+			activeRect.height = 0;
+		}
 
 		if (kind == LABEL) {
 			labelPos.x = x;
@@ -225,7 +236,6 @@ public:
 			rect.width = 0;
 			rect.height = 0;
 			//boundsRect.height = settings->sliderDimensions.y * 2;
-
 		}
 
 		else if (kind == SLIDER) {
@@ -279,9 +289,6 @@ public:
 		}
 
 		settings->update(boundsRect);
-//		if (!settings->flowVert) {
-//			getProperties();
-//		}
 	}
 
 	void addSettings (uiConfig & u) {
@@ -290,7 +297,6 @@ public:
 
 	element() {}
 	~element() {
-		//cout << "element distruktr" << endl;
 	}
 
 
@@ -309,7 +315,7 @@ public:
 		//if (useLabelShadow)
 		{
 			//decidir se remover o labelcolor totalmente
-			ofSetColor(labelColor);
+			//ofSetColor(labelColor);
 			ofSetColor(255);
 			ofDrawBitmapString(n, labelPos.x, labelPos.y);
 		}
@@ -328,12 +334,17 @@ public:
 		cout << "set function on primitive element, using string " + name << endl;
 	}
 
+	virtual void set(ofPoint i) {
+		cout << "set function on primitive element, using ofPoint " + name << endl;
+	}
+
 
 	virtual float getVal() {
 		cout << "getVal function on primitive element " + name << endl;
 	} //return 1;
 
-	virtual string getValString() { return ""; } // never to be used
+	virtual string getValString() { cout << "never to be used :: " + name << endl; }
+	virtual ofPoint getValPoint() { cout << "never to be used :: " + name << endl; }
 
 	virtual void draw() {
 		ofSetColor(color);
@@ -381,6 +392,64 @@ public:
 
 
 
+class slider2d : public element {
+private:
+	ofPoint min = ofPoint(0,0);
+	ofPoint max = ofPoint(1,1);
+public:
+	ofPoint val = ofPoint(0.5, 0.5);
+	//ofPoint lastVal = val;
+	ofPoint lastVal;
+
+	slider2d(string n, uiConfig & u, ofPoint mi = ofPoint(0,0), ofPoint ma = ofPoint(1,1), ofPoint v = ofPoint(.5,.5))
+	: min(mi), max(ma) {
+		kind = SLIDER2D;
+		settings = &u;
+		name = n;
+		getProperties();
+		set(v);
+	}
+
+	void set(ofPoint v) {
+		val = v;
+		if (lastVal != val) {
+			(settings->pPoint)[name] = val;
+			notify();
+			lastVal = val;
+			needsRedraw();
+			label = " " + ofToString(val.x) + ":" + ofToString(val.y);
+			notify();
+
+		}
+	}
+
+	ofPoint getValPoint() {
+		return val;
+	}
+
+	// slider
+	void drawSpecific() {
+		ofSetColor(settings->activeColor);
+		ofDrawRectangle(activeRect);
+		ofSetColor(0);
+		float x = rect.x + val.x * rect.width;
+		float y = rect.y + val.y * rect.height;
+		ofDrawLine(x, rect.y, x, rect.y + rect.height);
+		ofDrawLine(rect.x, y, rect.x + rect.width, y);
+	}
+
+	void setValFromMouse(int x, int y) {
+		int xx = ofClamp(x, rect.x, rect.x + rect.width);
+		int yy = ofClamp(y, rect.y, rect.y + rect.height);
+		ofPoint xy = ofPoint (xx,yy) - ofPoint(rect.x, rect.y);
+		ofPoint wh = ofPoint (rect.width, rect.height);
+		ofPoint val = min + (max-min)*(xy/wh);
+		set(val);
+	}
+
+};
+
+
 class slider : public element {
 private:
 	float min = 0;
@@ -388,7 +457,7 @@ private:
 	bool isInt;
 public:
 	float val = .5;
-	float lastVal;
+	float lastVal = val;
 
 	slider(string n, uiConfig & u, float mi, float ma, float v, bool i) : min(mi), max(ma), isInt(i) {
 		settings = &u;
@@ -400,16 +469,18 @@ public:
 	// slider
 	void set(float v) {
 		val = v;
-		activeRect.width = rect.width * ((val-min) / (max-min));
-		label = name + " " + ofToString(val);
-		(*settings->pFloat)[name] = val;
 
 		if (lastVal != val) {
+			activeRect.width = rect.width * ((val-min) / (max-min));
+			(*settings->pFloat)[name] = val;
 			lastVal = val;
 			needsRedraw();
 			label = " " + ofToString(val);
-
 			notify();
+
+			if ((*invokeFloat) != NULL) {
+				(*invokeFloat)(val);
+			}
 		}
 		// ofEvent here, criar um evento na classe pai.
 	}
@@ -455,13 +526,18 @@ public:
 // TYPE TO HANDLE BOTH RADIOITEM AND TOGGLE
 class booleano : public element {
 public:
-	bool val;
+	bool val = false;
 
 	void set(bool v) {
-		val = v;
-		(*settings->pBool)[name] = val;
-		needsRedraw();
-		notify();
+		if (val != v) {
+			val = v;
+			(*settings->pBool)[name] = val;
+			needsRedraw();
+			notify();
+			if ((*invokeBool) != NULL) {
+				(*invokeBool)(val);
+			}
+		}
 	}
 
 	void setValFromMouse(int x, int y) {
@@ -486,6 +562,7 @@ public:
 		showLabel = l;
 		getProperties();
 		set(v);
+		needsRedraw();
 	}
 
 	void drawSpecific() {
@@ -519,6 +596,7 @@ public:
 class radio : public element {
 public:
 	vector <string> items;
+	string lastVal;
 	radio (string n, uiConfig & u, vector <string> its) {
 		kind = RADIO;
 		settings = &u;
@@ -552,8 +630,6 @@ public:
 			if (e->boundsRect.inside(x,y)) {
 				//setRadioVal(e);
 				set(e->name);
-				// checar apenas se muda o valor
-				notify();
 			}
 		}
 	}
@@ -571,6 +647,10 @@ public:
 					valString = e->name;
 					e->set(true);
 					needsRedraw();
+					notify();
+					if ((*invokeString) != NULL) {
+						(*invokeString)(valString);
+					}
 				}
 			} else {
 				if (e->getVal() == true) {
@@ -581,7 +661,4 @@ public:
 		settings->pString[name] = valString;
 	}
 
-//	void setRadioVal(element * ee) {
-//		set(ee->name);
-//	}
 };

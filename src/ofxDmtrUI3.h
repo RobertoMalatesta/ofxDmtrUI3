@@ -86,4 +86,13 @@ public:
 
 	void reFlow();
 
+
+	//--------------------------------------------------------------
+	element * getElement(string n) {
+		for (auto & e : elements) {
+			if (e->name == n) {
+				return e;
+			}
+		}
+	}
 };

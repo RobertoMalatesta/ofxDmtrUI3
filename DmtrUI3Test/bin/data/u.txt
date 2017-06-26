@@ -1,13 +1,13 @@
 bool	flowFree	1
+bool	invoke	0
 float	opacity	50 255 180
 dirListNoExt	scene	_scene
 
-int	teste	0 4 2
+int	testeInt	0 4 2
 
-radio	blend	no test another a s d f g h muito_grande alpha add screen z x c v b n multiply subtract
-
+bool	circle2	1
+slider2d	slider2d
 float	raio	100 300 200
-
 bool	drawCircle	1
 #float	r	0 1 .5
 #float	g	0 1 .5
@@ -16,11 +16,17 @@ float	r	0 255 127
 float	g	0 255 127
 float	b	0 255 128
 
+float	r2	0 255 127
+float	g2	0 255 127
+float	b2	0 255 128
+
 float	bg_r	0 255 127
 float	bg_g	0 255 127
 float	bg_b	0 255 127
 
 newCol
+radio	blend	no test another muito_grande alpha add screen subtract
+
 bool	falso	0
 #radio	blend2	no test a another a b c d e f g h muito_grande alpha add screen multiply subtract
 
@@ -42,21 +48,11 @@ toggleMatrix	drum	8 3
 ints	newsliders[0-5]	0 1000 0
 bools	newtoggles[0-5]	0
 
-#fazer um toggle matrix
 flowHoriz
-toggleNoLabel	noLabel1	0
-toggleNoLabel	noLabel2	0
-toggleNoLabel	noLabel3	0
-toggleNoLabel	noLabel4	0
-toggleNoLabel	noLabel5	0
-toggleNoLabel	noLabel6	0
-toggleNoLabel	noLabel7	0
-toggleNoLabel	noLabel8	0
-flowVert
-
-#flowHoriz
 radioitem	teste	1
 radioitem	teste2	1
 radioitem	teste3	1
 radioitem	teste4	1
-#flowVert
+flowVert
+newCol
+togglesList	beam1 beam2 on off allright

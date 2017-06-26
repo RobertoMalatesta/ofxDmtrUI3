@@ -315,6 +315,10 @@ void ofxDmtrUI3::createFromLine(string l) {
 				elements.push_back(new radio(nome, settings, opcoes));
 			}
 
+			else if (tipo == "slider2d") {
+				elements.push_back(new slider2d(nome, settings));
+			}
+
 			else if (tipo == "dirList" || tipo == "dirListNoExt") {
 				ofDirectory dir;
 				dir.listDir(valores);
@@ -329,6 +333,17 @@ void ofxDmtrUI3::createFromLine(string l) {
 				elements.push_back(new radio(nome, settings, opcoes));
 			}
 
+
+			// configurations
+			// todo : margin
+			else if (tipo == "sliderWidth") {
+				settings.sliderDimensions.x = ofToInt(nome);
+			}
+			else if (tipo == "sliderHeight") {
+				settings.sliderDimensions.y = ofToInt(nome);
+			}
+
+
 			else if (tipo == "ints" || tipo == "floats" || tipo == "bools" || tipo == "bangs" || tipo == "holds" || tipo == "colors" || tipo == "slider2ds") {
 				vector <string> nomes = ofSplitString(nome, "[");
 				string n = nomes[0];
@@ -339,6 +354,17 @@ void ofxDmtrUI3::createFromLine(string l) {
 					string newTipo = tipo.substr(0, tipo.size()-1);
 					createFromLine(newTipo + "	"+n + ofToString(a)+"	"+valores);
 				}
+			}
+
+			else if (tipo == "togglesList") {
+				vector <string> nomes = ofSplitString(nome, " ");
+				createFromLine("flowHoriz");
+				for (auto & n : nomes) {
+//					createFromLine("toggle	" + n + "	0");
+					createFromLine("radioitem	" + n + "	0");
+				}
+				createFromLine("flowVert");
+
 			}
 
 			else if (tipo == "toggleMatrix") {
@@ -457,6 +483,11 @@ void ofxDmtrUI3::save(string xml) {
 			//cout << "saving radio " + e->getValString() << endl;
 			xmlSettings.setValue("element:" + e->name, (string)e->getValString());
 		}
+		else if (e->kind == SLIDER2D) {
+			//cout << "saving radio " + e->getValString() << endl;
+			xmlSettings.setValue("element:" + e->name + ":x", e->getValPoint().x);
+			xmlSettings.setValue("element:" + e->name + ":y", e->getValPoint().y);
+		}
 
 		else if (e->kind != LABEL) {
 			xmlSettings.setValue("element:" + e->name, e->getVal());
@@ -484,6 +515,13 @@ void ofxDmtrUI3::load(string xml) {
 			else if (e->kind == RADIO) {
 				string valor = xmlSettings.getValue("element:" +e->name, "");
 				e->set(valor);
+				//cout << "setting value for radio :: " +e->name + " :: "+ valor << endl;
+			}
+
+			else if (e->kind == SLIDER2D) {
+				float x = xmlSettings.getValue("element:" +e->name + ":x", 0.0);
+				float y = xmlSettings.getValue("element:" +e->name + ":y", 0.0);
+				e->set(ofPoint(x,y));
 				//cout << "setting value for radio :: " +e->name + " :: "+ valor << endl;
 			}
 
@@ -518,6 +556,7 @@ void ofxDmtrUI3::reFlow() {
 	fboUI.end();
 	settings.redraw = true;
 }
+
 
 /*
  c++14 only
