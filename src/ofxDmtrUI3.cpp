@@ -37,6 +37,8 @@ ofFbo::Settings fboSettings;
 //--------------------------------------------------------------
 void ofxDmtrUI3::setup() {
 
+	settings.software = &software;
+
 //	fboSettings.width = ofGetWindowWidth();
 //	fboSettings.height = ofGetWindowHeight();
 	fboSettings.width = 10;
@@ -191,12 +193,7 @@ void ofxDmtrUI3::draw() {
 //--------------------------------------------------------------
 void ofxDmtrUI3::keyPressed(int key){
 
-	// bad access
-	if (key == 'a') {
-		if (UINAME == "master") {
-			getElement("allPresets")->set("3");
-		}
-	}
+
 
 	if ((key == 'f' || key == 'F')) {
 		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
@@ -211,6 +208,69 @@ void ofxDmtrUI3::keyPressed(int key){
 			save(nome);
 		} else {
 			load(nome);
+		}
+	}
+
+
+
+	//if(2==3)
+	{
+		if (key == 'a' || key == 'A') {
+			loadPresetAll(0, true);
+		}
+		else if (key == 's' || key == 'S') {
+			loadPresetAll(1, true);
+		}
+		else if (key == 'd' || key == 'D') {
+			loadPresetAll(2, true);
+		}
+		else if (key == 'f' || key == 'F') {
+			loadPresetAll(3, true);
+		}
+		else if (key == 'g' || key == 'G') {
+			loadPresetAll(4, true);
+		}
+		else if (key == 'h' || key == 'H') {
+			loadPresetAll(5, true);
+		}
+		else if (key == 'j' || key == 'J') {
+			loadPresetAll(6, true);
+		}
+		else if (key == 'k' || key == 'K') {
+			loadPresetAll(7, true);
+		}
+		else if (key == 'l' || key == 'L') {
+			loadPresetAll(8, true);
+		}
+		else if (key == ';') {
+			loadPresetAll(9, true);
+		}
+		else if (key == 39) { //single quote
+			loadPresetAll(10, true);
+		}
+		if (key == 'z' || key == 'Z') {
+			loadPresetAll(11, true);
+		}
+		else if (key == 'x' || key == 'X') {
+			loadPresetAll(12, true);
+		}
+		else if (key == 'c' || key == 'C') {
+			loadPresetAll(13, true);
+		}
+		else if (key == 'v' || key == 'V') {
+			loadPresetAll(14, true);
+		}
+		else if (key == 'b' || key == 'B') {
+			loadPresetAll(15, true);
+		}
+		else if (key == 'n' || key == 'N') {
+			loadPresetAll(16, true);
+		}
+		else if (key == 'm' || key == 'M') {
+			loadPresetAll(17, true);
+		}
+		else if (key == ',') {
+			loadPresetAll(18, true);
 		}
 	}
 }
@@ -580,6 +640,8 @@ auto ofxDmtrUI3::getVal(string n) {
 // Dividir em outra pagina, legacy algo assim
 //--------------------------------------------------------------
 void ofxDmtrUI3::createSoftwareFromText(string file) {
+	settings.software = &software;
+
 	UINAME = "master";
 //	keepSettings = true;
 //	useShortcut = true;
@@ -757,14 +819,9 @@ void ofxDmtrUI3::fboClear() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::uiEvents(uiEv & e) {
-	//cout << "uiEvents from inside addon " + e.name + ":: " + e.s << endl;
 
-	//getElement("allPresets")->invokeInt = &ofxDmtrUI3::loadPresetAll;
-
-	// fazer somente se tiver o software invocado.
 	if (e.name == "allPresets") {
 		string p = getElement("allPresets")->getValString();
-		//cout << "allPresets val:: " << p << endl;
 
 		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
 			savePresetAll(ofToInt(p));
@@ -772,45 +829,75 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 		else {
 			loadPresetAll(ofToInt(p));
 		}
-		// xaxa claramente com defeito aqui
-		//cout << "pString allPresets val:: " << pString["allPresets"] << endl;
 	}
 }
-
-
 
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::savePresetAll(int n) {
-	cout << "savePresetAll" << n << endl;
 
 	for (auto & u : uis) {
-		//string nome = getPresetsFolder() + ofToString(n) + u.first +  ".xml";
-		string nome = ofToString(n) + u.first +  ".xml";
+		string nome = getPresetsPath(ofToString(n) + u.first +  ".xml");
+		//cout << nome << endl;
 		u.second.save(nome);
 	}
-	//presetLoaded = n;
-	//allPresets.set(n);
+	if (_fbo != NULL) {
+		ofFbo fboThumb;
+		float w = software.presetDimensions.x;
+		float h = software.presetDimensions.y;
+		float aspectThumb = w / (float)h;
+		float aspectFbo = _fbo->getWidth() / (float)_fbo->getHeight();
+		float neww = w;
+		//float newh = h;
+		float offx = 0;
+		float offy = 0;
+
+		//wider fbo than thumbnail
+		if (aspectFbo > aspectThumb) {
+			float proporcao = _fbo->getHeight() / (float)h;
+			neww = _fbo->getWidth() / proporcao;
+			offx = (w - neww) / 2.0;
+		}
+
+		fboThumb.allocate(w,h,GL_RGBA);
+		fboThumb.begin();
+		ofClear(0,255);
+		_fbo->draw(offx, offy, neww,h);
+		fboThumb.end();
+
+		ofPixels pixels;
+		pixels.allocate( w, h, OF_IMAGE_COLOR_ALPHA);
+		fboThumb.readToPixels(pixels);
+		string imgPath = getPresetsPath(ofToString(n) +".tif");
+		//cout << imgPath << endl;
+		ofSaveImage(pixels, imgPath);
+		getElement("allPresets")->elements[n]->updateFromPixels(pixels);
+		getElement("allPresets")->needsRedraw();
+	}
 }
 
 //--------------------------------------------------------------
-void ofxDmtrUI3::loadPresetAll(int n) {
-	cout << "loadPresetAll" << n << endl;
+string ofxDmtrUI3::getPresetsPath(string ext) {
+	return software.presetsFolder + ext;
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
+	//cout << "loadPresetAll" << n << endl;
 	for (auto & u : uis) {
-		string nome = software.presetsFolder + ofToString(n) + u.first +  ".xml";
+		string nome = getPresetsPath(ofToString(n) + u.first + ".xml");
+		//cout << nome << endl;
 		u.second.load(nome);
-		//u.second.redraw = true;
+	}
+	// nao precisa
+	// software.presetLoaded = n;
+
+	if (fromKey) {
+		for (auto & e : elements) {
+			if (e->name == "allPresets") {
+				e->set(ofToString(n));
+			}
+		}
 	}
 
-	software.presetLoaded = n;
-	//allPresets.set(n);
-
-	//redraw = true;
-
-	// fazer aqui um tipo de evento especial
-
-	// notify event
-	//	dmtrUIEvent te;
-	//	te.nome = "loadPresetAll";
-	//	ofNotifyEvent(evento, te);
 }

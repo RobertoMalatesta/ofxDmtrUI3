@@ -30,6 +30,20 @@ enum elementType {
 	SLIDER, LABEL, TOGGLE, RADIO, RADIOITEM, SLIDER2D, PRESET, PRESETS
 };
 
+
+struct soft {
+public:
+	ofPoint presetDimensions = ofPoint(72,48);
+	string presetsFolder = "_presets/";
+	int presetLoaded = -1;
+	int multiSampling = 0;
+	int w = 1280;
+	int h = 720;
+	soft() {}
+};
+
+
+// rename to a more significant name?
 struct uiEv {
 public:
 	string name;
@@ -49,21 +63,21 @@ public:
 };
 
 
-struct soft {
-public:
-	string presetsFolder;
-	int presetLoaded = -1;
-	int multiSampling = 0;
-	int w = 1280;
-	int h = 720;
-	
-	soft() {}
-};
-
 
 struct uiConfig {
 public:
 	ofRectangle rect;
+
+	int nPresets = 21;
+
+	// ponteiro pro addUI geral.
+	soft * software = NULL;
+
+	string getPresetsPath(string ext) {
+		if (software != NULL) {
+			return software->presetsFolder + ext;
+		}
+	}
 
 	ofColor bgColor = ofColor(40, 180);
 
@@ -159,12 +173,12 @@ protected:
 	bool showLabel = true;
 
 public:
+	bool alwaysRedraw = false;
 	// 24 june 2017 - webcams
 	int selectedId = -1;
 
 
 	void (*invoke)(void) = NULL;
-
 	void (*invokeBool)(bool) = NULL;
 	void (*invokeFloat)(float) = NULL;
 	void (*invokeInt)(int) = NULL;
@@ -284,10 +298,12 @@ public:
 		}
 
 		if (kind == PRESET) {
-			boundsRect.width = 64;
-			boundsRect.height = 48;
+//			boundsRect.width = 72;
+//			boundsRect.height = 48;
+			boundsRect.width = settings->software->presetDimensions.x;
+			boundsRect.height = settings->software->presetDimensions.y;
 			activeRect = rect = boundsRect;
-
+			color = ofColor(0,255);
 		}
 
 		if (kind == SLIDER2D) {
@@ -380,6 +396,8 @@ public:
 	void setColor(ofColor c) {
 		color = c;
 	}
+
+	virtual void updateFromPixels(ofPixels & p) {}
 
 	virtual void drawLabel() {
 		string n = name + label;
@@ -535,8 +553,8 @@ public:
 
 	// slider
 	void drawSpecific() {
-		ofSetColor(settings->activeColor);
-		ofDrawRectangle(activeRect);
+//		ofSetColor(settings->activeColor);
+//		ofDrawRectangle(activeRect);
 		ofSetColor(0);
 		float x = rect.x + val.x * rect.width;
 		float y = rect.y + val.y * rect.height;
@@ -799,22 +817,22 @@ class preset : public booleano {
 public:
 	ofImage img;
 	ofFbo fbo;
-	ofPoint dimensions = ofPoint(64,48);
+	ofPoint dimensions; // = ofPoint(72, 48);
+
 	preset (string n, uiConfig & u) {
 		kind = PRESET;
 		settings = &u;
 		name = n;
 		getProperties();
 
-		// carregar imagem aqui
-		// presetsfolder
-		string presetsFolder = "_presets/";
-		string file = presetsFolder + name + ".tif";
+		dimensions = settings->software->presetDimensions;
+		string file = settings->getPresetsPath(name + ".tif");
 		fbo.allocate(dimensions.x, dimensions.y, GL_RGBA);
 		fbo.begin();
 		ofClear(30,255);
 		if (ofFile::doesFileExist(file)) {
 			img.load(file);
+			ofSetColor(255);
 			img.draw(0,0);
 		} else {
 			ofSetColor(255,0,40);
@@ -822,14 +840,23 @@ public:
 			int n = 12;
 			ofDrawLine(-n, n, n, -n);
 			ofDrawLine(-n, -n, n, n);
-
 		}
 		fbo.end();
 	}
 
+	void updateFromPixels(ofPixels & pixels) {
+		img.setFromPixels(pixels);
+		fbo.begin();
+		ofClear(30,255);
+		ofSetColor(255);
+		img.draw(0,0);
+		fbo.end();
+		needsRedraw();
+	}
+
+	// preset
 	void drawSpecific() {
 		ofSetColor(255);
-
 		fbo.draw(rect.x, rect.y);
 		if (val) {
 			ofSetColor(settings->activeColor);
@@ -845,14 +872,13 @@ class presets : public mult {
 	presets(string n, uiConfig & u) {
 
 		eventWhenSameSelectedIndex = true;
-
 		kind = PRESETS;
 		settings = &u;
 		name = n;
 		getProperties();
 
 		vector <string> items;
-		for (auto a=0; a<20; a++) {
+		for (auto a=0; a< settings->nPresets; a++) {
 			items.push_back(ofToString(a));
 		}
 

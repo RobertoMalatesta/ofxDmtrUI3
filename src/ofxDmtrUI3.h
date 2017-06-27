@@ -94,14 +94,6 @@ public:
 	void reFlow();
 
 
-	//--------------------------------------------------------------
-	element * getElement(string n) {
-		for (auto & e : elements) {
-			if (e->name == n) {
-				return e;
-			}
-		}
-	}
 
 	void fboClear();
 
@@ -114,7 +106,7 @@ public:
 	vector <ofxDmtrUI3 *> allUIs;
 	map <string, ofFbo> mapFbos;
 	void createSoftwareFromText(string file);
-	void loadPresetAll(int n);
+	void loadPresetAll(int n, bool fromKey = false);
 	void savePresetAll(int n);
 	void setFbo(ofFbo &fbo);
 	// pointer to save presets from
@@ -138,4 +130,25 @@ public:
 	void autoFit();
 
 
+
+
+	//--------------------------------------------------------------
+	element * getElement(string n) {
+		for (auto & e : elements) {
+			if (e->name == n) {
+				return e;
+			}
+		}
+	}
+
+//	//--------------------------------------------------------------
+//	preset * getPreset(int n) {
+//		for (preset & e : getElement("allPresets")->elements) {
+//			if (ofToInt(e->name) == n) {
+//				return e;
+//			}
+//		}
+//	}
+
+	string getPresetsPath(string ext="");
 };

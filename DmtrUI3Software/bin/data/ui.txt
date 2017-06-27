@@ -1,0 +1,59 @@
+bool	flowFree	1
+bool	invoke	0
+float	opacity	50 255 180
+dirListNoExt	scene	_scene
+
+int	testeInt	0 4 2
+
+bool	circle2	1
+slider2d	slider2d
+float	raio	100 300 200
+bool	drawCircle	1
+#float	r	0 1 .5
+#float	g	0 1 .5
+#float	b	0 1 .5
+float	r	0 255 127
+float	g	0 255 127
+float	b	0 255 128
+
+float	r2	0 255 127
+float	g2	0 255 127
+float	b2	0 255 128
+
+float	bg_r	0 255 127
+float	bg_g	0 255 127
+float	bg_b	0 255 127
+
+newCol
+radio	blend	no test another muito_grande alpha add screen subtract
+
+bool	falso	0
+#radio	blend2	no test a another a b c d e f g h muito_grande alpha add screen multiply subtract
+
+float	scale	0 1 .5
+float	scale2	0 1 .5
+float	scale3	0 1 .5
+#newCol
+
+label	batch commands
+ints	sliders[0-5]	0 1000 0
+bools	toggles[0-5]	1
+
+newcol
+int	fboX	0 1000 0
+int	fboY	0 1000 0
+
+toggleMatrix	drum	8 3
+
+ints	newsliders[0-5]	0 1000 0
+bools	newtoggles[0-5]	0
+
+flowHoriz
+radioitem	teste	1
+radioitem	teste2	1
+radioitem	teste3	1
+radioitem	teste4	1
+flowVert
+
+togglesList	beam1 beam2 on off allright
+autoFit
