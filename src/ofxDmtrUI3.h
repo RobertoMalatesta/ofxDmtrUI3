@@ -120,6 +120,7 @@ public:
 	ofxDmtrUI3 *_uiFather = NULL;
 	string UINAME = "";
 	int minimumWidth = 100;
+	bool keepSettings = false;
 
 	//ofRectangle rect;
 	void nextTo(ofxDmtrUI3 & uiNext);

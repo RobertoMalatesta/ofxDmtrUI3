@@ -398,6 +398,7 @@ public:
 	}
 
 	virtual void updateFromPixels(ofPixels & p) {}
+	virtual void updateImage() {}
 
 	virtual void drawLabel() {
 		string n = name + label;
@@ -826,8 +827,9 @@ public:
 		getProperties();
 
 		dimensions = settings->software->presetDimensions;
-		string file = settings->getPresetsPath(name + ".tif");
 		fbo.allocate(dimensions.x, dimensions.y, GL_RGBA);
+
+		string file = settings->getPresetsPath(name + ".tif");
 		fbo.begin();
 		ofClear(30,255);
 		if (ofFile::doesFileExist(file)) {
@@ -852,7 +854,37 @@ public:
 		img.draw(0,0);
 		fbo.end();
 		needsRedraw();
+		if (_parent != NULL) {
+			_parent->needsRedraw();
+		}
 	}
+
+	void updateImage() {
+		string file = settings->getPresetsPath(name + ".tif");
+		//cout << "update Image " + name + file << endl;
+		fbo.begin();
+		ofClear(30,255);
+		if (ofFile::doesFileExist(file)) {
+			//cout << "file exists " + file << endl;
+			img.load(file);
+			ofSetColor(255);
+			img.draw(0,0);
+		} else {
+			ofSetColor(255,0,40);
+			ofTranslate(fbo.getWidth()/2, fbo.getHeight()/2);
+			int n = 12;
+			ofDrawLine(-n, n, n, -n);
+			ofDrawLine(-n, -n, n, n);
+		}
+		fbo.end();
+		needsRedraw();
+		if (_parent != NULL) {
+			_parent->needsRedraw();
+		}
+
+	}
+
+
 
 	// preset
 	void drawSpecific() {
@@ -866,11 +898,8 @@ public:
 };
 
 class presets : public mult {
-	public:
-	// ja tem na classe mae
-	//vector <element*> elements;
+public:
 	presets(string n, uiConfig & u) {
-
 		eventWhenSameSelectedIndex = true;
 		kind = PRESETS;
 		settings = &u;
@@ -896,10 +925,6 @@ class presets : public mult {
 		settings->setFlowVert(true);
 		settings->newLine();
 
-//		for (auto a=0; a<20; a++) {
-//			elements.push_back(new preset(ofToString(a), u));
-//			boundsRect.growToInclude(elements.back()->boundsRect.getBottomRight());
-//		}
 	}
 
 };

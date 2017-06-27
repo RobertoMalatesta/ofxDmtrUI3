@@ -2,26 +2,26 @@
 <element>
     <flowFree>1</flowFree>
     <invoke>0</invoke>
-    <opacity>107.400001526</opacity>
-    <scene>test</scene>
+    <opacity>180.000000000</opacity>
+    <scene></scene>
     <testeInt>2.000000000</testeInt>
-    <circle2>0</circle2>
+    <circle2>1</circle2>
     <slider2d>
-        <x>0.615000010</x>
-        <y>0.488888890</y>
+        <x>0.500000000</x>
+        <y>0.500000000</y>
     </slider2d>
     <raio>200.000000000</raio>
     <drawCircle>1</drawCircle>
-    <r>98.174995422</r>
-    <g>62.475002289</g>
-    <b>65.025001526</b>
-    <r2>79.050003052</r2>
-    <g2>87.974998474</g2>
-    <b2>100.725006104</b2>
-    <bg_r>128.774993896</bg_r>
-    <bg_g>141.525009155</bg_g>
-    <bg_b>160.649993896</bg_b>
-    <blend>screen</blend>
+    <r>127.000000000</r>
+    <g>127.000000000</g>
+    <b>128.000000000</b>
+    <r2>127.000000000</r2>
+    <g2>127.000000000</g2>
+    <b2>128.000000000</b2>
+    <bg_r>127.000000000</bg_r>
+    <bg_g>127.000000000</bg_g>
+    <bg_b>127.000000000</bg_b>
+    <blend></blend>
     <falso>0</falso>
     <scale>0.500000000</scale>
     <scale2>0.500000000</scale2>
@@ -32,14 +32,14 @@
     <sliders3>0.000000000</sliders3>
     <sliders4>0.000000000</sliders4>
     <sliders5>0.000000000</sliders5>
-    <toggles0>0</toggles0>
-    <toggles1>0</toggles1>
-    <toggles2>0</toggles2>
-    <toggles3>0</toggles3>
-    <toggles4>0</toggles4>
-    <toggles5>0</toggles5>
-    <fboX>150.000000000</fboX>
-    <fboY>150.000000000</fboY>
+    <toggles0>1</toggles0>
+    <toggles1>1</toggles1>
+    <toggles2>1</toggles2>
+    <toggles3>1</toggles3>
+    <toggles4>1</toggles4>
+    <toggles5>1</toggles5>
+    <fboX>0.000000000</fboX>
+    <fboY>0.000000000</fboY>
     <drum_0_0>0</drum_0_0>
     <drum_1_0>0</drum_1_0>
     <drum_2_0>0</drum_2_0>

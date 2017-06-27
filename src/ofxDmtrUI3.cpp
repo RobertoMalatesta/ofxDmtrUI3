@@ -37,6 +37,7 @@ ofFbo::Settings fboSettings;
 //--------------------------------------------------------------
 void ofxDmtrUI3::setup() {
 
+
 	settings.software = &software;
 
 //	fboSettings.width = ofGetWindowWidth();
@@ -118,6 +119,7 @@ void ofxDmtrUI3::setup() {
 
 	ofAddListener(settings.uiEvent,this, &ofxDmtrUI3::uiEvents);
 	ofAddListener(settings.uiEventString,this, &ofxDmtrUI3::uiEventsString);
+
 
 
 }
@@ -520,7 +522,12 @@ void ofxDmtrUI3::uiEventsString(string & e) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::onExit(ofEventArgs &data) {
 	//cout << "onexit dmtrui3" << endl;
-	save("default.xml");
+
+
+	if (keepSettings) {
+		save("_presets/" + UINAME + ".xml");
+		//save(getPresetsPath(UINAME + ".xml"));
+	}
 }
 
 //--------------------------------------------------------------
@@ -558,6 +565,7 @@ void ofxDmtrUI3::save(string xml) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::load(string xml) {
+	cout << "load :: " + xml << endl;
 	ofxXmlSettings xmlSettings;
 	xmlSettings.loadFile(xml);
 
@@ -640,10 +648,11 @@ auto ofxDmtrUI3::getVal(string n) {
 // Dividir em outra pagina, legacy algo assim
 //--------------------------------------------------------------
 void ofxDmtrUI3::createSoftwareFromText(string file) {
+
 	settings.software = &software;
 
 	UINAME = "master";
-//	keepSettings = true;
+	keepSettings = true;
 //	useShortcut = true;
 
 	if (ofFile::doesFileExist("uiAll.txt")) {
@@ -677,9 +686,9 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 
 	allUIs.push_back(this);
 
-	//mudar tudo pra fbo map aqui
-	//setFbo(fbo);
-	
+	if (keepSettings) {
+		load("_presets/" + UINAME + ".xml");
+	}
 }
 
 //--------------------------------------------------------------
@@ -819,6 +828,27 @@ void ofxDmtrUI3::fboClear() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::uiEvents(uiEv & e) {
+
+	if (e.name == "presetsFolder") {
+
+		// consertar o pString por algum motivo
+//		software.presetsFolder = "_presets/" + pString["presetsFolder"] + "/";
+		software.presetsFolder = "_presets/" + getElement("presetsFolder")->getValString() + "/";
+
+
+		// reload images here
+
+		if (!ofFile::doesFileExist(software.presetsFolder)) {
+			if (!ofFile::doesFileExist("_presets")) {
+				ofDirectory::createDirectory("_presets");
+			}
+			ofDirectory::createDirectory(software.presetsFolder);
+		}
+
+		for (auto & e : getElement("allPresets")->elements) {
+			e->updateImage();
+		}
+	}
 
 	if (e.name == "allPresets") {
 		string p = getElement("allPresets")->getValString();
