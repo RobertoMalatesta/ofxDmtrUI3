@@ -1,9 +1,11 @@
 # ofxDmtrUI3
 
-Still not for production use. Handle with care.  
-Just float slider and bool toggle working now.
+## 2017 june 29
+First version is ready to go. all the basics working and building my first project using it.
+~~Still not for production use. Handle with care.  
+Just float slider and bool toggle working now.~~
 
-2017 apr 17
+## 2017 apr 17
 It has been one year since the first version of ofxDmtrUI came out.
 Now it is time to commemorate and write another UI, with similar ideas and look, more concise code.
 
