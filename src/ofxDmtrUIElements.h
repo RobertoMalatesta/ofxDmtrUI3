@@ -73,10 +73,10 @@ public:
 
 
 	//senao fazer pointer to function aqui...
-	std::function<void(string,string)> updateUI = NULL;
+	//std::function<void(string,string)> updateUI = NULL;
 
 	//void (*updateUI)(string,string) = NULL;
-	map <string, string> radioUIMap;
+	//map <string, string> radioUIMap;
 	ofRectangle rect;
 	int nPresets = 21;
 	// ponteiro pro addUI geral.
@@ -88,9 +88,6 @@ public:
 		}
 	}
 
-	void changeUI(string s) {
-
-	}
 
 	ofColor bgColor = ofColor(40, 180);
 
@@ -192,6 +189,8 @@ protected:
 	bool showLabel = true;
 
 public:
+	std::function<void(string, string)> changeUI = NULL;
+
 	bool alwaysRedraw = false;
 	// 24 june 2017 - webcams
 	int selectedId = -1;
@@ -757,8 +756,6 @@ class mult : public element {
 public:
 
 	string folder;
-	std::function<void(string, string)> changeUI = NULL;
-
 	vector <string> items;
 	string lastVal;
 	bool eventWhenSameSelectedIndex = false;
@@ -795,32 +792,26 @@ public:
 					//cout << "set on radio OR presets, string :: "+s << endl;
 					valString = e->name;
 					(*settings->pString)[name] = valString;
-
-
-					// evento especial pra scene
-					//if (settings->radioUIMap[name] != "")
-					if ( settings->radioUIMap.find(name) != settings->radioUIMap.end() ) {
-						settings->changeUI(name);
-
-					}
-
-
 					e->set(true);
 					needsRedraw();
 					notify();
 
+					if (changeUI != NULL) {
+						//cout << "changeUI not null" << endl;
+						string uiSceneFolder = "_scene/";
+						string f = uiSceneFolder + valString + ".txt";
+						//cout << f << endl;
+						changeUI(name, f);
+					}
+
+					//							(*settings->updateUI)(uiScene, f);
 					if (uiScene != "") {
 						// pointer to function melhor?
 						//uis[uiScene].clear();
 
 						// temp
-						string uiSceneFolder = "_scene/";
-						string f = uiSceneFolder + valString + ".txt";
-						cout << f << endl;
-						changeUI(uiScene, f);
-//						if (settings->updateUI != NULL) {
-//							(*settings->updateUI)(uiScene, f);
-//						}
+						//changeUI(uiScene, f);
+
 						//uis[uiScene].createFromText(f);
 					}
 

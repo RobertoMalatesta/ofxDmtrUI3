@@ -155,9 +155,27 @@ public:
 	string getPresetsPath(string ext="");
 	void clear(bool keepVars = false);
 
-	void updateUI(string ui, string path) {
-		cout << "update ui :: " + ui + " :: " + path;
-		uis[ui].clear();
-		uis[ui].createFromText(path);
+	void changeUI(string ui, string path) {
+		cout << "update ui :: " + ui + " :: " + path << endl;
+		if (ofFile::doesFileExist(path)) {
+			cout << "file exists" << endl;
+		} else {
+			cout << "file doesnt exist" << endl;
+		}
+		ui = "ui" + ui;
+		cout << ui << endl;
+
+		//ui = "ui";
+		//_uiFather->
+		
+		if ( _uiFather->uis.find(ui) != _uiFather->uis.end() ) {
+			cout << uis[ui].UINAME << endl;
+			_uiFather->uis[ui].clear();
+			_uiFather->uis[ui].createFromText(path);
+			_uiFather->uis[ui].autoFit();
+			_uiFather->uis[ui].settings.redraw = true;
+		} else {
+			cout << "uis key not found" << endl;
+		}
 	}
 };

@@ -89,8 +89,6 @@ void ofxDmtrUI3::setup() {
 
 	//cout << "setup" << endl;
 
-	//settings.uis	 	= &uis;
-
 	settings.pFloat	 	= &pFloat;
 	settings.pInt	 	= &pInt;
 	settings.pBool 		= &pBool;
@@ -174,8 +172,7 @@ void ofxDmtrUI3::draw() {
 
 	// lately we never redraw fully, only on allocate (autofit?)
 	if (settings.redraw) {
-		cout << "SETTINGS redraw :: " + UINAME << endl;
-
+		cout << "SETTINGS REDRAWWW  :: " + UINAME << endl;
 		fboClear();
 
 		fboUI.begin();
@@ -375,19 +372,19 @@ void ofxDmtrUI3::createFromLine(string l) {
 			}
 
 			// remover
-			else if (tipo == "radioUI") {
-				string nome = cols[1];
-				string uiName = cols[2];
-				settings.radioUIMap[nome] = uiName;
-
-			}
+//			else if (tipo == "radioUI") {
+//				string nome = cols[1];
+//				string uiName = cols[2];
+//				settings.radioUIMap[nome] = uiName;
+//
+//			}
 
 			else if (tipo == "dirList" || tipo == "dirListNoExt" || tipo == "scene") {
 				ofDirectory dir;
 				dir.listDir(valores);
 				vector <string> opcoes;
 				for (auto & d : dir) {
-					if (tipo == "dirListNoExt") {
+					if (tipo == "dirListNoExt" || tipo == "scene") {
 						opcoes.push_back(d.getBaseName());
 					} else {
 						opcoes.push_back(d.getFileName());
@@ -396,8 +393,15 @@ void ofxDmtrUI3::createFromLine(string l) {
 				if (tipo == "scene") {
 					elements.push_back(new radio(nome, settings, opcoes));
 					elements.back()->setFolder(valores);
-					settings.updateUI = std::bind(
-					&ofxDmtrUI3::updateUI, this, "", "");
+
+					using namespace std::placeholders;
+
+					//if (_uiFather != NULL) {
+
+					elements.back()->changeUI = std::bind(
+					&ofxDmtrUI3::changeUI, this, _1, _2);
+
+					cout << "inicializando tipo == scene" << endl;
 				}
 				else {
 					elements.push_back(new radio(nome, settings, opcoes));
@@ -821,14 +825,14 @@ void ofxDmtrUI3::autoFit() {
 
 	fboSettings.width = settings.rect.width;
 	fboSettings.height = settings.rect.height;
-	cout << UINAME << endl;
-	cout << settings.rect.width << endl;
-	cout << settings.rect.height << endl;
-	cout << "------" << endl;
+//	cout << UINAME << endl;
+//	cout << settings.rect.width << endl;
+//	cout << settings.rect.height << endl;
+//	cout << "------" << endl;
 
 	fboUI.allocate(fboSettings);
 	settings.redraw = true;
-
+	settings.needsRedraw = true;
 
 }
 
