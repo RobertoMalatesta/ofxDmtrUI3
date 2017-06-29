@@ -148,6 +148,14 @@ ofxDmtrUI3::~ofxDmtrUI3() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::update() {
+	for (auto & p : pFloat) {
+		if (easing > 0) {
+			pEasy[p.first] += (pFloat[p.first] - pEasy[p.first])/easing;
+		}
+		else {
+			pEasy[p.first] = pFloat[p.first];
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -172,7 +180,7 @@ void ofxDmtrUI3::draw() {
 
 	// lately we never redraw fully, only on allocate (autofit?)
 	if (settings.redraw) {
-		cout << "SETTINGS REDRAW  :: " + UINAME << endl;
+		//cout << "SETTINGS REDRAW  :: " + UINAME << endl;
 		fboClear();
 
 		fboUI.begin();
@@ -191,8 +199,6 @@ void ofxDmtrUI3::draw() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::keyPressed(int key){
-
-
 
 	if ((key == 'f' || key == 'F')) {
 		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
@@ -213,6 +219,7 @@ void ofxDmtrUI3::keyPressed(int key){
 
 
 	//if(2==3)
+	if (UINAME == "master")
 	{
 		if (key == 'a' || key == 'A') {
 			loadPresetAll(0, true);
@@ -310,18 +317,15 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 			else if (tipo == "presets") {
 				elements.push_back(new presets("allPresets", settings));
-				cout << elements.back()->boundsRect << endl;
+				//cout << elements.back()->boundsRect << endl;
 			}
 
 			else if (tipo == "flowVert") {
 				settings.setFlowVert(true);
-//				settings.flowVert = true;
-//				settings.newLine();
 			}
 
 			else if (tipo == "flowHoriz") {
 				settings.setFlowVert(false);
-				//settings.flowVert = false;
 			}
 		}
 		else {
@@ -558,7 +562,6 @@ void ofxDmtrUI3::save(string xml) {
 			xmlSettings.setValue("element:" + e->name, (string)e->getValString());
 		}
 		else if (e->kind == SLIDER2D) {
-			//cout << "saving radio " + e->getValString() << endl;
 			xmlSettings.setValue("element:" + e->name + ":x", e->getValPoint().x);
 			xmlSettings.setValue("element:" + e->name + ":y", e->getValPoint().y);
 		}
@@ -582,22 +585,18 @@ void ofxDmtrUI3::load(string xml) {
 		//if (xmlSettings.tagExists(tagName))
 		{
 			if (e->kind == TOGGLE || e->kind == RADIOITEM) {
-				bool valor = xmlSettings.getValue("element:" +e->name, false); //(bool)e->getVal()
+				bool valor = xmlSettings.getValue("element:" +e->name, false);
 				e->set(valor);
-				//cout << "getting value for bool :: " +e->name + " :: "+ ofToString(valor) << endl;
-
 			}
 			else if (e->kind == RADIO || e->kind == PRESETS) {
 				string valor = xmlSettings.getValue("element:" +e->name, "");
 				e->set(valor);
-				//cout << "setting value for radio :: " +e->name + " :: "+ valor << endl;
 			}
 
 			else if (e->kind == SLIDER2D) {
 				float x = xmlSettings.getValue("element:" +e->name + ":x", 0.0);
 				float y = xmlSettings.getValue("element:" +e->name + ":y", 0.0);
 				e->set(ofPoint(x,y));
-				//cout << "setting value for radio :: " +e->name + " :: "+ valor << endl;
 			}
 
 			else if (e->kind == SLIDER) {
@@ -606,7 +605,6 @@ void ofxDmtrUI3::load(string xml) {
 			}
 
 			// nao usar nada pra label aqui
-
 //			cout << e->name + " :: " + ofToString( valor) << endl;
 //			cout << typeid(e).name() << endl;
 		}
@@ -651,21 +649,19 @@ auto ofxDmtrUI3::getVal(string n) {
 */
 
 
+
+
 // Dividir em outra pagina, legacy algo assim
 //--------------------------------------------------------------
 void ofxDmtrUI3::createSoftwareFromText(string file) {
-
 	settings.software = &software;
-
 	UINAME = "master";
 	keepSettings = true;
-//	useShortcut = true;
 
 	if (ofFile::doesFileExist("uiAll.txt")) {
 		createFromText("uiAll.txt");
 	}
 	createFromText(file);
-	//software.setup();
 
 	if (ofFile::doesFileExist("output.txt")) {
 		vector <string> output = textToVector("output.txt");
@@ -701,9 +697,6 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 void ofxDmtrUI3::setFbo(ofFbo &fbo) {
 	_fbo = &fbo;
 }
-
-
-
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::addUI(string nome, bool down) {
@@ -872,18 +865,21 @@ void ofxDmtrUI3::savePresetAll(int n) {
 }
 
 
-
 //--------------------------------------------------------------
 void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
-	for (auto & u : uis) {
-		string nome = getPresetsPath(ofToString(n) + u.first + ".xml");
-		u.second.load(nome);
-	}
 
-	if (fromKey) {
-		for (auto & e : elements) {
-			if (e->name == "allPresets") {
-				e->set(ofToString(n));
+	// temporary, just to fire event from master
+	if (UINAME == "master") {
+		cout << "loadPresetAll :: " + UINAME << endl;
+		if (fromKey) {
+			getElement("allPresets")->set(ofToString(n));
+		}
+		else {
+			for (auto & u : uis) {
+				if (u.first != "master") {
+					string nome = getPresetsPath(ofToString(n) + u.first + ".xml");
+					u.second.load(nome);
+				}
 			}
 		}
 	}
@@ -901,16 +897,15 @@ void ofxDmtrUI3::clear(bool keepVars) {
 		pBool.clear();
 		pString.clear();
 		pPoint.clear();
-
-//		pEasy.clear();
-//		pColor.clear();
+		pEasy.clear();
+		pColor.clear();
 	}
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::uiEvents(uiEv & e) {
 	if (e.name == "presetsFolder") {
-		string folder = pString["presetsFolder"]; //getElement("presetsFolder")->getValString()
+		string folder = pString["presetsFolder"];
 		software.presetsFolder = "_presets/" + folder + "/";
 
 		// reload preset images here
@@ -922,6 +917,13 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 		}
 		for (auto & e : getElement("allPresets")->elements) {
 			e->updateImage();
+		}
+	}
+
+	else if (e.name == "easing") {
+		easing = pFloat["easing"];
+		for (auto & p : uis) {
+			p.second.easing = pFloat["easing"];
 		}
 	}
 

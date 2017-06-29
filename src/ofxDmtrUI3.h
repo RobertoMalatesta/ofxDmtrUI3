@@ -54,7 +54,6 @@ public:
 	void createFromText(string file);
 	void createFromLine(string line);
 
-	//auto getVal(string n);
 	void save(string xml);
 	void load(string xml);
 
@@ -77,28 +76,22 @@ public:
 	void uiEventsString(string & e);
 	void uiEvents(uiEv & e);
 
-	//ofPoint flow = ofPoint(10, 10);
 	uiConfig settings;
 
 	ofFbo fboUI, fboUI2;
 	ofShader shader;
 
-//	bool onlyDrawOnRedraw = false;
-
 	map <string,float>		pFloat;
+	map <string,float>		pEasy;
 	map <string,int>			pInt;
 	map <string,bool>		pBool;
 	map <string,string>		pString;
 	map <string,ofPoint>		pPoint;
+	map <string,ofColor>		pColor;
 
 	void reFlow();
-
-
-
 	void fboClear();
 
-
-	
 
 	// Straight from old ofxDmtrUI
 	// eventualmente rever isto
@@ -147,13 +140,15 @@ public:
 
 	void changeUI(string ui, string path) {
 		if ( _uiFather->uis.find(ui) != _uiFather->uis.end() ) {
-			cout << uis[ui].UINAME << endl;
+			//cout << _uiFather->uis[ui].UINAME << endl;
 			_uiFather->uis[ui].clear();
 			_uiFather->uis[ui].createFromText(path);
 			_uiFather->uis[ui].autoFit();
 			_uiFather->uis[ui].settings.redraw = true;
 		} else {
-			cout << "uis key not found" << endl;
+			//cout << "uis key not found" << endl;
 		}
 	}
+
+	float easing = 5.0;
 };
