@@ -189,6 +189,7 @@ protected:
 	bool showLabel = true;
 
 public:
+	//string uiScene = "";
 	std::function<void(string, string)> changeUI = NULL;
 
 	bool alwaysRedraw = false;
@@ -196,14 +197,11 @@ public:
 	int selectedId = -1;
 
 
-	// teste para scene
-	string uiScene = "";
-
-	void (*invoke)(void) = NULL;
-	void (*invokeBool)(bool) = NULL;
-	void (*invokeFloat)(float) = NULL;
-	void (*invokeInt)(int) = NULL;
-	void (*invokeString)(string) = NULL;
+//	void (*invoke)(void) = NULL;
+//	void (*invokeBool)(bool) = NULL;
+//	void (*invokeFloat)(float) = NULL;
+//	void (*invokeInt)(int) = NULL;
+//	void (*invokeString)(string) = NULL;
 
 	virtual void setFolder(string s) {};
 
@@ -229,9 +227,9 @@ public:
 
 	void notify() {
 		// fires any kind of void on any change
-		if ((*invoke) != NULL) {
-			(*invoke)();
-		}
+//		if ((*invoke) != NULL) {
+//			(*invoke)();
+//		}
 
 		string tipo;
 //		SLIDER, LABEL, TOGGLE, RADIO, RADIOITEM
@@ -490,12 +488,10 @@ public:
 	virtual void setRadioVal(element * e) {}
 
 	virtual void checkMouseNeu(int x, int y, bool first = false) {
-		//cout << "checkmouseneu" << ":" << x << ":" << y << endl;
 		if (first) {
 			dragging = false;
 			if (boundsRect.inside(x,y)) {
 				firstClicked = true;
-				//checkMouseNeu(x, y);
 			}
 		} else {
 			dragging = true;
@@ -515,32 +511,6 @@ public:
 			}
 		}
 	}
-
-	// remover?
-//	virtual void checkMousePress(int x, int y) {
-//		if (boundsRect.inside(x,y)) {
-//			//cout << "checkMousePress :: " + name << endl;
-//			firstClicked = true;
-//			checkMouse(x, y);
-//		}
-//	}
-//
-//	virtual void checkMouse(int x, int y) {
-//		// este check define se o click vai rodar livre ou nao
-//		if (firstClicked || settings->flowFree)
-//		{
-//			if (boundsRect.inside(x,y)) {
-//				setValFromMouse(x,y);
-//				isPressed = true;
-//			} else {
-//				if (isPressed) {
-//					setValFromMouse(x,y);
-//					draw();
-//					isPressed = false;
-//				}
-//			}
-//		}
-//	}
 };
 
 
@@ -551,7 +521,6 @@ private:
 	ofPoint max = ofPoint(1,1);
 public:
 	ofPoint val = ofPoint(0.5, 0.5);
-	//ofPoint lastVal = val;
 	ofPoint lastVal;
 
 	slider2d(string n, uiConfig & u, ofPoint mi = ofPoint(0,0), ofPoint ma = ofPoint(1,1), ofPoint v = ofPoint(.5,.5))
@@ -578,10 +547,8 @@ public:
 		return val;
 	}
 
-	// slider
+	// slider2d
 	void drawSpecific() {
-//		ofSetColor(settings->activeColor);
-//		ofDrawRectangle(activeRect);
 		ofSetColor(0);
 		float x = rect.x + val.x * rect.width;
 		float y = rect.y + val.y * rect.height;
@@ -590,7 +557,6 @@ public:
 	}
 
 	void setValFromMouse(int x, int y) {
-		//cout << "setValFromMouse" << endl;
 		int xx = ofClamp(x, rect.x, rect.x + rect.width);
 		int yy = ofClamp(y, rect.y, rect.y + rect.height);
 		ofPoint xy = ofPoint (xx,yy) - ofPoint(rect.x, rect.y);
@@ -635,11 +601,10 @@ public:
 			label = " " + ofToString(val);
 			notify();
 
-			if ((*invokeFloat) != NULL) {
-				(*invokeFloat)(val);
-			}
+//			if ((*invokeFloat) != NULL) {
+//				(*invokeFloat)(val);
+//			}
 		}
-		// ofEvent here, criar um evento na classe pai.
 	}
 
 	float getVal() {
@@ -691,9 +656,9 @@ public:
 			(*settings->pBool)[name] = val;
 			needsRedraw();
 			notify();
-			if ((*invokeBool) != NULL) {
-				(*invokeBool)(val);
-			}
+//			if ((*invokeBool) != NULL) {
+//				(*invokeBool)(val);
+//			}
 		}
 	}
 
@@ -782,6 +747,11 @@ public:
 		return valString;
 	}
 
+//	void getVal() {
+//		cout << "getval from mult" + name << endl;
+//		return (float)selectedIndex;
+//	}
+
 	// mult (radio and presets)
 	void set(string s) {
 		int index = 0;
@@ -797,33 +767,21 @@ public:
 					notify();
 
 					if (changeUI != NULL) {
-						//cout << "changeUI not null" << endl;
-						string uiSceneFolder = "_scene/";
+						string uiSceneFolder = "_" + name + "/";
 						string f = uiSceneFolder + valString + ".txt";
-						//cout << f << endl;
-						changeUI(name, f);
-					}
-
-					//							(*settings->updateUI)(uiScene, f);
-					if (uiScene != "") {
-						// pointer to function melhor?
-						//uis[uiScene].clear();
-
-						// temp
-						//changeUI(uiScene, f);
-
-						//uis[uiScene].createFromText(f);
+						string uiname = "ui" + name;
+						changeUI(uiname, f);
 					}
 
 					// provisorio
 					selectedId = index;
 
-					if ((*invokeString) != NULL) {
-						(*invokeString)(valString);
-					}
-					if ((*invokeInt) != NULL) {
-						(*invokeInt)(selectedId);
-					}
+//					if ((*invokeString) != NULL) {
+//						(*invokeString)(valString);
+//					}
+//					if ((*invokeInt) != NULL) {
+//						(*invokeInt)(selectedId);
+//					}
 				}
 			} else {
 				if (e->getVal() == true) {
@@ -838,10 +796,10 @@ public:
 
 class radio : public mult {
 public:
-	radio (string n, uiConfig & u, vector <string> its, string s) {
-		uiScene = s;
-		radio (n, u, its);
-	}
+//	radio (string n, uiConfig & u, vector <string> its, string s) {
+//		uiScene = s;
+//		radio (n, u, its);
+//	}
 
 	radio (string n, uiConfig & u, vector <string> its) {
 		kind = RADIO;
@@ -938,8 +896,6 @@ public:
 
 	}
 
-
-
 	// preset
 	void drawSpecific() {
 		ofSetColor(255);
@@ -978,7 +934,6 @@ public:
 		}
 		settings->setFlowVert(true);
 		settings->newLine();
-
 	}
 
 };

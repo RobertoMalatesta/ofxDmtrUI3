@@ -172,7 +172,7 @@ void ofxDmtrUI3::draw() {
 
 	// lately we never redraw fully, only on allocate (autofit?)
 	if (settings.redraw) {
-		cout << "SETTINGS REDRAWWW  :: " + UINAME << endl;
+		cout << "SETTINGS REDRAW  :: " + UINAME << endl;
 		fboClear();
 
 		fboUI.begin();
@@ -340,7 +340,8 @@ void ofxDmtrUI3::createFromLine(string l) {
 				float min = ofToFloat(v[0]);
 				float max = ofToFloat(v[1]);
 				float val = ofToFloat(v[2]);
-//				elements.push_back(new slider(nome, settings, val));
+
+				// TODO - Slidervert
 				elements.push_back(new slider(nome, settings, min, max, val, tipo=="int"));
 			}
 
@@ -371,14 +372,6 @@ void ofxDmtrUI3::createFromLine(string l) {
 				elements.push_back(new slider2d(nome, settings));
 			}
 
-			// remover
-//			else if (tipo == "radioUI") {
-//				string nome = cols[1];
-//				string uiName = cols[2];
-//				settings.radioUIMap[nome] = uiName;
-//
-//			}
-
 			else if (tipo == "dirList" || tipo == "dirListNoExt" || tipo == "scene") {
 				ofDirectory dir;
 				dir.listDir(valores);
@@ -390,22 +383,17 @@ void ofxDmtrUI3::createFromLine(string l) {
 						opcoes.push_back(d.getFileName());
 					}
 				}
+				elements.push_back(new radio(nome, settings, opcoes));
 				if (tipo == "scene") {
-					elements.push_back(new radio(nome, settings, opcoes));
-					elements.back()->setFolder(valores);
-
-					using namespace std::placeholders;
-
+					//elements.back()->setFolder(valores);
 					//if (_uiFather != NULL) {
-
+					using namespace std::placeholders;
 					elements.back()->changeUI = std::bind(
 					&ofxDmtrUI3::changeUI, this, _1, _2);
-
-					cout << "inicializando tipo == scene" << endl;
 				}
-				else {
-					elements.push_back(new radio(nome, settings, opcoes));
-				}
+//				else {
+//					elements.push_back(new radio(nome, settings, opcoes));
+//				}
 			}
 
 
@@ -566,8 +554,7 @@ void ofxDmtrUI3::save(string xml) {
 		if (e->kind == TOGGLE || e->kind == RADIOITEM) {
 			xmlSettings.setValue("element:" + e->name, (bool)e->getVal());
 		}
-		else if (e->kind == RADIO) {
-			//cout << "saving radio " + e->getValString() << endl;
+		else if (e->kind == RADIO || e->kind == PRESETS) {
 			xmlSettings.setValue("element:" + e->name, (string)e->getValString());
 		}
 		else if (e->kind == SLIDER2D) {
@@ -600,7 +587,7 @@ void ofxDmtrUI3::load(string xml) {
 				//cout << "getting value for bool :: " +e->name + " :: "+ ofToString(valor) << endl;
 
 			}
-			else if (e->kind == RADIO) {
+			else if (e->kind == RADIO || e->kind == PRESETS) {
 				string valor = xmlSettings.getValue("element:" +e->name, "");
 				e->set(valor);
 				//cout << "setting value for radio :: " +e->name + " :: "+ valor << endl;
@@ -646,7 +633,6 @@ void ofxDmtrUI3::reFlow() {
 //	fboSettings.height = settings.rect.height;
 //	cout << settings.rect.width << endl;
 //	cout << settings.rect.height << endl;
-
 
 	autoFit();
 }
@@ -724,13 +710,11 @@ void ofxDmtrUI3::addUI(string nome, bool down) {
 	// aqui tenho tres ponteiros. o _uiLast o uiNext e o uiRight. nao sei se precisa tantos.
 	// de repente fazer um vector de ponteiros?
 	uis[nome].UINAME = nome;
-	//uis[nome].settings.bgColor = ofColor(ofRandom(255),ofRandom(255),ofRandom(255));
 	if (ofFile::doesFileExist("uiAll.txt")) {
 		uis[nome].createFromText("uiAll.txt");
 	}
 
-	if (down)
-	{
+	if (down) {
 		if (_uiLast != NULL) {
 			uis[nome].minimumWidth = _uiLast->settings.rect.width;
 		} else {
@@ -743,7 +727,6 @@ void ofxDmtrUI3::addUI(string nome, bool down) {
 		uis[nome].createFromText(fileName);
 	}
 
-	// uilast diz a ultima ui que foi adicionada. se nao houver Ž a master
 	if (_uiLast == NULL) {
 		uis[nome].settings.hue = settings.hue;
 
@@ -764,9 +747,7 @@ void ofxDmtrUI3::addUI(string nome, bool down) {
 
 	_uiLast = &uis[nome];
 	uis[nome].autoFit();
-
 	allUIs.push_back(&uis[nome]);
-
 }
 
 //--------------------------------------------------------------
@@ -787,9 +768,6 @@ void ofxDmtrUI3::downTo(ofxDmtrUI3 & u) {
 	settings.rect.x  = u.settings.rect.x ;
 	settings.rect.y  = u.settings.rect.y + u.settings.rect.height + u.settings.margin.y ;
 
-//	cout << settings.rect.x << endl;
-//	cout << settings.rect.y << endl;
-//	cout << "------" << endl;
 	u._uiUnder = this;
 
 	if (_uiUnder != NULL) {
@@ -897,14 +875,10 @@ void ofxDmtrUI3::savePresetAll(int n) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
-	//cout << "loadPresetAll" << n << endl;
 	for (auto & u : uis) {
 		string nome = getPresetsPath(ofToString(n) + u.first + ".xml");
-		//cout << nome << endl;
 		u.second.load(nome);
 	}
-	// nao precisa
-	// software.presetLoaded = n;
 
 	if (fromKey) {
 		for (auto & e : elements) {
@@ -918,8 +892,6 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::clear(bool keepVars) {
-	//createdFromTextFile = "";
-
 	elements.clear();
 	settings.reset();
 
@@ -929,40 +901,33 @@ void ofxDmtrUI3::clear(bool keepVars) {
 		pBool.clear();
 		pString.clear();
 		pPoint.clear();
+
 //		pEasy.clear();
-//		pLabel.clear();
 //		pColor.clear();
-//		pFolder.clear();
 	}
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::uiEvents(uiEv & e) {
-
 	if (e.name == "presetsFolder") {
-//		cout << pString["presetsFolder"] << endl;
-//		cout << getElement("presetsFolder")->getValString() << endl;
-//		cout << "=-=-=-=-=" << endl;
 		string folder = pString["presetsFolder"]; //getElement("presetsFolder")->getValString()
 		software.presetsFolder = "_presets/" + folder + "/";
 
-		// reload images here
-
+		// reload preset images here
 		if (!ofFile::doesFileExist(software.presetsFolder)) {
 			if (!ofFile::doesFileExist("_presets")) {
 				ofDirectory::createDirectory("_presets");
 			}
 			ofDirectory::createDirectory(software.presetsFolder);
 		}
-
 		for (auto & e : getElement("allPresets")->elements) {
 			e->updateImage();
 		}
 	}
 
+	// SAVE / LOAD Presets
 	else if (e.name == "allPresets") {
 		string p = getElement("allPresets")->getValString();
-
 		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
 			savePresetAll(ofToInt(p));
 		}
