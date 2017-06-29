@@ -1,7 +1,7 @@
 # ofxDmtrUI3
 
 ## 2017 june 29
-First version is ready to go. all the basics working and building my first project using it.
+First version is ready to go. all the basics working and building my first project using it.  
 ~~Still not for production use. Handle with care.  
 Just float slider and bool toggle working now.~~
 
