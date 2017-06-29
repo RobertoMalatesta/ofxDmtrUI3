@@ -36,15 +36,12 @@ ofFbo::Settings fboSettings;
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::setup() {
-
-
 	settings.software = &software;
-
-//	fboSettings.width = ofGetWindowWidth();
-//	fboSettings.height = ofGetWindowHeight();
-	fboSettings.width = 10;
+	//settings.updateUI = &ofxDmtrUI3::updateUI;
+	fboSettings.width = 10; // will resize on autofit
 	fboSettings.height = 10;
 	fboSettings.internalformat = GL_RGBA;
+
 //	fboSettings.numSamples = 0;
 //	fboSettings.useDepth = false;
 //	fboSettings.useStencil = false;
@@ -91,6 +88,9 @@ void ofxDmtrUI3::setup() {
 
 
 	//cout << "setup" << endl;
+
+	//settings.uis	 	= &uis;
+
 	settings.pFloat	 	= &pFloat;
 	settings.pInt	 	= &pInt;
 	settings.pBool 		= &pBool;
@@ -374,7 +374,15 @@ void ofxDmtrUI3::createFromLine(string l) {
 				elements.push_back(new slider2d(nome, settings));
 			}
 
-			else if (tipo == "dirList" || tipo == "dirListNoExt") {
+			// remover
+			else if (tipo == "radioUI") {
+				string nome = cols[1];
+				string uiName = cols[2];
+				settings.radioUIMap[nome] = uiName;
+
+			}
+
+			else if (tipo == "dirList" || tipo == "dirListNoExt" || tipo == "scene") {
 				ofDirectory dir;
 				dir.listDir(valores);
 				vector <string> opcoes;
@@ -385,7 +393,15 @@ void ofxDmtrUI3::createFromLine(string l) {
 						opcoes.push_back(d.getFileName());
 					}
 				}
-				elements.push_back(new radio(nome, settings, opcoes));
+				if (tipo == "scene") {
+					elements.push_back(new radio(nome, settings, opcoes));
+					elements.back()->setFolder(valores);
+					settings.updateUI = std::bind(
+					&ofxDmtrUI3::updateUI, this, "", "");
+				}
+				else {
+					elements.push_back(new radio(nome, settings, opcoes));
+				}
 			}
 
 
@@ -825,43 +841,10 @@ void ofxDmtrUI3::fboClear() {
 	fboUI.end();
 }
 
-
 //--------------------------------------------------------------
-void ofxDmtrUI3::uiEvents(uiEv & e) {
-
-	if (e.name == "presetsFolder") {
-
-		// consertar o pString por algum motivo
-//		software.presetsFolder = "_presets/" + pString["presetsFolder"] + "/";
-		software.presetsFolder = "_presets/" + getElement("presetsFolder")->getValString() + "/";
-
-
-		// reload images here
-
-		if (!ofFile::doesFileExist(software.presetsFolder)) {
-			if (!ofFile::doesFileExist("_presets")) {
-				ofDirectory::createDirectory("_presets");
-			}
-			ofDirectory::createDirectory(software.presetsFolder);
-		}
-
-		for (auto & e : getElement("allPresets")->elements) {
-			e->updateImage();
-		}
-	}
-
-	if (e.name == "allPresets") {
-		string p = getElement("allPresets")->getValString();
-
-		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
-			savePresetAll(ofToInt(p));
-		}
-		else {
-			loadPresetAll(ofToInt(p));
-		}
-	}
+string ofxDmtrUI3::getPresetsPath(string ext) {
+	return software.presetsFolder + ext;
 }
-
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::savePresetAll(int n) {
@@ -906,10 +889,7 @@ void ofxDmtrUI3::savePresetAll(int n) {
 	}
 }
 
-//--------------------------------------------------------------
-string ofxDmtrUI3::getPresetsPath(string ext) {
-	return software.presetsFolder + ext;
-}
+
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
@@ -929,5 +909,61 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 			}
 		}
 	}
+}
 
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::clear(bool keepVars) {
+	//createdFromTextFile = "";
+
+	elements.clear();
+	settings.reset();
+
+	if (!keepVars) {
+		pFloat.clear();
+		pInt.clear();
+		pBool.clear();
+		pString.clear();
+		pPoint.clear();
+//		pEasy.clear();
+//		pLabel.clear();
+//		pColor.clear();
+//		pFolder.clear();
+	}
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::uiEvents(uiEv & e) {
+
+	if (e.name == "presetsFolder") {
+//		cout << pString["presetsFolder"] << endl;
+//		cout << getElement("presetsFolder")->getValString() << endl;
+//		cout << "=-=-=-=-=" << endl;
+		string folder = pString["presetsFolder"]; //getElement("presetsFolder")->getValString()
+		software.presetsFolder = "_presets/" + folder + "/";
+
+		// reload images here
+
+		if (!ofFile::doesFileExist(software.presetsFolder)) {
+			if (!ofFile::doesFileExist("_presets")) {
+				ofDirectory::createDirectory("_presets");
+			}
+			ofDirectory::createDirectory(software.presetsFolder);
+		}
+
+		for (auto & e : getElement("allPresets")->elements) {
+			e->updateImage();
+		}
+	}
+
+	else if (e.name == "allPresets") {
+		string p = getElement("allPresets")->getValString();
+
+		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
+			savePresetAll(ofToInt(p));
+		}
+		else {
+			loadPresetAll(ofToInt(p));
+		}
+	}
 }

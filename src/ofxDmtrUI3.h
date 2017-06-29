@@ -101,7 +101,8 @@ public:
 	
 
 	// Straight from old ofxDmtrUI
-	
+	// eventualmente rever isto
+
 	map <string, ofxDmtrUI3> uis;
 	vector <ofxDmtrUI3 *> allUIs;
 	map <string, ofFbo> mapFbos;
@@ -152,4 +153,11 @@ public:
 //	}
 
 	string getPresetsPath(string ext="");
+	void clear(bool keepVars = false);
+
+	void updateUI(string ui, string path) {
+		cout << "update ui :: " + ui + " :: " + path;
+		uis[ui].clear();
+		uis[ui].createFromText(path);
+	}
 };

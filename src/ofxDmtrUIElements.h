@@ -47,6 +47,10 @@ public:
 struct uiEv {
 public:
 	string name;
+
+	// STILL TO BE COMPLETED
+	string uiname;
+
 	elementType kind;
 	bool b;
 	int i;
@@ -66,10 +70,15 @@ public:
 
 struct uiConfig {
 public:
+
+
+	//senao fazer pointer to function aqui...
+	std::function<void(string,string)> updateUI = NULL;
+
+	//void (*updateUI)(string,string) = NULL;
+	map <string, string> radioUIMap;
 	ofRectangle rect;
-
 	int nPresets = 21;
-
 	// ponteiro pro addUI geral.
 	soft * software = NULL;
 
@@ -79,12 +88,16 @@ public:
 		}
 	}
 
+	void changeUI(string s) {
+
+	}
+
 	ofColor bgColor = ofColor(40, 180);
 
 	// mouse flows free from one item to another.
 	bool	 flowFree = true;
 	bool flowVert = true;
-	float hue = 60;
+	float hue;
 
 	float opacity = 200;
 
@@ -119,6 +132,12 @@ public:
 	uiConfig() {
 		updateColor();
  	}
+
+	void reset() {
+		flow = margin;
+		// starthue no futuro
+		hue = 60;
+	}
 
 	// only to make children items of radio.
 	void setMarginChildren(bool m) {
@@ -178,11 +197,16 @@ public:
 	int selectedId = -1;
 
 
+	// teste para scene
+	string uiScene = "";
+
 	void (*invoke)(void) = NULL;
 	void (*invokeBool)(bool) = NULL;
 	void (*invokeFloat)(float) = NULL;
 	void (*invokeInt)(int) = NULL;
 	void (*invokeString)(string) = NULL;
+
+	virtual void setFolder(string s) {};
 
 	bool useLabelShadow = true;
 	// medida provisoria ate resolver o radioitem
@@ -228,11 +252,13 @@ public:
 //			cout << "inside notify()" << endl;
 //			cout << valor << endl;
 			uiEv e = uiEv(name, kind, (string)valor);
+			//e.uiname = settings->UINAME;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (kind == SLIDER2D) {
 			valor = ofToString(getValPoint().x) + ":" + ofToString(getValPoint().y);
 			uiEv e = uiEv(name, kind, getValPoint());
+			//e.uiname = settings->UINAME;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 
@@ -241,6 +267,7 @@ public:
 		else if (kind != PRESET && kind != RADIOITEM) {
 			valor = ofToString(getVal());
 			uiEv e = uiEv(name, kind, getVal());
+			//e.uiname = settings->UINAME;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 
@@ -728,9 +755,17 @@ public:
 // primitive class to radio and presets, classes that has children elements
 class mult : public element {
 public:
+
+	string folder;
+	std::function<void(string, string)> changeUI = NULL;
+
 	vector <string> items;
 	string lastVal;
 	bool eventWhenSameSelectedIndex = false;
+
+	void setFolder(string s) {
+		folder = s;
+	}
 
 	void drawSpecific() {
 		for (auto & e : elements) {
@@ -750,6 +785,7 @@ public:
 		return valString;
 	}
 
+	// mult (radio and presets)
 	void set(string s) {
 		int index = 0;
 		for (auto & e : elements) {
@@ -758,9 +794,35 @@ public:
 				{
 					//cout << "set on radio OR presets, string :: "+s << endl;
 					valString = e->name;
+					(*settings->pString)[name] = valString;
+
+
+					// evento especial pra scene
+					//if (settings->radioUIMap[name] != "")
+					if ( settings->radioUIMap.find(name) != settings->radioUIMap.end() ) {
+						settings->changeUI(name);
+
+					}
+
+
 					e->set(true);
 					needsRedraw();
 					notify();
+
+					if (uiScene != "") {
+						// pointer to function melhor?
+						//uis[uiScene].clear();
+
+						// temp
+						string uiSceneFolder = "_scene/";
+						string f = uiSceneFolder + valString + ".txt";
+						cout << f << endl;
+						changeUI(uiScene, f);
+//						if (settings->updateUI != NULL) {
+//							(*settings->updateUI)(uiScene, f);
+//						}
+						//uis[uiScene].createFromText(f);
+					}
 
 					// provisorio
 					selectedId = index;
@@ -779,16 +841,17 @@ public:
 			}
 			index++;
 		}
-		(*settings->pString)[name] = valString;
 	}
-
-
 };
 
 
-//class radio : public element {
 class radio : public mult {
 public:
+	radio (string n, uiConfig & u, vector <string> its, string s) {
+		uiScene = s;
+		radio (n, u, its);
+	}
+
 	radio (string n, uiConfig & u, vector <string> its) {
 		kind = RADIO;
 		settings = &u;

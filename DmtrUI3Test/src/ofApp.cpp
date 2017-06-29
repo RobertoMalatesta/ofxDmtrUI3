@@ -27,7 +27,6 @@ void ofApp::setup(){
 	u.load("default.xml");
 
 	ofAddListener(u.settings.uiEvent,this, &ofApp::uiEvents);
-	ofAddListener(u.settings.uiEventString,this, &ofApp::uiEventsString);
 	ofSetFrameRate(60);
 	ofSetCircleResolution(120);
 	ofEnableAlphaBlending();
@@ -85,15 +84,6 @@ void ofApp::keyReleased(int key){
 }
 
 //--------------------------------------------------------------
-void ofApp::uiEventsString(string & e) {
-	//cout << e << endl;
-}
-
-
-//--------------------------------------------------------------
 void ofApp::uiEvents(uiEv & e) {
-	cout << e.name << endl;
-
-	// fazer um kind string no uiev
-	//if (e.kind == TOGGLE) { cout << "TOGGLE" << endl; }
+	//cout << e.name << endl;
 }
