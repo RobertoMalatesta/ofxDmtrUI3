@@ -1,3 +1,6 @@
+scene	scene	_scene
+scene	scene2	_scene2
+
 bool	flowFree	1
 bool	invoke	0
 float	opacity	50 255 180

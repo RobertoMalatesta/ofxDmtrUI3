@@ -1,0 +1,24 @@
+label	FINDER
+
+bool	old	1
+bool	thresh	1
+
+float	easing	0 300 140
+
+bool	drawContourFinder	0
+float	thresh	0 255 127
+float	blurRadius	0 30 0
+bool	gaussianBlur	0
+
+radio	drawCam	no cam img
+float	camOpacity	0 255 127
+
+float	fatorArea	.1 2 .5
+
+label	Contour Finder
+float	minArea	1 100 10
+float	maxArea	1 400 100
+float	contourThreshold	1 50 15
+float	maximumDistance	10 300 50
+float	persistence	1 1000 15
+

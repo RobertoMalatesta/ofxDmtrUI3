@@ -614,7 +614,7 @@ void ofxDmtrUI3::load(string xml) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::reFlow() {
-	cout << "==== reflow" << endl;
+	cout << "==== reflow == " + UINAME << endl;
 	settings.flow = settings.margin;
 //	for (auto & e : elements) {
 //		e->getProperties();

@@ -1,0 +1,6 @@
+label	LINETEST
+int	limite	10 300 120
+int	w	10 300 120
+int	h	10 300 120
+int	transX	0 800 200
+int	transY	0 800 200

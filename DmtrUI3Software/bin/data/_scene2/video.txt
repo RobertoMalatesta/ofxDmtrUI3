@@ -1,0 +1,4 @@
+float	loopSize	0 1 .3
+float	loopStart	0 1 0
+dirlist	videos	_videos
+float	speed	0 1 .5
