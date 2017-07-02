@@ -25,9 +25,14 @@
 
 #pragma once
 
-
+// naming conflicts? namespace?
 enum elementType {
-	SLIDER, LABEL, TOGGLE, RADIO, RADIOITEM, SLIDER2D, PRESET, PRESETS
+	SLIDER, LABEL, TOGGLE, RADIO, RADIOITEM, SLIDER2D, PRESET, PRESETS, COLOR, COLORITEM
+};
+
+// naming conflicts? namespace?
+enum dmtrUIVarType {
+	FLOAT, INT, STRING, BOOLEAN, POINT
 };
 
 
@@ -47,36 +52,48 @@ public:
 struct uiEv {
 public:
 	string name;
-
 	// STILL TO BE COMPLETED
 	string uiname;
-
 	elementType kind;
+	dmtrUIVarType varType;
+
 	bool b;
 	int i;
 	float f;
 	ofPoint p;
 	string s;
-	//uiEv();
-	uiEv(string n, elementType k) 				: name(n), kind(k) {}
-	uiEv(string n, elementType k, float ff)		: name(n), kind(k), f(ff) {}
-	uiEv(string n, elementType k, int ii) 		: name(n), kind(k), i(ii) {}
-	uiEv(string n, elementType k, bool bb) 		: name(n), kind(k), b(bb) {}
-	uiEv(string n, elementType k, ofPoint pp) 	: name(n), kind(k), p(pp) {}
-	uiEv(string n, elementType k, string ss) 	: name(n), kind(k), s(ss) {}
-};
 
+	bool isDir = false;
+
+	uiEv(string n) : name(n) {}
+
+	uiEv(string n, elementType k, dmtrUIVarType t) 				: name(n), kind(k), varType(t) {}
+	uiEv(string n, elementType k, dmtrUIVarType t, float ff)		: name(n), kind(k), varType(t), f(ff) {}
+	uiEv(string n, elementType k, dmtrUIVarType t, int ii) 		: name(n), kind(k), varType(t), i(ii) {}
+	uiEv(string n, elementType k, dmtrUIVarType t, bool bb) 		: name(n), kind(k), varType(t), b(bb) {}
+	uiEv(string n, elementType k, dmtrUIVarType t, ofPoint pp) 	: name(n), kind(k), varType(t), p(pp) {}
+	uiEv(string n, elementType k, dmtrUIVarType t, string ss) 	: name(n), kind(k), varType(t), s(ss) {}
+};
 
 
 struct uiConfig {
 public:
-
-
 	//senao fazer pointer to function aqui...
 	//std::function<void(string,string)> updateUI = NULL;
 
 	//void (*updateUI)(string,string) = NULL;
 	//map <string, string> radioUIMap;
+
+	ofPoint sliderDimensions = ofPoint(200, 20);
+	ofPoint margin = ofPoint(20,20);
+	float opacity = 200;
+	ofPoint flow = margin;
+	ofPoint flowBak;
+	float colx = margin.x;
+	int spacing = 5;
+	int spacingChildren = 1;
+
+
 	ofRectangle rect;
 	int nPresets = 21;
 	// ponteiro pro addUI geral.
@@ -88,7 +105,6 @@ public:
 		}
 	}
 
-
 	ofColor bgColor = ofColor(40, 180);
 
 	// mouse flows free from one item to another.
@@ -96,14 +112,9 @@ public:
 	bool flowVert = true;
 	float hue;
 
-	float opacity = 200;
-
-	ofPoint sliderDimensions = ofPoint(200, 20);
-	ofPoint margin = ofPoint(20,20);
-	ofPoint flow = margin;
-	float colx = margin.x;
 	// legacy
-	ofEvent<string> uiEventString;
+	//ofEvent<string> uiEventString;
+
 	// complete
 	ofEvent<uiEv> uiEvent;
 	bool needsRedraw = false;
@@ -114,10 +125,9 @@ public:
 	map <string, bool>		* pBool;
 	map <string, string> 	* pString;
 	map <string, ofPoint>	* pPoint;
-	int spacing = 5;
-	int hueStep = 6;
+	int hueStep = 4;
 	ofColor color;
-	float flowxbak = -100;
+	//float flowxbak = -100;
 
 	ofColor activeColor = ofColor(0,0,0,140);
 
@@ -136,21 +146,26 @@ public:
 		hue = 60;
 	}
 
+	int getSpacing() {
+		return useMarginChildren ? spacingChildren : spacing;
+	}
+
+	bool useMarginChildren = false;
 	// only to make children items of radio.
 	void setMarginChildren(bool m) {
-		spacing = m ? 1 : 5;
+		useMarginChildren = m;
 		hueStep = m ? 3 : 6;
 	}
 
 	void update(ofRectangle & r) {
 		if (flowVert) {
-			flow.y += r.height + spacing;
+			flow.y += r.height + getSpacing();
 		} else {
 			if ((flow.x + r.width) > (colx + sliderDimensions.x)) {
 				flow.x = colx;
-				flow.y += r.height + spacing;
+				flow.y += r.height + getSpacing();
 			} else {
-				flow.x += r.width + spacing;
+				flow.x += r.width + getSpacing();
 			}
 		}
 		updateColor();
@@ -158,7 +173,7 @@ public:
 	}
 
 	void newLine() {
-		flow.y += sliderDimensions.y + spacing;
+		flow.y += sliderDimensions.y + getSpacing();
 	}
 	void newCol() {
 		//cout << "newcol" << endl;
@@ -189,10 +204,16 @@ protected:
 	bool showLabel = true;
 
 public:
-	//string uiScene = "";
-	std::function<void(string, string)> changeUI = NULL;
+
+	ofColor cor;
 
 	bool alwaysRedraw = false;
+	dmtrUIVarType varType;
+
+	// pode ser temporario
+	bool isDir = false;
+	std::function<void(string, string)> changeUI = NULL;
+
 	// 24 june 2017 - webcams
 	int selectedId = -1;
 
@@ -203,6 +224,7 @@ public:
 //	void (*invokeInt)(int) = NULL;
 //	void (*invokeString)(string) = NULL;
 
+	virtual void setFbo (ofFbo &fbo) {}
 	virtual void setFolder(string s) {};
 
 	bool useLabelShadow = true;
@@ -214,7 +236,7 @@ public:
 	// passei pra publico pra melhorar pro radio
 	ofRectangle rect, activeRect, boundsRect;
 
-	// 21 de junho, nao tem serventia ainda, vou tentar fazer o radioitem
+	// 21 de junho, usando no radioitem
 	element * _parent = NULL;
 	elementType kind = SLIDER;
 	bool isPressed = false;
@@ -231,46 +253,24 @@ public:
 //			(*invoke)();
 //		}
 
-		string tipo;
-//		SLIDER, LABEL, TOGGLE, RADIO, RADIOITEM
 
-		if (kind == SLIDER) { tipo = "SLIDER"; }
-		if (kind == TOGGLE) { tipo = "TOGGLE"; }
-		if (kind == RADIO) { tipo = "RADIO"; }
-		if (kind == RADIOITEM) { tipo = "RADIOITEM"; }
-		if (kind == SLIDER2D) { tipo = "SLIDER2D"; }
-		if (kind == PRESETS) { tipo = "PRESETS"; }
-
-		string valor;
-
-		// irmaos
-		if (kind == RADIO || kind == PRESETS) {
-			valor = getValString();
-//			cout << "inside notify()" << endl;
-//			cout << valor << endl;
-			uiEv e = uiEv(name, kind, (string)valor);
-			//e.uiname = settings->UINAME;
+		if (varType == STRING) {
+			//cout << "notify event string" << endl;
+			uiEv e = uiEv(name, kind, varType, getValString());
+			e.isDir = isDir;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
-		else if (kind == SLIDER2D) {
-			valor = ofToString(getValPoint().x) + ":" + ofToString(getValPoint().y);
-			uiEv e = uiEv(name, kind, getValPoint());
-			//e.uiname = settings->UINAME;
+		else if (varType == POINT) {
+			//cout << "notify event point" << endl;
+			uiEv e = uiEv(name, kind, varType, getValPoint());
 			ofNotifyEvent(settings->uiEvent, e);
 		}
-
-		// avoid notification
-		//else {
-		else if (kind != PRESET && kind != RADIOITEM) {
-			valor = ofToString(getVal());
-			uiEv e = uiEv(name, kind, getVal());
-			//e.uiname = settings->UINAME;
+		else  {
+			//cout << "notify event int or float" << endl;
+//			uiEv e = uiEv(name, kind, varType, varType == INT ? int(getVal()) : getVal());
+			uiEv e = uiEv(name, kind, varType, getVal());
 			ofNotifyEvent(settings->uiEvent, e);
 		}
-
-		// LEGACY TEST
-		string s = name + " :: " + tipo + " :: " + valor;
-		ofNotifyEvent(settings->uiEventString, s);
 	}
 
 	void needsRedraw(bool need = true) {
@@ -333,7 +333,7 @@ public:
 		if (kind == SLIDER2D) {
 //			labelPos.x = x + 5;
 //			labelPos.y = y + 16;
-			boundsRect.height = settings->sliderDimensions.y * 2 + settings->spacing;
+			boundsRect.height = settings->sliderDimensions.y * 2 + settings->getSpacing();
 			rect.height = boundsRect.height;
 			activeRect.width = 0;
 			activeRect.height = 0;
@@ -353,6 +353,8 @@ public:
 		}
 
 		else if (kind == SLIDER) {
+			varType = FLOAT;
+
 			labelPos.x = x + 5;
 			labelPos.y = y + 16;
 			labelColor = ofColor(0);
@@ -379,7 +381,7 @@ public:
 			}
 		}
 
-		else if (kind == RADIOITEM) {
+		else if (kind == RADIOITEM || kind == COLORITEM) {
 			float margem = 4;
 
 			labelPos.x = x + margem;
@@ -398,7 +400,7 @@ public:
 				(settings->colx + settings->sliderDimensions.x)) {
 				settings->update(boundsRect);
 				getProperties();
-				settings->flow.x -= boundsRect.width + settings->spacing;
+				settings->flow.x -= boundsRect.width + settings->getSpacing();
 			}
 		}
 
@@ -442,19 +444,19 @@ public:
 	}
 
 
-	virtual void set(bool i) {
+	virtual void set(bool i, bool notifyEvent = true) {
 		cout << "set function on primitive element, using bool " + name << endl;
 	}
 
-	virtual void set(float i) {
+	virtual void set(float i, bool notifyEvent = true) {
 		cout << "set function on primitive element, using float " + name << endl;
 	}
 
-	virtual void set(string i) {
+	virtual void set(string i, bool notifyEvent = true) {
 		cout << "set function on primitive element, using string " + name << endl;
 	}
 
-	virtual void set(ofPoint i) {
+	virtual void set(ofPoint i, bool notifyEvent = true) {
 		cout << "set function on primitive element, using ofPoint " + name << endl;
 	}
 
@@ -523,23 +525,38 @@ public:
 	ofPoint val = ofPoint(0.5, 0.5);
 	ofPoint lastVal;
 
+	ofFbo * _fbo = NULL;
+	bool fboSet = false;
+
+	void setFbo(ofFbo &fbo) {
+		_fbo = &fbo;
+		fboSet = true;
+		alwaysRedraw = true;
+		//activeRect.width = 0;
+		//rect.width = 0;
+	};
+
 	slider2d(string n, uiConfig & u, ofPoint mi = ofPoint(0,0), ofPoint ma = ofPoint(1,1), ofPoint v = ofPoint(.5,.5))
 	: min(mi), max(ma) {
 		kind = SLIDER2D;
+		varType = POINT;
+
 		settings = &u;
 		name = n;
 		getProperties();
 		set(v);
 	}
 
-	void set(ofPoint v) {
+	void set(ofPoint v, bool notifyEvent = true) {
 		val = v;
 		if (lastVal != val) {
 			(*settings->pPoint)[name] = val;
 			lastVal = val;
 			needsRedraw();
 			label = " " + ofToString(val.x) + ":" + ofToString(val.y);
-			notify();
+			if (notifyEvent) {
+				notify();
+			}
 		}
 	}
 
@@ -549,6 +566,12 @@ public:
 
 	// slider2d
 	void drawSpecific() {
+		// tem como melhorar performance? acho q tem.
+		if (_fbo != NULL) {
+			//cout << "fbo is not null" << endl;
+			ofSetColor(255);
+			_fbo->draw(rect.x, rect.y);
+		}
 		ofSetColor(0);
 		float x = rect.x + val.x * rect.width;
 		float y = rect.y + val.y * rect.height;
@@ -582,10 +605,11 @@ public:
 		name = n;
 		getProperties();
 		set(v);
+		varType = isInt ? INT : FLOAT;
 	}
 
 	// slider
-	void set(float v) {
+	void set(float v, bool notifyEvent = true) {
 		val = v;
 
 		if (lastVal != val) {
@@ -599,7 +623,9 @@ public:
 			lastVal = val;
 			needsRedraw();
 			label = " " + ofToString(val);
-			notify();
+			if (notifyEvent) {
+				notify();
+			}
 
 //			if ((*invokeFloat) != NULL) {
 //				(*invokeFloat)(val);
@@ -650,12 +676,14 @@ class booleano : public element {
 public:
 	bool val = false;
 
-	void set(bool v) {
+	void set(bool v, bool notifyEvent = true) {
 		if (val != v) {
 			val = v;
 			(*settings->pBool)[name] = val;
 			needsRedraw();
-			notify();
+			if (notifyEvent) {
+				notify();
+			}
 //			if ((*invokeBool) != NULL) {
 //				(*invokeBool)(val);
 //			}
@@ -679,6 +707,7 @@ class toggle : public booleano {
 public:
 	toggle(string n, uiConfig & u, bool v, bool l = true)  {
 		kind = TOGGLE;
+		varType = BOOLEAN;
 		settings = &u;
 		name = n;
 		showLabel = l;
@@ -700,6 +729,7 @@ class radioitem : public booleano {
 public:
 	radioitem (string n, uiConfig & u) {
 		kind = RADIOITEM;
+		//varType = BOOLEAN;
 		settings = &u;
 		name = n;
 		getProperties();
@@ -715,6 +745,37 @@ public:
 
 
 
+class coloritem : public booleano {
+public:
+	coloritem (string n, uiConfig & u) {
+		kind = COLORITEM;
+		settings = &u;
+		name = n;
+
+		getProperties();
+		nameToColor();
+	}
+
+	void nameToColor() {
+		istringstream stream("0x" + name.substr(1));
+		stream.unsetf(ios_base::dec);
+		int corInt;
+		stream >> corInt;
+		ofColor corzinha = ofColor::fromHex(corInt);
+		ofFill();
+		ofSetColor(corzinha);
+		color = corzinha;
+	}
+
+	void drawSpecific() {
+		if (val) {
+			ofSetColor(cor);
+			ofDrawRectangle(activeRect);
+		}
+	}
+};
+
+
 
 // primitive class to radio and presets, classes that has children elements
 class mult : public element {
@@ -723,6 +784,7 @@ public:
 	string folder;
 	vector <string> items;
 	string lastVal;
+
 	bool eventWhenSameSelectedIndex = false;
 
 	void setFolder(string s) {
@@ -753,7 +815,7 @@ public:
 //	}
 
 	// mult (radio and presets)
-	void set(string s) {
+	void set(string s, bool notifyEvent = true) {
 		int index = 0;
 		for (auto & e : elements) {
 			if (e->name == s) {
@@ -764,7 +826,9 @@ public:
 					(*settings->pString)[name] = valString;
 					e->set(true);
 					needsRedraw();
-					notify();
+					if (notifyEvent) {
+						notify();
+					}
 
 					if (changeUI != NULL) {
 						string uiSceneFolder = "_" + name + "/";
@@ -803,6 +867,7 @@ public:
 
 	radio (string n, uiConfig & u, vector <string> its) {
 		kind = RADIO;
+		varType = STRING;
 		settings = &u;
 		name = n;
 		items = its;
@@ -834,6 +899,8 @@ public:
 
 	preset (string n, uiConfig & u) {
 		kind = PRESET;
+		varType = BOOLEAN;
+
 		settings = &u;
 		name = n;
 		getProperties();
@@ -912,6 +979,8 @@ public:
 	presets(string n, uiConfig & u) {
 		eventWhenSameSelectedIndex = true;
 		kind = PRESETS;
+		varType = STRING;
+
 		settings = &u;
 		name = n;
 		getProperties();
@@ -935,5 +1004,49 @@ public:
 		settings->setFlowVert(true);
 		settings->newLine();
 	}
+};
 
+class fps : public element {
+public:
+	fps(string n, uiConfig & u) {
+		kind = PRESETS;
+		settings = &u;
+		name = n;
+		getProperties();
+		alwaysRedraw = true;
+	}
+
+	void drawSpecific() {
+		ofSetColor(255);
+		ofDrawBitmapString(ofToString(ofGetFrameRate()), labelPos.x, labelPos.y);
+	}
+};
+
+
+
+// fazer derivado do mult tb, colorizar quadros assim posso usar eles tb pra moving heads por ex.
+class color : public mult {
+public:
+	color (string n, uiConfig & u, vector <string> its) {
+		kind = COLOR;
+		varType = STRING;
+		settings = &u;
+		name = n;
+		items = its;
+		getProperties();
+
+		settings->setFlowVert(false);
+		u.setMarginChildren(true);
+		for (auto & i : items) {
+			elements.push_back(new coloritem(i, u));
+		}
+		u.setMarginChildren(false);
+
+		for (auto & e : elements) {
+			e->_parent = this;
+			boundsRect.growToInclude(e->boundsRect.getBottomRight());
+		}
+		settings->setFlowVert(true);
+		settings->newLine();
+	}
 };

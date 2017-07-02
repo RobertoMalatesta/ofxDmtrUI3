@@ -25,6 +25,8 @@
 
 //#define NOXML
 
+
+
 #pragma once
 
 #include "ofMain.h"
@@ -40,8 +42,6 @@
 class ofxDmtrUI3 : public ofBaseApp
 {
 public:
-
-
 
 	~ofxDmtrUI3();
 	ofxDmtrUI3();
@@ -98,6 +98,12 @@ public:
 
 	map <string, ofxDmtrUI3> uis;
 	vector <ofxDmtrUI3 *> allUIs;
+
+	ofxDmtrUI3 *_uiUnder = NULL;
+	ofxDmtrUI3 *_uiRight = NULL;
+	ofxDmtrUI3 *_uiLast = NULL;
+	ofxDmtrUI3 *_uiFather = NULL;
+
 	map <string, ofFbo> mapFbos;
 	void createSoftwareFromText(string file);
 	void loadPresetAll(int n, bool fromKey = false);
@@ -106,17 +112,12 @@ public:
 	// pointer to save presets from
 	ofFbo *_fbo;
 	soft software;
-	void addUI(string nome, bool down = false);
 
-	ofxDmtrUI3 *_uiUnder = NULL;
-	ofxDmtrUI3 *_uiRight = NULL;
-	ofxDmtrUI3 *_uiLast = NULL;
-	ofxDmtrUI3 *_uiFather = NULL;
 	string UINAME = "";
 	int minimumWidth = 100;
 	bool keepSettings = false;
 
-	//ofRectangle rect;
+	void addUI(string nome, bool down = false);
 	void nextTo(ofxDmtrUI3 & uiNext);
 	void downTo(ofxDmtrUI3 & uiNext);
 	void addRadio(string name, vector<string> options, string sel = "") {
@@ -137,10 +138,8 @@ public:
 		}
 	}
 
-
 	void changeUI(string ui, string path) {
 		if ( _uiFather->uis.find(ui) != _uiFather->uis.end() ) {
-			//cout << _uiFather->uis[ui].UINAME << endl;
 			_uiFather->uis[ui].clear();
 			_uiFather->uis[ui].createFromText(path);
 			_uiFather->uis[ui].autoFit();
@@ -151,4 +150,27 @@ public:
 	}
 
 	float easing = 5.0;
+
+	void expires(int dataInicial, int dias = 10) {
+		time_t rawtime;
+		struct tm * timeinfo;
+		time ( &rawtime );
+		timeinfo = localtime ( &rawtime );
+		cout << "-------- Dmtr Expires: " ;
+		cout << rawtime << endl;
+		int segundosPorDia = 86400;
+		int segundosExpira = segundosPorDia * dias;
+		float diasExpira = (segundosExpira - (difftime(rawtime,dataInicial))) / (float)segundosPorDia;
+
+		cout << "expira em " + ofToString(diasExpira) + " dias" << endl;
+		cout << "---------" << endl;
+		if (diasExpira < 0 || diasExpira > dias) {
+			ofSystemAlertDialog("Dmtr.org Software Expired ~ " + ofToString(dataInicial) + "\rhttp://dmtr.org/");
+			std::exit(1);
+		}
+	}
+
+	string createdFromTextFile = "";
+
+	void notify(string e);
 };

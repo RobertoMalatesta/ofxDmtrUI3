@@ -116,7 +116,7 @@ void ofxDmtrUI3::setup() {
 	ofAddListener(ofEvents().windowResized, this, &ofxDmtrUI3::onWindowResized);
 
 	ofAddListener(settings.uiEvent,this, &ofxDmtrUI3::uiEvents);
-	ofAddListener(settings.uiEventString,this, &ofxDmtrUI3::uiEventsString);
+	//ofAddListener(settings.uiEventString,this, &ofxDmtrUI3::uiEventsString);
 
 
 
@@ -143,7 +143,7 @@ ofxDmtrUI3::~ofxDmtrUI3() {
 	ofRemoveListener(ofEvents().windowResized, this, &ofxDmtrUI3::onWindowResized);
 
 	ofRemoveListener(settings.uiEvent,this, &ofxDmtrUI3::uiEvents);
-	ofRemoveListener(settings.uiEventString,this, &ofxDmtrUI3::uiEventsString);
+	//ofRemoveListener(settings.uiEventString,this, &ofxDmtrUI3::uiEventsString);
 }
 
 //--------------------------------------------------------------
@@ -163,7 +163,7 @@ void ofxDmtrUI3::draw() {
 	if (settings.needsRedraw) {
 		fboUI.begin();
 		for (auto & e : elements) {
-			if (e->redraw) {
+			if (e->redraw && !e->alwaysRedraw) {
 				//cout << "redraw :: " + e->name << endl;
 				ofSetColor(255, 1);
 				ofDrawRectangle(e->boundsRect);
@@ -177,7 +177,6 @@ void ofxDmtrUI3::draw() {
 		settings.needsRedraw = false;
 	}
 
-
 	// lately we never redraw fully, only on allocate (autofit?)
 	if (settings.redraw) {
 		//cout << "SETTINGS REDRAW  :: " + UINAME << endl;
@@ -186,14 +185,22 @@ void ofxDmtrUI3::draw() {
 		fboUI.begin();
 		ofSetColor(255);
 		for (auto & e : elements) {
-			e->draw();
+			if (!e->alwaysRedraw) {
+				e->draw();
+			}
 		}
 		fboUI.end();
 		settings.redraw = false;
 	}
 	ofSetColor(255, settings.opacity);
-
 	fboUI.draw(settings.rect.x, settings.rect.y);
+	// XAXA todo performance, vector or something
+	for (auto & e : elements) {
+		if (e->alwaysRedraw) {
+			e->draw();
+		}
+	}
+
 }
 
 
@@ -201,20 +208,22 @@ void ofxDmtrUI3::draw() {
 void ofxDmtrUI3::keyPressed(int key){
 
 	if ((key == 'f' || key == 'F')) {
-		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
-			ofToggleFullscreen();
-			// falta um needsredraw por aqui
+		if (_uiFather == NULL) {
+			if (ofGetKeyPressed(OF_KEY_COMMAND)) {
+				ofToggleFullscreen();
+				// falta um needsredraw por aqui
+			}
 		}
 	}
 
-	if (key == '1' || key == '2' || key == '3' || key == '4' ) {
-		string nome = ofToString(char(key)) + ".xml";
-		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
-			save(nome);
-		} else {
-			load(nome);
-		}
-	}
+//	if (key == '1' || key == '2' || key == '3' || key == '4' ) {
+//		string nome = ofToString(char(key)) + ".xml";
+//		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
+//			save(nome);
+//		} else {
+//			load(nome);
+//		}
+//	}
 
 
 
@@ -287,8 +296,15 @@ void ofxDmtrUI3::keyReleased(int key){
 
 
 //--------------------------------------------------------------
+void ofxDmtrUI3::notify(string e) {
+	uiEv ev = uiEv(e);
+	ofNotifyEvent(settings.uiEvent, ev);
+}
+
+//--------------------------------------------------------------
 void ofxDmtrUI3::createFromText(string file) {
 	if (ofFile::doesFileExist(file)) {
+		createdFromTextFile = file;
 		vector <string> linhas = textToVector(file);
 		for (auto & l : linhas) {
 			createFromLine(l);
@@ -296,6 +312,9 @@ void ofxDmtrUI3::createFromText(string file) {
 	} else {
 		cout << "ofxDmtrUI createFromText ::: File not found " + file << endl;
 	}
+
+	notify("createFromText");
+	//createFromText
 }
 
 //--------------------------------------------------------------
@@ -315,6 +334,11 @@ void ofxDmtrUI3::createFromLine(string l) {
 				autoFit();
 			}
 
+			else if (tipo == "fps") {
+				// XAXA TEMP
+				elements.push_back(new fps("", settings));
+			}
+
 			else if (tipo == "presets") {
 				elements.push_back(new presets("allPresets", settings));
 				//cout << elements.back()->boundsRect << endl;
@@ -326,6 +350,46 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 			else if (tipo == "flowHoriz") {
 				settings.setFlowVert(false);
+			}
+
+			else if (tipo == "saveY") {
+				settings.flowBak.y = settings.flow.y;
+			}
+
+			else if (tipo == "restoreY") {
+				settings.flow.y = settings.flowBak.y;
+			}
+
+			else if (tipo == "audioControls") {
+				string s =
+R"(slider2d	freq
+float	audioGanho	0.0 .5 0.25
+float	audioOffset	-1 0 -.2
+float	peakhold	0 20 2
+float	decay	0 .98 .85
+bool	invertAudio	0)";
+
+				for (auto & l : ofSplitString(s, "\n")) {
+					//cout << l << endl;
+					createFromLine(l);
+				}
+			}
+
+			else if (tipo == "audioBpmControls") {
+				string s =
+R"(bool	audioOuBpm	0
+int	BPM	1 200 120
+radio	ondaBeats	1 2 4 8
+radio	onda	s w ww r
+slider2d	freq
+float	audioGanho	0 .5 0.25
+float	audioOffset	-1 0 -.2
+float	peakhold	0 20 2
+float	decay	0 .98 .85
+bool	invertAudio	0)";
+				for (auto & l : ofSplitString(s, "\n")) {
+					createFromLine(l);
+				}
 			}
 		}
 		else {
@@ -372,6 +436,11 @@ void ofxDmtrUI3::createFromLine(string l) {
 				elements.push_back(new radio(nome, settings, opcoes));
 			}
 
+			else if (tipo == "color") {
+				vector <string> opcoes = ofSplitString(valores, " ");
+				elements.push_back(new color(nome, settings, opcoes));
+			}
+
 			else if (tipo == "slider2d") {
 				elements.push_back(new slider2d(nome, settings));
 			}
@@ -395,6 +464,10 @@ void ofxDmtrUI3::createFromLine(string l) {
 					elements.back()->changeUI = std::bind(
 					&ofxDmtrUI3::changeUI, this, _1, _2);
 				}
+
+				elements.back()->isDir = true;
+
+
 //				else {
 //					elements.push_back(new radio(nome, settings, opcoes));
 //				}
@@ -408,6 +481,15 @@ void ofxDmtrUI3::createFromLine(string l) {
 			}
 			else if (tipo == "sliderHeight") {
 				settings.sliderDimensions.y = ofToInt(nome);
+			}
+			else if (tipo == "sliderMargin") {
+				settings.spacing = ofToInt(nome);
+			}
+			else if (tipo == "nPresets") {
+				settings.nPresets = ofToInt(nome);
+			}
+			else if (tipo == "margin") {
+				settings.margin = ofPoint(ofToInt(nome), ofToInt(nome));
 			}
 
 			else if (tipo == "addUI" || tipo == "addUIDown") {
@@ -463,6 +545,12 @@ void ofxDmtrUI3::createFromLine(string l) {
 					}
 				}
 			}
+
+
+
+
+
+
 		}
 	}
 }
@@ -500,9 +588,6 @@ void ofxDmtrUI3::onKeyReleased(ofKeyEventArgs& data) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMousePressed(ofMouseEventArgs& data) {
 	for (auto & e : elements) {
-		//		e->checkMouse(data.x, data.y);
-		//		e->checkMousePress(data.x, data.y);
-		//e->checkMousePress(data.x - settings.rect.x, data.y - settings.rect.y);
 		e->checkMouseNeu(data.x - settings.rect.x, data.y - settings.rect.y, true);
 	}
 }
@@ -510,8 +595,6 @@ void ofxDmtrUI3::onMousePressed(ofMouseEventArgs& data) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMouseDragged(ofMouseEventArgs& data) {
 	for (auto & e : elements) {
-		//		e->checkMouse(data.x, data.y);
-		//e->checkMouse(data.x - settings.rect.x, data.y - settings.rect.y);
 		e->checkMouseNeu(data.x - settings.rect.x, data.y - settings.rect.y);
 	}
 }
@@ -526,19 +609,11 @@ void ofxDmtrUI3::onMouseReleased(ofMouseEventArgs& data) {
 }
 
 
-//--------------------------------------------------------------
-void ofxDmtrUI3::uiEventsString(string & e) {
-	//cout << e << endl;
-}
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onExit(ofEventArgs &data) {
-	//cout << "onexit dmtrui3" << endl;
-
-
 	if (keepSettings) {
 		save("_presets/" + UINAME + ".xml");
-		//save(getPresetsPath(UINAME + ".xml"));
 	}
 }
 
@@ -554,6 +629,8 @@ void ofxDmtrUI3::save(string xml) {
 	ofxXmlSettings xmlSettings;
 	xmlSettings.setValue("ofxDmtrUIVersion", 3.0);
 	for (auto & e : elements) {
+
+		// mudar tudo aqui pra valType.
 		//cout << typeid(e->getVal()).name() << endl;
 		if (e->kind == TOGGLE || e->kind == RADIOITEM) {
 			xmlSettings.setValue("element:" + e->name, (bool)e->getVal());
@@ -575,7 +652,7 @@ void ofxDmtrUI3::save(string xml) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::load(string xml) {
-	cout << "load :: " + xml << endl;
+	//cout << "load :: " + xml << endl;
 	ofxXmlSettings xmlSettings;
 	xmlSettings.loadFile(xml);
 
@@ -689,7 +766,9 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 	allUIs.push_back(this);
 
 	if (keepSettings) {
-		load("_presets/" + UINAME + ".xml");
+		string file = "_presets/" + UINAME + ".xml";
+		cout << file << endl;
+		load(file);
 	}
 }
 
@@ -870,7 +949,9 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 
 	// temporary, just to fire event from master
 	if (UINAME == "master") {
-		cout << "loadPresetAll :: " + UINAME << endl;
+
+		// TODO, averiguar firing event twice here
+		//cout << "loadPresetAll :: " + UINAME << endl;
 		if (fromKey) {
 			getElement("allPresets")->set(ofToString(n));
 		}
@@ -900,10 +981,18 @@ void ofxDmtrUI3::clear(bool keepVars) {
 		pEasy.clear();
 		pColor.clear();
 	}
+
+	settings.needsRedraw = true;
 }
+
+////--------------------------------------------------------------
+//void ofxDmtrUI3::uiEventsString(string & e) {
+//	//cout << e << endl;
+//}
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::uiEvents(uiEv & e) {
+	//cout << "element fired inside UI code" << endl;
 	if (e.name == "presetsFolder") {
 		string folder = pString["presetsFolder"];
 		software.presetsFolder = "_presets/" + folder + "/";

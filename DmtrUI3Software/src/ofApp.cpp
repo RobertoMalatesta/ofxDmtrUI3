@@ -10,8 +10,8 @@ void ofApp::setup(){
 	// change to keepsettings
 	u.load("default.xml");
 
-	for (auto & uu : ui->allUIs) {
-		ofAddListener(uu->settings.uiEvent,this, &ofApp::uiEvents);
+	for (auto & ui : u.allUIs) {
+		ofAddListener(ui->settings.uiEvent,this, &ofApp::uiEvents);
 	}
 
 
@@ -80,6 +80,7 @@ void ofApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void ofApp::uiEvents(uiEv & e) {
+	cout << "EVENT FIRED" << endl;
 	cout << e.name << endl;
 
 	// fazer um kind string no uiev
