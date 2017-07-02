@@ -36,6 +36,8 @@ ofFbo::Settings fboSettings;
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::setup() {
+
+	// REVER AQUI
 	settings.software = &software;
 	//settings.updateUI = &ofxDmtrUI3::updateUI;
 	fboSettings.width = 10; // will resize on autofit
@@ -46,67 +48,18 @@ void ofxDmtrUI3::setup() {
 //	fboSettings.useDepth = false;
 //	fboSettings.useStencil = false;
 
-	string vertShader =
-	R"(
-	varying vec2 texcoord0;
-	void main() {
-		gl_Position = ftransform();
-		texcoord0 = vec2(gl_TextureMatrix[0] * gl_MultiTexCoord0);
-	}
-	)";
-
-	string fragShader =
-	R"(
-	uniform int x, y, w, h;
-	uniform sampler2DRect tex0;
-	uniform sampler2DRect mask0;
-	varying vec2 texcoord0;
-
-	void main (void)
-	{
-		vec4 cor = texture2DRect(tex0, texcoord0);
-//		vec4 cor = texture2DRect(tex0, texcoord0).rgb;
-//		cor.a = texture2DRect(mask0, texcoord0).r;
-
-		vec2 xy = gl_FragCoord.xy;
-		int xx = int(xy.x);
-		int yy = int(xy.y);
-		bool limpa = false;
-		if (xx > x && yy > y) {
-			if (xx < (x+w) && yy < (y+h)) {
-				limpa = true;
-			}
-		}
-		gl_FragColor = limpa ? vec4(0.0, 0.0, 0.0, 0.0) : cor;
-	}
-	)";
-
-	shader.setupShaderFromSource( GL_VERTEX_SHADER, vertShader );
-	shader.setupShaderFromSource( GL_FRAGMENT_SHADER, fragShader );
-	shader.bindDefaults();
-	shader.linkProgram();
-
-
-	//cout << "setup" << endl;
-
 	settings.pFloat	 	= &pFloat;
 	settings.pInt	 	= &pInt;
 	settings.pBool 		= &pBool;
 	settings.pString	 	= &pString;
 	settings.pPoint 		= &pPoint;
 
-//	fboUI.allocate(ofGetWindowWidth(), ofGetWindowHeight(), GL_RGBA);
 	fboUI.allocate(fboSettings);
 
 	fboClear();
 
-//	fboUI2.allocate(fboSettings);
-//	fboUI2.begin();
-//	ofClear(0,0);
-//	fboUI2.end();
-
 	ofAddListener(ofEvents().draw, this, &ofxDmtrUI3::onDraw);
-	//ofAddListener(ofEvents().update, this, &ofxDmtrUI3::onUpdate);
+	ofAddListener(ofEvents().update, this, &ofxDmtrUI3::onUpdate);
 	ofAddListener(ofEvents().mousePressed, this, &ofxDmtrUI3::onMousePressed);
 	ofAddListener(ofEvents().mouseDragged, this, &ofxDmtrUI3::onMouseDragged);
 	ofAddListener(ofEvents().mouseReleased, this, &ofxDmtrUI3::onMouseReleased);
@@ -116,12 +69,9 @@ void ofxDmtrUI3::setup() {
 	ofAddListener(ofEvents().windowResized, this, &ofxDmtrUI3::onWindowResized);
 
 	ofAddListener(settings.uiEvent,this, &ofxDmtrUI3::uiEvents);
-	//ofAddListener(settings.uiEventString,this, &ofxDmtrUI3::uiEventsString);
-
-
-
 }
 // END SETUP
+
 
 ofxDmtrUI3::ofxDmtrUI3() {
 	setup();
@@ -155,6 +105,31 @@ void ofxDmtrUI3::update() {
 		else {
 			pEasy[p.first] = pFloat[p.first];
 		}
+	}
+
+	if (futureCommands.size()) {
+		cout << "futureCommands > 0" << endl;
+		for (auto & f : futureCommands) {
+			if (f.action == "setFromIndex") {
+
+				cout << f.uiname << endl;
+				cout << f.name << endl;
+				cout << f.valInt << endl;
+				cout << "=-=-=-=-=-=" << endl;
+				//cout << ((radio*)uis[f.uiname].getElement(f.name))->getNameFromIndex(f.valInt) << endl;
+				//cout << ((radio*)uis[f.uiname].getElement(f.name))->getIndex(f.valInt)
+				//((radio*)uis[f.uiname].getElement(f.name))->setFromIndex(f.valInt);
+			}
+			//ofxDmtrUI3 * ui = f.name == "master" ? &this : &uis[f.name];
+		}
+		futureCommands.clear();
+	}
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::redraw() {
+	for (auto & e : elements) {
+		e->needsRedraw();
 	}
 }
 
@@ -192,13 +167,20 @@ void ofxDmtrUI3::draw() {
 		fboUI.end();
 		settings.redraw = false;
 	}
-	ofSetColor(255, settings.opacity);
-	fboUI.draw(settings.rect.x, settings.rect.y);
-	// XAXA todo performance, vector or something
-	for (auto & e : elements) {
-		if (e->alwaysRedraw) {
-			e->draw();
+
+	if (settings.software->visible) {
+//		ofSetColor(255, settings.opacity);
+		ofSetColor(255, settings.software->opacity);
+		fboUI.draw(settings.rect.x, settings.rect.y);
+		// XAXA todo performance, vector or something
+		ofPushMatrix();
+		ofTranslate(settings.rect.x, settings.rect.y);
+		for (auto & e : elements) {
+			if (e->alwaysRedraw) {
+				e->draw();
+			}
 		}
+		ofPopMatrix();
 	}
 
 }
@@ -207,8 +189,14 @@ void ofxDmtrUI3::draw() {
 //--------------------------------------------------------------
 void ofxDmtrUI3::keyPressed(int key){
 
-	if ((key == 'f' || key == 'F')) {
-		if (_uiFather == NULL) {
+	// Only on master UI
+	if (_uiFather == NULL) {
+		if (key == '=') {
+			settings.software->visible ^= 1;
+			
+		}
+
+		if ((key == 'f' || key == 'F')) {
 			if (ofGetKeyPressed(OF_KEY_COMMAND)) {
 				ofToggleFullscreen();
 				// falta um needsredraw por aqui
@@ -310,11 +298,18 @@ void ofxDmtrUI3::createFromText(string file) {
 			createFromLine(l);
 		}
 	} else {
-		cout << "ofxDmtrUI createFromText ::: File not found " + file << endl;
+		cout << "ofxDmtrUI3 createFromText ::: File not found " + file << endl;
 	}
 
 	notify("createFromText");
 	//createFromText
+
+	// temporario
+//	for (auto & e : elements) {
+//		if (e->kind == SLIDER) {
+//			slidersMap[e->name] = (slider*)e;
+//		}
+//	}
 }
 
 //--------------------------------------------------------------
@@ -436,6 +431,26 @@ bool	invertAudio	0)";
 				elements.push_back(new radio(nome, settings, opcoes));
 			}
 
+
+			else if (tipo == "radioColors") {
+				vector <string> cadaPar = ofSplitString(valores, " ");
+
+				map<string, ofColor> colorMap;
+				for (auto & c : cadaPar) {
+					vector <string> colors = ofSplitString(c, ":");
+					string n = colors[0];
+					ofColor cor = stringHexToColor(colors[1]);
+					colorMap[n] = cor;
+				}
+
+				for (auto & e : getElement(nome)->elements) {
+					if ( colorMap.find(e->name) != colorMap.end() ) {
+						e->color = colorMap[e->name];
+						e->needsRedraw();
+					}
+				}
+			}
+
 			else if (tipo == "color") {
 				vector <string> opcoes = ofSplitString(valores, " ");
 				elements.push_back(new color(nome, settings, opcoes));
@@ -447,6 +462,9 @@ bool	invertAudio	0)";
 
 			else if (tipo == "dirList" || tipo == "dirListNoExt" || tipo == "scene") {
 				ofDirectory dir;
+				if (tipo == "scene") {
+					dir.allowExt("txt");
+				}
 				dir.listDir(valores);
 				vector <string> opcoes;
 				for (auto & d : dir) {
@@ -458,19 +476,35 @@ bool	invertAudio	0)";
 				}
 				elements.push_back(new radio(nome, settings, opcoes));
 				if (tipo == "scene") {
-					//elements.back()->setFolder(valores);
-					//if (_uiFather != NULL) {
 					using namespace std::placeholders;
 					elements.back()->changeUI = std::bind(
 					&ofxDmtrUI3::changeUI, this, _1, _2);
 				}
-
+				// BEAUTIFUL
+				((radio*)elements.back())->setFolder(valores);
 				elements.back()->isDir = true;
+			}
 
+			else if (tipo == "colorLicht") {
+				createFromLine("bool	"+nome+"UsaPaleta	0");
+				createFromLine("slider2d	"+nome+"Paleta	.5 .5");
+				createFromLine("slider2d	"+nome+"Hsv	.5 .5");
+				createFromLine("fbo	"+nome+"PaletaAtual	200 10");
+				createFromLine("float	"+nome+"S	0 255 255");
+				createFromLine("float	"+nome+"HRange	0 720 100");
+				createFromLine("float	"+nome+"HRangeAudio	0 360 0");
+				//		createFromLine("float	"+nome+"BRange	0 255 0");
+				createFromLine("float	"+nome+"BRange	0 512 0");
+				createFromLine("float	"+nome+"BStop	0 1 1");
+				createFromLine("int	"+nome+"HStep	0 6 0");
+				createFromLine("float	"+nome+"Alpha	0 255 255");
+				createFromLine("float	"+nome+"AlphaAudio	0 255 0");
+				createFromLine("float	"+nome+"AlphaRange	0 255 0");
 
-//				else {
-//					elements.push_back(new radio(nome, settings, opcoes));
-//				}
+				//cout << "colorLicht ::: " + nome << endl;
+				//colors.push_back(nome);
+				//lastHeight = 0;
+				//createFromLine("");
 			}
 
 
@@ -782,6 +816,10 @@ void ofxDmtrUI3::addUI(string nome, bool down) {
 	// aqui tenho tres ponteiros. o _uiLast o uiNext e o uiRight. nao sei se precisa tantos.
 	// de repente fazer um vector de ponteiros?
 	uis[nome].UINAME = nome;
+
+	// todos no mesmo sofwtare que o master.
+	uis[nome].settings.software = &software;
+
 	if (ofFile::doesFileExist("uiAll.txt")) {
 		uis[nome].createFromText("uiAll.txt");
 	}
@@ -867,14 +905,15 @@ void ofxDmtrUI3::autoFit() {
 		maxh = MAX(maxh, e->boundsRect.y + e->boundsRect.height);
 	}
 
-//	settings.rect.width = maxw + settings.spacing;
-//	settings.rect.height = maxh + settings.spacing;
 
 	settings.rect.width  = maxw + settings.margin.x;
 	settings.rect.height = maxh + settings.margin.y;
 
+	settings.rect.width = MAX(settings.rect.width, minimumWidth);
+
 	fboSettings.width = settings.rect.width;
 	fboSettings.height = settings.rect.height;
+
 //	cout << UINAME << endl;
 //	cout << settings.rect.width << endl;
 //	cout << settings.rect.height << endl;
@@ -985,14 +1024,19 @@ void ofxDmtrUI3::clear(bool keepVars) {
 	settings.needsRedraw = true;
 }
 
-////--------------------------------------------------------------
-//void ofxDmtrUI3::uiEventsString(string & e) {
-//	//cout << e << endl;
-//}
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::uiEvents(uiEv & e) {
 	//cout << "element fired inside UI code" << endl;
+
+	//&& e.tipo != LOAD
+	if (ofIsStringInString(e.name, "_shortcutInt") ) {
+		vector <string> split = ofSplitString(e.name, "_");
+		string nome = split[0];
+		getElement(nome)->set(ofToFloat(pString[e.name]));
+	}
+
+
 	if (e.name == "presetsFolder") {
 		string folder = pString["presetsFolder"];
 		software.presetsFolder = "_presets/" + folder + "/";

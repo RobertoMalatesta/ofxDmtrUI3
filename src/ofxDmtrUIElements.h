@@ -38,6 +38,8 @@ enum dmtrUIVarType {
 
 struct soft {
 public:
+	bool visible = true;
+	float opacity = 180;
 	ofPoint presetDimensions = ofPoint(72,48);
 	string presetsFolder = "_presets/";
 	int presetLoaded = -1;
@@ -45,6 +47,15 @@ public:
 	int w = 1280;
 	int h = 720;
 	soft() {}
+};
+
+struct future {
+public:
+	string uiname;
+	string name;
+	string action;
+	int valInt;
+	future (string u, string n, string a, int v) : uiname(u), name(n), action(a), valInt(v) {}
 };
 
 
@@ -89,7 +100,7 @@ public:
 	float opacity = 200;
 	ofPoint flow = margin;
 	ofPoint flowBak;
-	float colx = margin.x;
+	float colx;
 	int spacing = 5;
 	int spacingChildren = 1;
 
@@ -110,7 +121,6 @@ public:
 	// mouse flows free from one item to another.
 	bool	 flowFree = true;
 	bool flowVert = true;
-	float hue;
 
 	// legacy
 	//ofEvent<string> uiEventString;
@@ -125,6 +135,9 @@ public:
 	map <string, bool>		* pBool;
 	map <string, string> 	* pString;
 	map <string, ofPoint>	* pPoint;
+
+	float hueStart = 60;
+	float hue;
 	int hueStep = 4;
 	ofColor color;
 	//float flowxbak = -100;
@@ -137,13 +150,16 @@ public:
 	}
 
 	uiConfig() {
+		reset();
 		updateColor();
  	}
 
 	void reset() {
-		flow = margin;
+		flow = flowBak = margin;
 		// starthue no futuro
-		hue = 60;
+		hue = hueStart;
+		needsRedraw = true;
+		colx = margin.x;
 	}
 
 	int getSpacing() {
@@ -197,15 +213,13 @@ public:
 class element {
 protected:
 	ofColor labelColor = ofColor(255);
-	ofColor color = ofColor(255);
 	//ofColor activeRectColor = ofColor(0, 90);
 	ofPoint labelPos;
 	uiConfig * settings = NULL;
 	bool showLabel = true;
 
 public:
-
-	ofColor cor;
+	ofColor color = ofColor(255);
 
 	bool alwaysRedraw = false;
 	dmtrUIVarType varType;
@@ -246,6 +260,8 @@ public:
 
 	// 19 june 2017
 	bool firstClicked = false;
+
+
 
 	void notify() {
 		// fires any kind of void on any change
@@ -513,6 +529,26 @@ public:
 			}
 		}
 	}
+
+	void restoreVal() {
+		if (varType == FLOAT) {
+			set((*settings->pFloat)[name]);
+		}
+		else if (varType == INT) {
+			// ainda igual ao int. vamos ver o que acontece.
+			set(float((*settings->pInt)[name]));
+		}
+		else if (varType == STRING) {
+			set((*settings->pString)[name]);
+		}
+		else if (varType == POINT) {
+			set((*settings->pPoint)[name]);
+		}
+//		else if (varType == COLOR) {
+//			set((*settings->pColor)[name]);
+//		}
+
+	}
 };
 
 
@@ -570,6 +606,7 @@ public:
 		if (_fbo != NULL) {
 			//cout << "fbo is not null" << endl;
 			ofSetColor(255);
+//			_fbo->draw(rect.x + settings->rect.x , rect.y + settings->rect.y);
 			_fbo->draw(rect.x, rect.y);
 		}
 		ofSetColor(0);
@@ -593,10 +630,10 @@ public:
 
 class slider : public element {
 private:
-	float min = 0;
-	float max = 1;
 	bool isInt;
 public:
+	float min = 0;
+	float max = 1;
 	float val = .5;
 	float lastVal;
 
@@ -613,13 +650,13 @@ public:
 		val = v;
 
 		if (lastVal != val) {
-			activeRect.width = rect.width * ((val-min) / (max-min));
 			if (isInt) {
 				val = int(val);
 				(*settings->pInt)[name] = val;
 			} else {
 				(*settings->pFloat)[name] = val;
 			}
+			activeRect.width = rect.width * ((val-min) / (max-min));
 			lastVal = val;
 			needsRedraw();
 			label = " " + ofToString(val);
@@ -769,7 +806,7 @@ public:
 
 	void drawSpecific() {
 		if (val) {
-			ofSetColor(cor);
+			ofSetColor(color);
 			ofDrawRectangle(activeRect);
 		}
 	}
@@ -784,6 +821,7 @@ public:
 	string folder;
 	vector <string> items;
 	string lastVal;
+	int nElements = 0;
 
 	bool eventWhenSameSelectedIndex = false;
 
@@ -815,13 +853,14 @@ public:
 //	}
 
 	// mult (radio and presets)
+
+
 	void set(string s, bool notifyEvent = true) {
 		int index = 0;
 		for (auto & e : elements) {
 			if (e->name == s) {
 				if (valString != e->name || (eventWhenSameSelectedIndex && !dragging))
 				{
-					//cout << "set on radio OR presets, string :: "+s << endl;
 					valString = e->name;
 					(*settings->pString)[name] = valString;
 					e->set(true);
@@ -831,21 +870,13 @@ public:
 					}
 
 					if (changeUI != NULL) {
-						string uiSceneFolder = "_" + name + "/";
-						string f = uiSceneFolder + valString + ".txt";
+						string f = folder + "/" + valString + ".txt";
 						string uiname = "ui" + name;
 						changeUI(uiname, f);
 					}
 
-					// provisorio
 					selectedId = index;
-
-//					if ((*invokeString) != NULL) {
-//						(*invokeString)(valString);
-//					}
-//					if ((*invokeInt) != NULL) {
-//						(*invokeInt)(selectedId);
-//					}
+					// invoke pointer to functions (string and id)
 				}
 			} else {
 				if (e->getVal() == true) {
@@ -855,6 +886,51 @@ public:
 			index++;
 		}
 	}
+
+	string getNameFromIndex(int index) {
+		int i = 0;
+		string name = "";
+		for (auto & e : elements) {
+			if ((e->kind == RADIOITEM) && i == index) {
+				name = e->name;
+			}
+			i++;
+		}
+		if (name != "") {
+			return name;
+		}
+	}
+
+	int getIndex(string s) {
+		int i = 0;
+		int index = -1;
+		for (auto & e : elements) {
+			if (e->name == s) {
+				index = i;
+			}
+			i++;
+		}
+		if (index != -1) {
+			return index;
+		}
+	}
+
+	// same as next function
+	void setFromIndex(int i, bool notifyEvent = true) {
+		int index = 0;
+		string elname;
+		for (auto & e : elements) {
+			cout << e->name << endl;
+			if (index == i) {
+				elname = e->name;
+			}
+			index++;
+		}
+		if (elname != "") {
+			set(elname, true);
+		}
+	}
+
 };
 
 
@@ -884,6 +960,7 @@ public:
 			e->_parent = this;
 			boundsRect.growToInclude(e->boundsRect.getBottomRight());
 		}
+		nElements = elements.size();
 		settings->setFlowVert(true);
 		settings->newLine();
 	}
@@ -970,6 +1047,9 @@ public:
 		if (val) {
 			ofSetColor(settings->activeColor);
 			ofDrawRectangle(activeRect);
+
+			ofSetColor(255,0,70);
+			ofDrawRectangle(activeRect.x + 10, activeRect.y + 10, 20, 20);
 		}
 	}
 };
@@ -1003,6 +1083,7 @@ public:
 		}
 		settings->setFlowVert(true);
 		settings->newLine();
+		nElements = elements.size();
 	}
 };
 

@@ -60,6 +60,9 @@ public:
 	vector <string> textToVector(string file);
 	vector <element*> elements;
 
+	// experimental 02 07 2017
+	map <string, slider *> slidersMap;
+
 	void onDraw(ofEventArgs &data);
 	void onUpdate(ofEventArgs &data);
 
@@ -170,7 +173,21 @@ public:
 		}
 	}
 
+
+	ofColor stringHexToColor(string corString) {
+		int corInt = ofHexToInt(corString.substr(1));
+		ofColor cor = ofColor::fromHex(ofHexToInt(corString.substr(1)));
+		return cor;
+	}
+
 	string createdFromTextFile = "";
 
 	void notify(string e);
+
+	void redraw();
+
+	// ofxDmtrUIMidiController
+	vector <int> nextPreset;
+
+	vector <future> futureCommands;
 };
