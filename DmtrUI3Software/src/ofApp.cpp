@@ -3,20 +3,17 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 	ofSetWindowPosition(40, 40);
+
 	// ALL Elements definitions are loaded from this file:
 	u.createSoftwareFromText("u.txt");
 	u.setFbo(u.mapFbos["fbo"]);
-
-	// change to keepsettings
-	u.load("default.xml");
 
 	for (auto & ui : u.allUIs) {
 		ofAddListener(ui->settings.uiEvent,this, &ofApp::uiEvents);
 	}
 
-
-	//ofAddListener(ui->settings.uiEvent,this, &ofApp::uiEvents);
-	ofSetFrameRate(60);
+	ofSetVerticalSync(false);
+	//ofSetFrameRate(60);
 	ofSetCircleResolution(120);
 	ofEnableAlphaBlending();
 }
@@ -50,7 +47,6 @@ void ofApp::desenha(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-
 	ofBackground(ofColor(ui->pFloat["bg_r"],ui->pFloat["bg_g"],ui->pFloat["bg_b"]));
 
 	//ofBackground(40);
@@ -61,9 +57,6 @@ void ofApp::draw(){
 	float w = fbo->getWidth() * u.pFloat["fboScale"];
 	float h = fbo->getHeight() * u.pFloat["fboScale"];
 	fbo->draw(u.pInt["fboX"], u.pInt["fboY"], w, h);
-
-
-
 
 	// modificar pra events
 	ui->settings.flowFree = ui->pBool["flowFree"];
@@ -80,9 +73,5 @@ void ofApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void ofApp::uiEvents(uiEv & e) {
-	cout << "EVENT FIRED" << endl;
-	cout << e.name << endl;
-
-	// fazer um kind string no uiev
-	//if (e.kind == TOGGLE) { cout << "TOGGLE" << endl; }
+	//cout << e.name << endl;
 }

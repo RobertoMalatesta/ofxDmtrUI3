@@ -3,7 +3,6 @@
 #include "ofMain.h"
 #include "ofxDmtrUI3.h"
 
-
 class ofApp : public ofBaseApp{
 
 	public:
@@ -20,6 +19,5 @@ class ofApp : public ofBaseApp{
 	ofxDmtrUI3 *ui = &u.uis["ui"];
 	ofFbo *fbo = &u.mapFbos["fbo"];
 	string * cena = &ui->pString["scene"];
-
 	void desenha();
 };

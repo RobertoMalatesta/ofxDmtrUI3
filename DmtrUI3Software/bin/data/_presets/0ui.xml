@@ -1,27 +1,28 @@
 <ofxDmtrUIVersion>3.000000000</ofxDmtrUIVersion>
 <element>
+    <scene></scene>
+    <scene2></scene2>
     <flowFree>1</flowFree>
     <invoke>0</invoke>
-    <opacity>180.000000000</opacity>
-    <scene>test</scene>
+    <opacity>162.750000000</opacity>
     <testeInt>2.000000000</testeInt>
     <circle2>1</circle2>
     <slider2d>
-        <x>0.185000002</x>
-        <y>0.155555561</y>
+        <x>0.209999993</x>
+        <y>0.400000006</y>
     </slider2d>
     <raio>200.000000000</raio>
-    <drawCircle>1</drawCircle>
-    <r>131.324996948</r>
-    <g>119.849998474</g>
-    <b>114.750000000</b>
-    <r2>103.275001526</r2>
-    <g2>93.075004578</g2>
-    <b2>82.875000000</b2>
-    <bg_r>127.500000000</bg_r>
-    <bg_g>72.674995422</bg_g>
-    <bg_b>66.299995422</bg_b>
-    <blend></blend>
+    <drawCircle>0</drawCircle>
+    <r>126.224998474</r>
+    <g>136.425003052</g>
+    <b>142.800003052</b>
+    <r2>114.750000000</r2>
+    <g2>108.375000000</g2>
+    <b2>98.174995422</b2>
+    <bg_r>107.099998474</bg_r>
+    <bg_g>102.000000000</bg_g>
+    <bg_b>90.524993896</bg_b>
+    <blend>screen</blend>
     <falso>0</falso>
     <scale>0.500000000</scale>
     <scale2>0.500000000</scale2>
@@ -40,11 +41,11 @@
     <toggles5>1</toggles5>
     <fboX>0.000000000</fboX>
     <fboY>0.000000000</fboY>
-    <drum_0_0>0</drum_0_0>
-    <drum_1_0>0</drum_1_0>
-    <drum_2_0>0</drum_2_0>
-    <drum_3_0>0</drum_3_0>
-    <drum_4_0>0</drum_4_0>
+    <drum_0_0>1</drum_0_0>
+    <drum_1_0>1</drum_1_0>
+    <drum_2_0>1</drum_2_0>
+    <drum_3_0>1</drum_3_0>
+    <drum_4_0>1</drum_4_0>
     <drum_5_0>0</drum_5_0>
     <drum_6_0>0</drum_6_0>
     <drum_7_0>0</drum_7_0>
