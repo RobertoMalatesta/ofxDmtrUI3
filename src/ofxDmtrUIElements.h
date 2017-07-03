@@ -915,12 +915,10 @@ public:
 		}
 	}
 
-	// same as next function
 	void setFromIndex(int i, bool notifyEvent = true) {
 		int index = 0;
 		string elname;
 		for (auto & e : elements) {
-			cout << e->name << endl;
 			if (index == i) {
 				elname = e->name;
 			}
@@ -930,17 +928,11 @@ public:
 			set(elname, true);
 		}
 	}
-
 };
 
 
 class radio : public mult {
 public:
-//	radio (string n, uiConfig & u, vector <string> its, string s) {
-//		uiScene = s;
-//		radio (n, u, its);
-//	}
-
 	radio (string n, uiConfig & u, vector <string> its) {
 		kind = RADIO;
 		varType = STRING;

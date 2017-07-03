@@ -108,19 +108,13 @@ void ofxDmtrUI3::update() {
 	}
 
 	if (futureCommands.size()) {
-		cout << "futureCommands > 0" << endl;
 		for (auto & f : futureCommands) {
-			if (f.action == "setFromIndex") {
-
-				cout << f.uiname << endl;
-				cout << f.name << endl;
-				cout << f.valInt << endl;
-				cout << "=-=-=-=-=-=" << endl;
-				//cout << ((radio*)uis[f.uiname].getElement(f.name))->getNameFromIndex(f.valInt) << endl;
-				//cout << ((radio*)uis[f.uiname].getElement(f.name))->getIndex(f.valInt)
-				//((radio*)uis[f.uiname].getElement(f.name))->setFromIndex(f.valInt);
+			if (f.action == "loadAllPresets") {
+				loadPresetAll(f.valInt);
 			}
-			//ofxDmtrUI3 * ui = f.name == "master" ? &this : &uis[f.name];
+			if (f.action == "setFromIndex") {
+				((radio*)getElement(f.name))->setFromIndex(f.valInt);
+			}
 		}
 		futureCommands.clear();
 	}
@@ -407,6 +401,13 @@ bool	invertAudio	0)";
 
 				// TODO - Slidervert
 				elements.push_back(new slider(nome, settings, min, max, val, tipo=="int"));
+
+				if (cols.size() == 4) {
+					if (cols[3] == "audio") {
+						min = val = 0;
+						elements.push_back(new slider(nome + "Audio", settings, min, max, val, tipo=="int"));
+					}
+				}
 			}
 
 			else if (tipo == "label") {
