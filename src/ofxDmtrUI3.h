@@ -127,6 +127,7 @@ public:
 		elements.push_back(new radio(name, settings, options));
 	}
 	void autoFit();
+	void reFlowUis();
 
 	string getPresetsPath(string ext="");
 	void clear(bool keepVars = false);
@@ -146,7 +147,12 @@ public:
 			_uiFather->uis[ui].clear();
 			_uiFather->uis[ui].createFromText(path);
 			_uiFather->uis[ui].autoFit();
-			_uiFather->uis[ui].settings.redraw = true;
+
+			if (_uiFather->uis[ui]._uiUnder != NULL) {
+				_uiFather->uis[ui]._uiUnder->autoFit();
+			}
+
+			//_uiFather->uis[ui].settings.redraw = true;
 		} else {
 			//cout << "uis key not found" << endl;
 		}
@@ -190,4 +196,5 @@ public:
 	vector <int> nextPreset;
 
 	vector <future> futureCommands;
+
 };

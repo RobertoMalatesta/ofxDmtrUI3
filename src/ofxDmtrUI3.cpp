@@ -302,6 +302,7 @@ void ofxDmtrUI3::createFromText(string file) {
 	}
 
 	notify("createFromText");
+	autoFit();
 	//createFromText
 
 	// temporario
@@ -824,11 +825,30 @@ void ofxDmtrUI3::addUI(string nome, bool down) {
 		uis[nome].createFromText("uiAll.txt");
 	}
 
-	if (down) {
-		if (_uiLast != NULL) {
-			uis[nome].minimumWidth = _uiLast->settings.rect.width;
+//	if (down) {
+//		if (_uiLast != NULL) {
+//		} else {
+//		}
+//	}
+
+
+	if (_uiLast == NULL) {
+		uis[nome].settings.hue = settings.hue;
+
+		if (!down) {
+			uis[nome].nextTo(*this);
 		} else {
 			uis[nome].minimumWidth = settings.rect.width;
+			uis[nome].downTo(*this);
+		}
+	} else {
+
+		uis[nome].settings.hue = _uiLast->settings.hue;
+		if (!down) {
+			uis[nome].nextTo(*_uiLast);
+		} else {
+			uis[nome].minimumWidth = _uiLast->settings.rect.width;
+			uis[nome].downTo(*_uiLast);
 		}
 	}
 
@@ -837,22 +857,6 @@ void ofxDmtrUI3::addUI(string nome, bool down) {
 		uis[nome].createFromText(fileName);
 	}
 
-	if (_uiLast == NULL) {
-		uis[nome].settings.hue = settings.hue;
-
-		if (!down) {
-			uis[nome].nextTo(*this);
-		} else {
-			uis[nome].downTo(*this);
-		}
-	} else {
-		uis[nome].settings.hue = _uiLast->settings.hue;
-		if (!down) {
-			uis[nome].nextTo(*_uiLast);
-		} else {
-			uis[nome].downTo(*_uiLast);
-		}
-	}
 	uis[nome]._uiFather = this;
 
 	_uiLast = &uis[nome];
@@ -869,6 +873,9 @@ void ofxDmtrUI3::nextTo(ofxDmtrUI3 & u) {
 
 	if (_uiUnder != NULL) {
 		_uiUnder->downTo(*this);
+	}
+	if (_uiRight != NULL) {
+		_uiRight->nextTo(*this);
 	}
 }
 
@@ -890,13 +897,20 @@ void ofxDmtrUI3::downTo(ofxDmtrUI3 & u) {
 }
 
 //--------------------------------------------------------------
+// software - recursive repositioning until the last UI
+void ofxDmtrUI3::reFlowUis() {
+	if (_uiUnder != NULL) {
+		_uiUnder->settings.rect.y = settings.rect.y + settings.rect.height + settings.margin.y;
+		_uiUnder->reFlowUis();
+	}
+	if (_uiRight != NULL) {
+		_uiRight->settings.rect.x = settings.rect.x + settings.rect.width + settings.margin.x;
+		_uiRight->reFlowUis();
+	}
+}
+
+//--------------------------------------------------------------
 void ofxDmtrUI3::autoFit() {
-	//cout << "autoFit, still empty" << endl;
-
-//	if (_uiFather != NULL) {
-//		_uiFather->autoFit();
-//	}
-
 	int maxw = 0;
 	int maxh = 0;
 	for (auto & e : elements) {
@@ -905,24 +919,20 @@ void ofxDmtrUI3::autoFit() {
 		maxh = MAX(maxh, e->boundsRect.y + e->boundsRect.height);
 	}
 
-
 	settings.rect.width  = maxw + settings.margin.x;
 	settings.rect.height = maxh + settings.margin.y;
-
 	settings.rect.width = MAX(settings.rect.width, minimumWidth);
 
 	fboSettings.width = settings.rect.width;
 	fboSettings.height = settings.rect.height;
 
-//	cout << UINAME << endl;
-//	cout << settings.rect.width << endl;
-//	cout << settings.rect.height << endl;
-//	cout << "------" << endl;
-
 	fboUI.allocate(fboSettings);
 	settings.redraw = true;
 	settings.needsRedraw = true;
 
+	if (UINAME != "master") {
+		reFlowUis();
+	}
 }
 
 //--------------------------------------------------------------
@@ -941,10 +951,8 @@ string ofxDmtrUI3::getPresetsPath(string ext) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::savePresetAll(int n) {
-
 	for (auto & u : uis) {
 		string nome = getPresetsPath(ofToString(n) + u.first +  ".xml");
-		//cout << nome << endl;
 		u.second.save(nome);
 	}
 	if (_fbo != NULL) {
