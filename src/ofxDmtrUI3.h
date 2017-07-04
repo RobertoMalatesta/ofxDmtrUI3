@@ -171,8 +171,7 @@ public:
 		int segundosExpira = segundosPorDia * dias;
 		float diasExpira = (segundosExpira - (difftime(rawtime,dataInicial))) / (float)segundosPorDia;
 
-		cout << "expira em " + ofToString(diasExpira) + " dias" << endl;
-		cout << "---------" << endl;
+		cout << "--------- expira em " + ofToString(diasExpira) + " dias" << endl;
 		if (diasExpira < 0 || diasExpira > dias) {
 			ofSystemAlertDialog("Dmtr.org Software Expired ~ " + ofToString(dataInicial) + "\rhttp://dmtr.org/");
 			std::exit(1);

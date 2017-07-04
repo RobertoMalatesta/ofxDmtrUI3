@@ -431,6 +431,10 @@ bool	invertAudio	0)";
 			else if (tipo == "radio") {
 				vector <string> opcoes = ofSplitString(valores, " ");
 				elements.push_back(new radio(nome, settings, opcoes));
+
+				if (cols.size() == 4) {
+					((radio*)elements.back())->set(cols[3]);
+				}
 			}
 
 
@@ -512,6 +516,9 @@ bool	invertAudio	0)";
 
 			// configurations
 			// todo : margin
+			else if (tipo == "bw") {
+				settings.bw = ofToInt(nome);
+			}
 			else if (tipo == "sliderWidth") {
 				settings.sliderDimensions.x = ofToInt(nome);
 			}
@@ -977,6 +984,7 @@ void ofxDmtrUI3::savePresetAll(int n) {
 		fboThumb.allocate(w,h,GL_RGBA);
 		fboThumb.begin();
 		ofClear(0,255);
+		ofSetColor(255);
 		_fbo->draw(offx, offy, neww,h);
 		fboThumb.end();
 

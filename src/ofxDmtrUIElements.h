@@ -140,6 +140,7 @@ public:
 	float hue;
 	int hueStep = 4;
 	ofColor color;
+	bool bw = false;
 	//float flowxbak = -100;
 
 	ofColor activeColor = ofColor(0,0,0,140);
@@ -147,6 +148,10 @@ public:
 	void updateColor() {
 		hue = int(hue + hueStep)%255;
 		color = ofColor::fromHsb(hue, 155, 210, 255);
+
+		if (bw) {
+			color = ofColor(127);
+		}
 	}
 
 	uiConfig() {
@@ -216,9 +221,9 @@ protected:
 	//ofColor activeRectColor = ofColor(0, 90);
 	ofPoint labelPos;
 	uiConfig * settings = NULL;
-	bool showLabel = true;
 
 public:
+	bool showLabel = true;
 	ofColor color = ofColor(255);
 
 	bool alwaysRedraw = false;
@@ -567,7 +572,7 @@ public:
 	void setFbo(ofFbo &fbo) {
 		_fbo = &fbo;
 		fboSet = true;
-		alwaysRedraw = true;
+		//alwaysRedraw = true;
 		//activeRect.width = 0;
 		//rect.width = 0;
 	};
