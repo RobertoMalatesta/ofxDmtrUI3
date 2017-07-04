@@ -2,6 +2,14 @@
 
 ## 2017 june 29
 First version is ready to go. all the basics working and building my first project using it.  
+
+Library for mirroring and synchronizing UI elements  
+https://github.com/dimitre/ofxDmtrUI3Remote  
+
+And to use UI with midi controller (without examples)  
+https://github.com/dimitre/ofxDmtrUI3MidiController  
+
+
 ~~Still not for production use. Handle with care.  
 Just float slider and bool toggle working now.~~
 
