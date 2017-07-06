@@ -27,7 +27,7 @@
 
 // naming conflicts? namespace?
 enum elementType {
-	SLIDER, LABEL, TOGGLE, RADIO, RADIOITEM, SLIDER2D, PRESET, PRESETS, COLOR, COLORITEM
+	SLIDER, LABEL, TOGGLE, BANG, RADIO, RADIOITEM, SLIDER2D, PRESET, PRESETS, COLOR, COLORITEM
 };
 
 // naming conflicts? namespace?
@@ -233,12 +233,13 @@ public:
 	bool isDir = false;
 	std::function<void(string, string)> changeUI = NULL;
 
+	std::function<void(bool)> invokeBool = NULL;
+
 	// 24 june 2017 - webcams
 	int selectedId = -1;
 
 
 //	void (*invoke)(void) = NULL;
-//	void (*invokeBool)(bool) = NULL;
 //	void (*invokeFloat)(float) = NULL;
 //	void (*invokeInt)(int) = NULL;
 //	void (*invokeString)(string) = NULL;
@@ -315,7 +316,8 @@ public:
 		if (kind != LABEL) {
 			rect.x = x;
 			rect.y = y;
-			rect.width = kind == TOGGLE ? settings->sliderDimensions.y : settings->sliderDimensions.x;
+			rect.width =
+			(kind == TOGGLE || kind == BANG) ? settings->sliderDimensions.y : settings->sliderDimensions.x;
 			rect.height = settings->sliderDimensions.y;
 			activeRect.x = x;
 			activeRect.y = y;
@@ -381,7 +383,7 @@ public:
 			labelColor = ofColor(0);
 		}
 
-		else if (kind == TOGGLE) {
+		else if (kind == TOGGLE || kind == BANG) {
 			labelPos.x = x + 25;
 			labelPos.y = y + 16;
 
@@ -640,7 +642,9 @@ public:
 	float min = 0;
 	float max = 1;
 	float val = .5;
-	float lastVal;
+
+	// temporary, just to fire set event on initialization
+	float lastVal = -12349871234;
 
 	slider(string n, uiConfig & u, float mi, float ma, float v, bool i=false) : min(mi), max(ma), isInt(i) {
 		settings = &u;
@@ -652,6 +656,7 @@ public:
 
 	// slider
 	void set(float v, bool notifyEvent = true) {
+		//cout << "set :: " + name << endl;
 		val = v;
 
 		if (lastVal != val) {
@@ -726,9 +731,9 @@ public:
 			if (notifyEvent) {
 				notify();
 			}
-//			if ((*invokeBool) != NULL) {
-//				(*invokeBool)(val);
-//			}
+			if (invokeBool != NULL) {
+				invokeBool(val);
+			}
 		}
 	}
 
@@ -747,6 +752,7 @@ public:
 
 class toggle : public booleano {
 public:
+
 	toggle(string n, uiConfig & u, bool v, bool l = true)  {
 		kind = TOGGLE;
 		varType = BOOLEAN;
@@ -755,6 +761,28 @@ public:
 		showLabel = l;
 		getProperties();
 		set(v);
+		needsRedraw();
+	}
+
+	void drawSpecific() {
+		if (val) {
+			ofSetColor(settings->activeColor);
+			ofDrawRectangle(activeRect);
+		}
+	}
+};
+
+
+class bang : public booleano {
+public:
+	bang(string n, uiConfig & u)  {
+		kind = BANG;
+		varType = BOOLEAN;
+		settings = &u;
+		name = n;
+		//showLabel = l;
+		getProperties();
+		//set(v);
 		needsRedraw();
 	}
 

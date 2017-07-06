@@ -195,5 +195,9 @@ public:
 	vector <int> nextPreset;
 
 	vector <future> futureCommands;
+	void loadMaster();
 
+	// created for ofxdmtrui3syphonin
+	void createRadio(string name, vector<string> options, string sel = "");
+	string getFileFullPath(string n);
 };

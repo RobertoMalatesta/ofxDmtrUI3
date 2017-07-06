@@ -423,6 +423,10 @@ bool	invertAudio	0)";
 				elements.push_back(new toggle(nome, settings, val));
 			}
 
+			else if (tipo == "bang") {
+				elements.push_back(new bang(nome, settings));
+			}
+
 			else if (tipo == "toggleNoLabel") {
 				bool val = valores == "1";
 				elements.push_back(new toggle(nome, settings, val, false));
@@ -541,24 +545,32 @@ bool	invertAudio	0)";
 
 
 
-			else if (tipo == "ints" || tipo == "floats" || tipo == "bools" || tipo == "bangs" || tipo == "holds" || tipo == "colors" || tipo == "slider2ds") {
+			else if (tipo == "ints" || tipo == "floats" || tipo == "bools" || tipo == "bangs" || tipo == "holds" || tipo == "colors" || tipo == "slider2ds" || tipo == "boolsNoLabel") {
 				vector <string> nomes = ofSplitString(nome, "[");
 				string n = nomes[0];
 				string intervalo = ofSplitString(nomes[1], "]")[0];
 				int start = ofToInt(ofSplitString(intervalo, "-")[0]);
 				int end = ofToInt(ofSplitString(intervalo, "-")[1]);
-				for (int a=start; a<=end; a++) {
-					string newTipo = tipo.substr(0, tipo.size()-1);
-					createFromLine(newTipo + "	"+n + ofToString(a)+"	"+valores);
+				string newTipo = tipo.substr(0, tipo.size()-1);
+				if (tipo == "boolsNoLabel") {
+					createFromLine("flowHoriz");
+					newTipo = "toggleNoLabel";
 				}
+				for (int a=start; a<=end; a++) {
+					createFromLine(newTipo + "	"+n + "_" + ofToString(a)+"	"+valores);
+				}
+				if (tipo == "boolsNoLabel") {
+					createFromLine("flowVert");
+				}
+
 			}
 
 			else if (tipo == "togglesList") {
 				vector <string> nomes = ofSplitString(nome, " ");
 				createFromLine("flowHoriz");
 				for (auto & n : nomes) {
-//					createFromLine("toggle	" + n + "	0");
-					createFromLine("radioitem	" + n + "	0");
+					createFromLine("bool	" + n + "	0");
+//					createFromLine("radioitem	" + n + "	0");
 				}
 				createFromLine("flowVert");
 
@@ -645,9 +657,15 @@ void ofxDmtrUI3::onMouseDragged(ofMouseEventArgs& data) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMouseReleased(ofMouseEventArgs& data) {
 	for (auto & e : elements) {
+
+
 		e->isPressed = false;
 		e->firstClicked = false;
 		e->dragging = false;
+
+		if (e->kind == BANG) {
+			e->set(false);
+		}
 	}
 }
 
@@ -656,6 +674,8 @@ void ofxDmtrUI3::onMouseReleased(ofMouseEventArgs& data) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::onExit(ofEventArgs &data) {
 	if (keepSettings) {
+		string file = "_presets/" + UINAME + ".xml";
+		cout << "ofxDmtrUI3 :: save on exit :: " + file << endl;
 		save("_presets/" + UINAME + ".xml");
 	}
 }
@@ -809,10 +829,19 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 	allUIs.push_back(this);
 
 	if (keepSettings) {
-		string file = "_presets/" + UINAME + ".xml";
-		cout << file << endl;
-		load(file);
+		loadMaster();
+//		string file = "_presets/" + UINAME + ".xml";
+//		//cout << file << endl;
+//		load(file);
 	}
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::loadMaster() {
+	cout << "ofxDmtrUI :: loadMaster :: " + UINAME << endl;
+	string file = "_presets/" + UINAME + ".xml";
+	//cout << file << endl;
+	load(file);
 }
 
 //--------------------------------------------------------------
@@ -1047,7 +1076,8 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 	//cout << "element fired inside UI code" << endl;
 
 	//&& e.tipo != LOAD
-	if (ofIsStringInString(e.name, "_shortcutInt") ) {
+	if (ofIsStringInString(e.name, "_shortcut") ) {
+//	if (ofIsStringInString(e.name, "_shortcutInt") ) {
 		vector <string> split = ofSplitString(e.name, "_");
 		string nome = split[0];
 		getElement(nome)->set(ofToFloat(pString[e.name]));
@@ -1088,3 +1118,18 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 		}
 	}
 }
+
+void ofxDmtrUI3::createRadio(string name, vector<string> options, string sel) {
+	elements.push_back(new radio(name, settings, options));
+	if (sel != "") {
+		((radio*)elements.back())->set(sel);
+	}
+}
+
+string ofxDmtrUI3::getFileFullPath(string n) {
+	cout << "getfilefullpath :: " + n << endl;
+	string f = ((radio*)getElement(n))->folder;
+	// + "/" + getElement(n)->getValString();
+	return f;
+}
+
