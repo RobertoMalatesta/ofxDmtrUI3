@@ -51,7 +51,7 @@ public:
 	void keyPressed(int key);
 	void keyReleased(int key);
 
-	void createFromText(string file);
+	void createFromText(string file, bool notify = true);
 	void createFromLine(string line);
 
 	void save(string xml);

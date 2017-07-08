@@ -291,9 +291,23 @@ void ofxDmtrUI3::notify(string e) {
 }
 
 //--------------------------------------------------------------
-void ofxDmtrUI3::createFromText(string file) {
+void ofxDmtrUI3::createFromText(string file, bool n) {
+
+	vector <string> linhas;
+
+	if (ofFile::doesFileExist("uiAll.txt")) {
+
+		// otimizar, carrega duas vezes cada arquivo.
+		createdFromTextFile += ofBufferFromFile("uiAll.txt").getText() + "\r\r";
+		vector <string> linhas = textToVector("uiAll.txt");
+		for (auto & l : linhas) {
+			createFromLine(l);
+		}
+	}
+
+
 	if (ofFile::doesFileExist(file)) {
-		createdFromTextFile = file;
+		createdFromTextFile += ofBufferFromFile(file).getText() + "\r\r";
 		vector <string> linhas = textToVector(file);
 		for (auto & l : linhas) {
 			createFromLine(l);
@@ -304,14 +318,6 @@ void ofxDmtrUI3::createFromText(string file) {
 
 	notify("createFromText");
 	autoFit();
-	//createFromText
-
-	// temporario
-//	for (auto & e : elements) {
-//		if (e->kind == SLIDER) {
-//			slidersMap[e->name] = (slider*)e;
-//		}
-//	}
 }
 
 //--------------------------------------------------------------
@@ -826,9 +832,6 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 	UINAME = "master";
 	keepSettings = true;
 
-	if (ofFile::doesFileExist("uiAll.txt")) {
-		createFromText("uiAll.txt");
-	}
 	createFromText(file);
 
 	if (ofFile::doesFileExist("output.txt")) {
@@ -866,9 +869,8 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::loadMaster() {
-	cout << "ofxDmtrUI :: loadMaster :: " + UINAME << endl;
+	//cout << "ofxDmtrUI :: loadMaster :: " + UINAME << endl;
 	string file = "_presets/" + UINAME + ".xml";
-	//cout << file << endl;
 	load(file);
 }
 
@@ -886,9 +888,9 @@ void ofxDmtrUI3::addUI(string nome, bool down) {
 	// todos no mesmo sofwtare que o master.
 	uis[nome].settings.software = &software;
 
-	if (ofFile::doesFileExist("uiAll.txt")) {
-		uis[nome].createFromText("uiAll.txt");
-	}
+//	if (ofFile::doesFileExist("uiAll.txt")) {
+//		uis[nome].createFromText("uiAll.txt");
+//	}
 
 //	if (down) {
 //		if (_uiLast != NULL) {
@@ -1086,6 +1088,9 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::clear(bool keepVars) {
+
+	createdFromTextFile = "";
+
 	elements.clear();
 	settings.reset();
 
