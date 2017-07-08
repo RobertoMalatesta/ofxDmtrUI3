@@ -78,12 +78,12 @@ public:
 
 	uiEv(string n) : name(n) {}
 
-	uiEv(string n, elementType k, dmtrUIVarType t) 				: name(n), kind(k), varType(t) {}
-	uiEv(string n, elementType k, dmtrUIVarType t, float ff)		: name(n), kind(k), varType(t), f(ff) {}
-	uiEv(string n, elementType k, dmtrUIVarType t, int ii) 		: name(n), kind(k), varType(t), i(ii) {}
-	uiEv(string n, elementType k, dmtrUIVarType t, bool bb) 		: name(n), kind(k), varType(t), b(bb) {}
-	uiEv(string n, elementType k, dmtrUIVarType t, ofPoint pp) 	: name(n), kind(k), varType(t), p(pp) {}
-	uiEv(string n, elementType k, dmtrUIVarType t, string ss) 	: name(n), kind(k), varType(t), s(ss) {}
+	uiEv(string n, string u, elementType k, dmtrUIVarType t) 				: name(n), uiname(u), kind(k), varType(t) {}
+	uiEv(string n, string u, elementType k, dmtrUIVarType t, float ff)		: name(n), uiname(u), kind(k), varType(t), f(ff) {}
+	uiEv(string n, string u, elementType k, dmtrUIVarType t, int ii) 		: name(n), uiname(u), kind(k), varType(t), i(ii) {}
+	uiEv(string n, string u, elementType k, dmtrUIVarType t, bool bb) 		: name(n), uiname(u), kind(k), varType(t), b(bb) {}
+	uiEv(string n, string u, elementType k, dmtrUIVarType t, ofPoint pp) 	: name(n), uiname(u), kind(k), varType(t), p(pp) {}
+	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ss) 		: name(n), uiname(u), kind(k), varType(t), s(ss) {}
 };
 
 
@@ -96,7 +96,7 @@ public:
 	//map <string, string> radioUIMap;
 
 	ofPoint sliderDimensions = ofPoint(200, 20);
-	ofPoint margin = ofPoint(20,20);
+	ofPoint margin = ofPoint(10,10);
 	float opacity = 200;
 	ofPoint flow = margin;
 	ofPoint flowBak;
@@ -116,7 +116,7 @@ public:
 		}
 	}
 
-	ofColor bgColor = ofColor(40, 180);
+	ofColor bgColor = ofColor(120, 220);
 
 	// mouse flows free from one item to another.
 	bool	 flowFree = true;
@@ -223,6 +223,7 @@ protected:
 	uiConfig * settings = NULL;
 
 public:
+	bool saveXml = true;
 	bool showLabel = true;
 	ofColor color = ofColor(255);
 
@@ -276,21 +277,23 @@ public:
 //		}
 
 
+		string uiname = "";
+
 		if (varType == STRING) {
 			//cout << "notify event string" << endl;
-			uiEv e = uiEv(name, kind, varType, getValString());
+			uiEv e = uiEv(name, uiname, kind, varType, getValString());
 			e.isDir = isDir;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == POINT) {
 			//cout << "notify event point" << endl;
-			uiEv e = uiEv(name, kind, varType, getValPoint());
+			uiEv e = uiEv(name, uiname, kind, varType, getValPoint());
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else  {
 			//cout << "notify event int or float" << endl;
 //			uiEv e = uiEv(name, kind, varType, varType == INT ? int(getVal()) : getVal());
-			uiEv e = uiEv(name, kind, varType, getVal());
+			uiEv e = uiEv(name, uiname, kind, varType, getVal());
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 	}
@@ -488,8 +491,9 @@ public:
 		cout << "getVal function on primitive element " + name << endl;
 	} //return 1;
 
-	virtual string getValString() { cout << "never to be used :: " + name << endl; }
-	virtual ofPoint getValPoint() { cout << "never to be used :: " + name << endl; }
+	virtual bool getValBool() { cout << "never to be used getvalbool :: " + name << endl; }
+	virtual string getValString() { cout << "never to be used getvalstring :: " + name << endl; }
+	virtual ofPoint getValPoint() { cout << "never to be used getvalpoint:: " + name << endl; }
 
 	virtual void draw() {
 		ofSetColor(color);
@@ -588,6 +592,8 @@ public:
 		name = n;
 		getProperties();
 		set(v);
+
+		showLabel = false;
 	}
 
 	void set(ofPoint v, bool notifyEvent = true) {
@@ -714,6 +720,7 @@ public:
 		settings = &u;
 		name = n;
 		getProperties();
+		saveXml = false;
 	}
 };
 
@@ -722,6 +729,10 @@ public:
 class booleano : public element {
 public:
 	bool val = false;
+
+	bool getValBool() {
+		return val;
+	}
 
 	void set(bool v, bool notifyEvent = true) {
 		if (val != v) {
@@ -784,6 +795,7 @@ public:
 		getProperties();
 		//set(v);
 		needsRedraw();
+		saveXml = false;
 	}
 
 	void drawSpecific() {
@@ -1120,6 +1132,7 @@ public:
 		name = n;
 		getProperties();
 		alwaysRedraw = true;
+		saveXml = false;
 	}
 
 	void drawSpecific() {

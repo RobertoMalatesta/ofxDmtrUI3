@@ -200,4 +200,8 @@ public:
 	// created for ofxdmtrui3syphonin
 	void createRadio(string name, vector<string> options, string sel = "");
 	string getFileFullPath(string n);
+
+	void showUI(bool show);
+
+	bool showInterface = true;
 };
