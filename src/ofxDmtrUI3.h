@@ -204,4 +204,14 @@ public:
 	void showUI(bool show);
 
 	bool showInterface = true;
+
+	void set(string e, bool b);
+	void set(string e, int i);
+	void set(string e, float f);
+	void set(string e, string s);
+
+
+	map <string, slider *> slidersLookup;
+	map <string, toggle *> togglesLookup;
+	void updateLookup();
 };

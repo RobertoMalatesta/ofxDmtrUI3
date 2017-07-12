@@ -537,6 +537,29 @@ bool	invertAudio	0)";
 				//createFromLine("");
 			}
 
+			else if (tipo == "colorLichtSmall") {
+				createFromLine("_bool	"+nome+"UsaPaleta	0");
+				createFromLine("slider2d	"+nome+"Paleta	.5 .5");
+				createFromLine("_slider2d	"+nome+"Hsv	.5 .5");
+				createFromLine("fbo	"+nome+"PaletaAtual	200 10");
+				createFromLine("float	"+nome+"S	0 255 255");
+//				createFromLine("float	"+nome+"HRange	0 720 100");
+				createFromLine("float	"+nome+"HRange	0 320 100");
+				createFromLine("_float	"+nome+"HRangeAudio	0 360 0");
+				//		createFromLine("float	"+nome+"BRange	0 255 0");
+				createFromLine("_float	"+nome+"BRange	0 512 0");
+				createFromLine("_float	"+nome+"BStop	0 1 1");
+				createFromLine("_int	"+nome+"HStep	0 6 0");
+				createFromLine("_float	"+nome+"Alpha	0 255 255");
+				createFromLine("_float	"+nome+"AlphaAudio	0 255 0");
+				createFromLine("_float	"+nome+"AlphaRange	0 255 0");
+
+				//cout << "colorLicht ::: " + nome << endl;
+				//colors.push_back(nome);
+				//lastHeight = 0;
+				//createFromLine("");
+			}
+
 
 			// configurations
 			// todo : margin
@@ -629,12 +652,6 @@ bool	invertAudio	0)";
 					}
 				}
 			}
-
-
-
-
-
-
 		}
 	}
 }
@@ -1188,7 +1205,46 @@ void ofxDmtrUI3::showUI(bool show) {
 	if (_uiUnder != NULL) {
 		_uiUnder->showUI(show);
 	}
-	{
-		reFlowUis();
-	}
+	reFlowUis();
 }
+
+void ofxDmtrUI3::set(string e, bool v) {
+	for (auto & e : elements) {
+		if (e->name == "e" && e->kind == TOGGLE) {
+			cout << "SET TOGGLE" + e->name << endl;
+			e->set(v);
+		}
+	}
+};
+
+void ofxDmtrUI3::set(string e, string v) {
+	for (auto & e : elements) {
+		if (e->name == "e" && e->kind == RADIO) {
+			e->set(v);
+		}
+	}
+
+};
+
+void ofxDmtrUI3::set(string e, float v) {
+	for (auto & e : elements) {
+		if (e->name == "e" && e->kind == SLIDER) {
+			e->set(v);
+		}
+	}
+};
+
+void ofxDmtrUI3::set(string e, int v) {
+	cout << "setInt" + e << endl;
+	for (auto & e : elements) {
+		if (e->name == "e" && e->kind == SLIDER) {
+			e->set(float(v));
+		}
+	}
+};
+
+void updateLookup() {
+
+}
+
+//slider * ofxDmtrUI3::getSlider("") {}
