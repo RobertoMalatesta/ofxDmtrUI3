@@ -906,6 +906,7 @@ public:
 			if (e->name == s) {
 				if (valString != e->name || (eventWhenSameSelectedIndex && !dragging))
 				{
+					selectedId = index;
 					valString = e->name;
 					(*settings->pString)[name] = valString;
 					e->set(true);
@@ -920,7 +921,7 @@ public:
 						changeUI(uiname, f);
 					}
 
-					selectedId = index;
+					//cout << index << endl;
 					// invoke pointer to functions (string and id)
 				}
 			} else {
@@ -1000,6 +1001,10 @@ public:
 		nElements = elements.size();
 		settings->setFlowVert(true);
 		settings->newLine();
+
+//		if (sel != "") {
+//			set(sel);
+//		}
 	}
 };
 

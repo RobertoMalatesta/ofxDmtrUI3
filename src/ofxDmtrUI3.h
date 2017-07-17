@@ -125,6 +125,10 @@ public:
 	void downTo(ofxDmtrUI3 & uiNext);
 	void addRadio(string name, vector<string> options, string sel = "") {
 		elements.push_back(new radio(name, settings, options));
+		if (sel != "") {
+			elements.back()->set(sel);
+		}
+		
 	}
 	void autoFit();
 	void reFlowUis();

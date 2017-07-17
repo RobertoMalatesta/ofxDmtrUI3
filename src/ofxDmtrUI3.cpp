@@ -163,6 +163,7 @@ void ofxDmtrUI3::draw() {
 	}
 
 	if (settings.software->visible) {
+		ofPushStyle();
 //		ofSetColor(255, settings.opacity);
 		ofSetColor(255, settings.software->opacity);
 		fboUI.draw(settings.rect.x, settings.rect.y);
@@ -175,6 +176,7 @@ void ofxDmtrUI3::draw() {
 			}
 		}
 		ofPopMatrix();
+		ofPopStyle();
 	}
 
 }
@@ -877,10 +879,7 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 	allUIs.push_back(this);
 
 	if (keepSettings) {
-		loadMaster();
-//		string file = "_presets/" + UINAME + ".xml";
-//		//cout << file << endl;
-//		load(file);
+	//	loadMaster();
 	}
 }
 
