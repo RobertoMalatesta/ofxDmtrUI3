@@ -189,7 +189,6 @@ void ofxDmtrUI3::keyPressed(int key){
 	if (_uiFather == NULL) {
 		if (key == '=') {
 			settings.software->visible ^= 1;
-			
 		}
 
 		if ((key == 'f' || key == 'F')) {
@@ -690,7 +689,7 @@ void ofxDmtrUI3::onKeyReleased(ofKeyEventArgs& data) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMousePressed(ofMouseEventArgs& data) {
-	if (settings.rect.inside(data.x, data.y)) {
+	if (settings.software->visible && settings.rect.inside(data.x, data.y)) {
 		for (auto & e : elements) {
 			e->checkMouseNeu(data.x - settings.rect.x, data.y - settings.rect.y, true);
 		}
@@ -699,7 +698,7 @@ void ofxDmtrUI3::onMousePressed(ofMouseEventArgs& data) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMouseDragged(ofMouseEventArgs& data) {
-	if (settings.rect.inside(data.x, data.y)) {
+	if (settings.software->visible && settings.rect.inside(data.x, data.y)) {
 		for (auto & e : elements) {
 			e->checkMouseNeu(data.x - settings.rect.x, data.y - settings.rect.y);
 		}
@@ -709,8 +708,6 @@ void ofxDmtrUI3::onMouseDragged(ofMouseEventArgs& data) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMouseReleased(ofMouseEventArgs& data) {
 	for (auto & e : elements) {
-
-
 		e->isPressed = false;
 		e->firstClicked = false;
 		e->dragging = false;
