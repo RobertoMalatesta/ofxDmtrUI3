@@ -95,6 +95,8 @@ public:
 	//void (*updateUI)(string,string) = NULL;
 	//map <string, string> radioUIMap;
 
+	int minimumWidth = 200;
+
 	ofPoint sliderDimensions = ofPoint(200, 20);
 	ofPoint margin = ofPoint(10,10);
 	float opacity = 200;
@@ -109,6 +111,12 @@ public:
 	int nPresets = 21;
 	// ponteiro pro addUI geral.
 	soft * software = NULL;
+
+	void setSliderWidth(int w) {
+		//cout << "set slider width :: " << w  << endl;
+		sliderDimensions.x = w;
+		minimumWidth = MAX(minimumWidth, sliderDimensions.x);
+	}
 
 	string getPresetsPath(string ext) {
 		if (software != NULL) {
@@ -412,6 +420,8 @@ public:
 			labelPos.y = y + 16;
 
 			if (kind != PRESET) {
+				// aqui tem um loop infinito pra arquivos de nome grande como por ex. 20525524_10154923017472183_4837044839922028887_n.jpg
+				//cout << name << endl;
 				int contaletras = 0;
 				for(auto c: ofUTF8Iterator(name)){
 					contaletras++;
@@ -863,13 +873,13 @@ public:
 class mult : public element {
 public:
 
-	string folder;
 	vector <string> items;
 	string lastVal;
 	int nElements = 0;
 
 	bool eventWhenSameSelectedIndex = false;
 
+	string folder;
 	void setFolder(string s) {
 		folder = s;
 	}
@@ -1005,6 +1015,10 @@ public:
 //		if (sel != "") {
 //			set(sel);
 //		}
+	}
+
+	string getFullFileName() {
+		return folder + "/" + valString;
 	}
 };
 

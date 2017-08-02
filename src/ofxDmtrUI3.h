@@ -117,7 +117,9 @@ public:
 	soft software;
 
 	string UINAME = "";
-	int minimumWidth = 100;
+
+	// remover no futuro
+	//int minimumWidth = 100;
 	bool keepSettings = false;
 
 	void addUI(string nome, bool down = false);

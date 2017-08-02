@@ -568,7 +568,8 @@ bool	invertAudio	0)";
 				settings.bw = ofToInt(nome);
 			}
 			else if (tipo == "sliderWidth") {
-				settings.sliderDimensions.x = ofToInt(nome);
+				settings.setSliderWidth(ofToInt(nome));
+				//settings.sliderDimensions.x = ofToInt(nome);
 			}
 			else if (tipo == "sliderHeight") {
 				settings.sliderDimensions.y = ofToInt(nome);
@@ -901,14 +902,18 @@ void ofxDmtrUI3::addUI(string nome, bool down) {
 	// todos no mesmo sofwtare que o master.
 	uis[nome].settings.software = &software;
 
+	if (down) {
+		autoFit();
+	}
+
 	if (_uiLast == NULL) {
 		uis[nome].settings.hue = settings.hue;
 
 		if (!down) {
 			uis[nome].nextTo(*this);
 		} else {
-
-			uis[nome].minimumWidth = settings.rect.width;
+			//uis[nome].minimumWidth = settings.rect.width;
+			uis[nome].settings.minimumWidth = settings.rect.width;
 			uis[nome].downTo(*this);
 		}
 	} else {
@@ -917,7 +922,8 @@ void ofxDmtrUI3::addUI(string nome, bool down) {
 		if (!down) {
 			uis[nome].nextTo(*_uiLast);
 		} else {
-			uis[nome].minimumWidth = _uiLast->settings.rect.width;
+//			uis[nome].minimumWidth = _uiLast->settings.rect.width;
+			uis[nome].settings.minimumWidth = _uiLast->settings.rect.width;
 			uis[nome].downTo(*_uiLast);
 		}
 	}
@@ -999,7 +1005,7 @@ void ofxDmtrUI3::autoFit() {
 
 		settings.rect.width  = maxw + settings.margin.x;
 		settings.rect.height = maxh + settings.margin.y;
-		settings.rect.width = MAX(settings.rect.width, minimumWidth);
+		settings.rect.width = MAX(settings.rect.width, settings.minimumWidth);
 
 		fboSettings.width = settings.rect.width;
 		fboSettings.height = settings.rect.height;
