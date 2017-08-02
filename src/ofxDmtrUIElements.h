@@ -348,8 +348,6 @@ public:
 		}
 
 		if (kind == PRESET) {
-//			boundsRect.width = 72;
-//			boundsRect.height = 48;
 			boundsRect.width = settings->software->presetDimensions.x;
 			boundsRect.height = settings->software->presetDimensions.y;
 			activeRect = rect = boundsRect;
@@ -407,19 +405,21 @@ public:
 			}
 		}
 
-		else if (kind == RADIOITEM || kind == COLORITEM) {
+		else if (kind == RADIOITEM || kind == COLORITEM || kind == PRESET) {
 			float margem = 4;
 
 			labelPos.x = x + margem;
 			labelPos.y = y + 16;
 
-			int contaletras = 0;
-			for(auto c: ofUTF8Iterator(name)){
-				contaletras++;
+			if (kind != PRESET) {
+				int contaletras = 0;
+				for(auto c: ofUTF8Iterator(name)){
+					contaletras++;
+				}
+				boundsRect.width = margem*2 + contaletras * 8;
+				rect.width = boundsRect.width;
+				activeRect = rect;
 			}
-			boundsRect.width = margem*2 + contaletras * 8;
-			rect.width = boundsRect.width;
-			activeRect = rect;
 
 			// ugly solution to overflow but working
 			if ((settings->flow.x + boundsRect.width) >

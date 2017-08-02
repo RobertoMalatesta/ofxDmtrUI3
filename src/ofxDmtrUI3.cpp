@@ -901,23 +901,13 @@ void ofxDmtrUI3::addUI(string nome, bool down) {
 	// todos no mesmo sofwtare que o master.
 	uis[nome].settings.software = &software;
 
-//	if (ofFile::doesFileExist("uiAll.txt")) {
-//		uis[nome].createFromText("uiAll.txt");
-//	}
-
-//	if (down) {
-//		if (_uiLast != NULL) {
-//		} else {
-//		}
-//	}
-
-
 	if (_uiLast == NULL) {
 		uis[nome].settings.hue = settings.hue;
 
 		if (!down) {
 			uis[nome].nextTo(*this);
 		} else {
+
 			uis[nome].minimumWidth = settings.rect.width;
 			uis[nome].downTo(*this);
 		}
@@ -1001,6 +991,11 @@ void ofxDmtrUI3::autoFit() {
 			maxw = MAX(maxw, e->boundsRect.x + e->boundsRect.width);
 			maxh = MAX(maxh, e->boundsRect.y + e->boundsRect.height);
 		}
+
+//		cout << "autofit ui :: " + UINAME << endl;
+//		cout << settings.rect.width << endl;
+//		cout << minimumWidth << endl;
+//		cout << "------" << endl;
 
 		settings.rect.width  = maxw + settings.margin.x;
 		settings.rect.height = maxh + settings.margin.y;
