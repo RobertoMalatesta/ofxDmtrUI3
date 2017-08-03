@@ -186,13 +186,16 @@ void ofxDmtrUI3::draw() {
 void ofxDmtrUI3::keyPressed(int key){
 
 	// Only on master UI
-	if (_uiFather == NULL) {
+	//if (_uiFather == NULL) {
+	if (UINAME == "master") {
+		//cout << "uifather null, my uiname = " + UINAME << endl;
 		if (key == '=') {
 			settings.software->visible ^= 1;
 		}
 
 		if ((key == 'f' || key == 'F')) {
 			if (ofGetKeyPressed(OF_KEY_COMMAND)) {
+				//cout << "toggle fullscreen" << endl;
 				ofToggleFullscreen();
 				// falta um needsredraw por aqui
 			}
