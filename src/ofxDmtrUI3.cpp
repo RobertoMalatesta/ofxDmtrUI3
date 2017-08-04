@@ -347,6 +347,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 			}
 
 			else if (tipo == "presets") {
+				hasPresets = true;
 				elements.push_back(new presets("allPresets", settings));
 			}
 
@@ -364,6 +365,14 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 			else if (tipo == "restoreY") {
 				settings.flow.y = settings.flowBak.y;
+			}
+
+			else if (tipo == "saveX") {
+				settings.flowBak.x = settings.flow.x;
+			}
+
+			else if (tipo == "restoreX") {
+				settings.flow.x = settings.flowBak.x;
 			}
 
 			else if (tipo == "audioControls") {
@@ -876,6 +885,8 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 	ofClear(0,255);
 	fbo->end();
 
+	setFbo(*fbo);
+
 	allUIs.push_back(this);
 
 	if (keepSettings) {
@@ -1088,7 +1099,9 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 		// TODO, averiguar firing event twice here
 		//cout << "loadPresetAll :: " + UINAME << endl;
 		if (fromKey) {
-			getElement("allPresets")->set(ofToString(n));
+			if (hasPresets) {
+				getElement("allPresets")->set(ofToString(n));
+			}
 		}
 		else {
 			for (auto & u : uis) {

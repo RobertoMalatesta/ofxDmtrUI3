@@ -141,10 +141,15 @@ public:
 
 	//--------------------------------------------------------------
 	element * getElement(string n) {
+		bool result = false;
 		for (auto & e : elements) {
 			if (e->name == n) {
+				result = true;
 				return e;
 			}
+		}
+		if (!result) {
+			return NULL;
 		}
 	}
 
@@ -220,4 +225,7 @@ public:
 	map <string, slider *> slidersLookup;
 	map <string, toggle *> togglesLookup;
 	void updateLookup();
+
+
+	bool hasPresets = false;
 };
