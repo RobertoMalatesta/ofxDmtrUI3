@@ -222,7 +222,7 @@ void ofxDmtrUI3::keyPressed(int key){
 		else if (key == 's' || key == 'S') {
 			if (ofGetKeyPressed(OF_KEY_COMMAND)) {
 				int slot = ofToInt(getElement("allPresets")->getValString());
-				cout << slot << endl;
+				//cout << slot << endl;
 				// xaxa
 				savePresetAll(slot);
 			} else {
@@ -348,7 +348,6 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 			else if (tipo == "presets") {
 				elements.push_back(new presets("allPresets", settings));
-				//cout << elements.back()->boundsRect << endl;
 			}
 
 			else if (tipo == "flowVert") {

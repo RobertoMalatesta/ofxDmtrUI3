@@ -1,8 +1,9 @@
 <ofxDmtrUIVersion>3.000000000</ofxDmtrUIVersion>
 <element>
-    <fboX>0.000000000</fboX>
-    <fboY>0.000000000</fboY>
+    <presetsFolder>2</presetsFolder>
+    <fboX>450.000000000</fboX>
+    <fboY>40.000000000</fboY>
     <fboScale>0.500000000</fboScale>
     <easing>10.000000000</easing>
-    <allPresets>3</allPresets>
+    <allPresets>2</allPresets>
 </element>

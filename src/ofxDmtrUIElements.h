@@ -241,17 +241,12 @@ public:
 	// pode ser temporario
 	bool isDir = false;
 	std::function<void(string, string)> changeUI = NULL;
-
 	std::function<void(bool)> invokeBool = NULL;
+	// invokeFloat, invokeInt, invokeString
 
 	// 24 june 2017 - webcams
 	int selectedId = -1;
 
-
-//	void (*invoke)(void) = NULL;
-//	void (*invokeFloat)(float) = NULL;
-//	void (*invokeInt)(int) = NULL;
-//	void (*invokeString)(string) = NULL;
 
 	virtual void setFbo (ofFbo &fbo) {}
 	virtual void setFolder(string s) {};
@@ -358,6 +353,8 @@ public:
 		if (kind == PRESET) {
 			boundsRect.width = settings->software->presetDimensions.x;
 			boundsRect.height = settings->software->presetDimensions.y;
+
+			//cout << boundsRect << endl;
 			activeRect = rect = boundsRect;
 			color = ofColor(0,255);
 		}
@@ -381,7 +378,6 @@ public:
 			labelPos.y = y + 16;
 			rect.width = 0;
 			rect.height = 0;
-			//boundsRect.height = settings->sliderDimensions.y * 2;
 		}
 
 		else if (kind == SLIDER) {
@@ -419,7 +415,8 @@ public:
 			labelPos.x = x + margem;
 			labelPos.y = y + 16;
 
-			if (kind != PRESET) {
+			if (kind != PRESET)
+			{
 				// aqui tem um loop infinito pra arquivos de nome grande como por ex. 20525524_10154923017472183_4837044839922028887_n.jpg
 				//cout << name << endl;
 				int contaletras = 0;
@@ -434,16 +431,39 @@ public:
 			// ugly solution to overflow but working
 			if ((settings->flow.x + boundsRect.width) >
 				(settings->colx + settings->sliderDimensions.x)) {
-				settings->update(boundsRect);
+				settings->flow.x = settings->colx;
+				settings->flow.y += boundsRect.height + 1;
+//				updateXY(settings->flow.x, settings->flow.y);
 				getProperties();
-				settings->flow.x -= boundsRect.width + settings->getSpacing();
+
+//				boundsRect.x = settings->flow.x;
+//				boundsRect.y = settings->flow.y;
+//				rect.x = activeRect.x = boundsRect.x;
+//				rect.y = activeRect.y = boundsRect.y;
+
+				//settings->update(boundsRect);
+				//getProperties();
+				//settings->flow.x -= boundsRect.width + settings->getSpacing();
+			} else {
+//				cout << name << endl;
+//				cout << "updateflow" << endl;
+//				cout << "-----" << endl;
+				updateFlow();
 			}
+
 		}
 
-		settings->update(boundsRect);
+		if (kind != PRESETS && kind != PRESET && kind != RADIOITEM && kind != COLORITEM) {
+			updateFlow();
+		}
+
 		// pra todos que precisam disso na inicializacao
 		// posteriormente remover pro toggle laembaixo;
 		needsRedraw();
+	}
+
+	void updateFlow() {
+		settings->update(boundsRect);
 	}
 
 	void addSettings (uiConfig & u) {
@@ -875,9 +895,24 @@ public:
 
 	vector <string> items;
 	string lastVal;
-	int nElements = 0;
 
 	bool eventWhenSameSelectedIndex = false;
+
+
+	ofPoint flowBak;
+	void startChildren() {
+		flowBak = settings->flow;
+		settings->setFlowVert(false);
+		settings->setMarginChildren(true);
+	}
+
+	void endChildren() {
+		settings->setMarginChildren(false);
+		settings->setFlowVert(true);
+		settings->newLine();
+		settings->flow = flowBak;
+	}
+
 
 	string folder;
 	void setFolder(string s) {
@@ -888,6 +923,9 @@ public:
 		for (auto & e : elements) {
 			e->draw();
 		}
+
+//		ofSetColor(255,160);
+//		ofDrawRectangle(boundsRect);
 	}
 
 	void setValFromMouse(int x, int y) {
@@ -997,24 +1035,14 @@ public:
 		items = its;
 		getProperties();
 
-		settings->setFlowVert(false);
-		u.setMarginChildren(true);
+		startChildren();
 		for (auto & i : items) {
 			elements.push_back(new radioitem(i, u));
+			elements.back()->_parent = this;
+			boundsRect.growToInclude(elements.back()->boundsRect.getBottomRight());
 		}
-		u.setMarginChildren(false);
-
-		for (auto & e : elements) {
-			e->_parent = this;
-			boundsRect.growToInclude(e->boundsRect.getBottomRight());
-		}
-		nElements = elements.size();
-		settings->setFlowVert(true);
-		settings->newLine();
-
-//		if (sel != "") {
-//			set(sel);
-//		}
+		endChildren();
+		updateFlow();
 	}
 
 	string getFullFileName() {
@@ -1036,9 +1064,9 @@ public:
 
 		settings = &u;
 		name = n;
-		getProperties();
 
 		dimensions = settings->software->presetDimensions;
+		getProperties();
 		fbo.allocate(dimensions.x, dimensions.y, GL_RGBA);
 
 		string file = settings->getPresetsPath(name + ".tif");
@@ -1110,15 +1138,19 @@ public:
 	}
 };
 
+
+
 class presets : public mult {
 public:
 	presets(string n, uiConfig & u) {
+		showLabel = false;
 		eventWhenSameSelectedIndex = true;
 		kind = PRESETS;
 		varType = STRING;
-
 		settings = &u;
 		name = n;
+
+
 		getProperties();
 
 		vector <string> items;
@@ -1126,27 +1158,22 @@ public:
 			items.push_back(ofToString(a));
 		}
 
-		settings->setFlowVert(false);
-		u.setMarginChildren(true);
+		startChildren();
 		for (auto & i : items) {
 			elements.push_back(new preset(i, u));
+			elements.back()->_parent = this;
+			boundsRect.growToInclude(elements.back()->boundsRect.getBottomRight());
 		}
-		u.setMarginChildren(false);
-
-		for (auto & e : elements) {
-			e->_parent = this;
-			boundsRect.growToInclude(e->boundsRect.getBottomRight());
-		}
-		settings->setFlowVert(true);
-		settings->newLine();
-		nElements = elements.size();
+		endChildren();
+		updateFlow();
 	}
+
 };
 
 class fps : public element {
 public:
 	fps(string n, uiConfig & u) {
-		kind = PRESETS;
+		kind = LABEL;
 		settings = &u;
 		name = n;
 		getProperties();
@@ -1173,18 +1200,18 @@ public:
 		items = its;
 		getProperties();
 
-		settings->setFlowVert(false);
-		u.setMarginChildren(true);
+		startChildren();
 		for (auto & i : items) {
 			elements.push_back(new coloritem(i, u));
+			elements.back()->_parent = this;
+			boundsRect.growToInclude(elements.back()->boundsRect.getBottomRight());
 		}
-		u.setMarginChildren(false);
+		endChildren();
+		updateFlow();
 
 		for (auto & e : elements) {
 			e->_parent = this;
 			boundsRect.growToInclude(e->boundsRect.getBottomRight());
 		}
-		settings->setFlowVert(true);
-		settings->newLine();
 	}
 };
