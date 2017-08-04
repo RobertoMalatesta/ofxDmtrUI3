@@ -445,15 +445,14 @@ public:
 				//getProperties();
 				//settings->flow.x -= boundsRect.width + settings->getSpacing();
 			} else {
-//				cout << name << endl;
-//				cout << "updateflow" << endl;
-//				cout << "-----" << endl;
 				updateFlow();
 			}
 
 		}
 
-		if (kind != PRESETS && kind != PRESET && kind != RADIOITEM && kind != COLORITEM) {
+		if (kind != PRESETS && kind != PRESET &&
+			kind != RADIOITEM && kind != RADIO &&
+			kind != COLOR && kind != COLORITEM) {
 			updateFlow();
 		}
 
@@ -902,6 +901,9 @@ public:
 	ofPoint flowBak;
 	void startChildren() {
 		flowBak = settings->flow;
+		if (showLabel) {
+			settings->newLine();
+		}
 		settings->setFlowVert(false);
 		settings->setMarginChildren(true);
 	}
@@ -909,7 +911,6 @@ public:
 	void endChildren() {
 		settings->setMarginChildren(false);
 		settings->setFlowVert(true);
-		settings->newLine();
 		settings->flow = flowBak;
 	}
 
@@ -944,7 +945,6 @@ public:
 //		cout << "getval from mult" + name << endl;
 //		return (float)selectedIndex;
 //	}
-
 	// mult (radio and presets)
 
 
