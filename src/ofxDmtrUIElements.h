@@ -142,6 +142,12 @@ public:
 
 	// complete
 	ofEvent<uiEv> uiEvent;
+	ofEvent<string> uiGeneralEvent;
+
+	// 5 agosto 2017 pra testar a uiremote
+	void notifyString(string s) {
+		//ofNotifyEvent(settings->uiGeneralEvent, s);
+	}
 
 	bool needsRedraw = false;
 	bool redraw = false;

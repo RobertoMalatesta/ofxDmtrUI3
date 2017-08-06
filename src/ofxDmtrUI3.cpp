@@ -167,7 +167,13 @@ void ofxDmtrUI3::draw() {
 		ofPushStyle();
 //		ofSetColor(255, settings.opacity);
 		ofSetColor(255, settings.software->opacity);
-		fboUI.draw(settings.rect.x, settings.rect.y);
+
+		if (scale != 1) {
+			fboUI.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+			fboUI.draw(settings.rect.x * scale, settings.rect.y * scale, fboUI.getWidth() * scale, fboUI.getHeight() * scale);
+		} else {
+			fboUI.draw(settings.rect.x, settings.rect.y);
+		}
 		// XAXA todo performance, vector or something
 		ofPushMatrix();
 		ofTranslate(settings.rect.x, settings.rect.y);
@@ -299,13 +305,13 @@ void ofxDmtrUI3::notify(string e) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::createFromText(string file, bool n) {
 	settings.uiname = UINAME;
-
 	vector <string> linhas;
 
 	if (ofFile::doesFileExist("uiAll.txt")) {
 
 		// otimizar, carrega duas vezes cada arquivo.
-		createdFromTextFile += ofBufferFromFile("uiAll.txt").getText() + "\r\r";
+		//createdFromTextFile += ofBufferFromFile("uiAll.txt").getText() + "\r\r";
+
 		vector <string> linhas = textToVector("uiAll.txt");
 		for (auto & l : linhas) {
 			createFromLine(l);
@@ -715,18 +721,31 @@ void ofxDmtrUI3::onKeyReleased(ofKeyEventArgs& data) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMousePressed(ofMouseEventArgs& data) {
-	if (settings.software->visible && settings.rect.inside(data.x, data.y)) {
+	if (settings.software->visible && settings.rect.inside(data.x , data.y )) {
+		int mx = data.x - settings.rect.x;
+		int my = data.y - settings.rect.y;
+//		if (scale != 1) {
+//			mx /= scale;
+//			my /= scale;
+//		}
 		for (auto & e : elements) {
-			e->checkMouseNeu(data.x - settings.rect.x, data.y - settings.rect.y, true);
+			e->checkMouseNeu(mx, my, true);
 		}
 	}
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMouseDragged(ofMouseEventArgs& data) {
-	if (settings.software->visible && settings.rect.inside(data.x, data.y)) {
+	if (settings.software->visible && settings.rect.inside(data.x , data.y )) {
+	//if (settings.software->visible && settings.rect.inside(data.x / scale, data.y / scale)) {
+		int mx = data.x - settings.rect.x;
+		int my = data.y - settings.rect.y;
+//		if (scale != 1) {
+//			mx /= scale;
+//			my /= scale;
+//		}
 		for (auto & e : elements) {
-			e->checkMouseNeu(data.x - settings.rect.x, data.y - settings.rect.y);
+			e->checkMouseNeu(mx, my);
 		}
 	}
 }
@@ -1180,10 +1199,13 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 				if (u.first != "master") {
 					string nome = getPresetsPath(ofToString(n) + u.first + ".xml");
 					u.second.load(nome);
+					u.second.notify("loadPreset");
 				}
 			}
 		}
 	}
+
+
 }
 
 

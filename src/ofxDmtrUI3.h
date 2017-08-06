@@ -227,4 +227,7 @@ public:
 
 
 	bool hasPresets = false;
+
+	// talvez desencanar disso...
+	int scale = 1;
 };
