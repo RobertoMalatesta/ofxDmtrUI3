@@ -89,6 +89,14 @@ public:
 
 struct uiConfig {
 public:
+
+	string uiname;
+
+	//	ofColor bgColor = ofColor(120, 220);
+	ofColor bgColor = ofColor(80, 200);
+	ofColor activeColor = ofColor(0,0,0,190);
+	ofColor bwElementColor = ofColor(150, 180); //127
+
 	//senao fazer pointer to function aqui...
 	//std::function<void(string,string)> updateUI = NULL;
 
@@ -124,7 +132,6 @@ public:
 		}
 	}
 
-	ofColor bgColor = ofColor(120, 220);
 
 	// mouse flows free from one item to another.
 	bool	 flowFree = true;
@@ -135,6 +142,7 @@ public:
 
 	// complete
 	ofEvent<uiEv> uiEvent;
+
 	bool needsRedraw = false;
 	bool redraw = false;
 
@@ -151,15 +159,25 @@ public:
 	bool bw = false;
 	//float flowxbak = -100;
 
-	ofColor activeColor = ofColor(0,0,0,140);
 
 	void updateColor() {
 		hue = int(hue + hueStep)%255;
-		color = ofColor::fromHsb(hue, 155, 210, 255);
 
+	}
+
+//	void updateColorValue() {
+//		color = ofColor::fromHsb(hue, 155, 210, 255);
+//		if (bw) {
+//			color = bwElementColor;
+//		}
+//	}
+
+	ofColor getColor() {
+		color = ofColor::fromHsb(hue, 155, 210, 255);
 		if (bw) {
-			color = ofColor(127);
+			color = bwElementColor;
 		}
+		return color;
 	}
 
 	uiConfig() {
@@ -272,31 +290,27 @@ public:
 	bool firstClicked = false;
 
 
-
 	void notify() {
 		// fires any kind of void on any change
 //		if ((*invoke) != NULL) {
 //			(*invoke)();
 //		}
 
-
-		string uiname = "";
-
 		if (varType == STRING) {
 			//cout << "notify event string" << endl;
-			uiEv e = uiEv(name, uiname, kind, varType, getValString());
+			uiEv e = uiEv(name, settings->uiname, kind, varType, getValString());
 			e.isDir = isDir;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == POINT) {
 			//cout << "notify event point" << endl;
-			uiEv e = uiEv(name, uiname, kind, varType, getValPoint());
+			uiEv e = uiEv(name, settings->uiname, kind, varType, getValPoint());
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else  {
 			//cout << "notify event int or float" << endl;
 //			uiEv e = uiEv(name, kind, varType, varType == INT ? int(getVal()) : getVal());
-			uiEv e = uiEv(name, uiname, kind, varType, getVal());
+			uiEv e = uiEv(name, settings->uiname, kind, varType, getVal());
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 	}
@@ -309,15 +323,7 @@ public:
 	void getProperties() {
 		int x = settings->flow.x;
 		int y = settings->flow.y;
-		color = settings->color;
-
-		// AUTOFLOW // nao desejavem por agora
-//		int altura = ofGetWindowHeight() - settings->margin.y*2;
-//		if (y + rect.height > altura) {
-//			settings->newCol();
-//			x = settings->flow.x;
-//			y = settings->flow.y;
-//		}
+		color = settings->getColor();
 
 		if (kind != LABEL) {
 			rect.x = x;
@@ -339,29 +345,23 @@ public:
 
 		// generic
 		labelPos.x = x + 5;
-		labelPos.y = y + 16;
+//		labelPos.y = y + 16;
+		labelPos.y = y + settings->sliderDimensions.y / 2 + 7;
+
 
 		// temporario
 		if (kind == PRESETS) {
 			rect.width = activeRect.width = 0;
-//			boundsRect.height = 400;
-//			rect = boundsRect;
-//			activeRect.width = 0;
-//			activeRect.height = 0;
 		}
 
 		if (kind == PRESET) {
 			boundsRect.width = settings->software->presetDimensions.x;
 			boundsRect.height = settings->software->presetDimensions.y;
-
-			//cout << boundsRect << endl;
 			activeRect = rect = boundsRect;
 			color = ofColor(0,255);
 		}
 
 		if (kind == SLIDER2D) {
-//			labelPos.x = x + 5;
-//			labelPos.y = y + 16;
 			boundsRect.height = settings->sliderDimensions.y * 2 + settings->getSpacing();
 			rect.height = boundsRect.height;
 			activeRect.width = 0;
@@ -370,27 +370,21 @@ public:
 
 		else if (kind == LABEL) {
 			labelPos.x = x;
-			labelPos.y = y + 16;
 		}
 
 		else if (kind == RADIO) {
 			labelPos.x = x;
-			labelPos.y = y + 16;
 			rect.width = 0;
 			rect.height = 0;
 		}
 
 		else if (kind == SLIDER) {
 			varType = FLOAT;
-
-			labelPos.x = x + 5;
-			labelPos.y = y + 16;
-			labelColor = ofColor(0);
+			//labelColor = ofColor(0);
 		}
 
 		else if (kind == TOGGLE || kind == BANG) {
 			labelPos.x = x + 25;
-			labelPos.y = y + 16;
 
 			float margem = 4;
 			activeRect = ofRectangle(
@@ -411,14 +405,10 @@ public:
 
 		else if (kind == RADIOITEM || kind == COLORITEM || kind == PRESET) {
 			float margem = 4;
-
 			labelPos.x = x + margem;
-			labelPos.y = y + 16;
 
 			if (kind != PRESET)
 			{
-				// aqui tem um loop infinito pra arquivos de nome grande como por ex. 20525524_10154923017472183_4837044839922028887_n.jpg
-				//cout << name << endl;
 				int contaletras = 0;
 				for(auto c: ofUTF8Iterator(name)){
 					contaletras++;
@@ -433,17 +423,11 @@ public:
 				(settings->colx + settings->sliderDimensions.x)) {
 				settings->flow.x = settings->colx;
 				settings->flow.y += boundsRect.height + 1;
-//				updateXY(settings->flow.x, settings->flow.y);
+
+				// TODO :: avoid infinite loop to long filenames
+				// 20525524_10154923017472183_4837044839922028887_n.jpg
+
 				getProperties();
-
-//				boundsRect.x = settings->flow.x;
-//				boundsRect.y = settings->flow.y;
-//				rect.x = activeRect.x = boundsRect.x;
-//				rect.y = activeRect.y = boundsRect.y;
-
-				//settings->update(boundsRect);
-				//getProperties();
-				//settings->flow.x -= boundsRect.width + settings->getSpacing();
 			} else {
 				updateFlow();
 			}
@@ -470,8 +454,7 @@ public:
 	}
 
 	element() {}
-	~element() {
-	}
+	~element() {}
 
 
 	void setColor(ofColor c) {
@@ -488,14 +471,10 @@ public:
 			ofDrawBitmapString(n, labelPos.x - 1, labelPos.y + 1);
 		}
 
-		//if (kind == SLIDER)
-		//if (useLabelShadow)
-		{
-			//decidir se remover o labelcolor totalmente
-			//ofSetColor(labelColor);
-			ofSetColor(255);
-			ofDrawBitmapString(n, labelPos.x, labelPos.y);
-		}
+		//decidir se remover o labelcolor totalmente
+		ofSetColor(labelColor);
+		//ofSetColor(255);
+		ofDrawBitmapString(n, labelPos.x, labelPos.y);
 	}
 
 
@@ -525,6 +504,10 @@ public:
 	virtual ofPoint getValPoint() { cout << "never to be used getvalpoint:: " + name << endl; }
 
 	virtual void draw() {
+
+//		ofSetColor(settings->bgColor);
+		ofSetColor(0, 255);
+		ofDrawRectangle(rect);
 		ofSetColor(color);
 		ofDrawRectangle(rect);
 		drawSpecific();
@@ -1058,6 +1041,27 @@ public:
 	ofFbo fbo;
 	ofPoint dimensions; // = ofPoint(72, 48);
 
+	void imageOrVoid() {
+		string file = settings->getPresetsPath(name + ".tif");
+		fbo.begin();
+		ofClear(30,255);
+		if (ofFile::doesFileExist(file)) {
+			img.load(file);
+			ofSetColor(255);
+			img.draw(0,0);
+		} else {
+
+			ofTranslate(fbo.getWidth()/2, fbo.getHeight()/2);
+			//ofSetColor(255,0,40);
+			//int n = 12;
+			ofSetColor(180);
+			int n = 5;
+			ofDrawLine(-n, n, n, -n);
+			ofDrawLine(-n, -n, n, n);
+		}
+		fbo.end();
+	}
+
 	preset (string n, uiConfig & u) {
 		kind = PRESET;
 		varType = BOOLEAN;
@@ -1069,21 +1073,7 @@ public:
 		getProperties();
 		fbo.allocate(dimensions.x, dimensions.y, GL_RGBA);
 
-		string file = settings->getPresetsPath(name + ".tif");
-		fbo.begin();
-		ofClear(30,255);
-		if (ofFile::doesFileExist(file)) {
-			img.load(file);
-			ofSetColor(255);
-			img.draw(0,0);
-		} else {
-			ofSetColor(255,0,40);
-			ofTranslate(fbo.getWidth()/2, fbo.getHeight()/2);
-			int n = 12;
-			ofDrawLine(-n, n, n, -n);
-			ofDrawLine(-n, -n, n, n);
-		}
-		fbo.end();
+		imageOrVoid();
 	}
 
 	void updateFromPixels(ofPixels & pixels) {
@@ -1100,23 +1090,26 @@ public:
 	}
 
 	void updateImage() {
-		string file = settings->getPresetsPath(name + ".tif");
-		//cout << "update Image " + name + file << endl;
-		fbo.begin();
-		ofClear(30,255);
-		if (ofFile::doesFileExist(file)) {
-			//cout << "file exists " + file << endl;
-			img.load(file);
-			ofSetColor(255);
-			img.draw(0,0);
-		} else {
-			ofSetColor(255,0,40);
-			ofTranslate(fbo.getWidth()/2, fbo.getHeight()/2);
-			int n = 12;
-			ofDrawLine(-n, n, n, -n);
-			ofDrawLine(-n, -n, n, n);
-		}
-		fbo.end();
+		imageOrVoid();
+
+//		string file = settings->getPresetsPath(name + ".tif");
+//		//cout << "update Image " + name + file << endl;
+//		fbo.begin();
+//		ofClear(30,255);
+//		if (ofFile::doesFileExist(file)) {
+//			//cout << "file exists " + file << endl;
+//			img.load(file);
+//			ofSetColor(255);
+//			img.draw(0,0);
+//		} else {
+//			ofSetColor(255,0,40);
+//			ofTranslate(fbo.getWidth()/2, fbo.getHeight()/2);
+//			int n = 12;
+//			ofDrawLine(-n, n, n, -n);
+//			ofDrawLine(-n, -n, n, n);
+//		}
+//		fbo.end();
+
 		needsRedraw();
 		if (_parent != NULL) {
 			_parent->needsRedraw();

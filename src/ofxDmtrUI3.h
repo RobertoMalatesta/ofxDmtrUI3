@@ -130,7 +130,6 @@ public:
 		if (sel != "") {
 			elements.back()->set(sel);
 		}
-		
 	}
 	void autoFit();
 	void reFlowUis();
