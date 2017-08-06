@@ -839,11 +839,8 @@ void ofxDmtrUI3::load(string xml) {
 	ofxXmlSettings xmlSettings;
 	if (ofFile::doesFileExist(xml)) {
 		xmlSettings.loadFile(xml);
-
 		int UIVersion = xmlSettings.getValue("ofxDmtrUIVersion", 0);
-
-
-		if (UIVersion == 4)
+		if (UIVersion == 4) {
 			for (auto & e : elements) {
 				if (e->saveXml) {
 					if (e->kind == TOGGLE || e->kind == RADIOITEM) {
@@ -869,37 +866,35 @@ void ofxDmtrUI3::load(string xml) {
 					}
 				}
 			}
+		}
 
+		else if (UIVersion == 3) {
+			for (auto & e : elements) {
+				if (e->saveXml) {
+					if (e->kind == TOGGLE || e->kind == RADIOITEM) {
+						bool valor = xmlSettings.getValue("element:" +e->name, e->getValBool());
+						e->set(valor);
+					}
+					else if (e->kind == RADIO || e->kind == PRESETS) {
+						string valor = xmlSettings.getValue("element:" +e->name, "");
+						e->set(valor);
+					}
 
+					else if (e->kind == SLIDER2D) {
+						float x = xmlSettings.getValue("element:" +e->name + ":x", 0.0);
+						float y = xmlSettings.getValue("element:" +e->name + ":y", 0.0);
+						e->set(ofPoint(x,y));
+					}
 
-		if (UIVersion == 3)
-		for (auto & e : elements) {
-			if (e->saveXml) {
-				if (e->kind == TOGGLE || e->kind == RADIOITEM) {
-					bool valor = xmlSettings.getValue("element:" +e->name, e->getValBool());
-					e->set(valor);
-				}
-				else if (e->kind == RADIO || e->kind == PRESETS) {
-					string valor = xmlSettings.getValue("element:" +e->name, "");
-					e->set(valor);
-				}
-
-				else if (e->kind == SLIDER2D) {
-					float x = xmlSettings.getValue("element:" +e->name + ":x", 0.0);
-					float y = xmlSettings.getValue("element:" +e->name + ":y", 0.0);
-					e->set(ofPoint(x,y));
-				}
-
-				else if (e->kind == SLIDER) {
-					float valor = xmlSettings.getValue("element:" +e->name, e->getVal());
-					e->set(valor);
+					else if (e->kind == SLIDER) {
+						float valor = xmlSettings.getValue("element:" +e->name, e->getVal());
+						e->set(valor);
+					}
 				}
 			}
 		}
-
-		else if (UIVersion == 4) {
-
-		}
+		notify("load");
+		// XAXA Notify
 	}
 }
 
@@ -1199,7 +1194,8 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 				if (u.first != "master") {
 					string nome = getPresetsPath(ofToString(n) + u.first + ".xml");
 					u.second.load(nome);
-					u.second.notify("loadPreset");
+					// feito pra ofxDmtrUI3Remote
+					//u.second.notify("loadPreset");
 				}
 			}
 		}
