@@ -19,11 +19,6 @@ Now it is time to commemorate and write another UI, with similar ideas and look,
 
 I'll use temporarly this name to test ideas, concepts developed after original ofxDmtrUI, and Cinder-DmtrUI and if it works great and backwards compatible I'll make it the official ofxDmtrUI.
 
-## Example
-Example features autoflow, try resizing window.
-Press keys from 1 to 4 to load presets
-Holding command they save presets.
-
 ## Performance.
 This ui has been made with two things in mind: ease of use, create and update elements, change order and layout all of them. automatize repetitive tasks. 
 And performance in mind. It only redraws the updated element when needed and most of the time is an static FBO texture with a picture of the elements.
