@@ -315,6 +315,11 @@ public:
 			e.isDir = isDir;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
+		else if (varType == BOOLEAN) {
+			//cout << "notify event string" << endl;
+			uiEv e = uiEv(name, settings->uiname, kind, varType, getValBool());
+			ofNotifyEvent(settings->uiEvent, e);
+		}
 		else if (varType == POINT) {
 			//cout << "notify event point" << endl;
 			uiEv e = uiEv(name, settings->uiname, kind, varType, getValPoint());
