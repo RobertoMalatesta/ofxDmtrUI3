@@ -25,6 +25,9 @@
 
 #pragma once
 
+
+
+
 // naming conflicts? namespace?
 enum elementType {
 	SLIDER, LABEL, TOGGLE, BANG, RADIO, RADIOITEM, SLIDER2D, PRESET, PRESETS, COLOR, COLORITEM
@@ -48,6 +51,8 @@ public:
 	int h = 720;
 	soft() {}
 };
+
+
 
 struct future {
 public:
@@ -75,8 +80,10 @@ public:
 	string s;
 
 	bool isDir = false;
+	
+	bool uiGlobal = false;
 
-	uiEv(string n) : name(n) {}
+	uiEv(string n) : name(n) { uiGlobal = true; }
 
 	uiEv(string n, string u, elementType k, dmtrUIVarType t) 				: name(n), uiname(u), kind(k), varType(t) {}
 	uiEv(string n, string u, elementType k, dmtrUIVarType t, float ff)		: name(n), uiname(u), kind(k), varType(t), f(ff) {}
@@ -272,6 +279,7 @@ public:
 	int selectedId = -1;
 
 
+	// deixar somente pro que tem fbo
 	virtual void setFbo (ofFbo &fbo) {}
 	virtual void setFolder(string s) {};
 
@@ -279,7 +287,6 @@ public:
 	// medida provisoria ate resolver o radioitem
 	string valString = "";
 
-	vector <element*> elements;
 
 	// passei pra publico pra melhorar pro radio
 	ofRectangle rect, activeRect, boundsRect;
@@ -324,6 +331,10 @@ public:
 	void needsRedraw(bool need = true) {
 		redraw = need;
 		settings->needsRedraw = need;
+
+		if (_parent != NULL) {
+			_parent->needsRedraw();
+		}
 	}
 
 	void getProperties() {
@@ -390,9 +401,11 @@ public:
 		}
 
 		else if (kind == TOGGLE || kind == BANG) {
-			labelPos.x = x + 25;
+			//labelPos.x = x + 25;
+			
+			labelPos.x = x + settings->sliderDimensions.y * 1.3;
 
-			float margem = 4;
+			float margem = settings->sliderDimensions.y/5;
 			activeRect = ofRectangle(
 				rect.x + margem, rect.y + margem,
 				rect.width-margem*2, rect.height-margem*2
@@ -484,6 +497,7 @@ public:
 	}
 
 
+
 	virtual void set(bool i, bool notifyEvent = true) {
 		cout << "set function on primitive element, using bool " + name << endl;
 	}
@@ -499,6 +513,11 @@ public:
 	virtual void set(ofPoint i, bool notifyEvent = true) {
 		cout << "set function on primitive element, using ofPoint " + name << endl;
 	}
+	
+	// novidade 7 de agosto
+	virtual void set(int i, bool notifyEvent = true) {
+		cout << "set function on primitive element, using int " + name << endl;
+	}
 
 
 	virtual float getVal() {
@@ -511,6 +530,8 @@ public:
 
 	virtual void draw() {
 
+		ofPushStyle();
+		ofPushMatrix();
 //		ofSetColor(settings->bgColor);
 		ofSetColor(0, 255);
 		ofDrawRectangle(rect);
@@ -523,6 +544,9 @@ public:
 		}
 //		ofSetColor(255,0,0, 50);
 //		ofDrawRectangle(boundsRect);
+		
+		ofPopMatrix();
+		ofPopStyle();
 	}
 
 	// temporario somente pra resolver
@@ -634,13 +658,13 @@ public:
 	// slider2d
 	void drawSpecific() {
 		// tem como melhorar performance? acho q tem.
+		ofSetColor(255);
 		if (_fbo != NULL) {
 			//cout << "fbo is not null" << endl;
-			ofSetColor(255);
 //			_fbo->draw(rect.x + settings->rect.x , rect.y + settings->rect.y);
 			_fbo->draw(rect.x, rect.y);
 		}
-		ofSetColor(0);
+		//ofSetColor(0);
 		float x = rect.x + val.x * rect.width;
 		float y = rect.y + val.y * rect.height;
 		ofDrawLine(x, rect.y, x, rect.y + rect.height);
@@ -679,10 +703,9 @@ public:
 	}
 
 	// slider
-	void set(float v, bool notifyEvent = true) {
-		//cout << "set :: " + name << endl;
+	
+	void internalSet(float v, bool notifyEvent = true) {
 		val = v;
-
 		if (lastVal != val) {
 			if (isInt) {
 				val = int(val);
@@ -697,11 +720,14 @@ public:
 			if (notifyEvent) {
 				notify();
 			}
-
-//			if ((*invokeFloat) != NULL) {
-//				(*invokeFloat)(val);
-//			}
 		}
+	}
+	
+	void set(float v, bool notifyEvent = true) {
+		internalSet(v, notifyEvent);
+	}
+	void set(int v, bool notifyEvent = true) {
+		internalSet(v, notifyEvent);
 	}
 
 	float getVal() {
@@ -881,6 +907,8 @@ public:
 class mult : public element {
 public:
 
+	vector <element*> elements;
+
 	vector <string> items;
 	string lastVal;
 
@@ -939,13 +967,18 @@ public:
 
 	void set(string s, bool notifyEvent = true) {
 		int index = 0;
+		bool updated = false;
+
 		for (auto & e : elements) {
 			if (e->name == s) {
 				if (valString != e->name || (eventWhenSameSelectedIndex && !dragging))
 				{
 					selectedId = index;
+
+					updated = true;
 					valString = e->name;
 					(*settings->pString)[name] = valString;
+
 					e->set(true);
 					needsRedraw();
 					if (notifyEvent) {
@@ -962,11 +995,22 @@ public:
 					// invoke pointer to functions (string and id)
 				}
 			} else {
-				if (e->getVal() == true) {
+//				cout << e->name << endl;
+//				cout << e->getVal() << endl;
+//				cout << "-----" << endl;
+				if (e->getVal())
+				{
 					e->set(false);
 				}
 			}
 			index++;
+		}
+		if (!updated) {
+			valString = (*settings->pString)[name] = s;
+			needsRedraw();
+			if (notifyEvent) {
+				notify();
+			}
 		}
 	}
 

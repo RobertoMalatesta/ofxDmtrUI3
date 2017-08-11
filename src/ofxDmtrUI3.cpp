@@ -306,6 +306,10 @@ void ofxDmtrUI3::notify(string e) {
 void ofxDmtrUI3::createFromText(string file, bool n) {
 	settings.uiname = UINAME;
 	vector <string> linhas;
+	
+	
+	//06 agosto 2017 tentando UIREMOTE3
+	createdFromTextFile = "";
 
 	if (ofFile::doesFileExist("uiAll.txt")) {
 
@@ -320,16 +324,31 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 
 
 	if (ofFile::doesFileExist(file)) {
+		
+		loadedTextFile = file;
+		
 		createdFromTextFile += ofBufferFromFile(file).getText() + "\r\r";
 		vector <string> linhas = textToVector(file);
 		for (auto & l : linhas) {
-			createFromLine(l);
+			if (buildingTemplate == "") {
+				createFromLine(l);
+			} else {
+				if (ofIsStringInString(l, "endTemplate")) {
+					//cout << "endTemplate" << endl;
+					buildingTemplate = "";
+				} else {
+					templateUI[buildingTemplate].push_back(l);
+				}
+
+			}
 		}
+		
+		notify("createFromText");
+
 	} else {
 		cout << "ofxDmtrUI3 createFromText ::: File not found " + file << endl;
 	}
 
-	notify("createFromText");
 	autoFit();
 }
 
@@ -444,6 +463,13 @@ bool	invertAudio	0)";
 				}
 			}
 
+			else if (tipo == "template") {
+				for (auto s : templateUI[nome]) {
+					ofStringReplace(s, "$", valores);
+					createFromLine(s);
+				}
+			}
+
 			else if (tipo == "label") {
 				elements.push_back(new label(nome, settings));
 			}
@@ -482,6 +508,14 @@ bool	invertAudio	0)";
 				}
 			}
 
+			else if (tipo == "slider2d") {
+				elements.push_back(new slider2d(nome, settings));
+			}
+
+			else if (tipo == "color") {
+				vector <string> opcoes = ofSplitString(valores, " ");
+				elements.push_back(new color(nome, settings, opcoes));
+			}
 
 			else if (tipo == "radioColors") {
 				vector <string> cadaPar = ofSplitString(valores, " ");
@@ -494,7 +528,7 @@ bool	invertAudio	0)";
 					colorMap[n] = cor;
 				}
 
-				for (auto & e : getElement(nome)->elements) {
+				for (auto & e : ((mult*)getElement(nome))->elements) {
 					if ( colorMap.find(e->name) != colorMap.end() ) {
 						e->color = colorMap[e->name];
 						e->needsRedraw();
@@ -502,14 +536,8 @@ bool	invertAudio	0)";
 				}
 			}
 
-			else if (tipo == "color") {
-				vector <string> opcoes = ofSplitString(valores, " ");
-				elements.push_back(new color(nome, settings, opcoes));
-			}
 
-			else if (tipo == "slider2d") {
-				elements.push_back(new slider2d(nome, settings));
-			}
+
 
 			else if (tipo == "dirList" || tipo == "dirListNoExt" || tipo == "scene") {
 				ofDirectory dir;
@@ -535,6 +563,7 @@ bool	invertAudio	0)";
 				((radio*)elements.back())->setFolder(valores);
 				elements.back()->isDir = true;
 			}
+			
 
 			else if (tipo == "colorLicht") {
 				createFromLine("bool	"+nome+"UsaPaleta	0");
@@ -584,6 +613,17 @@ bool	invertAudio	0)";
 
 			// configurations
 			// todo : margin
+
+
+
+			else if (tipo == "beginTemplate") {
+				buildingTemplate = nome;
+				//cout << "begin template " + nome << endl;
+			}
+
+
+
+
 			else if (tipo == "bw") {
 				settings.bw = ofToInt(nome);
 			}
@@ -744,6 +784,9 @@ void ofxDmtrUI3::onMouseDragged(ofMouseEventArgs& data) {
 //			mx /= scale;
 //			my /= scale;
 //		}
+
+
+
 		for (auto & e : elements) {
 			e->checkMouseNeu(mx, my);
 		}
@@ -839,6 +882,7 @@ void ofxDmtrUI3::load(string xml) {
 	ofxXmlSettings xmlSettings;
 	if (ofFile::doesFileExist(xml)) {
 		xmlSettings.loadFile(xml);
+		loadedXmlFile = xml;
 		int UIVersion = xmlSettings.getValue("ofxDmtrUIVersion", 0);
 		if (UIVersion == 4) {
 			for (auto & e : elements) {
@@ -1170,7 +1214,7 @@ void ofxDmtrUI3::savePresetAll(int n) {
 		string imgPath = getPresetsPath(ofToString(n) +".tif");
 		//cout << imgPath << endl;
 		ofSaveImage(pixels, imgPath);
-		getElement("allPresets")->elements[n]->updateFromPixels(pixels);
+		((mult*)getElement("allPresets"))->elements[n]->updateFromPixels(pixels);
 		getElement("allPresets")->needsRedraw();
 	}
 }
@@ -1251,7 +1295,7 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 			}
 			ofDirectory::createDirectory(software.presetsFolder);
 		}
-		for (auto & e : getElement("allPresets")->elements) {
+		for (auto & e : ((mult*)getElement("allPresets"))->elements) {
 			e->updateImage();
 		}
 	}

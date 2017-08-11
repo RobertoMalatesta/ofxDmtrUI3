@@ -230,4 +230,13 @@ public:
 
 	// talvez desencanar disso...
 	int scale = 1;
+	
+	
+	string loadedXmlFile = "";
+	string loadedTextFile = "";
+
+
+	map <string, vector<string> > templateUI;
+
+	string buildingTemplate = "";
 };
