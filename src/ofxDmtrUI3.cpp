@@ -167,6 +167,8 @@ void ofxDmtrUI3::draw() {
 		ofPushStyle();
 //		ofSetColor(255, settings.opacity);
 		ofSetColor(255, settings.software->opacity);
+		
+		ofTranslate(software.offset);
 
 		if (scale != 1) {
 			fboUI.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
@@ -485,7 +487,12 @@ bool	invertAudio	0)";
 
 			else if (tipo == "hide") {
 				//bool val = valores == "1";
-				elements.push_back(new toggle(nome, settings, true));
+				if (nome == "") {
+					elements.push_back(new toggle(nome, settings, true, false));
+				} else {
+					elements.push_back(new toggle(nome, settings, true));
+				}
+				elements.back()->saveXml = false;
 				using namespace std::placeholders;
 				elements.back()->invokeBool = std::bind(&ofxDmtrUI3::showUI, this, _1);
 			}
@@ -501,7 +508,19 @@ bool	invertAudio	0)";
 
 			else if (tipo == "radio") {
 				vector <string> opcoes = ofSplitString(valores, " ");
+				
+//				if (ofIsStringInString(nome, "_shortcut")) {
+//					radio r;
+//					r.showLabel = false;
+//					r.saveXml = false;
+//				}
+//				newElements.push_back(r);
+//				elements.push_back(&newElements.back());
 				elements.push_back(new radio(nome, settings, opcoes));
+				if (ofIsStringInString(nome, "_shortcut")) {
+					((radio*)elements.back())->showLabel = false;
+					((radio*)elements.back())->saveXml = false;
+				}
 
 				if (cols.size() == 4) {
 					((radio*)elements.back())->set(cols[3]);
@@ -761,37 +780,44 @@ void ofxDmtrUI3::onKeyReleased(ofKeyEventArgs& data) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMousePressed(ofMouseEventArgs& data) {
-	if (settings.software->visible && settings.rect.inside(data.x , data.y )) {
-		int mx = data.x - settings.rect.x;
-		int my = data.y - settings.rect.y;
-//		if (scale != 1) {
-//			mx /= scale;
-//			my /= scale;
-//		}
-		for (auto & e : elements) {
-			e->checkMouseNeu(mx, my, true);
-		}
-	}
+	mouseUI(data.x, data.y, true);
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMouseDragged(ofMouseEventArgs& data) {
-	if (settings.software->visible && settings.rect.inside(data.x , data.y )) {
-	//if (settings.software->visible && settings.rect.inside(data.x / scale, data.y / scale)) {
-		int mx = data.x - settings.rect.x;
-		int my = data.y - settings.rect.y;
-//		if (scale != 1) {
-//			mx /= scale;
-//			my /= scale;
-//		}
+	mouseUI(data.x, data.y);
+}
 
-
-
+//--------------------------------------------------------------
+void ofxDmtrUI3::mouseUI(int x, int y, bool pressed) {
+	
+	//data.x += settings.software->offset.x;
+	
+	if (settings.software->visible && settings.rect.inside(x, y )) {
+		
+		//+ settings.software->offset.x
+		
+		//	if (settings.software->visible && settings.rect.inside(data.x , data.y )) {
+		//if (settings.software->visible && settings.rect.inside(data.x / scale, data.y / scale)) {
+		//		int mx = data.x - settings.rect.x;
+		//		int my = data.y - settings.rect.y;
+		//		int mx = data.x - settings.rect.x;
+		//		int my = data.y - settings.rect.y;
+		int mx = x - settings.rect.x;
+		int my = y - settings.rect.y;
+		
+		//		if (scale != 1) {
+		//			mx /= scale;
+		//			my /= scale;
+		//		}
+		
 		for (auto & e : elements) {
-			e->checkMouseNeu(mx, my);
+			e->checkMouseNeu(mx, my, pressed);
 		}
 	}
 }
+
+
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMouseReleased(ofMouseEventArgs& data) {
@@ -1278,9 +1304,9 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 	//&& e.tipo != LOAD
 	if (ofIsStringInString(e.name, "_shortcut") ) {
 //	if (ofIsStringInString(e.name, "_shortcutInt") ) {
-		vector <string> split = ofSplitString(e.name, "_");
+		vector <string> split = ofSplitString(e.name, "_shortcut");
 		string nome = split[0];
-		getElement(nome)->set(ofToFloat(pString[e.name]));
+		((slider*)getElement(nome))->set(ofToFloat(pString[e.name]));
 	}
 
 

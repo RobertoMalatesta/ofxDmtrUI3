@@ -49,6 +49,8 @@ public:
 	int multiSampling = 0;
 	int w = 1280;
 	int h = 720;
+	
+	ofPoint offset = ofPoint(0,0);
 	soft() {}
 };
 
@@ -1070,6 +1072,10 @@ public:
 
 class radio : public mult {
 public:
+	
+	// teste 12 agosto 2017
+	//radio () = default;
+	//radio ();
 	radio (string n, uiConfig & u, vector <string> its) {
 		kind = RADIO;
 		varType = STRING;

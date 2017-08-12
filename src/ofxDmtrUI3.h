@@ -59,6 +59,7 @@ public:
 
 	vector <string> textToVector(string file);
 	vector <element*> elements;
+	//vector <element> newElements;
 
 	// experimental 02 07 2017
 	map <string, slider *> slidersMap;
@@ -239,4 +240,6 @@ public:
 	map <string, vector<string> > templateUI;
 
 	string buildingTemplate = "";
+	
+	void mouseUI(int x, int y, bool pressed = false);
 };
