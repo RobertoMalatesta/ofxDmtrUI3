@@ -793,18 +793,13 @@ void ofxDmtrUI3::mouseUI(int x, int y, bool pressed) {
 	
 	//data.x += settings.software->offset.x;
 	
-	if (settings.software->visible && settings.rect.inside(x, y )) {
+//	if (settings.software->visible && settings.rect.inside(x, y)) {
+	if (settings.software->visible &&
 		
-		//+ settings.software->offset.x
-		
-		//	if (settings.software->visible && settings.rect.inside(data.x , data.y )) {
-		//if (settings.software->visible && settings.rect.inside(data.x / scale, data.y / scale)) {
-		//		int mx = data.x - settings.rect.x;
-		//		int my = data.y - settings.rect.y;
-		//		int mx = data.x - settings.rect.x;
-		//		int my = data.y - settings.rect.y;
-		int mx = x - settings.rect.x;
-		int my = y - settings.rect.y;
+		settings.rect.inside(x - settings.software->offset.x, y - settings.software->offset.y)) {
+
+		int mx = x - settings.rect.x - settings.software->offset.x;
+		int my = y - settings.rect.y - settings.software->offset.y;
 		
 		//		if (scale != 1) {
 		//			mx /= scale;
@@ -816,8 +811,6 @@ void ofxDmtrUI3::mouseUI(int x, int y, bool pressed) {
 		}
 	}
 }
-
-
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMouseReleased(ofMouseEventArgs& data) {
