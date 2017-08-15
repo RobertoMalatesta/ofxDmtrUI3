@@ -130,7 +130,6 @@ public:
 	soft * software = NULL;
 
 	void setSliderWidth(int w) {
-		//cout << "set slider width :: " << w  << endl;
 		sliderDimensions.x = w;
 		minimumWidth = MAX(minimumWidth, sliderDimensions.x);
 	}
@@ -238,7 +237,6 @@ public:
 		flow.y += sliderDimensions.y + getSpacing();
 	}
 	void newCol() {
-		//cout << "newcol" << endl;
 		colx +=  sliderDimensions.x + margin.x;
 		//flow.x += sliderDimensions.x + margin.x;
 		flow.x = colx;
@@ -312,28 +310,23 @@ public:
 //		}
 
 		if (varType == STRING) {
-			//cout << "notify event string" << endl;
 			uiEv e = uiEv(name, settings->uiname, kind, varType, getValString());
 			e.isDir = isDir;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == BOOLEAN) {
-			//cout << "notify event string" << endl;
 			uiEv e = uiEv(name, settings->uiname, kind, varType, getValBool());
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == INT) {
-			//cout << "notify event string" << endl;
 			uiEv e = uiEv(name, settings->uiname, kind, varType, (int)getVal());
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == POINT) {
-			//cout << "notify event point" << endl;
 			uiEv e = uiEv(name, settings->uiname, kind, varType, getValPoint());
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else  {
-			//cout << "notify event int or float" << endl;
 //			uiEv e = uiEv(name, kind, varType, varType == INT ? int(getVal()) : getVal());
 			uiEv e = uiEv(name, settings->uiname, kind, varType, getVal());
 			ofNotifyEvent(settings->uiEvent, e);
@@ -672,7 +665,6 @@ public:
 		// tem como melhorar performance? acho q tem.
 		ofSetColor(255);
 		if (_fbo != NULL) {
-			//cout << "fbo is not null" << endl;
 //			_fbo->draw(rect.x + settings->rect.x , rect.y + settings->rect.y);
 			_fbo->draw(rect.x, rect.y);
 		}
@@ -971,7 +963,6 @@ public:
 	}
 
 //	void getVal() {
-//		cout << "getval from mult" + name << endl;
 //		return (float)selectedIndex;
 //	}
 	// mult (radio and presets)
@@ -1003,13 +994,9 @@ public:
 						changeUI(uiname, f);
 					}
 
-					//cout << index << endl;
 					// invoke pointer to functions (string and id)
 				}
 			} else {
-//				cout << e->name << endl;
-//				cout << e->getVal() << endl;
-//				cout << "-----" << endl;
 				if (e->getVal())
 				{
 					e->set(false);
@@ -1158,29 +1145,10 @@ public:
 	void updateImage() {
 		imageOrVoid();
 
-//		string file = settings->getPresetsPath(name + ".tif");
-//		//cout << "update Image " + name + file << endl;
-//		fbo.begin();
-//		ofClear(30,255);
-//		if (ofFile::doesFileExist(file)) {
-//			//cout << "file exists " + file << endl;
-//			img.load(file);
-//			ofSetColor(255);
-//			img.draw(0,0);
-//		} else {
-//			ofSetColor(255,0,40);
-//			ofTranslate(fbo.getWidth()/2, fbo.getHeight()/2);
-//			int n = 12;
-//			ofDrawLine(-n, n, n, -n);
-//			ofDrawLine(-n, -n, n, n);
-//		}
-//		fbo.end();
-
 		needsRedraw();
 		if (_parent != NULL) {
 			_parent->needsRedraw();
 		}
-
 	}
 
 	// preset

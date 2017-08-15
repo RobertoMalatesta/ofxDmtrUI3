@@ -165,7 +165,7 @@ public:
 
 			//_uiFather->uis[ui].settings.redraw = true;
 		} else {
-			//cout << "uis key not found" << endl;
+			//"uis key not found";
 		}
 	}
 

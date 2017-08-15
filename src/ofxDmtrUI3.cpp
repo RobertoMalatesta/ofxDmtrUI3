@@ -80,7 +80,6 @@ ofxDmtrUI3::ofxDmtrUI3() {
 
 //--------------------------------------------------------------
 ofxDmtrUI3::~ofxDmtrUI3() {
-	//cout << "destruct" << endl;
 	// remove listeners here
 
 	ofRemoveListener(ofEvents().draw, this, &ofxDmtrUI3::onDraw);
@@ -134,7 +133,6 @@ void ofxDmtrUI3::draw() {
 		fboUI.begin();
 		for (auto & e : elements) {
 			if (e->redraw && !e->alwaysRedraw) {
-				//cout << "redraw :: " + e->name << endl;
 				ofSetColor(255, 1);
 				ofDrawRectangle(e->boundsRect);
 				e->draw();
@@ -149,7 +147,6 @@ void ofxDmtrUI3::draw() {
 
 	// lately we never redraw fully, only on allocate (autofit?)
 	if (settings.redraw) {
-		//cout << "SETTINGS REDRAW  :: " + UINAME << endl;
 		fboClear();
 
 		fboUI.begin();
@@ -193,46 +190,24 @@ void ofxDmtrUI3::draw() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::keyPressed(int key){
-
-	//cout << "I am :: " + UINAME << endl;
-	// Only on master UI
-	//if (_uiFather == NULL) {
 	if (UINAME == "master") {
-		//cout << "uifather null, my uiname = " + UINAME << endl;
 		if (key == '=') {
 			settings.software->visible ^= 1;
 		}
-
+		
 		if ((key == 'f' || key == 'F')) {
 			if (ofGetKeyPressed(OF_KEY_COMMAND)) {
-				//cout << "toggle fullscreen" << endl;
 				ofToggleFullscreen();
-				// falta um needsredraw por aqui
 			}
 		}
-	}
-
-//	if (key == '1' || key == '2' || key == '3' || key == '4' ) {
-//		string nome = ofToString(char(key)) + ".xml";
-//		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
-//			save(nome);
-//		} else {
-//			load(nome);
-//		}
-//	}
-
-
-
-	//if(2==3)
-	if (UINAME == "master")
-	{
+		
+		
 		if (key == 'a' || key == 'A') {
 			loadPresetAll(0, true);
 		}
 		else if (key == 's' || key == 'S') {
 			if (ofGetKeyPressed(OF_KEY_COMMAND)) {
 				int slot = ofToInt(getElement("allPresets")->getValString());
-				//cout << slot << endl;
 				// xaxa
 				savePresetAll(slot);
 			} else {
@@ -336,7 +311,6 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 				createFromLine(l);
 			} else {
 				if (ofIsStringInString(l, "endTemplate")) {
-					//cout << "endTemplate" << endl;
 					buildingTemplate = "";
 				} else {
 					templateUI[buildingTemplate].push_back(l);
@@ -415,7 +389,6 @@ float	decay	0 .98 .85
 bool	invertAudio	0)";
 
 				for (auto & l : ofSplitString(s, "\n")) {
-					//cout << l << endl;
 					createFromLine(l);
 				}
 			}
@@ -600,7 +573,6 @@ bool	invertAudio	0)";
 				createFromLine("float	"+nome+"AlphaAudio	0 255 0");
 				createFromLine("float	"+nome+"AlphaRange	0 255 0");
 
-				//cout << "colorLicht ::: " + nome << endl;
 				//colors.push_back(nome);
 				//lastHeight = 0;
 				//createFromLine("");
@@ -623,7 +595,6 @@ bool	invertAudio	0)";
 				createFromLine("_float	"+nome+"AlphaAudio	0 255 0");
 				createFromLine("_float	"+nome+"AlphaRange	0 255 0");
 
-				//cout << "colorLicht ::: " + nome << endl;
 				//colors.push_back(nome);
 				//lastHeight = 0;
 				//createFromLine("");
@@ -637,10 +608,7 @@ bool	invertAudio	0)";
 
 			else if (tipo == "beginTemplate") {
 				buildingTemplate = nome;
-				//cout << "begin template " + nome << endl;
 			}
-
-
 
 
 			else if (tipo == "bw") {
@@ -831,7 +799,6 @@ void ofxDmtrUI3::onMouseReleased(ofMouseEventArgs& data) {
 void ofxDmtrUI3::onExit(ofEventArgs &data) {
 	if (keepSettings) {
 		string file = "_presets/" + UINAME + ".xml";
-		cout << "ofxDmtrUI3 :: save on exit :: " + file << endl;
 		save("_presets/" + UINAME + ".xml");
 	}
 }
@@ -849,10 +816,6 @@ void ofxDmtrUI3::save(string xml) {
 	xmlSettings.setValue("ofxDmtrUIVersion", 4.0);
 	for (auto & e : elements) {
 		if (e->saveXml) {
-
-
-			// mudar tudo aqui pra valType.
-			//cout << typeid(e->getVal()).name() << endl;
 			if (e->kind == TOGGLE || e->kind == RADIOITEM) {
 				xmlSettings.setValue("element:bool:" + e->name, (bool)e->getVal());
 			}
@@ -871,28 +834,6 @@ void ofxDmtrUI3::save(string xml) {
 		}
 	}
 
-
-//	for (auto & e : elements) {
-//		if (e->saveXml) {
-//
-//			// mudar tudo aqui pra valType.
-//			//cout << typeid(e->getVal()).name() << endl;
-//			if (e->kind == TOGGLE || e->kind == RADIOITEM) {
-//				xmlSettings.setValue("element:" + e->name, (bool)e->getVal());
-//			}
-//			else if (e->kind == RADIO || e->kind == PRESETS) {
-//				xmlSettings.setValue("element:" + e->name, (string)e->getValString());
-//			}
-//			else if (e->kind == SLIDER2D) {
-//				xmlSettings.setValue("element:" + e->name + ":x", e->getValPoint().x);
-//				xmlSettings.setValue("element:" + e->name + ":y", e->getValPoint().y);
-//			}
-//
-//			else if (e->kind != LABEL) {
-//				xmlSettings.setValue("element:" + e->name, e->getVal());
-//			}
-//		}
-//	}
 	xmlSettings.save(xml);
 }
 
@@ -978,9 +919,6 @@ void ofxDmtrUI3::reFlow() {
 //	}
 //	fboSettings.width = settings.rect.width;
 //	fboSettings.height = settings.rect.height;
-//	cout << settings.rect.width << endl;
-//	cout << settings.rect.height << endl;
-
 	autoFit();
 }
 
@@ -1043,7 +981,6 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::loadMaster() {
-	//cout << "ofxDmtrUI :: loadMaster :: " + UINAME << endl;
 	string file = "_presets/" + UINAME + ".xml";
 	load(file);
 }
@@ -1160,11 +1097,6 @@ void ofxDmtrUI3::autoFit() {
 			maxh = MAX(maxh, e->boundsRect.y + e->boundsRect.height);
 		}
 
-//		cout << "autofit ui :: " + UINAME << endl;
-//		cout << settings.rect.width << endl;
-//		cout << minimumWidth << endl;
-//		cout << "------" << endl;
-
 		settings.rect.width  = maxw + settings.margin.x;
 		settings.rect.height = maxh + settings.margin.y;
 		settings.rect.width = MAX(settings.rect.width, settings.minimumWidth);
@@ -1231,7 +1163,6 @@ void ofxDmtrUI3::savePresetAll(int n) {
 		pixels.allocate( w, h, OF_IMAGE_COLOR_ALPHA);
 		fboThumb.readToPixels(pixels);
 		string imgPath = getPresetsPath(ofToString(n) +".tif");
-		//cout << imgPath << endl;
 		ofSaveImage(pixels, imgPath);
 		((mult*)getElement("allPresets"))->elements[n]->updateFromPixels(pixels);
 		getElement("allPresets")->needsRedraw();
@@ -1246,7 +1177,6 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 	if (UINAME == "master") {
 
 		// TODO, averiguar firing event twice here
-		//cout << "loadPresetAll :: " + UINAME << endl;
 		if (fromKey) {
 			if (hasPresets) {
 				getElement("allPresets")->set(ofToString(n));
@@ -1292,7 +1222,6 @@ void ofxDmtrUI3::clear(bool keepVars) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::uiEvents(uiEv & e) {
-	//cout << "element fired inside UI code" << endl;
 
 	//&& e.tipo != LOAD
 	if (ofIsStringInString(e.name, "_shortcut") ) {
@@ -1346,9 +1275,7 @@ void ofxDmtrUI3::createRadio(string name, vector<string> options, string sel) {
 }
 
 string ofxDmtrUI3::getFileFullPath(string n) {
-	cout << "getfilefullpath :: " + n << endl;
 	string f = ((radio*)getElement(n))->folder;
-	// + "/" + getElement(n)->getValString();
 	return f;
 }
 
@@ -1376,7 +1303,6 @@ void ofxDmtrUI3::showUI(bool show) {
 void ofxDmtrUI3::set(string e, bool v) {
 	for (auto & e : elements) {
 		if (e->name == "e" && e->kind == TOGGLE) {
-			cout << "SET TOGGLE" + e->name << endl;
 			e->set(v);
 		}
 	}
@@ -1400,7 +1326,6 @@ void ofxDmtrUI3::set(string e, float v) {
 };
 
 void ofxDmtrUI3::set(string e, int v) {
-	cout << "setInt" + e << endl;
 	for (auto & e : elements) {
 		if (e->name == "e" && e->kind == SLIDER) {
 			e->set(float(v));
