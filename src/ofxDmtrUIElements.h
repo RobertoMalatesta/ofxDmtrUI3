@@ -320,14 +320,14 @@ public:
 		}
 		else if (varType == INT) {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, (int)getVal());
+
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == POINT) {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, getValPoint());
 			ofNotifyEvent(settings->uiEvent, e);
 		}
-		else  {
-//			uiEv e = uiEv(name, kind, varType, varType == INT ? int(getVal()) : getVal());
+		else if (varType == FLOAT)  {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, getVal());
 			ofNotifyEvent(settings->uiEvent, e);
 		}
@@ -525,10 +525,7 @@ public:
 	}
 
 
-	virtual float getVal() {
-		cout << "getVal function on primitive element " + name << endl;
-	} //return 1;
-
+	virtual float getVal() { cout << "never to be used getval float :: " + name << endl; } //return 1;
 	virtual bool getValBool() { cout << "never to be used getvalbool :: " + name << endl; }
 	virtual string getValString() { cout << "never to be used getvalstring :: " + name << endl; }
 	virtual ofPoint getValPoint() { cout << "never to be used getvalpoint:: " + name << endl; }
