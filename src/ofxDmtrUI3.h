@@ -242,4 +242,9 @@ public:
 	string buildingTemplate = "";
 	
 	void mouseUI(int x, int y, bool pressed = false);
+	
+	
+	
+	//17 agosto de 2017 - experimental
+	map <string, vector <string> > templateVectorString;
 };

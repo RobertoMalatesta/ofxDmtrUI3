@@ -440,6 +440,12 @@ bool	invertAudio	0)";
 
 			else if (tipo == "template") {
 				for (auto s : templateUI[nome]) {
+					string str = ofJoinString(templateVectorString[nome], " ");
+					cout << nome << endl;
+					cout << "TEMPLATE" << endl;
+					cout << str << endl;
+					ofStringReplace(s, "{$vectorString}", str);
+//					ofStringReplace(s, "{$vectorString}", "ASDF ASDF ASDF");
 					ofStringReplace(s, "$", valores);
 					createFromLine(s);
 				}
@@ -679,13 +685,19 @@ bool	invertAudio	0)";
 
 			else if (tipo == "togglesList") {
 				vector <string> nomes = ofSplitString(nome, " ");
+				for (auto & n : nomes) {
+					createFromLine("bool	" + n + "	0");
+				}
+			}
+			
+			else if (tipo == "togglesListHoriz") {
+				vector <string> nomes = ofSplitString(nome, " ");
 				createFromLine("flowHoriz");
 				for (auto & n : nomes) {
 					createFromLine("bool	" + n + "	0");
-//					createFromLine("radioitem	" + n + "	0");
 				}
 				createFromLine("flowVert");
-
+				
 			}
 
 			else if (tipo == "toggleMatrix") {
