@@ -324,6 +324,15 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 	} else {
 		cout << "ofxDmtrUI3 createFromText ::: File not found " + file << endl;
 	}
+	
+	if (keepSettings) {
+		//cout << "LOAD PRESET KEEPSETTINGS " + UINAME << endl;
+		
+		
+		// xaxa _presets?
+		string file = "_presets/" + UINAME + ".xml";
+		load(file);
+	}
 
 	autoFit();
 }
@@ -377,6 +386,11 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 			else if (tipo == "restoreX") {
 				settings.flow.x = settings.flowBak.x;
+			}
+
+			// 19 agosto 2017 serie 3%
+			else if (tipo == "spacer") {
+				settings.flow.x += settings.sliderDimensions.y;
 			}
 
 			else if (tipo == "audioControls") {
@@ -441,11 +455,7 @@ bool	invertAudio	0)";
 			else if (tipo == "template") {
 				for (auto s : templateUI[nome]) {
 					string str = ofJoinString(templateVectorString[nome], " ");
-					cout << nome << endl;
-					cout << "TEMPLATE" << endl;
-					cout << str << endl;
 					ofStringReplace(s, "{$vectorString}", str);
-//					ofStringReplace(s, "{$vectorString}", "ASDF ASDF ASDF");
 					ofStringReplace(s, "$", valores);
 					createFromLine(s);
 				}
@@ -480,11 +490,15 @@ bool	invertAudio	0)";
 				elements.push_back(new bang(nome, settings));
 			}
 
-			else if (tipo == "toggleNoLabel") {
+			else if (tipo == "toggleNoLabel" || tipo == "boolNoLabel") {
 				bool val = valores == "1";
 				elements.push_back(new toggle(nome, settings, val, false));
 			}
 
+			else if (tipo == "bangNoLabel") {
+				elements.push_back(new bang(nome, settings, false));
+			}
+			
 			else if (tipo == "radio") {
 				vector <string> opcoes = ofSplitString(valores, " ");
 				
@@ -625,6 +639,13 @@ bool	invertAudio	0)";
 				settings.rect.x = ofToInt(xy[0]);
 				settings.rect.y = ofToInt(xy[1]);
 			}
+			
+			// temporario
+			else if (tipo == "addX") {
+				settings.flow.x += ofToInt(nome);
+				settings.colx = settings.flow.x;
+			}
+			
 			else if (tipo == "presetDimensions") {
 				vector<string> xy = ofSplitString(nome, " ");
 				software.presetDimensions.x = ofToInt(xy[0]);
@@ -649,7 +670,7 @@ bool	invertAudio	0)";
 			}
 
 			else if (tipo == "addUI" || tipo == "addUIDown") {
-				addUI(nome, tipo == "addUIDown");
+				addUI(nome, tipo == "addUIDown", valores);
 			}
 
 
@@ -700,7 +721,7 @@ bool	invertAudio	0)";
 				
 			}
 
-			else if (tipo == "toggleMatrix") {
+			else if (tipo == "toggleMatrix" || tipo == "bangMatrix") {
 				if (valores != "") {
 					vector <string> vals = ofSplitString(valores, " ");
 					int maxx = ofToInt(vals[0]);
@@ -716,7 +737,12 @@ bool	invertAudio	0)";
 								nomeElement = nome + ofToString(contagem);
 							}
 							string n = nome + "_" + ofToString(x) + "_" +ofToString(y);
-							createFromLine("toggleNoLabel	" + n + "	0");
+							
+							if (tipo == "toggleMatrix") {
+								createFromLine("toggleNoLabel	" + n + "	0");
+							} else {
+								createFromLine("bangNoLabel	" + n + "	0");
+							}
 							contagem++;
 						}
 						createFromLine("flowVert");
@@ -817,9 +843,9 @@ void ofxDmtrUI3::onExit(ofEventArgs &data) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onWindowResized(ofResizeEventArgs &data) {
-	if (!ofGetMousePressed()) {
-		reFlow();
-	}
+//	if (!ofGetMousePressed()) {
+//		reFlow();
+//	}
 }
 
 //--------------------------------------------------------------
@@ -1003,11 +1029,10 @@ void ofxDmtrUI3::setFbo(ofFbo &fbo) {
 }
 
 //--------------------------------------------------------------
-void ofxDmtrUI3::addUI(string nome, bool down) {
+void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 	// aqui tenho tres ponteiros. o _uiLast o uiNext e o uiRight. nao sei se precisa tantos.
 	// de repente fazer um vector de ponteiros?
 	uis[nome].UINAME = nome;
-
 
 	// todos no mesmo sofwtare que o master.
 
@@ -1041,6 +1066,9 @@ void ofxDmtrUI3::addUI(string nome, bool down) {
 
 	string fileName = nome+".txt";
 	if (ofFile::doesFileExist(fileName)) {
+		if (valores == "keepSettings") {
+			uis[nome].keepSettings = true;
+		}
 		uis[nome].createFromText(fileName);
 	}
 
@@ -1048,6 +1076,8 @@ void ofxDmtrUI3::addUI(string nome, bool down) {
 
 	_uiLast = &uis[nome];
 	uis[nome].autoFit();
+	
+
 	allUIs.push_back(&uis[nome]);
 }
 
@@ -1197,8 +1227,10 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 		else {
 			for (auto & u : uis) {
 				if (u.first != "master") {
-					string nome = getPresetsPath(ofToString(n) + u.first + ".xml");
-					u.second.load(nome);
+					if (!u.second.keepSettings) {
+						string nome = getPresetsPath(ofToString(n) + u.first + ".xml");
+						u.second.load(nome);
+					}
 					// feito pra ofxDmtrUI3Remote
 					//u.second.notify("loadPreset");
 				}

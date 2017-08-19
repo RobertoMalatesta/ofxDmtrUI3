@@ -123,7 +123,7 @@ public:
 	//int minimumWidth = 100;
 	bool keepSettings = false;
 
-	void addUI(string nome, bool down = false);
+	void addUI(string nome, bool down = false, string valores = "");
 	void nextTo(ofxDmtrUI3 & uiNext);
 	void downTo(ofxDmtrUI3 & uiNext);
 	void addRadio(string name, vector<string> options, string sel = "") {

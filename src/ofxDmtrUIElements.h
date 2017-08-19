@@ -785,7 +785,13 @@ public:
 			(*settings->pBool)[name] = val;
 			needsRedraw();
 			if (notifyEvent) {
-				notify();
+				if (kind == BANG) {
+					if (val) {
+						notify();
+					}
+				} else {
+					notify();
+				}
 			}
 			if (invokeBool != NULL) {
 				invokeBool(val);
@@ -831,12 +837,12 @@ public:
 
 class bang : public booleano {
 public:
-	bang(string n, uiConfig & u)  {
+	bang(string n, uiConfig & u, bool l = true)  {
 		kind = BANG;
 		varType = BOOLEAN;
 		settings = &u;
 		name = n;
-		//showLabel = l;
+		showLabel = l;
 		getProperties();
 		//set(v);
 		needsRedraw();
