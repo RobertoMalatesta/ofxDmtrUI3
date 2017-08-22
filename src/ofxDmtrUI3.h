@@ -262,4 +262,7 @@ public:
 	
 	//17 agosto de 2017 - experimental
 	map <string, vector <string> > templateVectorString;
+	
+	//22 de agosto de 2017 - experimental
+	map <string, string> vars;
 };

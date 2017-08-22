@@ -354,6 +354,8 @@ void ofxDmtrUI3::createFromLines(vector<string> lines) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::createFromLine(string l) {
+	
+	//l = std::regex_replace(l, "^\${(.*)}$/g", "[$&]");
 
 	if (l == "") { // spacer
 		settings.newLine();
@@ -687,8 +689,7 @@ bool	invertAudio	0)";
 			else if (tipo == "addUI" || tipo == "addUIDown") {
 				addUI(nome, tipo == "addUIDown", valores);
 			}
-
-
+			
 
 			else if (tipo == "ints" || tipo == "floats" || tipo == "bools" || tipo == "bangs" ||
 					 tipo == "holds" || tipo == "colors" || tipo == "slider2ds" ||
@@ -723,6 +724,13 @@ bool	invertAudio	0)";
 				vector <string> nomes = ofSplitString(nome, " ");
 				for (auto & n : nomes) {
 					createFromLine("bool	" + n + "	0");
+				}
+			}
+			
+			else if (tipo == "intsList" || tipo == "floatsList") {
+				vector <string> nomes = ofSplitString(nome, " ");
+				for (auto & n : nomes) {
+					createFromLine("int	" + n + "	"+valores);
 				}
 			}
 			
@@ -1061,6 +1069,12 @@ void ofxDmtrUI3::setFbo(ofFbo &fbo) {
 void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 	// aqui tenho tres ponteiros. o _uiLast o uiNext e o uiRight. nao sei se precisa tantos.
 	// de repente fazer um vector de ponteiros?
+	
+	
+	
+//	string uiname = nome;
+//	string
+	
 	uis[nome].UINAME = nome;
 
 	// todos no mesmo sofwtare que o master.
@@ -1094,6 +1108,13 @@ void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 	}
 
 	string fileName = nome+".txt";
+	//cout << valores << endl;
+	if (ofIsStringInString(valores, "text:")) {
+		fileName = ofSplitString(valores, "text:")[1] + ".txt";
+	}
+	
+	//cout << "addUI::" + nome + "\t\t" + fileName << endl;
+	
 	if (ofFile::doesFileExist(fileName)) {
 		if (valores == "keepSettings") {
 			uis[nome].keepSettings = true;
