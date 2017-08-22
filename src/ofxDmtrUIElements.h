@@ -921,8 +921,10 @@ public:
 
 	bool eventWhenSameSelectedIndex = false;
 
-
 	ofPoint flowBak;
+	string folder;
+
+
 	void startChildren() {
 		flowBak = settings->flow;
 		if (showLabel) {
@@ -939,7 +941,6 @@ public:
 	}
 
 
-	string folder;
 	void setFolder(string s) {
 		folder = s;
 	}
@@ -1057,6 +1058,11 @@ public:
 			set(elname, true);
 		}
 	}
+
+
+	string getFullFileName() {
+		return folder + "/" + valString;
+	}
 };
 
 
@@ -1084,9 +1090,6 @@ public:
 		updateFlow();
 	}
 
-	string getFullFileName() {
-		return folder + "/" + valString;
-	}
 };
 
 

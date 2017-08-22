@@ -338,6 +338,21 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 }
 
 //--------------------------------------------------------------
+void ofxDmtrUI3::createFromLines(vector<string> lines) {
+	for (auto & l : lines) {
+		if (buildingTemplate == "") {
+			createFromLine(l);
+		} else {
+			if (ofIsStringInString(l, "endTemplate")) {
+				buildingTemplate = "";
+			} else {
+				templateUI[buildingTemplate].push_back(l);
+			}
+			
+		}
+	}}
+
+//--------------------------------------------------------------
 void ofxDmtrUI3::createFromLine(string l) {
 
 	if (l == "") { // spacer
@@ -551,7 +566,7 @@ bool	invertAudio	0)";
 
 
 
-			else if (tipo == "dirList" || tipo == "dirListNoExt" || tipo == "scene") {
+			else if (tipo == "dirList" || tipo == "dirlist" || tipo == "dirListNoExt" || tipo == "scene") {
 				ofDirectory dir;
 				if (tipo == "scene") {
 					dir.allowExt("txt");
@@ -1319,7 +1334,7 @@ void ofxDmtrUI3::createRadio(string name, vector<string> options, string sel) {
 }
 
 string ofxDmtrUI3::getFileFullPath(string n) {
-	string f = ((radio*)getElement(n))->folder;
+	string f = getRadio(n)->getFullFileName();
 	return f;
 }
 

@@ -52,6 +52,7 @@ public:
 	void keyReleased(int key);
 
 	void createFromText(string file, bool notify = true);
+	void createFromLines(vector<string>lines);
 	void createFromLine(string line);
 
 	void save(string xml);
@@ -146,6 +147,20 @@ public:
 			if (e->name == n) {
 				result = true;
 				return e;
+			}
+		}
+		if (!result) {
+			return NULL;
+		}
+	}
+
+	//--------------------------------------------------------------
+	radio * getRadio(string n) {
+		bool result = false;
+		for (auto & e : elements) {
+			if (e->name == n && e->kind == RADIO) {
+				result = true;
+				return (radio*)e;
 			}
 		}
 		if (!result) {
