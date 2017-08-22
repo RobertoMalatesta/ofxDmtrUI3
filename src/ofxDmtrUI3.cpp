@@ -726,14 +726,28 @@ bool	invertAudio	0)";
 				}
 			}
 			
-			else if (tipo == "togglesListHoriz") {
+			else if (tipo == "togglesListHoriz" || tipo == "togglesListNoLabel") {
 				vector <string> nomes = ofSplitString(nome, " ");
+				int lineBreak = 999;
+				if (valores != "") {
+					lineBreak = ofToInt(valores);
+				}
+				
 				createFromLine("flowHoriz");
+				string e = (tipo == "togglesListNoLabel") ? "boolNoLabel" : "bool";
+
+				int i = 0;
 				for (auto & n : nomes) {
-					createFromLine("bool	" + n + "	0");
+					if (i%lineBreak == 0 && i>0) {
+						createFromLine("flowVert");
+						createFromLine("");
+						createFromLine("flowHoriz");
+						//newLine();
+					}
+					createFromLine(e+"	" + n + "	0");
+					i++;
 				}
 				createFromLine("flowVert");
-				
 			}
 
 			else if (tipo == "toggleMatrix" || tipo == "bangMatrix") {
