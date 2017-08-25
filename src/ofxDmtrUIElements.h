@@ -52,6 +52,10 @@ public:
 	
 	ofPoint offset = ofPoint(0,0);
 	soft() {}
+	
+	//new, 25 08 2017, frejat
+	ofRectangle rect;
+	bool autoScrolling = true;
 };
 
 

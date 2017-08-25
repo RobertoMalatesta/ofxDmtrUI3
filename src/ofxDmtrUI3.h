@@ -33,6 +33,9 @@
 #include "ofEvents.h"
 #include "ofxXmlSettings.h"
 
+
+
+
 #if defined( TARGET_OF_IPHONE ) || defined( TARGET_OF_IOS ) || defined( TARGET_ANDROID )
 	#define DMTRUI_TARGET_TOUCH
 #endif
@@ -67,6 +70,8 @@ public:
 
 	void onDraw(ofEventArgs &data);
 	void onUpdate(ofEventArgs &data);
+
+	void onMouseMoved(ofMouseEventArgs &data);
 
 	void onMousePressed(ofMouseEventArgs &data);
 	void onMouseDragged(ofMouseEventArgs &data);
@@ -265,4 +270,15 @@ public:
 	
 	//22 de agosto de 2017 - experimental
 	map <string, string> vars;
+	
+	
+	void updateSoftwareRect() {
+		{
+			software.rect = ofRectangle(0,0,0,0);
+			software.rect = software.rect.getUnion(settings.rect);
+			for (auto & u : uis) {
+				software.rect = software.rect.getUnion(u.second.settings.rect);
+			}
+		}
+	}
 };

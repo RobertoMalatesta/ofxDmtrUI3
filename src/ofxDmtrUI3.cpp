@@ -61,6 +61,8 @@ void ofxDmtrUI3::setup() {
 
 	ofAddListener(ofEvents().draw, this, &ofxDmtrUI3::onDraw);
 	ofAddListener(ofEvents().update, this, &ofxDmtrUI3::onUpdate);
+	
+	ofAddListener(ofEvents().mouseMoved, this, &ofxDmtrUI3::onMouseMoved);
 	ofAddListener(ofEvents().mousePressed, this, &ofxDmtrUI3::onMousePressed);
 	ofAddListener(ofEvents().mouseDragged, this, &ofxDmtrUI3::onMouseDragged);
 	ofAddListener(ofEvents().mouseReleased, this, &ofxDmtrUI3::onMouseReleased);
@@ -84,6 +86,7 @@ ofxDmtrUI3::~ofxDmtrUI3() {
 
 	ofRemoveListener(ofEvents().draw, this, &ofxDmtrUI3::onDraw);
 	ofRemoveListener(ofEvents().update, this, &ofxDmtrUI3::onUpdate);
+	ofRemoveListener(ofEvents().mouseMoved, this, &ofxDmtrUI3::onMouseMoved);
 	ofRemoveListener(ofEvents().mousePressed, this, &ofxDmtrUI3::onMousePressed);
 	ofRemoveListener(ofEvents().mouseDragged, this, &ofxDmtrUI3::onMouseDragged);
 	ofRemoveListener(ofEvents().mouseReleased, this, &ofxDmtrUI3::onMouseReleased);
@@ -355,7 +358,9 @@ void ofxDmtrUI3::createFromLines(vector<string> lines) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::createFromLine(string l) {
 	
-	//l = std::regex_replace(l, "^\${(.*)}$/g", "[$&]");
+	
+	//std::string text = l;
+	//cout <<  std::regex_replace(l, "^${(.*)}$/g", "$1") << endl;
 
 	if (l == "") { // spacer
 		settings.newLine();
@@ -822,6 +827,22 @@ void ofxDmtrUI3::onKeyReleased(ofKeyEventArgs& data) {
 }
 
 //--------------------------------------------------------------
+void ofxDmtrUI3::onMouseMoved(ofMouseEventArgs& data) {
+	if (software.autoScrolling && UINAME == "master") {
+		int difX = software.rect.width - ofGetWindowWidth();
+		int difY = software.rect.height - ofGetWindowHeight();
+		
+		//ofPoint scroll = ofPoint(0,0);
+		int scrollX = difX > 0 ? - data.x * difX / ofGetWindowWidth() : 0;
+		int scrollY = difY > 0 ? - data.y * difY / ofGetWindowHeight() : 0;
+
+		software.offset = ofPoint(scrollX, scrollY);
+		
+		//cout << software.offset << endl;
+	}
+}
+
+//--------------------------------------------------------------
 void ofxDmtrUI3::onMousePressed(ofMouseEventArgs& data) {
 	mouseUI(data.x, data.y, true);
 }
@@ -912,6 +933,47 @@ void ofxDmtrUI3::save(string xml) {
 	xmlSettings.save(xml);
 }
 
+
+
+//--------------------------------------------------------------
+//void ofxDmtrUI3::save(string xml) {
+//	ofxXmlSettings xmlSettings;
+//	xmlSettings.setValue("ofxDmtrUIVersion", 5.0);
+//	for (auto & e : elements) {
+//		if (e->saveXml) {
+//			string tipo = typeid(e->getVal()).name();
+//			
+//			if (e->kind == TOGGLE || e->kind == RADIOITEM) {
+//				xmlSettings.setValue("element:bool:" , (bool)e->getVal());
+//				xmlSettings.addAttribute("element:bool", "name", e->name, 0);
+//				xmlSettings.addAttribute("element:bool", "kind", tipo, 0);
+//			}
+//			else if (e->kind == RADIO || e->kind == PRESETS) {
+//				xmlSettings.setValue("element:string:" , (string)e->getValString());
+//				xmlSettings.addAttribute("element:string", "name", e->name, 0);
+//				xmlSettings.addAttribute("element:string", "kind", tipo, 0);
+//			}
+//			else if (e->kind == SLIDER2D) {
+//				xmlSettings.setValue("element:point:x", e->getValPoint().x);
+//				xmlSettings.addAttribute("element:point:x", "name", e->name, 0);
+//				xmlSettings.setValue("element:point:y", e->getValPoint().y);
+//				xmlSettings.addAttribute("element:point:y", "name", e->name, 0);
+//				xmlSettings.addAttribute("element:point:x", "kind", tipo, 0);
+//			}
+//			
+//			else if (e->kind != LABEL) {
+//				string tipo = typeid(e->getVal()).name();
+//				xmlSettings.setValue("element:" + tipo, e->getVal());
+//				xmlSettings.addAttribute("element:" + tipo, "name", e->name, 0);
+//				xmlSettings.addAttribute("element:" + tipo, "kind", tipo, 0);
+//				
+//			}
+//		}
+//	}
+//	
+//	xmlSettings.save(xml);
+//}
+
 //--------------------------------------------------------------
 void ofxDmtrUI3::load(string xml) {
 	ofxXmlSettings xmlSettings;
@@ -919,7 +981,42 @@ void ofxDmtrUI3::load(string xml) {
 		xmlSettings.loadFile(xml);
 		loadedXmlFile = xml;
 		int UIVersion = xmlSettings.getValue("ofxDmtrUIVersion", 0);
-		if (UIVersion == 4) {
+		
+		if (UIVersion == 5) {
+			// not good
+//			for (int a=0; a<xmlSettings.getNumTags("element:string"); a++) {
+//				string name = xmlSettings.getAttribute("element:string", "name", "");
+//				string val = xmlSettings.getValue("element:string",  "");
+//			}
+//			
+//			for (auto & e : elements) {
+//				if (e->saveXml) {
+//					if (e->kind == TOGGLE || e->kind == RADIOITEM) {
+//						bool valor = xmlSettings.getValue("element:bool:" +e->name, e->getValBool());
+//						e->set(valor);
+//					}
+//					else if (e->kind == RADIO || e->kind == PRESETS) {
+//						string valor = xmlSettings.getValue("element:string:" +e->name, "");
+//						e->set(valor);
+//					}
+//					
+//					else if (e->kind == SLIDER2D) {
+//						float x = xmlSettings.getValue("element:point:" +e->name + ":x", 0.0);
+//						float y = xmlSettings.getValue("element:point:" +e->name + ":y", 0.0);
+//						e->set(ofPoint(x,y));
+//					}
+//					
+//					else if (e->kind == SLIDER) {
+//						string tipo = typeid(e->getVal()).name();
+//						
+//						float valor = xmlSettings.getValue("element:" + tipo + ":" + e->name, e->getVal());
+//						e->set(valor);
+//					}
+//				}
+//			}
+		}
+		
+		else if (UIVersion == 4) {
 			for (auto & e : elements) {
 				if (e->saveXml) {
 					if (e->kind == TOGGLE || e->kind == RADIOITEM) {
@@ -1027,6 +1124,9 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 		vector <string> dimensoes = ofSplitString(output[0], " ");
 		software.w = ofToInt(dimensoes[0]);
 		software.h = ofToInt(dimensoes[1]);
+		if (dimensoes.size() > 2) { 
+			software.multiSampling = ofToInt(dimensoes[2]);
+		}
 	}
 
 #ifdef DMTRUI_TARGET_TOUCH
@@ -1175,10 +1275,16 @@ void ofxDmtrUI3::reFlowUis() {
 		_uiRight->settings.rect.x = settings.rect.x + settings.rect.width + settings.margin.x;
 		_uiRight->reFlowUis();
 	}
+	
+	if (_uiUnder == NULL && _uiRight == NULL && _uiFather != NULL) {
+		_uiFather->updateSoftwareRect();
+	}
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::autoFit() {
+	
+	//cout << "autoFit :: " + UINAME << endl;
 
 	if (showInterface) {
 		int maxw = 0;
