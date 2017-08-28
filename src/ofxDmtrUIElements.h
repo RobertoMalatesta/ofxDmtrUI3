@@ -84,19 +84,25 @@ public:
 	float f;
 	ofPoint p;
 	string s;
-
+	
 	bool isDir = false;
 	
 	bool uiGlobal = false;
+	
+	string tag;
 
+	// doens't work, element is declared afterwards
+//	element * e;
+//	uiEv(element & ee) { e = ee };
+	
 	uiEv(string n) : name(n) { uiGlobal = true; }
 
-	uiEv(string n, string u, elementType k, dmtrUIVarType t) 				: name(n), uiname(u), kind(k), varType(t) {}
-	uiEv(string n, string u, elementType k, dmtrUIVarType t, float ff)		: name(n), uiname(u), kind(k), varType(t), f(ff) {}
-	uiEv(string n, string u, elementType k, dmtrUIVarType t, int ii) 		: name(n), uiname(u), kind(k), varType(t), i(ii) {}
-	uiEv(string n, string u, elementType k, dmtrUIVarType t, bool bb) 		: name(n), uiname(u), kind(k), varType(t), b(bb) {}
-	uiEv(string n, string u, elementType k, dmtrUIVarType t, ofPoint pp) 	: name(n), uiname(u), kind(k), varType(t), p(pp) {}
-	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ss) 		: name(n), uiname(u), kind(k), varType(t), s(ss) {}
+	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta) 				: name(n), uiname(u), kind(k), varType(t), tag(ta) {}
+	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, float ff)		: name(n), uiname(u), kind(k), varType(t), tag(ta), f(ff) {}
+	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, int ii) 		: name(n), uiname(u), kind(k), varType(t), tag(ta), i(ii) {}
+	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, bool bb)		: name(n), uiname(u), kind(k), varType(t), tag(ta), b(bb) {}
+	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, ofPoint pp) 	: name(n), uiname(u), kind(k), varType(t), tag(ta), p(pp) {}
+	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, string ss)		: name(n), uiname(u), kind(k), varType(t), tag(ta), s(ss) {}
 };
 
 
@@ -104,7 +110,8 @@ struct uiConfig {
 public:
 
 	string uiname;
-
+	string tag;
+	
 	//	ofColor bgColor = ofColor(120, 220);
 	ofColor bgColor = ofColor(80, 200);
 	ofColor activeColor = ofColor(0,0,0,190);
@@ -146,7 +153,7 @@ public:
 
 
 	// mouse flows free from one item to another.
-	bool	 flowFree = true;
+	bool flowFree = true;
 	bool flowVert = true;
 
 	// legacy
@@ -281,6 +288,9 @@ public:
 
 	// 24 june 2017 - webcams
 	int selectedId = -1;
+	
+	// 27 aug 2017
+	string tag = "";
 
 
 	// deixar somente pro que tem fbo
@@ -314,25 +324,25 @@ public:
 //		}
 
 		if (varType == STRING) {
-			uiEv e = uiEv(name, settings->uiname, kind, varType, getValString());
+			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, getValString());
 			e.isDir = isDir;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == BOOLEAN) {
-			uiEv e = uiEv(name, settings->uiname, kind, varType, getValBool());
+			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, getValBool());
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == INT) {
-			uiEv e = uiEv(name, settings->uiname, kind, varType, (int)getVal());
+			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, (int)getVal());
 
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == POINT) {
-			uiEv e = uiEv(name, settings->uiname, kind, varType, getValPoint());
+			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, getValPoint());
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == FLOAT)  {
-			uiEv e = uiEv(name, settings->uiname, kind, varType, getVal());
+			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, getVal());
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 	}
@@ -347,6 +357,8 @@ public:
 	}
 
 	void getProperties() {
+		tag = settings->tag;
+		
 		int x = settings->flow.x;
 		int y = settings->flow.y;
 		color = settings->getColor();

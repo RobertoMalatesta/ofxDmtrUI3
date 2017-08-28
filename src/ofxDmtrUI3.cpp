@@ -652,7 +652,10 @@ bool	invertAudio	0)";
 				buildingTemplate = nome;
 			}
 
-
+			else if (tipo == "tag") {
+				settings.tag = nome;
+			}
+			
 			else if (tipo == "bw") {
 				settings.bw = ofToInt(nome);
 			}
@@ -742,10 +745,13 @@ bool	invertAudio	0)";
 			else if (tipo == "togglesListHoriz" || tipo == "togglesListNoLabel") {
 				vector <string> nomes = ofSplitString(nome, " ");
 				int lineBreak = 999;
-				if (valores != "") {
-					lineBreak = ofToInt(valores);
-				}
+//				if (valores != "") {
+//					lineBreak = ofToInt(valores);
+//				}
 				
+				if (cols.size()>3) {
+					lineBreak = ofToInt(cols[3]);
+				}
 				createFromLine("flowHoriz");
 				string e = (tipo == "togglesListNoLabel") ? "boolNoLabel" : "bool";
 
@@ -757,7 +763,7 @@ bool	invertAudio	0)";
 						createFromLine("flowHoriz");
 						//newLine();
 					}
-					createFromLine(e+"	" + n + "	0");
+					createFromLine(e+"	" + n + "	"+valores);
 					i++;
 				}
 				createFromLine("flowVert");
