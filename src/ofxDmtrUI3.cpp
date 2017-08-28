@@ -478,6 +478,9 @@ bool	invertAudio	0)";
 				for (auto s : templateUI[nome]) {
 					string str = ofJoinString(templateVectorString[nome], " ");
 					ofStringReplace(s, "{$vectorString}", str);
+					if (s == "{$lineString}") {
+						createFromLines(templateVectorString[nome]);
+					}
 					ofStringReplace(s, "$", valores);
 					createFromLine(s);
 				}
