@@ -56,6 +56,7 @@ public:
 
 	void createFromText(string file, bool notify = true);
 	void createFromLines(vector<string>lines);
+	void createFromLines(string lines);
 	void createFromLine(string line);
 
 	void save(string xml);
@@ -281,4 +282,75 @@ public:
 			}
 		}
 	}
+	
+	ofPoint velOffXUI = ofPoint(0,0);
+	
+	struct scrolling {
+		ofPoint mouse;
+		ofPoint vel;
+		ofPoint dif;
+	} scroll;
+	
+	string templatesString =
+R"(#======
+beginTemplate	audioBpmControls
+bool	audioOuBpm	0
+int	BPM	1 200 120
+radio	ondaBeats	1 2 4 8
+radio	onda	s w ww r
+slider2d	freq
+float	audioGanho	0 .5 0.25
+float	audioOffset	-1 0 -.2
+float	peakhold	0 20 2
+float	decay	0 .98 .85
+bool	invertAudio	0
+endTemplate
+#======
+beginTemplate	audioControls
+slider2d	freq
+float	audioGanho	0.0 .5 0.25
+float	audioOffset	-1 0 -.2
+float	peakhold	0 20 2
+float	decay	0 .98 .85
+bool	invertAudio	0
+endTemplate
+#======
+beginTemplate	colorLicht
+bool	$UsaPaleta	0
+tag	paleta
+slider2d	$Paleta	.5 .5
+tag	hsv
+slider2d	$Hsv	.5 .5
+tag
+fbo	$PaletaAtual	200 10
+float	$S	0 255 255
+float	$HRange	0 720 100
+float	$HRangeAudio	0 360 0
+float	$BRange	0 512 0
+float	$BStop	0 1 1
+int	$HStep	0 6 0
+float	$Alpha	0 255 255
+float	$AlphaAudio	0 255 0
+float	$AlphaRange	0 255 0
+endTemplate
+#======
+beginTemplate	colorLichtSmall
+_bool	$UsaPaleta	0
+slider2d	$Paleta	.5 .5
+_slider2d	$Hsv	.5 .5
+fbo	$PaletaAtual	200 10
+float	$S	0 255 255
+float	$HRange	0 320 100
+_float	$HRangeAudio	0 360 0
+_float	$BRange	0 512 0
+_float	$BStop	0 1 1
+_int	$HStep	0 6 0
+_float	$Alpha	0 255 255
+_float	$AlphaAudio	0 255 0
+_float	$AlphaRange	0 255 0
+endTemplate
+#======
+#======)";
+
+
 };

@@ -39,6 +39,8 @@ enum dmtrUIVarType {
 };
 
 
+
+
 struct soft {
 public:
 	bool visible = true;
@@ -56,6 +58,10 @@ public:
 	//new, 25 08 2017, frejat
 	ofRectangle rect;
 	bool autoScrolling = true;
+	
+	bool customFont = false;
+	ofTrueTypeFont font;
+	bool needsRedraw = false;
 };
 
 
@@ -456,6 +462,11 @@ public:
 				boundsRect.width = margem*2 + contaletras * 8;
 				rect.width = boundsRect.width;
 				activeRect = rect;
+				if (settings->software->customFont) {
+					ofRectangle r = settings->software->font.getStringBoundingBox(name, 0, 0);
+					boundsRect.width = rect.width = r.width;
+					activeRect = rect;
+				}
 			}
 
 			// ugly solution to overflow but working
@@ -506,15 +517,31 @@ public:
 
 	virtual void drawLabel() {
 		string n = name + label;
-		if (useLabelShadow) {
-			ofSetColor(0,180);
-			ofDrawBitmapString(n, labelPos.x - 1, labelPos.y + 1);
-		}
+		
+		if (settings->software->customFont) {
+			if (useLabelShadow) {
+				ofSetColor(0,130);
+				settings->software->font.drawString(n, labelPos.x - 1, labelPos.y + 1 - 3);
+				//ofDrawBitmapString(n, labelPos.x - 1, labelPos.y + 1);
+			}
+			
+			//decidir se remover o labelcolor totalmente
+			ofSetColor(labelColor);
+			
+			ofSetColor(255);
+			settings->software->font.drawString(n, labelPos.x , labelPos.y - 3);
+			
+		} else {
+			if (useLabelShadow) {
+				ofSetColor(0,180);
+				ofDrawBitmapString(n, labelPos.x - 1, labelPos.y + 1);
+			}
 
-		//decidir se remover o labelcolor totalmente
-		ofSetColor(labelColor);
-		//ofSetColor(255);
-		ofDrawBitmapString(n, labelPos.x, labelPos.y);
+			//decidir se remover o labelcolor totalmente
+			ofSetColor(labelColor);
+			//ofSetColor(255);
+			ofDrawBitmapString(n, labelPos.x, labelPos.y);
+		}
 	}
 
 

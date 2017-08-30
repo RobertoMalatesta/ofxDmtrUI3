@@ -37,8 +37,13 @@ ofFbo::Settings fboSettings;
 //--------------------------------------------------------------
 void ofxDmtrUI3::setup() {
 
+	
+	
 	// REVER AQUI
 	settings.software = &software;
+	
+	
+	createFromLines(templatesString);
 
 	//settings.updateUI = &ofxDmtrUI3::updateUI;
 	fboSettings.width = 10; // will resize on autofit
@@ -132,6 +137,15 @@ void ofxDmtrUI3::redraw() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::draw() {
+	
+	if (UINAME == "master" && settings.software->needsRedraw) {
+		settings.redraw = true;
+		for (auto & u : uis) {
+			u.second.settings.redraw = true;
+		}
+		settings.software->needsRedraw = false;
+	}
+	
 	if (settings.needsRedraw) {
 		fboUI.begin();
 		for (auto & e : elements) {
@@ -171,7 +185,6 @@ void ofxDmtrUI3::draw() {
 		ofTranslate(software.offset);
 
 		if (scale != 1) {
-			fboUI.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 			fboUI.draw(settings.rect.x * scale, settings.rect.y * scale, fboUI.getWidth() * scale, fboUI.getHeight() * scale);
 		} else {
 			fboUI.draw(settings.rect.x, settings.rect.y);
@@ -287,7 +300,6 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 	settings.uiname = UINAME;
 	vector <string> linhas;
 	
-	
 	//06 agosto 2017 tentando UIREMOTE3
 	createdFromTextFile = "";
 
@@ -341,6 +353,13 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 }
 
 //--------------------------------------------------------------
+void ofxDmtrUI3::createFromLines(string lines) {
+	//cout << lines << endl;
+	createFromLines(ofSplitString(lines, "\n"));
+}
+
+
+//--------------------------------------------------------------
 void ofxDmtrUI3::createFromLines(vector<string> lines) {
 	for (auto & l : lines) {
 		if (buildingTemplate == "") {
@@ -353,7 +372,8 @@ void ofxDmtrUI3::createFromLines(vector<string> lines) {
 			}
 			
 		}
-	}}
+	}
+}
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::createFromLine(string l) {
@@ -414,37 +434,11 @@ void ofxDmtrUI3::createFromLine(string l) {
 			else if (tipo == "spacer") {
 				settings.flow.x += settings.sliderDimensions.y;
 			}
-
-			else if (tipo == "audioControls") {
-				string s =
-R"(slider2d	freq
-float	audioGanho	0.0 .5 0.25
-float	audioOffset	-1 0 -.2
-float	peakhold	0 20 2
-float	decay	0 .98 .85
-bool	invertAudio	0)";
-
-				for (auto & l : ofSplitString(s, "\n")) {
-					createFromLine(l);
-				}
+			
+			else if (tipo == "audioControls" || tipo == "audioBpmControls") {
+				createFromLine("template	" + l);
 			}
-
-			else if (tipo == "audioBpmControls") {
-				string s =
-R"(bool	audioOuBpm	0
-int	BPM	1 200 120
-radio	ondaBeats	1 2 4 8
-radio	onda	s w ww r
-slider2d	freq
-float	audioGanho	0 .5 0.25
-float	audioOffset	-1 0 -.2
-float	peakhold	0 20 2
-float	decay	0 .98 .85
-bool	invertAudio	0)";
-				for (auto & l : ofSplitString(s, "\n")) {
-					createFromLine(l);
-				}
-			}
+			
 		}
 		else {
 			string nome = cols[1];
@@ -526,14 +520,7 @@ bool	invertAudio	0)";
 			
 			else if (tipo == "radio") {
 				vector <string> opcoes = ofSplitString(valores, " ");
-				
-//				if (ofIsStringInString(nome, "_shortcut")) {
-//					radio r;
-//					r.showLabel = false;
-//					r.saveXml = false;
-//				}
-//				newElements.push_back(r);
-//				elements.push_back(&newElements.back());
+
 				elements.push_back(new radio(nome, settings, opcoes));
 				if (ofIsStringInString(nome, "_shortcut")) {
 					((radio*)elements.back())->showLabel = false;
@@ -546,6 +533,7 @@ bool	invertAudio	0)";
 			}
 
 			else if (tipo == "slider2d") {
+				//cout << l << endl;
 				elements.push_back(new slider2d(nome, settings));
 			}
 
@@ -574,8 +562,6 @@ bool	invertAudio	0)";
 			}
 
 
-
-
 			else if (tipo == "dirList" || tipo == "dirlist" || tipo == "dirListNoExt" || tipo == "scene") {
 				ofDirectory dir;
 				if (tipo == "scene") {
@@ -601,55 +587,10 @@ bool	invertAudio	0)";
 				elements.back()->isDir = true;
 			}
 			
-
-			else if (tipo == "colorLicht") {
-				createFromLine("bool	"+nome+"UsaPaleta	0");
-				createFromLine("slider2d	"+nome+"Paleta	.5 .5");
-				createFromLine("slider2d	"+nome+"Hsv	.5 .5");
-				createFromLine("fbo	"+nome+"PaletaAtual	200 10");
-				createFromLine("float	"+nome+"S	0 255 255");
-				createFromLine("float	"+nome+"HRange	0 720 100");
-				createFromLine("float	"+nome+"HRangeAudio	0 360 0");
-				//		createFromLine("float	"+nome+"BRange	0 255 0");
-				createFromLine("float	"+nome+"BRange	0 512 0");
-				createFromLine("float	"+nome+"BStop	0 1 1");
-				createFromLine("int	"+nome+"HStep	0 6 0");
-				createFromLine("float	"+nome+"Alpha	0 255 255");
-				createFromLine("float	"+nome+"AlphaAudio	0 255 0");
-				createFromLine("float	"+nome+"AlphaRange	0 255 0");
-
-				//colors.push_back(nome);
-				//lastHeight = 0;
-				//createFromLine("");
+			else if (tipo == "colorLicht" || tipo == "colorLichtSmall") {
+				// TEMPLATES
+				createFromLine("template	"+tipo+"	"+nome);
 			}
-
-			else if (tipo == "colorLichtSmall") {
-				createFromLine("_bool	"+nome+"UsaPaleta	0");
-				createFromLine("slider2d	"+nome+"Paleta	.5 .5");
-				createFromLine("_slider2d	"+nome+"Hsv	.5 .5");
-				createFromLine("fbo	"+nome+"PaletaAtual	200 10");
-				createFromLine("float	"+nome+"S	0 255 255");
-//				createFromLine("float	"+nome+"HRange	0 720 100");
-				createFromLine("float	"+nome+"HRange	0 320 100");
-				createFromLine("_float	"+nome+"HRangeAudio	0 360 0");
-				//		createFromLine("float	"+nome+"BRange	0 255 0");
-				createFromLine("_float	"+nome+"BRange	0 512 0");
-				createFromLine("_float	"+nome+"BStop	0 1 1");
-				createFromLine("_int	"+nome+"HStep	0 6 0");
-				createFromLine("_float	"+nome+"Alpha	0 255 255");
-				createFromLine("_float	"+nome+"AlphaAudio	0 255 0");
-				createFromLine("_float	"+nome+"AlphaRange	0 255 0");
-
-				//colors.push_back(nome);
-				//lastHeight = 0;
-				//createFromLine("");
-			}
-
-
-			// configurations
-			// todo : margin
-
-
 
 			else if (tipo == "beginTemplate") {
 				buildingTemplate = nome;
@@ -723,6 +664,7 @@ bool	invertAudio	0)";
 				}
 			}
 
+			// usado pro MECA. remover?
 			else if (tipo == "pantilts") {
 				for (int a=0; a<ofToInt(valores); a++) {
 					string n = ofToString(a);
@@ -748,9 +690,6 @@ bool	invertAudio	0)";
 			else if (tipo == "togglesListHoriz" || tipo == "togglesListNoLabel") {
 				vector <string> nomes = ofSplitString(nome, " ");
 				int lineBreak = 999;
-//				if (valores != "") {
-//					lineBreak = ofToInt(valores);
-//				}
 				
 				if (cols.size()>3) {
 					lineBreak = ofToInt(cols[3]);
@@ -823,6 +762,46 @@ void ofxDmtrUI3::onDraw(ofEventArgs &data) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::onUpdate(ofEventArgs &data) {
 	update();
+	
+//	if (software.autoScrolling && UINAME == "master") {
+//		scroll.dif.x = software.rect.width - ofGetWindowWidth();
+//		scroll.dif.y = software.rect.height - ofGetWindowHeight();
+//		
+//		if (scroll.dif.x > 0) {
+//			if (scroll.mouse.x > ofGetWindowWidth() *.9 && -software.offset.x < scroll.dif.x) {
+//				scroll.vel.x = ofMap(scroll.mouse.x, ofGetWindowWidth(), ofGetWindowWidth() *.9, -50, 0);
+//			}
+//			else if (scroll.mouse.x < ofGetWindowWidth() *.1 && -software.offset.x > 0) {
+//				scroll.vel.x = ofMap(scroll.mouse.x, 0, ofGetWindowWidth() *.1, 50, 0);
+//			}
+//			else {
+//				scroll.vel.x = 0;
+//			}
+//		}
+//		
+//		if (scroll.dif.y > 0) {
+//			if (scroll.mouse.y > ofGetWindowHeight() *.9 && -software.offset.y < scroll.dif.y) {
+//				scroll.vel.y = ofMap(scroll.mouse.y, ofGetWindowHeight(), ofGetWindowHeight() *.9, -50, 0);
+//			}
+//			else if (scroll.mouse.y < ofGetWindowHeight() *.1 && -software.offset.y > 0) {
+//				scroll.vel.y = ofMap(scroll.mouse.y, 0, ofGetWindowHeight() *.1, 50, 0);
+//			}
+//			else {
+//				scroll.vel.y = 0;
+//			}
+//		}
+//		
+//		if (-software.offset.x < scroll.dif.x || software.offset.x < 0) {
+//			software.offset.x += scroll.vel.x;
+//		}
+//		if (-software.offset.y < scroll.dif.y || software.offset.y < 0) {
+//			software.offset.y += scroll.vel.y;
+//		}
+//		
+//		software.offset.x = int(software.offset.x);
+//		software.offset.y = int(software.offset.y);
+//	}
+
 }
 
 //--------------------------------------------------------------
@@ -837,17 +816,17 @@ void ofxDmtrUI3::onKeyReleased(ofKeyEventArgs& data) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMouseMoved(ofMouseEventArgs& data) {
+//	if (software.autoScrolling && UINAME == "master") {
+//		scroll.mouse.x = data.x;
+//		scroll.mouse.y = data.y;
+//	}
+	
 	if (software.autoScrolling && UINAME == "master") {
 		int difX = software.rect.width - ofGetWindowWidth();
 		int difY = software.rect.height - ofGetWindowHeight();
-		
-		//ofPoint scroll = ofPoint(0,0);
 		int scrollX = difX > 0 ? - data.x * difX / ofGetWindowWidth() : 0;
 		int scrollY = difY > 0 ? - data.y * difY / ofGetWindowHeight() : 0;
-
 		software.offset = ofPoint(scrollX, scrollY);
-		
-		//cout << software.offset << endl;
 	}
 }
 
@@ -991,41 +970,8 @@ void ofxDmtrUI3::load(string xml) {
 		loadedXmlFile = xml;
 		int UIVersion = xmlSettings.getValue("ofxDmtrUIVersion", 0);
 		
-		if (UIVersion == 5) {
-			// not good
-//			for (int a=0; a<xmlSettings.getNumTags("element:string"); a++) {
-//				string name = xmlSettings.getAttribute("element:string", "name", "");
-//				string val = xmlSettings.getValue("element:string",  "");
-//			}
-//			
-//			for (auto & e : elements) {
-//				if (e->saveXml) {
-//					if (e->kind == TOGGLE || e->kind == RADIOITEM) {
-//						bool valor = xmlSettings.getValue("element:bool:" +e->name, e->getValBool());
-//						e->set(valor);
-//					}
-//					else if (e->kind == RADIO || e->kind == PRESETS) {
-//						string valor = xmlSettings.getValue("element:string:" +e->name, "");
-//						e->set(valor);
-//					}
-//					
-//					else if (e->kind == SLIDER2D) {
-//						float x = xmlSettings.getValue("element:point:" +e->name + ":x", 0.0);
-//						float y = xmlSettings.getValue("element:point:" +e->name + ":y", 0.0);
-//						e->set(ofPoint(x,y));
-//					}
-//					
-//					else if (e->kind == SLIDER) {
-//						string tipo = typeid(e->getVal()).name();
-//						
-//						float valor = xmlSettings.getValue("element:" + tipo + ":" + e->name, e->getVal());
-//						e->set(valor);
-//					}
-//				}
-//			}
-		}
-		
-		else if (UIVersion == 4) {
+
+		if (UIVersion == 4) {
 			for (auto & e : elements) {
 				if (e->saveXml) {
 					if (e->kind == TOGGLE || e->kind == RADIOITEM) {
@@ -1312,6 +1258,8 @@ void ofxDmtrUI3::autoFit() {
 		fboSettings.height = settings.rect.height;
 
 		fboUI.allocate(fboSettings);
+		fboUI.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+
 		settings.redraw = true;
 		settings.needsRedraw = true;
 
@@ -1452,6 +1400,9 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 			}
 			ofDirectory::createDirectory(software.presetsFolder);
 		}
+		
+		// da erro aqui se nao tiver um elemento chamado allPresets no master.
+		// contornar?
 		for (auto & e : ((mult*)getElement("allPresets"))->elements) {
 			e->updateImage();
 		}
