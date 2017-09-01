@@ -333,23 +333,6 @@ float	$Alpha	0 255 255
 float	$AlphaAudio	0 255 0
 float	$AlphaRange	0 255 0
 endTemplate
-#======
-beginTemplate	colorLichtSmall
-_bool	$UsaPaleta	0
-slider2d	$Paleta	.5 .5
-_slider2d	$Hsv	.5 .5
-fbo	$PaletaAtual	200 10
-float	$S	0 255 255
-float	$HRange	0 320 100
-_float	$HRangeAudio	0 360 0
-_float	$BRange	0 512 0
-_float	$BStop	0 1 1
-_int	$HStep	0 6 0
-_float	$Alpha	0 255 255
-_float	$AlphaAudio	0 255 0
-_float	$AlphaRange	0 255 0
-endTemplate
-#======
 #======)";
 
 

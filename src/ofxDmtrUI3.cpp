@@ -292,6 +292,7 @@ void ofxDmtrUI3::keyReleased(int key){
 //--------------------------------------------------------------
 void ofxDmtrUI3::notify(string e) {
 	uiEv ev = uiEv(e);
+	ev.uiname = UINAME;
 	ofNotifyEvent(settings.uiEvent, ev);
 }
 
@@ -587,7 +588,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 				elements.back()->isDir = true;
 			}
 			
-			else if (tipo == "colorLicht" || tipo == "colorLichtSmall") {
+			else if (tipo == "colorLicht") {
 				// TEMPLATES
 				createFromLine("template	"+tipo+"	"+nome);
 			}
