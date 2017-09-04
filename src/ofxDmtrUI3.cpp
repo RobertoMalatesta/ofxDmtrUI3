@@ -1461,34 +1461,34 @@ void ofxDmtrUI3::showUI(bool show) {
 	reFlowUis();
 }
 
-void ofxDmtrUI3::set(string e, bool v) {
+void ofxDmtrUI3::set(string el, bool v) {
 	for (auto & e : elements) {
-		if (e->name == "e" && e->kind == TOGGLE) {
+		if (e->name == el && e->kind == TOGGLE) {
 			e->set(v);
 		}
 	}
 };
 
-void ofxDmtrUI3::set(string e, string v) {
+void ofxDmtrUI3::set(string el, string v) {
 	for (auto & e : elements) {
-		if (e->name == "e" && e->kind == RADIO) {
+		if (e->name == el && e->kind == RADIO) {
 			e->set(v);
 		}
 	}
 
 };
 
-void ofxDmtrUI3::set(string e, float v) {
+void ofxDmtrUI3::set(string el, float v) {
 	for (auto & e : elements) {
-		if (e->name == "e" && e->kind == SLIDER) {
+		if (e->name == el && e->kind == SLIDER) {
 			e->set(v);
 		}
 	}
 };
 
-void ofxDmtrUI3::set(string e, int v) {
+void ofxDmtrUI3::set(string el, int v) {
 	for (auto & e : elements) {
-		if (e->name == "e" && e->kind == SLIDER) {
+		if (e->name == el && e->kind == SLIDER) {
 			e->set(float(v));
 		}
 	}

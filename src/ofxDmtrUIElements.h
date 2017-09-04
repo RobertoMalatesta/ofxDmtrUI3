@@ -104,7 +104,8 @@ public:
 	uiEv(string n) : name(n) { uiGlobal = true; }
 
 	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta) 				: name(n), uiname(u), kind(k), varType(t), tag(ta) {}
-	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, float ff)		: name(n), uiname(u), kind(k), varType(t), tag(ta), f(ff) {}
+	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, float ff)		: name(n), uiname(u), kind(k), varType(t), tag(ta), f(ff) {
+	}
 	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, int ii) 		: name(n), uiname(u), kind(k), varType(t), tag(ta), i(ii) {}
 	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, bool bb)		: name(n), uiname(u), kind(k), varType(t), tag(ta), b(bb) {}
 	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, ofPoint pp) 	: name(n), uiname(u), kind(k), varType(t), tag(ta), p(pp) {}

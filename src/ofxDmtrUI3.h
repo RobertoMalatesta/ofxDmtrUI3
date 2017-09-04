@@ -274,12 +274,10 @@ public:
 	
 	
 	void updateSoftwareRect() {
-		{
-			software.rect = ofRectangle(0,0,0,0);
-			software.rect = software.rect.getUnion(settings.rect);
-			for (auto & u : uis) {
-				software.rect = software.rect.getUnion(u.second.settings.rect);
-			}
+		software.rect = ofRectangle(0,0,0,0);
+		software.rect = software.rect.getUnion(settings.rect);
+		for (auto & u : uis) {
+			software.rect = software.rect.getUnion(u.second.settings.rect);
 		}
 	}
 	
