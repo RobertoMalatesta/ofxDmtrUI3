@@ -1438,39 +1438,6 @@ void ofxDmtrUI3::showUI(bool show) {
 	reFlowUis();
 }
 
-//void ofxDmtrUI3::set(string el, bool v) {
-//	for (auto & e : elements) {
-//		if (e->name == el && e->kind == TOGGLE) {
-//			e->set(v);
-//		}
-//	}
-//};
-//
-//void ofxDmtrUI3::set(string el, string v) {
-//	for (auto & e : elements) {
-//		if (e->name == el && e->kind == RADIO) {
-//			e->set(v);
-//		}
-//	}
-//
-//};
-//
-//void ofxDmtrUI3::set(string el, float v) {
-//	for (auto & e : elements) {
-//		if (e->name == el && e->kind == SLIDER) {
-//			e->set(v);
-//		}
-//	}
-//};
-//
-//void ofxDmtrUI3::set(string el, int v) {
-//	for (auto & e : elements) {
-//		if (e->name == el && e->kind == SLIDER) {
-//			e->set(float(v));
-//		}
-//	}
-//};
-
 
 void ofxDmtrUI3::set(string el, bool v) {
 	if (togglesLookup.find(el) != togglesLookup.end()) {
