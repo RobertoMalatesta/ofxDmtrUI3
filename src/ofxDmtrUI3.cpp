@@ -301,40 +301,20 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 	settings.uiname = UINAME;
 	vector <string> linhas;
 	
-	//06 agosto 2017 tentando UIREMOTE3
 	createdFromTextFile = "";
 
 	if (ofFile::doesFileExist("uiAll.txt")) {
-
-		// otimizar, carrega duas vezes cada arquivo.
-		//createdFromTextFile += ofBufferFromFile("uiAll.txt").getText() + "\r\r";
-
 		vector <string> linhas = textToVector("uiAll.txt");
-		for (auto & l : linhas) {
-			createFromLine(l);
-		}
+		createFromLines(linhas);
 	}
 
-
 	if (ofFile::doesFileExist(file)) {
-		
 		loadedTextFile = file;
 		
 		createdFromTextFile += ofBufferFromFile(file).getText() + "\r\r";
 		vector <string> linhas = textToVector(file);
-		for (auto & l : linhas) {
-			if (buildingTemplate == "") {
-				createFromLine(l);
-			} else {
-				if (ofIsStringInString(l, "endTemplate")) {
-					buildingTemplate = "";
-				} else {
-					templateUI[buildingTemplate].push_back(l);
-				}
 
-			}
-		}
-		
+		createFromLines(linhas);
 		notify("createFromText");
 
 	} else {
@@ -342,14 +322,12 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 	}
 	
 	if (keepSettings) {
-		//cout << "LOAD PRESET KEEPSETTINGS " + UINAME << endl;
-		
-		
 		// xaxa _presets?
 		string file = "_presets/" + UINAME + ".xml";
 		load(file);
 	}
 
+	updateLookup();
 	autoFit();
 }
 
@@ -371,7 +349,6 @@ void ofxDmtrUI3::createFromLines(vector<string> lines) {
 			} else {
 				templateUI[buildingTemplate].push_back(l);
 			}
-			
 		}
 	}
 }
@@ -1461,41 +1438,81 @@ void ofxDmtrUI3::showUI(bool show) {
 	reFlowUis();
 }
 
+//void ofxDmtrUI3::set(string el, bool v) {
+//	for (auto & e : elements) {
+//		if (e->name == el && e->kind == TOGGLE) {
+//			e->set(v);
+//		}
+//	}
+//};
+//
+//void ofxDmtrUI3::set(string el, string v) {
+//	for (auto & e : elements) {
+//		if (e->name == el && e->kind == RADIO) {
+//			e->set(v);
+//		}
+//	}
+//
+//};
+//
+//void ofxDmtrUI3::set(string el, float v) {
+//	for (auto & e : elements) {
+//		if (e->name == el && e->kind == SLIDER) {
+//			e->set(v);
+//		}
+//	}
+//};
+//
+//void ofxDmtrUI3::set(string el, int v) {
+//	for (auto & e : elements) {
+//		if (e->name == el && e->kind == SLIDER) {
+//			e->set(float(v));
+//		}
+//	}
+//};
+
+
 void ofxDmtrUI3::set(string el, bool v) {
-	for (auto & e : elements) {
-		if (e->name == el && e->kind == TOGGLE) {
-			e->set(v);
-		}
+	if (togglesLookup.find(el) != togglesLookup.end()) {
+		togglesLookup[el]->set(v);
 	}
 };
 
 void ofxDmtrUI3::set(string el, string v) {
-	for (auto & e : elements) {
-		if (e->name == el && e->kind == RADIO) {
-			e->set(v);
-		}
+	if (radiosLookup.find(el) != radiosLookup.end()) {
+		radiosLookup[el]->set(v);
 	}
-
 };
 
 void ofxDmtrUI3::set(string el, float v) {
-	for (auto & e : elements) {
-		if (e->name == el && e->kind == SLIDER) {
-			e->set(v);
-		}
+	if (slidersLookup.find(el) != slidersLookup.end()) {
+		slidersLookup[el]->set(v);
 	}
 };
 
 void ofxDmtrUI3::set(string el, int v) {
-	for (auto & e : elements) {
-		if (e->name == el && e->kind == SLIDER) {
-			e->set(float(v));
-		}
+	if (slidersLookup.find(el) != slidersLookup.end()) {
+		slidersLookup[el]->set(v);
 	}
 };
 
-void updateLookup() {
 
+void ofxDmtrUI3::updateLookup() {
+	slidersLookup.clear();
+	togglesLookup.clear();
+	radiosLookup.clear();
+	
+	for (auto & e : elements) {
+		if (e->kind == SLIDER) {
+			slidersLookup[e->name] = (slider*)e;
+		}
+		else if (e->kind == TOGGLE) {
+			togglesLookup[e->name] = (toggle*)e;
+		}
+		else if (e->kind == RADIO) {
+			radiosLookup[e->name] = (radio*)e;
+		}
+	}
 }
 
 //slider * ofxDmtrUI3::getSlider("") {}

@@ -245,6 +245,8 @@ public:
 
 	map <string, slider *> slidersLookup;
 	map <string, toggle *> togglesLookup;
+	map <string, radio  *> radiosLookup;
+	
 	void updateLookup();
 
 
