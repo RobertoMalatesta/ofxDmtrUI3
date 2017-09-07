@@ -296,6 +296,16 @@ void ofxDmtrUI3::notify(string e) {
 	ofNotifyEvent(settings.uiEvent, ev);
 }
 
+
+void ofxDmtrUI3::reload() {
+	if (loadedTextFile != "") {
+		
+		// keepvars not working. make new example
+		clear(true);
+		createFromText(loadedTextFile);
+	}
+}
+
 //--------------------------------------------------------------
 void ofxDmtrUI3::createFromText(string file, bool n) {
 	settings.uiname = UINAME;
@@ -434,6 +444,16 @@ void ofxDmtrUI3::createFromLine(string l) {
 				float min = ofToFloat(v[0]);
 				float max = ofToFloat(v[1]);
 				float val = ofToFloat(v[2]);
+				
+				if (tipo == "int") {
+					if (pInt.find(nome) != pInt.end() ) {
+						val = pInt[nome];
+					}
+				} else {
+					if (pFloat.find(nome) != pFloat.end() ) {
+						val = pFloat[nome];
+					}
+				}
 
 				// TODO - Slidervert
 				elements.push_back(new slider(nome, settings, min, max, val, tipo=="int"));
@@ -585,6 +605,11 @@ void ofxDmtrUI3::createFromLine(string l) {
 				vector<string> xy = ofSplitString(nome, " ");
 				settings.rect.x = ofToInt(xy[0]);
 				settings.rect.y = ofToInt(xy[1]);
+			}
+			
+			else if (tipo == "font") {
+				software.font.load(nome, ofToInt(valores));
+				software.customFont = true;
 			}
 			
 			// temporario
@@ -1483,3 +1508,26 @@ void ofxDmtrUI3::updateLookup() {
 }
 
 //slider * ofxDmtrUI3::getSlider("") {}
+
+
+
+
+void ofxDmtrUI3::allocateAndClearFbo(ofFbo &f) {
+	//f.allocate(
+	
+#ifdef DMTRUI_TARGET_TOUCH
+	int format = GL_RGBA; //GL_RGBA32F_ARB  //GL_RGBA32F
+#else
+	int format = GL_RGBA32F_ARB; //GL_RGBA32F_ARB  //GL_RGBA32F
+#endif
+	if (software.multiSampling == 0) {
+		f.allocate			(software.w, software.h, format);
+	} else {
+		f.allocate			(software.w, software.h, format, software.multiSampling);
+	}
+	
+	f.begin();
+	ofClear(0,255);
+	f.end();
+	
+}

@@ -61,6 +61,8 @@ public:
 
 	void save(string xml);
 	void load(string xml);
+	
+	void reload();
 
 	vector <string> textToVector(string file);
 	vector <element*> elements;
@@ -144,6 +146,10 @@ public:
 
 	string getPresetsPath(string ext="");
 	void clear(bool keepVars = false);
+	
+	
+	void allocateAndClearFbo(ofFbo &fbo);
+
 
 
 	//--------------------------------------------------------------

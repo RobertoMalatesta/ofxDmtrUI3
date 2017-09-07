@@ -463,9 +463,12 @@ public:
 				boundsRect.width = margem*2 + contaletras * 8;
 				rect.width = boundsRect.width;
 				activeRect = rect;
+				
+				
 				if (settings->software->customFont) {
 					ofRectangle r = settings->software->font.getStringBoundingBox(name, 0, 0);
-					boundsRect.width = rect.width = r.width;
+					int largura = r.width + margem * 2;
+					boundsRect.width = rect.width = largura;
 					activeRect = rect;
 				}
 			}
@@ -1260,7 +1263,12 @@ public:
 
 	void drawSpecific() {
 		ofSetColor(255);
-		ofDrawBitmapString(ofToString(ofGetFrameRate()), labelPos.x, labelPos.y);
+		if (settings->software->customFont) {
+			settings->software->font.drawString(ofToString(ofGetFrameRate()), labelPos.x, labelPos.y);
+		}
+		else {
+			ofDrawBitmapString(ofToString(ofGetFrameRate()), labelPos.x, labelPos.y);
+		}
 	}
 };
 
