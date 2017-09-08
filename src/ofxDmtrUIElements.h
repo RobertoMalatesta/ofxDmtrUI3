@@ -52,6 +52,8 @@ public:
 	int w = 1280;
 	int h = 720;
 	
+	ofPoint sliderDimensions = ofPoint(220, 20);
+
 	ofPoint offset = ofPoint(0,0);
 	soft() {}
 	
@@ -132,7 +134,7 @@ public:
 
 	int minimumWidth = 200;
 
-	ofPoint sliderDimensions = ofPoint(200, 20);
+	ofPoint sliderDimensions; // = ofPoint(200, 20);
 	ofPoint margin = ofPoint(10,10);
 	float opacity = 200;
 	ofPoint flow = margin;
@@ -146,6 +148,12 @@ public:
 	int nPresets = 21;
 	// ponteiro pro addUI geral.
 	soft * software = NULL;
+	
+	void setSoftware(soft & s) {
+		software = &s;
+		sliderDimensions = software->sliderDimensions;
+		//cout << sliderDimensions << endl;
+	}
 
 	void setSliderWidth(int w) {
 		sliderDimensions.x = w;

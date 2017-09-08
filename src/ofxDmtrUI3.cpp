@@ -40,7 +40,8 @@ void ofxDmtrUI3::setup() {
 	
 	
 	// REVER AQUI
-	settings.software = &software;
+	settings.setSoftware(software);
+	//settings.software = &software;
 	
 	
 	createFromLines(templatesString);
@@ -631,6 +632,20 @@ void ofxDmtrUI3::createFromLine(string l) {
 			else if (tipo == "sliderHeight") {
 				settings.sliderDimensions.y = ofToInt(nome);
 			}
+
+//			else if (tipo == "softwareSliderWidth") {
+//				cout << tipo << endl;
+//				settings.setSliderWidth(ofToInt(nome));
+//				software.sliderDimensions.x = ofToInt(nome);
+//				//settings.sliderDimensions.x = ofToInt(nome);
+//			}
+//			else if (tipo == "softwareSliderHeight") {
+//				cout << tipo << endl;
+//				settings.sliderDimensions.y = ofToInt(nome);
+//				software.sliderDimensions.y = ofToInt(nome);
+//			}
+
+			
 			else if (tipo == "sliderMargin") {
 				settings.spacing = ofToInt(nome);
 			}
