@@ -466,6 +466,22 @@ void ofxDmtrUI3::createFromLine(string l) {
 					}
 				}
 			}
+			
+			
+			if (tipo == "_float") {
+				vector<string> vals = ofSplitString(valores," ");
+				pFloat[nome] = stof(vals[2]);
+			}
+			
+			else if (tipo == "_int") {
+				vector<string> vals = ofSplitString(valores," ");
+				pInt[nome] = stof(vals[2]);
+			}
+			
+			else if (tipo == "_bool") {
+				pBool[nome] = stoi(valores);
+			}
+			
 
 			else if (tipo == "template") {
 				for (auto s : templateUI[nome]) {
@@ -530,10 +546,37 @@ void ofxDmtrUI3::createFromLine(string l) {
 					((radio*)elements.back())->set(cols[3]);
 				}
 			}
-
+			
 			else if (tipo == "slider2d") {
-				//cout << l << endl;
 				elements.push_back(new slider2d(nome, settings));
+			}
+
+			else if (tipo == "colorHsv") {
+				createFromLine("tag	color");
+				elements.push_back(new slider2d(nome, settings));
+				ofFbo * f = &mapFbos["fboColor"];
+				int sliderWidth = settings.sliderDimensions.x;
+				int sliderHeight = settings.sliderDimensions.y * 2 + settings.spacing;
+				f->allocate(sliderWidth, sliderHeight, GL_RGBA);
+				f->begin();
+				ofClear(0);
+				ofColor cor;
+				for (int b=0; b<sliderHeight; b++) {
+					for (int a=0; a<sliderWidth; a++) {
+						int este = b*sliderWidth + a;
+						float hue = (255 * a / (float) sliderWidth);
+						cor = ofColor::fromHsb(hue, 255, b*255/sliderHeight, 255);
+						ofFill();
+						ofSetColor(cor);
+						ofDrawRectangle(a,b,1,1);
+					}
+				}
+				f->end();
+				elements.back()->setFbo(*f);
+				
+				elements.push_back(new slider(nome + "_S", settings, 0, 255, 255, tipo=="int"));
+				
+				createFromLine("tag	");
 			}
 
 			else if (tipo == "color") {
@@ -1102,21 +1145,22 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 		}
 	}
 
-#ifdef DMTRUI_TARGET_TOUCH
-	int format = GL_RGBA; //GL_RGBA32F_ARB  //GL_RGBA32F
-#else
-	int format = GL_RGBA32F_ARB; //GL_RGBA32F_ARB  //GL_RGBA32F
-#endif
 	ofFbo * fbo = &mapFbos["fbo"];
-	if (software.multiSampling == 0) {
-		fbo->allocate			(software.w, software.h, format);
-	} else {
-		fbo->allocate			(software.w, software.h, format, software.multiSampling);
-	}
-
-	fbo->begin();
-	ofClear(0,255);
-	fbo->end();
+	allocateAndClearFbo(*fbo);
+//#ifdef DMTRUI_TARGET_TOUCH
+//	int format = GL_RGBA; //GL_RGBA32F_ARB  //GL_RGBA32F
+//#else
+//	int format = GL_RGBA32F_ARB; //GL_RGBA32F_ARB  //GL_RGBA32F
+//#endif
+//	if (software.multiSampling == 0) {
+//		fbo->allocate			(software.w, software.h, format);
+//	} else {
+//		fbo->allocate			(software.w, software.h, format, software.multiSampling);
+//	}
+//
+//	fbo->begin();
+//	ofClear(0,255);
+//	fbo->end();
 
 	setFbo(*fbo);
 
@@ -1397,6 +1441,23 @@ void ofxDmtrUI3::clear(bool keepVars) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::uiEvents(uiEv & e) {
+	
+	
+	if (e.tag == "color") {
+		string name;
+		if (e.kind == SLIDER2D) {
+			name = e.name;
+		} else if (e.kind == SLIDER) {
+			vector <string> nomes = ofSplitString(e.name, "_");
+			name = nomes[0];
+		}
+		ofPoint xy = pPoint[name];
+		float h = xy.x * 255.0;
+		float s = pFloat[name + "_S"];
+		float b = xy.y * 255.0;
+		pColor[name] = ofColor::fromHsb(h,s,b);
+		//cout << name << " :: " << pColor[name] << endl;
+	}
 
 	//&& e.tipo != LOAD
 	if (ofIsStringInString(e.name, "_shortcut") ) {
