@@ -464,6 +464,12 @@ void ofxDmtrUI3::createFromLine(string l) {
 						min = val = 0;
 						elements.push_back(new slider(nome + "Audio", settings, min, max, val, tipo=="int"));
 					}
+					if (cols[3] == "audioBeat") {
+						min = val = 0;
+						elements.push_back(new slider(nome + "Audio", settings, min, max, val, tipo=="int"));
+						elements.push_back(new slider(nome + "Beat", settings, min, max, val, tipo=="int"));
+					}
+
 				}
 			}
 			
@@ -501,6 +507,8 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 			else if (tipo == "radioitem") {
 				elements.push_back(new radioitem(nome, settings));
+				
+				elements.back()->varType = BOOLEAN;
 			}
 
 			else if (tipo == "toggle") {
@@ -640,6 +648,10 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 			else if (tipo == "tag") {
 				settings.tag = nome;
+			}
+			
+			else if (tipo == "uiTag") {
+				software.uiTag = nome;
 			}
 			
 			else if (tipo == "bw") {
@@ -1031,30 +1043,30 @@ void ofxDmtrUI3::load(string xml) {
 		loadedXmlFile = xml;
 		int UIVersion = xmlSettings.getValue("ofxDmtrUIVersion", 0);
 		
+		bool notifyEventOnLoad = true;
 
 		if (UIVersion == 4) {
 			for (auto & e : elements) {
 				if (e->saveXml) {
 					if (e->kind == TOGGLE || e->kind == RADIOITEM) {
 						bool valor = xmlSettings.getValue("element:bool:" +e->name, e->getValBool());
-						e->set(valor);
+						e->set(valor, notifyEventOnLoad);
 					}
 					else if (e->kind == RADIO || e->kind == PRESETS) {
 						string valor = xmlSettings.getValue("element:string:" +e->name, "");
-						e->set(valor);
+						e->set(valor, notifyEventOnLoad);
 					}
 
 					else if (e->kind == SLIDER2D) {
 						float x = xmlSettings.getValue("element:point:" +e->name + ":x", 0.0);
 						float y = xmlSettings.getValue("element:point:" +e->name + ":y", 0.0);
-						e->set(ofPoint(x,y));
+						e->set(ofPoint(x,y), notifyEventOnLoad);
 					}
 
 					else if (e->kind == SLIDER) {
 						string tipo = typeid(e->getVal()).name();
-
 						float valor = xmlSettings.getValue("element:" + tipo + ":" + e->name, e->getVal());
-						e->set(valor);
+						e->set(valor, notifyEventOnLoad);
 					}
 				}
 			}
@@ -1193,6 +1205,11 @@ void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 //	string
 	
 	uis[nome].UINAME = nome;
+	
+	
+	if (software.uiTag != "") {
+		uis[nome].uiTag = software.uiTag;
+	}
 
 	// todos no mesmo sofwtare que o master.
 
@@ -1518,12 +1535,18 @@ string ofxDmtrUI3::getFileFullPath(string n) {
 	return f;
 }
 
-void ofxDmtrUI3::showUI(bool show) {
+void ofxDmtrUI3::showUI(int show) {
 	showInterface = show;
-	if (show) {
+	if (show == 1) {
 		autoFit();
 	} else {
+		
 		settings.rect.width = 40;
+		
+		if (show == 2) {
+			settings.rect.width = 1;
+		}
+		
 		fboSettings.width = settings.rect.width;
 		fboSettings.height = settings.rect.height;
 

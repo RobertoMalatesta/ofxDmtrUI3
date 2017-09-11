@@ -64,6 +64,9 @@ public:
 	bool customFont = false;
 	ofTrueTypeFont font;
 	bool needsRedraw = false;
+	
+	//11 de setembro de 2017, RIR
+	string uiTag = "";
 };
 
 
@@ -94,9 +97,7 @@ public:
 	string s;
 	
 	bool isDir = false;
-	
 	bool uiGlobal = false;
-	
 	string tag;
 
 	// doens't work, element is declared afterwards
@@ -106,8 +107,7 @@ public:
 	uiEv(string n) : name(n) { uiGlobal = true; }
 
 	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta) 				: name(n), uiname(u), kind(k), varType(t), tag(ta) {}
-	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, float ff)		: name(n), uiname(u), kind(k), varType(t), tag(ta), f(ff) {
-	}
+	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, float ff)		: name(n), uiname(u), kind(k), varType(t), tag(ta), f(ff) {}
 	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, int ii) 		: name(n), uiname(u), kind(k), varType(t), tag(ta), i(ii) {}
 	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, bool bb)		: name(n), uiname(u), kind(k), varType(t), tag(ta), b(bb) {}
 	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, ofPoint pp) 	: name(n), uiname(u), kind(k), varType(t), tag(ta), p(pp) {}
@@ -117,6 +117,9 @@ public:
 
 struct uiConfig {
 public:
+	
+	
+	bool notifyEventWhenSetDoesntChange = true;
 
 	string uiname;
 	string tag;
@@ -438,8 +441,8 @@ public:
 
 		else if (kind == TOGGLE || kind == BANG) {
 			//labelPos.x = x + 25;
-			
-			labelPos.x = x + settings->sliderDimensions.y * 1.3;
+			int retanguloMaisOffset = settings->sliderDimensions.y * 1.3;
+			labelPos.x = x + retanguloMaisOffset;
 
 			float margem = settings->sliderDimensions.y/5;
 			activeRect = ofRectangle(
@@ -450,11 +453,19 @@ public:
 			if (!showLabel) {
 				boundsRect.width = boundsRect.height;
 			} else {
-				int contaletras = 0;
-				for(auto c: ofUTF8Iterator(name)){
-					contaletras++;
+
+				
+				if (settings->software->customFont) {
+					ofRectangle r = settings->software->font.getStringBoundingBox(name, 0, 0);
+					int largura = r.width + margem*2;
+					boundsRect.width = retanguloMaisOffset + largura;
+				} else {
+					int contaletras = 0;
+					for(auto c: ofUTF8Iterator(name)){
+						contaletras++;
+					}
+					boundsRect.width = retanguloMaisOffset + margem*2 + contaletras * 8;
 				}
-				boundsRect.width = boundsRect.height + margem*2 + contaletras * 8;
 			}
 		}
 
@@ -464,19 +475,21 @@ public:
 
 			if (kind != PRESET)
 			{
-				int contaletras = 0;
-				for(auto c: ofUTF8Iterator(name)){
-					contaletras++;
-				}
-				boundsRect.width = margem*2 + contaletras * 8;
-				rect.width = boundsRect.width;
-				activeRect = rect;
+
 				
-				
+				// CUSTOM FONT
 				if (settings->software->customFont) {
 					ofRectangle r = settings->software->font.getStringBoundingBox(name, 0, 0);
 					int largura = r.width + margem * 2;
 					boundsRect.width = rect.width = largura;
+					activeRect = rect;
+				} else {
+					int contaletras = 0;
+					for(auto c: ofUTF8Iterator(name)){
+						contaletras++;
+					}
+					boundsRect.width = margem*2 + contaletras * 8;
+					rect.width = boundsRect.width;
 					activeRect = rect;
 				}
 			}
@@ -697,7 +710,7 @@ public:
 
 	void set(ofPoint v, bool notifyEvent = true) {
 		val = v;
-		if (lastVal != val) {
+		if (lastVal != val || settings->notifyEventWhenSetDoesntChange) {
 			(*settings->pPoint)[name] = val;
 			lastVal = val;
 			needsRedraw();
@@ -762,7 +775,7 @@ public:
 	
 	void internalSet(float v, bool notifyEvent = true) {
 		val = v;
-		if (lastVal != val) {
+		if (lastVal != val || settings->notifyEventWhenSetDoesntChange) {
 			if (isInt) {
 				val = int(val);
 				(*settings->pInt)[name] = val;
@@ -777,6 +790,7 @@ public:
 				notify();
 			}
 		}
+
 	}
 	
 	void set(float v, bool notifyEvent = true) {
@@ -835,7 +849,7 @@ public:
 	}
 
 	void set(bool v, bool notifyEvent = true) {
-		if (val != v) {
+		if (val != v || settings->notifyEventWhenSetDoesntChange) {
 			val = v;
 			(*settings->pBool)[name] = val;
 			needsRedraw();
@@ -1024,9 +1038,9 @@ public:
 //	void getVal() {
 //		return (float)selectedIndex;
 //	}
+	
+	
 	// mult (radio and presets)
-
-
 	void set(string s, bool notifyEvent = true) {
 		int index = 0;
 		bool updated = false;

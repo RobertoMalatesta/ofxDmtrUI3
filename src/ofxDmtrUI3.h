@@ -239,7 +239,7 @@ public:
 	void createRadio(string name, vector<string> options, string sel = "");
 	string getFileFullPath(string n);
 
-	void showUI(bool show);
+	void showUI(int show);
 
 	bool showInterface = true;
 
@@ -342,4 +342,6 @@ endTemplate
 #======)";
 
 
+	
+	string uiTag = "";
 };
