@@ -344,4 +344,7 @@ endTemplate
 
 	
 	string uiTag = "";
+	bool loadSave = true;
+	bool loadPreset = true;
+	bool savePreset = true;
 };

@@ -34,6 +34,8 @@ http://dmtr.org/
 
 ofFbo::Settings fboSettings;
 
+
+
 //--------------------------------------------------------------
 void ofxDmtrUI3::setup() {
 
@@ -61,9 +63,8 @@ void ofxDmtrUI3::setup() {
 	settings.pString	 	= &pString;
 	settings.pPoint 		= &pPoint;
 
-	fboUI.allocate(fboSettings);
-
-	fboClear();
+//	fboUI.allocate(fboSettings);
+//	fboClear();
 
 	ofAddListener(ofEvents().draw, this, &ofxDmtrUI3::onDraw);
 	ofAddListener(ofEvents().update, this, &ofxDmtrUI3::onUpdate);
@@ -212,14 +213,14 @@ void ofxDmtrUI3::keyPressed(int key){
 			settings.software->visible ^= 1;
 		}
 		
-		if ((key == 'f' || key == 'F')) {
+		else if ((key == 'f' || key == 'F')) {
 			if (ofGetKeyPressed(OF_KEY_COMMAND)) {
 				ofToggleFullscreen();
 			}
 		}
 		
 		
-		if (key == 'a' || key == 'A') {
+		else if (key == 'a' || key == 'A') {
 			loadPresetAll(0, true);
 		}
 		else if (key == 's' || key == 'S') {
@@ -444,6 +445,10 @@ void ofxDmtrUI3::createFromLine(string l) {
 				vector <string> v = ofSplitString(valores, " ");
 				float min = ofToFloat(v[0]);
 				float max = ofToFloat(v[1]);
+				if (v.size() < 2) {
+					cout << "WILL ERROR :: " + l;
+				}
+				//cout << l << endl;
 				float val = ofToFloat(v[2]);
 				
 				if (tipo == "int") {
@@ -467,6 +472,11 @@ void ofxDmtrUI3::createFromLine(string l) {
 					if (cols[3] == "audioBeat") {
 						min = val = 0;
 						elements.push_back(new slider(nome + "Audio", settings, min, max, val, tipo=="int"));
+						elements.push_back(new slider(nome + "Beat", settings, min, max, val, tipo=="int"));
+					}
+					if (cols[3] == "beat") {
+						min = val = 0;
+//						elements.push_back(new slider(nome + "Audio", settings, min, max, val, tipo=="int"));
 						elements.push_back(new slider(nome + "Beat", settings, min, max, val, tipo=="int"));
 					}
 
@@ -687,7 +697,21 @@ void ofxDmtrUI3::createFromLine(string l) {
 			else if (tipo == "sliderHeight") {
 				settings.sliderDimensions.y = ofToInt(nome);
 			}
+			
+			else if (tipo == "keepSettings") {
+				keepSettings = ofToInt(nome);
+			}
+			else if (tipo == "loadSave") {
+				loadSave = ofToInt(nome);
+			}
+			else if (tipo == "savePreset") {
+				savePreset = ofToInt(nome);
+			}
+			else if (tipo == "loadPreset") {
+				loadPreset = ofToInt(nome);
+			}
 
+			
 //			else if (tipo == "softwareSliderWidth") {
 //				cout << tipo << endl;
 //				settings.setSliderWidth(ofToInt(nome));
@@ -746,13 +770,20 @@ void ofxDmtrUI3::createFromLine(string l) {
 				}
 			}
 
-			else if (tipo == "togglesList") {
+			else if (tipo == "togglesList" || tipo == "boolsList") {
 				vector <string> nomes = ofSplitString(nome, " ");
 				for (auto & n : nomes) {
 					createFromLine("bool	" + n + "	0");
 				}
 			}
 			
+			else if (tipo == "radioitemList") {
+				vector <string> nomes = ofSplitString(nome, " ");
+				for (auto & n : nomes) {
+					createFromLine("radioitem	" + n + "	0");
+				}
+			}
+
 			else if (tipo == "intsList" || tipo == "floatsList") {
 				vector <string> nomes = ofSplitString(nome, " ");
 				for (auto & n : nomes) {
@@ -760,7 +791,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 				}
 			}
 			
-			else if (tipo == "togglesListHoriz" || tipo == "togglesListNoLabel") {
+			else if (tipo == "togglesListHoriz" || tipo == "togglesListNoLabel" || tipo == "boolsListHoriz") {
 				vector <string> nomes = ofSplitString(nome, " ");
 				int lineBreak = 999;
 				
@@ -782,6 +813,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 					i++;
 				}
 				createFromLine("flowVert");
+				createFromLine("");
 			}
 
 			else if (tipo == "toggleMatrix" || tipo == "bangMatrix") {
@@ -1216,6 +1248,10 @@ void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 	uis[nome].settings.software = &software;
 
 	if (down) {
+
+		// nao funcionou direito
+//		uis[nome].settings.sliderDimensions = settings.sliderDimensions;
+		
 		autoFit();
 	}
 
@@ -1249,12 +1285,20 @@ void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 	
 	//cout << "addUI::" + nome + "\t\t" + fileName << endl;
 	
+	// ainda n. funciona
+	if (down) {
+		uis[nome].settings.sliderDimensions = settings.sliderDimensions;
+	}
+
+	
 	if (ofFile::doesFileExist(fileName)) {
 		if (valores == "keepSettings") {
 			uis[nome].keepSettings = true;
 		}
 		uis[nome].createFromText(fileName);
 	}
+	
+	
 
 	uis[nome]._uiFather = this;
 
@@ -1365,8 +1409,10 @@ string ofxDmtrUI3::getPresetsPath(string ext) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::savePresetAll(int n) {
 	for (auto & u : uis) {
-		string nome = getPresetsPath(ofToString(n) + u.first +  ".xml");
-		u.second.save(nome);
+		if (!u.second.keepSettings && (u.second.loadSave && u.second.savePreset)) {
+			string nome = getPresetsPath(ofToString(n) + u.first +  ".xml");
+			u.second.save(nome);
+		}
 	}
 	if (_fbo != NULL) {
 		ofFbo fboThumb;
@@ -1419,7 +1465,7 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 		else {
 			for (auto & u : uis) {
 				if (u.first != "master") {
-					if (!u.second.keepSettings) {
+					if (!u.second.keepSettings && (u.second.loadSave && u.second.loadPreset)) {
 						string nome = getPresetsPath(ofToString(n) + u.first + ".xml");
 						u.second.load(nome);
 					}
@@ -1607,8 +1653,6 @@ void ofxDmtrUI3::updateLookup() {
 }
 
 //slider * ofxDmtrUI3::getSlider("") {}
-
-
 
 
 void ofxDmtrUI3::allocateAndClearFbo(ofFbo &f) {
