@@ -30,12 +30,24 @@
 
 // naming conflicts? namespace?
 enum elementType {
-	SLIDER, LABEL, TOGGLE, BANG, RADIO, RADIOITEM, SLIDER2D, PRESET, PRESETS, COLOR, COLORITEM
+	SLIDER, LABEL, TOGGLE, BANG, RADIO, RADIOITEM, SLIDER2D, PRESET, PRESETS, COLOR, COLORITEM, IMAGE
 };
 
 // naming conflicts? namespace?
 enum dmtrUIVarType {
 	FLOAT, INT, STRING, BOOLEAN, POINT
+};
+
+
+
+struct customColor {
+	ofColor label;
+	ofColor slider;
+	ofColor activeSlider;
+	ofColor column;
+	
+	customColor() {}
+	customColor(ofColor l, ofColor s, ofColor a, ofColor c) : label(l), slider(s), activeSlider(a), column(c) {}
 };
 
 
@@ -63,10 +75,15 @@ public:
 	
 	bool customFont = false;
 	ofTrueTypeFont font;
+	
 	bool needsRedraw = false;
 	
 	//11 de setembro de 2017, RIR
 	string uiTag = "";
+	
+	
+	bool customColors = false;
+	customColor colors;
 };
 
 
@@ -125,9 +142,18 @@ public:
 	string tag;
 	
 	//	ofColor bgColor = ofColor(120, 220);
-	ofColor bgColor = ofColor(80, 200);
+	//ofColor bgColor = ofColor(80, 200);
+	
+	
+	ofColor bgColor = ofColor(80, 140);
+//	ofColor bgColor = ofColor(0, 140);
+	
+	
 	ofColor activeColor = ofColor(0,0,0,190);
-	ofColor bwElementColor = ofColor(150, 180); //127
+//	ofColor activeColor = ofColor(0,255);
+	
+	ofColor bwElementColor = ofColor(120, 220); //127
+//	ofColor bwElementColor = ofColor(90, 255); //127
 
 	//senao fazer pointer to function aqui...
 	//std::function<void(string,string)> updateUI = NULL;
@@ -216,10 +242,15 @@ public:
 //	}
 
 	ofColor getColor() {
-		color = ofColor::fromHsb(hue, 155, 210, 255);
+		color = ofColor::fromHsb(hue, 155, 210, 230);
 		if (bw) {
 			color = bwElementColor;
 		}
+		
+		if (software->customColors) {
+			color =  software->colors.slider;
+		}
+		
 		return color;
 	}
 
@@ -293,7 +324,7 @@ protected:
 public:
 	bool saveXml = true;
 	bool showLabel = true;
-	ofColor color = ofColor(255);
+	ofColor color;
 
 	bool alwaysRedraw = false;
 	dmtrUIVarType varType;
@@ -375,6 +406,13 @@ public:
 	}
 
 	void getProperties() {
+		
+		if (settings->software->customColors) {
+			labelColor = settings->software->colors.label;
+			color = settings->software->colors.slider;
+		}
+		
+		
 		tag = settings->tag;
 		
 		int x = settings->flow.x;
@@ -417,7 +455,7 @@ public:
 			color = ofColor(0,255);
 		}
 
-		if (kind == SLIDER2D) {
+		else if (kind == SLIDER2D) {
 			boundsRect.height = settings->sliderDimensions.y * 2 + settings->getSpacing();
 			rect.height = boundsRect.height;
 			activeRect.width = 0;
@@ -436,7 +474,6 @@ public:
 
 		else if (kind == SLIDER) {
 			varType = FLOAT;
-			//labelColor = ofColor(0);
 		}
 
 		else if (kind == TOGGLE || kind == BANG) {
@@ -469,7 +506,7 @@ public:
 			}
 		}
 
-		else if (kind == RADIOITEM || kind == COLORITEM || kind == PRESET) {
+		if (kind == RADIOITEM || kind == COLORITEM || kind == PRESET) {
 			float margem = 4;
 			labelPos.x = x + margem;
 
@@ -504,7 +541,11 @@ public:
 				// 20525524_10154923017472183_4837044839922028887_n.jpg
 
 				getProperties();
+				//cout << "ugly stuff :: " + name << endl;
 			} else {
+				//cout << "updateflow :: " + name << endl;
+				//cout << name << endl;
+				
 				updateFlow();
 			}
 
@@ -1252,16 +1293,17 @@ public:
 		settings = &u;
 		name = n;
 
-
 		getProperties();
 
 		vector <string> items;
 		for (auto a=0; a< settings->nPresets; a++) {
 			items.push_back(ofToString(a));
+			//cout << a << endl;
 		}
 
 		startChildren();
 		for (auto & i : items) {
+			//cout << settings->flow << endl;
 			elements.push_back(new preset(i, u));
 			elements.back()->_parent = this;
 			boundsRect.growToInclude(elements.back()->boundsRect.getBottomRight());
@@ -1296,6 +1338,7 @@ public:
 
 
 
+
 // fazer derivado do mult tb, colorizar quadros assim posso usar eles tb pra moving heads por ex.
 class color : public mult {
 public:
@@ -1320,5 +1363,33 @@ public:
 			e->_parent = this;
 			boundsRect.growToInclude(e->boundsRect.getBottomRight());
 		}
+	}
+};
+
+
+
+class image : public element {
+public:
+	ofImage img;
+	
+	void drawSpecific() {
+		if (img.isAllocated()) {
+			ofSetColor(255);
+			img.draw(rect.x, rect.y);
+		}
+	}
+	
+	image(string i, uiConfig & u) {
+		kind = IMAGE;
+		settings = &u;
+		getProperties();
+		saveXml = false;
+		img.load(i);
+		boundsRect.width = img.getWidth();
+		boundsRect.height = img.getHeight();
+		rect.height = boundsRect.height;
+		rect.width = boundsRect.height;
+		activeRect.width = 0;
+		activeRect.height = 0;
 	}
 };

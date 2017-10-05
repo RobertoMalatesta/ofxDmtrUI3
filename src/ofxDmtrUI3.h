@@ -247,11 +247,12 @@ public:
 	void set(string e, int i);
 	void set(string e, float f);
 	void set(string e, string s);
-
+	void set(string e, ofPoint p);
 
 	map <string, slider *> slidersLookup;
 	map <string, toggle *> togglesLookup;
 	map <string, radio  *> radiosLookup;
+	map <string, slider2d *> sliders2dLookup;
 	
 	void updateLookup();
 
@@ -347,4 +348,10 @@ endTemplate
 	bool loadSave = true;
 	bool loadPreset = true;
 	bool savePreset = true;
+	
+	
+	bool visible = true;
+
+	// somente serve pro midi controller, pro push and hold
+	int lastPreset = -1;
 };

@@ -120,9 +120,18 @@ void ofxDmtrUI3::update() {
 	if (futureCommands.size()) {
 		for (auto & f : futureCommands) {
 			if (f.action == "loadAllPresets") {
-				loadPresetAll(f.valInt);
+				loadPresetAll(f.valInt, true);
 			}
-			if (f.action == "setFromIndex") {
+			else if (f.action == "loadPresetHold") {
+				lastPreset = ((presets*)getElement("allPresets"))->selectedId;
+				loadPresetAll(f.valInt, true);
+			}
+			else if (f.action == "loadPresetRelease") {
+				if (lastPreset>-1) {
+					loadPresetAll(lastPreset, true);
+				}
+			}
+			else if (f.action == "setFromIndex") {
 				((radio*)getElement(f.name))->setFromIndex(f.valInt);
 			}
 		}
@@ -179,7 +188,7 @@ void ofxDmtrUI3::draw() {
 		settings.redraw = false;
 	}
 
-	if (settings.software->visible) {
+	if (settings.software->visible && visible) {
 		ofPushStyle();
 //		ofSetColor(255, settings.opacity);
 		ofSetColor(255, settings.software->opacity);
@@ -213,11 +222,6 @@ void ofxDmtrUI3::keyPressed(int key){
 			settings.software->visible ^= 1;
 		}
 		
-		else if ((key == 'f' || key == 'F')) {
-			if (ofGetKeyPressed(OF_KEY_COMMAND)) {
-				ofToggleFullscreen();
-			}
-		}
 		
 		
 		else if (key == 'a' || key == 'A') {
@@ -236,7 +240,13 @@ void ofxDmtrUI3::keyPressed(int key){
 			loadPresetAll(2, true);
 		}
 		else if (key == 'f' || key == 'F') {
-			loadPresetAll(3, true);
+			if (ofGetKeyPressed(OF_KEY_COMMAND)) {
+				ofToggleFullscreen();
+			}
+			else {
+
+				loadPresetAll(3, true);
+			}
 		}
 		else if (key == 'g' || key == 'G') {
 			loadPresetAll(4, true);
@@ -650,6 +660,12 @@ void ofxDmtrUI3::createFromLine(string l) {
 			else if (tipo == "colorLicht") {
 				// TEMPLATES
 				createFromLine("template	"+tipo+"	"+nome);
+			}
+			
+			else if (tipo == "image") {
+				if (ofFile::doesFileExist(nome)) {
+					elements.push_back(new image(nome, settings));
+				}
 			}
 
 			else if (tipo == "beginTemplate") {
@@ -1179,7 +1195,7 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 
 	createFromText(file);
 
-	if (ofFile::doesFileExist("output.txt")) {
+	if (ofFile::doesFileExist("output.txt") && software.w < 1) {
 		vector <string> output = textToVector("output.txt");
 		vector <string> dimensoes = ofSplitString(output[0], " ");
 		software.w = ofToInt(dimensoes[0]);
@@ -1295,6 +1311,11 @@ void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 		if (valores == "keepSettings") {
 			uis[nome].keepSettings = true;
 		}
+		else if (valores == "disableLoadSave") {
+			uis[nome].savePreset = false;
+			uis[nome].loadPreset = false;
+		}
+		
 		uis[nome].createFromText(fileName);
 	}
 	
@@ -1344,13 +1365,27 @@ void ofxDmtrUI3::downTo(ofxDmtrUI3 & u) {
 //--------------------------------------------------------------
 // software - recursive repositioning until the last UI
 void ofxDmtrUI3::reFlowUis() {
+	
+	
+	// check only if I am visible
+	int nextHeight = visible ? settings.rect.height + settings.margin.y : 0;
+	int nextWidth = visible ? settings.rect.width + settings.margin.x : 0;
+	
 	if (_uiUnder != NULL) {
-		_uiUnder->settings.rect.x = settings.rect.x;
-		_uiUnder->settings.rect.y = settings.rect.y + settings.rect.height + settings.margin.y;
+		//if (_uiUnder->visible)
+		{
+			_uiUnder->settings.rect.x = settings.rect.x;
+			_uiUnder->settings.rect.y = settings.rect.y + nextHeight;
+		}
 		_uiUnder->reFlowUis();
 	}
 	if (_uiRight != NULL) {
-		_uiRight->settings.rect.x = settings.rect.x + settings.rect.width + settings.margin.x;
+		//if (_uiRight->visible)
+		{
+//			int largura = MAX(settings.rect.width, settings.minimumWidth);
+//			_uiRight->settings.rect.x = settings.rect.x + largura + settings.margin.x;
+			_uiRight->settings.rect.x = settings.rect.x + nextWidth;
+		}
 		_uiRight->reFlowUis();
 	}
 	
@@ -1577,11 +1612,19 @@ void ofxDmtrUI3::createRadio(string name, vector<string> options, string sel) {
 }
 
 string ofxDmtrUI3::getFileFullPath(string n) {
-	string f = getRadio(n)->getFullFileName();
-	return f;
+	
+	//string f = getRadio(n)->getFullFileName();
+	
+	
+	return ((radio*)getElement(n))->getFullFileName();
 }
 
 void ofxDmtrUI3::showUI(int show) {
+	
+	// novidade
+	visible = show == 1;
+	
+	
 	showInterface = show;
 	if (show == 1) {
 		autoFit();
@@ -1633,21 +1676,30 @@ void ofxDmtrUI3::set(string el, int v) {
 	}
 };
 
+void ofxDmtrUI3::set(string el, ofPoint p) {
+	if (sliders2dLookup.find(el) != sliders2dLookup.end()) {
+		sliders2dLookup[el]->set(p);
+	}
+};
 
 void ofxDmtrUI3::updateLookup() {
-	slidersLookup.clear();
 	togglesLookup.clear();
 	radiosLookup.clear();
+	slidersLookup.clear();
+	sliders2dLookup.clear();
 	
 	for (auto & e : elements) {
-		if (e->kind == SLIDER) {
-			slidersLookup[e->name] = (slider*)e;
-		}
-		else if (e->kind == TOGGLE) {
+		if (e->kind == TOGGLE) {
 			togglesLookup[e->name] = (toggle*)e;
 		}
 		else if (e->kind == RADIO) {
 			radiosLookup[e->name] = (radio*)e;
+		}
+		else if (e->kind == SLIDER) {
+			slidersLookup[e->name] = (slider*)e;
+		}
+		else if (e->kind == SLIDER2D) {
+			sliders2dLookup[e->name] = (slider2d*)e;
 		}
 	}
 }
