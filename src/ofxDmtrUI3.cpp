@@ -1091,7 +1091,6 @@ void ofxDmtrUI3::load(string xml) {
 		loadedXmlFile = xml;
 		int UIVersion = xmlSettings.getValue("ofxDmtrUIVersion", 0);
 		
-		bool notifyEventOnLoad = true;
 
 		if (UIVersion == 4) {
 			for (auto & e : elements) {
@@ -1203,7 +1202,12 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 		if (dimensoes.size() > 2) { 
 			software.multiSampling = ofToInt(dimensoes[2]);
 		}
+		//cout << "dentro" << endl;
+	} else {
+		//cout << "fora" << endl;
 	}
+//	cout << software.w << endl;
+//	cout << software.h << endl;
 
 	ofFbo * fbo = &mapFbos["fbo"];
 	allocateAndClearFbo(*fbo);

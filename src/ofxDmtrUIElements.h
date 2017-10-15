@@ -61,8 +61,8 @@ public:
 	string presetsFolder = "_presets/";
 	int presetLoaded = -1;
 	int multiSampling = 0;
-	int w = 1280;
-	int h = 720;
+	int w = 0;
+	int h = 0;
 	
 	ofPoint sliderDimensions = ofPoint(220, 20);
 
@@ -145,7 +145,8 @@ public:
 	//ofColor bgColor = ofColor(80, 200);
 	
 	
-	ofColor bgColor = ofColor(80, 140);
+	//ofColor bgColor = ofColor(80, 140);
+	ofColor bgColor = ofColor(80, 220);
 //	ofColor bgColor = ofColor(0, 140);
 	
 	
@@ -220,6 +221,7 @@ public:
 	map <string, bool>		* pBool;
 	map <string, string> 	* pString;
 	map <string, ofPoint>	* pPoint;
+	map <string, ofColor>	* pColor;
 
 	float hueStart = 60;
 	float hue;
@@ -990,6 +992,7 @@ public:
 
 class coloritem : public booleano {
 public:
+	
 	coloritem (string n, uiConfig & u) {
 		kind = COLORITEM;
 		settings = &u;
@@ -1095,6 +1098,10 @@ public:
 					updated = true;
 					valString = e->name;
 					(*settings->pString)[name] = valString;
+					
+					if (e->kind == COLOR) {
+						(*settings->pColor)[name] = e->color;
+					}
 
 					e->set(true);
 					needsRedraw();

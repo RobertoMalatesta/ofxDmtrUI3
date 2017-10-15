@@ -311,6 +311,8 @@ float	audioOffset	-1 0 -.2
 float	peakhold	0 20 2
 float	decay	0 .98 .85
 bool	invertAudio	0
+_float	envelopeMin	0 1 0
+_float	envelopeMax	0 1 1
 endTemplate
 #======
 beginTemplate	audioControls
@@ -354,4 +356,8 @@ endTemplate
 
 	// somente serve pro midi controller, pro push and hold
 	int lastPreset = -1;
+	
+	
+	bool notifyEventOnLoad = true;
+
 };
