@@ -1093,6 +1093,7 @@ void ofxDmtrUI3::load(string xml) {
 		
 
 		if (UIVersion == 4) {
+
 			for (auto & e : elements) {
 				if (e->saveXml) {
 					if (e->kind == TOGGLE || e->kind == RADIOITEM) {
@@ -1502,6 +1503,8 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 			}
 		}
 		else {
+			software.eventOnClick = false;
+
 			for (auto & u : uis) {
 				if (u.first != "master") {
 					if (!u.second.keepSettings && (u.second.loadSave && u.second.loadPreset)) {
@@ -1512,6 +1515,8 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 					//u.second.notify("loadPreset");
 				}
 			}
+			software.eventOnClick = true;
+
 		}
 	}
 
@@ -1720,6 +1725,7 @@ void ofxDmtrUI3::allocateAndClearFbo(ofFbo &f) {
 	int format = GL_RGBA32F_ARB; //GL_RGBA32F_ARB  //GL_RGBA32F
 #endif
 	if (software.multiSampling == 0) {
+		cout << "allocate without multisampling" << endl;
 		f.allocate			(software.w, software.h, format);
 	} else {
 		f.allocate			(software.w, software.h, format, software.multiSampling);

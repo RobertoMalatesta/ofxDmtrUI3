@@ -55,6 +55,10 @@ struct customColor {
 
 struct soft {
 public:
+
+// 16 oct 2017, areia
+	bool eventOnClick = true;
+
 	bool visible = true;
 	float opacity = 180;
 	ofPoint presetDimensions = ofPoint(72,48);
@@ -115,6 +119,7 @@ public:
 	
 	bool isDir = false;
 	bool uiGlobal = false;
+	bool onClick = true;
 	string tag;
 
 	// doens't work, element is declared afterwards
@@ -321,9 +326,9 @@ protected:
 	ofColor labelColor = ofColor(255);
 	//ofColor activeRectColor = ofColor(0, 90);
 	ofPoint labelPos;
-	uiConfig * settings = NULL;
 
 public:
+	uiConfig * settings = NULL;
 	bool saveXml = true;
 	bool showLabel = true;
 	ofColor color;
@@ -377,23 +382,27 @@ public:
 		if (varType == STRING) {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, getValString());
 			e.isDir = isDir;
+			e.onClick = settings->software->eventOnClick;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == BOOLEAN) {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, getValBool());
+			e.onClick = settings->software->eventOnClick;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == INT) {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, (int)getVal());
-
+			e.onClick = settings->software->eventOnClick;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == POINT) {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, getValPoint());
+			e.onClick = settings->software->eventOnClick;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == FLOAT)  {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, getVal());
+			e.onClick = settings->software->eventOnClick;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 	}
@@ -775,12 +784,12 @@ public:
 		if (_fbo != NULL) {
 //			_fbo->draw(rect.x + settings->rect.x , rect.y + settings->rect.y);
 			_fbo->draw(rect.x, rect.y);
+		} else {
+			float x = rect.x + val.x * rect.width;
+			float y = rect.y + val.y * rect.height;
+			ofDrawLine(x, rect.y, x, rect.y + rect.height);
+			ofDrawLine(rect.x, y, rect.x + rect.width, y);
 		}
-		//ofSetColor(0);
-		float x = rect.x + val.x * rect.width;
-		float y = rect.y + val.y * rect.height;
-		ofDrawLine(x, rect.y, x, rect.y + rect.height);
-		ofDrawLine(rect.x, y, rect.x + rect.width, y);
 	}
 
 	void setValFromMouse(int x, int y) {

@@ -6,14 +6,10 @@ void ofApp::setup(){
 
 	// ALL Elements definitions are loaded from this file:
 	u.createSoftwareFromText("u.txt");
-	u.setFbo(u.mapFbos["fbo"]);
-
 	for (auto & ui : u.allUIs) {
 		ofAddListener(ui->settings.uiEvent,this, &ofApp::uiEvents);
 	}
 
-	ofSetVerticalSync(false);
-	//ofSetFrameRate(60);
 	ofSetCircleResolution(120);
 	ofEnableAlphaBlending();
 }
