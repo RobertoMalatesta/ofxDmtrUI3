@@ -236,6 +236,9 @@ public:
 	//float flowxbak = -100;
 
 
+	bool obeyColumn = true;
+
+
 	void updateColor() {
 		hue = int(hue + hueStep)%255;
 
@@ -289,7 +292,7 @@ public:
 		if (flowVert) {
 			flow.y += r.height + getSpacing();
 		} else {
-			if ((flow.x + r.width) > (colx + sliderDimensions.x)) {
+			if ((flow.x + r.width) > (colx + sliderDimensions.x) && obeyColumn) {
 				flow.x = colx;
 				flow.y += r.height + getSpacing();
 			} else {
@@ -314,6 +317,8 @@ public:
 		flowVert = f;
 		if (f) {
 			flow.x = colx;
+
+			// consertar aqui pra isVert
 		}
 	}
 };
@@ -328,6 +333,7 @@ protected:
 	ofPoint labelPos;
 
 public:
+	bool isVert = false;
 	uiConfig * settings = NULL;
 	bool saveXml = true;
 	bool showLabel = true;
@@ -433,8 +439,7 @@ public:
 		if (kind != LABEL) {
 			rect.x = x;
 			rect.y = y;
-			rect.width =
-			(kind == TOGGLE || kind == BANG) ? settings->sliderDimensions.y : settings->sliderDimensions.x;
+			rect.width = (kind == TOGGLE || kind == BANG) ? settings->sliderDimensions.y : settings->sliderDimensions.x;
 			rect.height = settings->sliderDimensions.y;
 			activeRect.x = x;
 			activeRect.y = y;
@@ -447,6 +452,16 @@ public:
 		boundsRect.y = y;
 		boundsRect.width = settings->sliderDimensions.x;
 		boundsRect.height = settings->sliderDimensions.y;
+		
+		if (isVert) {
+			rect.width = 		settings->sliderDimensions.y;
+			rect.height = 		settings->sliderDimensions.x;
+			activeRect.width = 	settings->sliderDimensions.y;
+			activeRect.height = settings->sliderDimensions.x;
+			boundsRect.width = 	settings->sliderDimensions.y;
+			boundsRect.height = settings->sliderDimensions.x;
+			showLabel = false;
+		}
 
 		// generic
 		labelPos.x = x + 5;
@@ -807,6 +822,7 @@ public:
 class slider : public element {
 private:
 	bool isInt;
+	
 public:
 	float min = 0;
 	float max = 1;
@@ -815,8 +831,9 @@ public:
 	// temporary, just to fire set event on initialization
 	float lastVal = -12349871234;
 
-	slider(string n, uiConfig & u, float mi, float ma, float v, bool i=false) : min(mi), max(ma), isInt(i) {
+	slider(string n, uiConfig & u, float mi, float ma, float v, bool i=false, bool vert=false) : min(mi), max(ma), isInt(i) {
 		settings = &u;
+		isVert = vert;
 		name = n;
 		getProperties();
 		set(v);
@@ -834,7 +851,13 @@ public:
 			} else {
 				(*settings->pFloat)[name] = val;
 			}
-			activeRect.width = rect.width * ((val-min) / (max-min));
+			if (isVert) {
+				float yy = ofMap(val, max, min, rect.y, rect.y + rect.height);
+				activeRect.height = rect.height - (yy - rect.y);
+				activeRect.y = yy;
+			} else {
+				activeRect.width = rect.width * ((val-min) / (max-min));
+			}
 			lastVal = val;
 			needsRedraw();
 			label = " " + ofToString(val);
@@ -863,17 +886,35 @@ public:
 	}
 
 	void setValFromMouse(int x, int y) {
-		int xx = ofClamp(x, rect.x, rect.x + rect.width);
-		//this one is not needed, repeat on function set
-		activeRect.width = xx - rect.x;
-		if (isInt) {
-			int valInt = min + ((max+1)-min)*(float(xx-rect.x)/(float)rect.width);
-			valInt = ofClamp(valInt, min, max);
-			set(valInt);
+		int xx;
+		if (isVert) {
+			xx = ofClamp(y, rect.y, rect.y + rect.height);
+			activeRect.height = rect.height - (xx - rect.y);
+			activeRect.y = xx;
+			if (isInt) {
+				int valInt = min + ((max+1)-min)*(float(xx-rect.y)/(float)rect.height);
+				valInt = ofClamp(valInt, min, max);
+				set(valInt);
+			} else {
+				float valFloat = ofMap(xx, rect.y, rect.y+rect.height, max, min);
+				//float valFloat = min + (max-min)*(float(xx-rect.y)/(float)rect.height);
+				set(valFloat);
+			}
 		} else {
-			float valFloat = min + (max-min)*(float(xx-rect.x)/(float)rect.width);
-			set(valFloat);
+			xx = ofClamp(x, rect.x, rect.x + rect.width);
+			//this one is not needed, repeat on function set
+			activeRect.width = xx - rect.x;
+			
+			if (isInt) {
+				int valInt = min + ((max+1)-min)*(float(xx-rect.x)/(float)rect.width);
+				valInt = ofClamp(valInt, min, max);
+				set(valInt);
+			} else {
+				float valFloat = min + (max-min)*(float(xx-rect.x)/(float)rect.width);
+				set(valFloat);
+			}
 		}
+
 	}
 };
 

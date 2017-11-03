@@ -426,6 +426,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 				settings.flowBak.x = settings.flow.x;
 			}
 
+
 			else if (tipo == "restoreX") {
 				settings.flow.x = settings.flowBak.x;
 			}
@@ -472,8 +473,12 @@ void ofxDmtrUI3::createFromLine(string l) {
 				}
 
 				// TODO - Slidervert
-				elements.push_back(new slider(nome, settings, min, max, val, tipo=="int"));
+				
+				bool isVert = tipo == "sliderVert";
+				
+				elements.push_back(new slider(nome, settings, min, max, val, tipo=="int", isVert));
 
+				
 				if (cols.size() == 4) {
 					if (cols[3] == "audio") {
 						min = val = 0;
@@ -678,6 +683,11 @@ void ofxDmtrUI3::createFromLine(string l) {
 			
 			else if (tipo == "uiTag") {
 				software.uiTag = nome;
+			}
+
+
+			else if (tipo == "obeyColumn") {
+				settings.obeyColumn = ofToInt(nome);
 			}
 			
 			else if (tipo == "bw") {
