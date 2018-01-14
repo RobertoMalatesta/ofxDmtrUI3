@@ -130,7 +130,6 @@ public:
 
 	// remover no futuro
 	//int minimumWidth = 100;
-	bool keepSettings = false;
 
 	void addUI(string nome, bool down = false, string valores = "");
 	void nextTo(ofxDmtrUI3 & uiNext);
@@ -168,6 +167,7 @@ public:
 
 	//--------------------------------------------------------------
 	radio * getRadio(string n) {
+		// TODO -> usar lookup aqui.
 		bool result = false;
 		for (auto & e : elements) {
 			if (e->name == n && e->kind == RADIO) {
@@ -347,9 +347,18 @@ endTemplate
 
 	
 	string uiTag = "";
-	bool loadSave = true;
-	bool loadPreset = true;
-	bool savePreset = true;
+	
+	loadSaveType loadMode = PRESETSFOLDER;
+	loadSaveType saveMode = PRESETSFOLDER;
+	
+//	loadMode = MASTER;
+//	saveMode = MASTER;
+	
+//	bool loadSave = true;
+//	bool loadPreset = true;
+//	bool savePreset = true;
+//	bool keepSettings = false;
+
 	
 	
 	bool visible = true;
@@ -360,5 +369,7 @@ endTemplate
 	
 	bool notifyEventOnLoad = true;
 
+	// so tem parametro pq to usando o invokeBool
+	void saveMaster(bool save=true);
 
 };

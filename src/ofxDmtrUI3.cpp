@@ -343,8 +343,9 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 		cout << "ofxDmtrUI3 createFromText ::: File not found " + file << endl;
 	}
 	
-	if (keepSettings) {
-		// xaxa _presets?
+	//if (loadPreset) {
+	//saveMode = MASTER;
+	if (loadMode == MASTER) {
 		string file = "_presets/" + UINAME + ".xml";
 		load(file);
 	}
@@ -552,6 +553,18 @@ void ofxDmtrUI3::createFromLine(string l) {
 				using namespace std::placeholders;
 				elements.back()->invokeBool = std::bind(&ofxDmtrUI3::showUI, this, _1);
 			}
+			
+			else if (tipo == "saveMaster") {
+				//bool val = valores == "1";
+				if (nome == "") {
+					elements.push_back(new bang(nome, settings));
+				} else {
+					elements.push_back(new bang(nome, settings));
+				}
+				elements.back()->saveXml = false;
+				using namespace std::placeholders;
+				elements.back()->invokeBool = std::bind(&ofxDmtrUI3::saveMaster, this, _1);
+			}
 
 			else if (tipo == "bang") {
 				elements.push_back(new bang(nome, settings));
@@ -725,17 +738,21 @@ void ofxDmtrUI3::createFromLine(string l) {
 			}
 			
 			else if (tipo == "keepSettings") {
-				keepSettings = ofToInt(nome);
+				//keepSettings = ofToInt(nome);
+				loadMode = MASTER;
+				saveMode = MASTER;
 			}
-			else if (tipo == "loadSave") {
-				loadSave = ofToInt(nome);
-			}
-			else if (tipo == "savePreset") {
-				savePreset = ofToInt(nome);
-			}
-			else if (tipo == "loadPreset") {
-				loadPreset = ofToInt(nome);
-			}
+			
+			// XAXA REVISAR TUDO
+//			else if (tipo == "loadSave") {
+//				loadSave = ofToInt(nome);
+//			}
+//			else if (tipo == "savePreset") {
+//				savePreset = ofToInt(nome);
+//			}
+//			else if (tipo == "loadPreset") {
+//				loadPreset = ofToInt(nome);
+//			}
 
 			
 //			else if (tipo == "softwareSliderWidth") {
@@ -768,7 +785,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 			else if (tipo == "ints" || tipo == "floats" || tipo == "bools" || tipo == "bangs" ||
 					 tipo == "holds" || tipo == "colors" || tipo == "slider2ds" ||
-					 tipo == "boolsNoLabel") {
+					 tipo == "boolsNoLabel" || tipo == "sliderVerts") {
 				vector <string> nomes = ofSplitString(nome, "[");
 				string n = nomes[0];
 				string intervalo = ofSplitString(nomes[1], "]")[0];
@@ -1012,9 +1029,13 @@ void ofxDmtrUI3::onMouseReleased(ofMouseEventArgs& data) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onExit(ofEventArgs &data) {
-	if (keepSettings) {
-		string file = "_presets/" + UINAME + ".xml";
-		save("_presets/" + UINAME + ".xml");
+	//if (keepSettings) {
+	//if (savePreset) {
+	
+	
+	// revisar esta parte
+	if (saveMode == MASTER) {
+		saveMaster();
 	}
 }
 
@@ -1201,7 +1222,13 @@ auto ofxDmtrUI3::getVal(string n) {
 void ofxDmtrUI3::createSoftwareFromText(string file) {
 	settings.software = &software;
 	UINAME = "master";
-	keepSettings = true;
+	
+	loadMode = MASTER;
+	saveMode = MASTER;
+//	keepSettings = true;
+//	savePreset = true;
+//	loadPreset = true;
+	
 
 	createFromText(file);
 
@@ -1241,9 +1268,6 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 
 	allUIs.push_back(this);
 
-	if (keepSettings) {
-	//	loadMaster();
-	}
 }
 
 //--------------------------------------------------------------
@@ -1324,11 +1348,22 @@ void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 	
 	if (ofFile::doesFileExist(fileName)) {
 		if (valores == "keepSettings") {
-			uis[nome].keepSettings = true;
+			//uis[nome].keepSettings = true;
+//			uis[nome].savePreset = true;
+//			uis[nome].loadPreset = true;
+			uis[nome].loadMode = MASTER;
+			uis[nome].saveMode = MASTER;
+			//	saveMode = MASTER;
 		}
 		else if (valores == "disableLoadSave") {
-			uis[nome].savePreset = false;
-			uis[nome].loadPreset = false;
+//			uis[nome].savePreset = false;
+//			uis[nome].loadPreset = false;
+			uis[nome].loadMode = NONE;
+			uis[nome].saveMode = NONE;
+		}
+		else if (valores == "loadOnly") {
+			uis[nome].loadMode = MASTER;
+			uis[nome].saveMode = NONE;
 		}
 		
 		uis[nome].createFromText(fileName);
@@ -1459,7 +1494,9 @@ string ofxDmtrUI3::getPresetsPath(string ext) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::savePresetAll(int n) {
 	for (auto & u : uis) {
-		if (!u.second.keepSettings && (u.second.loadSave && u.second.savePreset)) {
+		// aqui salva em preset
+		if (u.second.saveMode == PRESETSFOLDER) {
+			//if (!u.second.keepSettings && (u.second.loadSave && u.second.savePreset)) {
 			string nome = getPresetsPath(ofToString(n) + u.first +  ".xml");
 			u.second.save(nome);
 		}
@@ -1516,8 +1553,11 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 			software.eventOnClick = false;
 
 			for (auto & u : uis) {
-				if (u.first != "master") {
-					if (!u.second.keepSettings && (u.second.loadSave && u.second.loadPreset)) {
+				// xaxa limpar
+				//if (u.first != "master")
+				{
+					if (u.second.loadMode == PRESETSFOLDER) {
+					//if (!u.second.keepSettings && (u.second.loadSave && u.second.loadPreset)) {
 						string nome = getPresetsPath(ofToString(n) + u.first + ".xml");
 						u.second.load(nome);
 					}
@@ -1526,11 +1566,8 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 				}
 			}
 			software.eventOnClick = true;
-
 		}
 	}
-
-
 }
 
 
@@ -1735,7 +1772,7 @@ void ofxDmtrUI3::allocateAndClearFbo(ofFbo &f) {
 	int format = GL_RGBA32F_ARB; //GL_RGBA32F_ARB  //GL_RGBA32F
 #endif
 	if (software.multiSampling == 0) {
-		cout << "allocate without multisampling" << endl;
+		//cout << "allocate without multisampling" << endl;
 		f.allocate			(software.w, software.h, format);
 	} else {
 		f.allocate			(software.w, software.h, format, software.multiSampling);
@@ -1745,4 +1782,11 @@ void ofxDmtrUI3::allocateAndClearFbo(ofFbo &f) {
 	ofClear(0,255);
 	f.end();
 	
+}
+
+void ofxDmtrUI3::saveMaster(bool s) {
+	cout << "saveMaster :: " + UINAME << endl;
+	//ofSystemAlertDialog("saveMaster");
+	string file = "_presets/" + UINAME + ".xml";
+	save("_presets/" + UINAME + ".xml");
 }

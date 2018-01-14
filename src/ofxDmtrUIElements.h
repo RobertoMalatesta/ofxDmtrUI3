@@ -38,6 +38,12 @@ enum dmtrUIVarType {
 	FLOAT, INT, STRING, BOOLEAN, POINT
 };
 
+// teste ainda podemos remover. 18 de novembro de 2017
+enum loadSaveType {
+	NONE, PRESETSFOLDER, MASTER
+};
+
+
 
 
 struct customColor {
@@ -662,7 +668,7 @@ public:
 
 	virtual float getVal() { cout << "never to be used getval float :: " + name << endl; } //return 1;
 	virtual bool getValBool() { cout << "never to be used getvalbool :: " + name << endl; }
-	virtual string getValString() { cout << "never to be used getvalstring :: " + name << endl; }
+	virtual string getValString() { cout << "never to be used getValString :: " + name << endl; }
 	virtual ofPoint getValPoint() { cout << "never to be used getvalpoint:: " + name << endl; }
 
 	virtual void draw() {
@@ -798,6 +804,9 @@ public:
 		ofSetColor(255);
 		if (_fbo != NULL) {
 //			_fbo->draw(rect.x + settings->rect.x , rect.y + settings->rect.y);
+			
+//			cout << "drawing fbo " + name << endl;
+//			cout << rect << endl;
 			_fbo->draw(rect.x, rect.y);
 		} else {
 			float x = rect.x + val.x * rect.width;
@@ -950,14 +959,20 @@ public:
 				if (kind == BANG) {
 					if (val) {
 						notify();
+						if (invokeBool != NULL) {
+							invokeBool(val);
+						}
 					}
 				} else {
 					notify();
+					if (invokeBool != NULL) {
+						invokeBool(val);
+					}
 				}
 			}
-			if (invokeBool != NULL) {
-				invokeBool(val);
-			}
+//			if (invokeBool != NULL) {
+//				invokeBool(val);
+//			}
 		}
 	}
 
