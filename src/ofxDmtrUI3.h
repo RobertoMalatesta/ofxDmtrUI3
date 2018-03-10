@@ -102,6 +102,10 @@ public:
 	map <string,ofPoint>		pPoint;
 	map <string,ofColor>		pColor;
 
+	// novidade teste 10 de março de 2018
+	map <string,ofImage>		pImage;
+
+	
 	void reFlow();
 	void fboClear();
 
@@ -166,6 +170,18 @@ public:
 	}
 
 	//--------------------------------------------------------------
+	// not working yet. check pointer or something pointer
+	slider * getSlider(string n) {
+		if ( slidersLookup.find("f") != slidersLookup.end() ) {
+			cout << "returning found element" << endl;
+			return slidersLookup[n];
+		} else {
+			cout << "returning  element not found !!!" << endl;
+			return NULL;
+		}
+	}
+	
+	//--------------------------------------------------------------
 	radio * getRadio(string n) {
 		// TODO -> usar lookup aqui.
 		bool result = false;
@@ -194,6 +210,14 @@ public:
 		} else {
 			//"uis key not found";
 		}
+	}
+	
+	void loadImageList(string name, string file) {
+		cout << "loadImagelist function" << endl;
+		cout << name << endl;
+		cout << file << endl;
+		cout << "-------" << endl;
+		pImage[name].load(file);
 	}
 
 	float easing = 5.0;
@@ -372,4 +396,6 @@ endTemplate
 	// so tem parametro pq to usando o invokeBool
 	void saveMaster(bool save=true);
 
+	
+	string fixedLabel = "";
 };

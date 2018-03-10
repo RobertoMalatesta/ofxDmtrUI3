@@ -311,7 +311,6 @@ void ofxDmtrUI3::notify(string e) {
 
 void ofxDmtrUI3::reload() {
 	if (loadedTextFile != "") {
-		
 		// keepvars not working. make new example
 		clear(true);
 		createFromText(loadedTextFile);
@@ -327,6 +326,10 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 
 	if (ofFile::doesFileExist("uiAll.txt")) {
 		vector <string> linhas = textToVector("uiAll.txt");
+		
+		if (fixedLabel != "") {
+			linhas.insert(linhas.begin(), "labelmain	" + fixedLabel);
+		}
 		createFromLines(linhas);
 	}
 
@@ -530,6 +533,11 @@ void ofxDmtrUI3::createFromLine(string l) {
 			else if (tipo == "label") {
 				elements.push_back(new label(nome, settings));
 			}
+			
+			else if (tipo == "labelmain") {
+				elements.push_back(new label(nome, settings));
+				((label*) elements.back())->labelColor = ofColor(255,0,160);
+			}
 
 			else if (tipo == "radioitem") {
 				elements.push_back(new radioitem(nome, settings));
@@ -593,6 +601,20 @@ void ofxDmtrUI3::createFromLine(string l) {
 				}
 			}
 			
+			else if (tipo == "radioPipe") {
+				vector <string> opcoes = ofSplitString(valores, "|");
+				
+				elements.push_back(new radio(nome, settings, opcoes));
+				if (ofIsStringInString(nome, "_shortcut")) {
+					((radio*)elements.back())->showLabel = false;
+					((radio*)elements.back())->saveXml = false;
+				}
+				
+				if (cols.size() == 4) {
+					((radio*)elements.back())->set(cols[3]);
+				}
+			}
+			
 			else if (tipo == "slider2d") {
 				elements.push_back(new slider2d(nome, settings));
 			}
@@ -650,7 +672,8 @@ void ofxDmtrUI3::createFromLine(string l) {
 			}
 
 
-			else if (tipo == "dirList" || tipo == "dirlist" || tipo == "dirListNoExt" || tipo == "scene") {
+			else if (tipo == "dirList" || tipo == "dirlist" || tipo == "dirListNoExt" || tipo == "scene" || tipo == "imageList"
+					 ) {
 				ofDirectory dir;
 				if (tipo == "scene") {
 					dir.allowExt("txt");
@@ -667,13 +690,26 @@ void ofxDmtrUI3::createFromLine(string l) {
 				elements.push_back(new radio(nome, settings, opcoes));
 				if (tipo == "scene") {
 					using namespace std::placeholders;
-					elements.back()->changeUI = std::bind(
-					&ofxDmtrUI3::changeUI, this, _1, _2);
+					((radio*)elements.back())->changeUI =
+					std::bind(&ofxDmtrUI3::changeUI, this, _1, _2);
+				}
+				
+				if (tipo == "imageList") {
+					
+					cout << "imageList function bind" << endl;
+					using namespace std::placeholders;
+					((radio*)elements.back())->loadImageList =
+					std::bind(&ofxDmtrUI3::loadImageList, this, _1, _2);
+					//void loadImageList(string name, string file) {
+					// xaxaxa
 				}
 				// BEAUTIFUL
 				((radio*)elements.back())->setFolder(valores);
-				elements.back()->isDir = true;
+				((radio*)elements.back())->isDir = true;
+				//elements.back()->isDir = true;
 			}
+
+			
 			
 			else if (tipo == "colorLicht") {
 				// TEMPLATES
@@ -731,7 +767,6 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 			else if (tipo == "sliderWidth") {
 				settings.setSliderWidth(ofToInt(nome));
-				//settings.sliderDimensions.x = ofToInt(nome);
 			}
 			else if (tipo == "sliderHeight") {
 				settings.sliderDimensions.y = ofToInt(nome);
@@ -1717,6 +1752,7 @@ void ofxDmtrUI3::set(string el, bool v) {
 void ofxDmtrUI3::set(string el, string v) {
 	if (radiosLookup.find(el) != radiosLookup.end()) {
 		radiosLookup[el]->set(v);
+		//cout << ("radio set " + el + " to value : " + v) << endl;;
 	}
 };
 
@@ -1780,13 +1816,13 @@ void ofxDmtrUI3::allocateAndClearFbo(ofFbo &f) {
 	
 	f.begin();
 	ofClear(0,255);
-	f.end();
-	
+	f.end();	
 }
 
 void ofxDmtrUI3::saveMaster(bool s) {
 	cout << "saveMaster :: " + UINAME << endl;
 	//ofSystemAlertDialog("saveMaster");
 	string file = "_presets/" + UINAME + ".xml";
+	cout << file << endl;
 	save("_presets/" + UINAME + ".xml");
 }

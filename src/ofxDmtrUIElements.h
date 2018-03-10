@@ -74,6 +74,7 @@ public:
 	int w = 0;
 	int h = 0;
 	
+	// porque isso ta aqui no software?
 	ofPoint sliderDimensions = ofPoint(220, 20);
 
 	ofPoint offset = ofPoint(0,0);
@@ -191,12 +192,14 @@ public:
 	soft * software = NULL;
 	
 	void setSoftware(soft & s) {
+		//cout << "setSoftware " << endl;
 		software = &s;
 		sliderDimensions = software->sliderDimensions;
 		//cout << sliderDimensions << endl;
 	}
 
 	void setSliderWidth(int w) {
+		cout << "setSliderWidth " << w <<  " uiname:" << uiname << endl;
 		sliderDimensions.x = w;
 		minimumWidth = MAX(minimumWidth, sliderDimensions.x);
 	}
@@ -334,11 +337,11 @@ public:
 
 class element {
 protected:
-	ofColor labelColor = ofColor(255);
 	//ofColor activeRectColor = ofColor(0, 90);
 	ofPoint labelPos;
 
 public:
+	ofColor labelColor = ofColor(255);
 	bool isVert = false;
 	uiConfig * settings = NULL;
 	bool saveXml = true;
@@ -348,9 +351,6 @@ public:
 	bool alwaysRedraw = false;
 	dmtrUIVarType varType;
 
-	// pode ser temporario
-	bool isDir = false;
-	std::function<void(string, string)> changeUI = NULL;
 	std::function<void(bool)> invokeBool = NULL;
 	// invokeFloat, invokeInt, invokeString
 
@@ -384,6 +384,8 @@ public:
 	// 19 june 2017
 	bool firstClicked = false;
 
+	// pode ser temporario
+	bool isDir = false;
 
 	void notify() {
 		// fires any kind of void on any change
@@ -625,8 +627,7 @@ public:
 			
 			//decidir se remover o labelcolor totalmente
 			ofSetColor(labelColor);
-			
-			ofSetColor(255);
+			//ofSetColor(255);
 			settings->software->font.drawString(n, labelPos.x , labelPos.y - 3);
 			
 		} else {
@@ -1092,6 +1093,9 @@ public:
 class mult : public element {
 public:
 
+
+
+	
 	vector <element*> elements;
 
 	vector <string> items;
@@ -1102,7 +1106,11 @@ public:
 	ofPoint flowBak;
 	string folder;
 
+	std::function<void(string, string)> changeUI = NULL;
+	std::function<void(string, string)> loadImageList = NULL;
 
+	
+	
 	void startChildren() {
 		flowBak = settings->flow;
 		if (showLabel) {
@@ -1179,6 +1187,11 @@ public:
 						string uiname = "ui" + name;
 						changeUI(uiname, f);
 					}
+					
+					if (loadImageList != NULL) {
+						string f = folder + "/" + valString;
+						loadImageList(name, f);
+					}
 
 					// invoke pointer to functions (string and id)
 				}
@@ -1254,6 +1267,10 @@ public:
 	// teste 12 agosto 2017
 	//radio () = default;
 	//radio ();
+	
+	// teste 8 de marco de 2018 // babel
+	bool isImage = false;
+	
 	radio (string n, uiConfig & u, vector <string> its) {
 		kind = RADIO;
 		varType = STRING;
