@@ -695,8 +695,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 				}
 				
 				if (tipo == "imageList") {
-					
-					cout << "imageList function bind" << endl;
+					//cout << "imageList function bind" << endl;
 					using namespace std::placeholders;
 					((radio*)elements.back())->loadImageList =
 					std::bind(&ofxDmtrUI3::loadImageList, this, _1, _2);
@@ -724,6 +723,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 			else if (tipo == "beginTemplate") {
 				buildingTemplate = nome;
+				templateUI[buildingTemplate].clear();
 			}
 
 			else if (tipo == "tag") {

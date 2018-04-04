@@ -199,7 +199,7 @@ public:
 	}
 
 	void setSliderWidth(int w) {
-		cout << "setSliderWidth " << w <<  " uiname:" << uiname << endl;
+		//cout << "setSliderWidth " << w <<  " uiname:" << uiname << endl;
 		sliderDimensions.x = w;
 		minimumWidth = MAX(minimumWidth, sliderDimensions.x);
 	}

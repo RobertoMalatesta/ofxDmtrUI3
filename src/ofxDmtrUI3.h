@@ -213,10 +213,10 @@ public:
 	}
 	
 	void loadImageList(string name, string file) {
-		cout << "loadImagelist function" << endl;
-		cout << name << endl;
-		cout << file << endl;
-		cout << "-------" << endl;
+//		cout << "loadImagelist function" << endl;
+//		cout << name << endl;
+//		cout << file << endl;
+//		cout << "-------" << endl;
 		pImage[name].load(file);
 	}
 
