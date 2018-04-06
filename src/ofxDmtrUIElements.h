@@ -773,12 +773,10 @@ public:
 	: min(mi), max(ma) {
 		kind = SLIDER2D;
 		varType = POINT;
-
 		settings = &u;
 		name = n;
 		getProperties();
 		set(v);
-
 		showLabel = false;
 	}
 
@@ -825,8 +823,46 @@ public:
 		ofPoint val = min + (max-min)*(xy/wh);
 		set(val);
 	}
-
 };
+
+
+class plotter : public slider2d {
+public:
+	vector <float> vars;
+
+	plotter(string n, uiConfig & u) : slider2d(n, u) {
+		alwaysRedraw = true;
+	}
+	
+	void update(float v) {
+		vars.push_back(v);
+		if (vars.size() > rect.width) {
+			vars.erase(vars.begin());
+		}
+	}
+	
+	void drawSpecific() {
+		//ofClear(0,255);
+		ofSetColor(0,255);
+		ofDrawRectangle(rect);
+		ofSetColor(255);
+		ofNoFill();
+		
+//		glBegin(GL_POINTS);
+		ofBeginShape();
+		int x=0;
+		for (auto & v : vars) {
+			float y = rect.height - v*rect.height;
+//			glVertex2f(rect.x + x,  rect.y + y);
+			ofVertex(rect.x + x,  rect.y + y);
+			x++;
+		}
+		ofEndShape();
+//		glEnd();
+	}
+};
+
+
 
 
 class slider : public element {

@@ -530,7 +530,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 				}
 			}
 
-			else if (tipo == "label") {
+			else if (tipo == "label" || tipo == "largelabel") {
 				elements.push_back(new label(nome, settings));
 			}
 			
@@ -617,6 +617,10 @@ void ofxDmtrUI3::createFromLine(string l) {
 			
 			else if (tipo == "slider2d") {
 				elements.push_back(new slider2d(nome, settings));
+			}
+			
+			else if (tipo == "plotter") {
+				elements.push_back(new plotter(nome, settings));
 			}
 
 			else if (tipo == "colorHsv") {
