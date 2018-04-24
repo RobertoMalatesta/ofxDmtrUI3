@@ -1,6 +1,6 @@
 /**********************************************************************************
 
- Copyright (C) 2017 Dimitre Lima (www.dmtr.org)
+ Copyright (C) 2018 Dimitre Lima (www.dmtr.org)
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of
  this software and associated documentation files (the "Software"), to deal in
@@ -811,6 +811,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 				settings.spacing = ofToInt(nome);
 			}
 			else if (tipo == "nPresets") {
+				cout << tipo << endl;
 				settings.nPresets = ofToInt(nome);
 			}
 			else if (tipo == "margin") {
@@ -1216,6 +1217,7 @@ void ofxDmtrUI3::load(string xml) {
 			}
 		}
 		notify("load");
+
 		// XAXA Notify
 	}
 }
@@ -1605,6 +1607,9 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 				}
 			}
 			software.eventOnClick = true;
+			notify("loadPresetAll");
+
+			// xaxa event here
 		}
 	}
 }
