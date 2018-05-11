@@ -79,6 +79,9 @@ void ofxDmtrUI3::setup() {
 	ofAddListener(ofEvents().windowResized, this, &ofxDmtrUI3::onWindowResized);
 
 	ofAddListener(settings.uiEvent,this, &ofxDmtrUI3::uiEvents);
+	
+	
+
 }
 // END SETUP
 
@@ -108,6 +111,11 @@ ofxDmtrUI3::~ofxDmtrUI3() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::update() {
+	
+	for (auto & f : updateFunctions) {
+		f();
+	}
+	
 	for (auto & p : pFloat) {
 		if (easing > 0) {
 			pEasy[p.first] += (pFloat[p.first] - pEasy[p.first])/easing;
@@ -1088,28 +1096,68 @@ void ofxDmtrUI3::onWindowResized(ofResizeEventArgs &data) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::save(string xml) {
+	int version = 4;
 	ofxXmlSettings xmlSettings;
-	xmlSettings.setValue("ofxDmtrUIVersion", 4.0);
-	for (auto & e : elements) {
-		if (e->saveXml) {
-			if (e->kind == TOGGLE || e->kind == RADIOITEM) {
-				xmlSettings.setValue("element:bool:" + e->name, (bool)e->getVal());
-			}
-			else if (e->kind == RADIO || e->kind == PRESETS) {
-				xmlSettings.setValue("element:string:" + e->name, (string)e->getValString());
-			}
-			else if (e->kind == SLIDER2D) {
-				xmlSettings.setValue("element:point:" + e->name + ":x", e->getValPoint().x);
-				xmlSettings.setValue("element:point:" + e->name + ":y", e->getValPoint().y);
-			}
+	if (version == 4) {
+		xmlSettings.setValue("ofxDmtrUIVersion", 4.0);
+		for (auto & e : elements) {
+			if (e->saveXml) {
+				if (e->kind == TOGGLE || e->kind == RADIOITEM) {
+					xmlSettings.setValue("element:bool:" + e->name, (bool)e->getVal());
+				}
+				else if (e->kind == RADIO || e->kind == PRESETS) {
+					xmlSettings.setValue("element:string:" + e->name, (string)e->getValString());
+				}
+				else if (e->kind == SLIDER2D) {
+					xmlSettings.setValue("element:point:" + e->name + ":x", e->getValPoint().x);
+					xmlSettings.setValue("element:point:" + e->name + ":y", e->getValPoint().y);
+				}
 
-			else if (e->kind != LABEL) {
-				string tipo = typeid(e->getVal()).name();
-				xmlSettings.setValue("element:" + tipo + ":" + e->name, e->getVal());
+				else if (e->kind != LABEL) {
+					string tipo = typeid(e->getVal()).name();
+					xmlSettings.setValue("element:" + tipo + ":" + e->name, e->getVal());
+				}
 			}
 		}
 	}
+	else if (version == 5) {
+		xmlSettings.setValue("ofxDmtrUIVersion", 5.0);
+		for (auto & e : elements) {
+			if (e->saveXml) {
+				string tipo = typeid(e->getVal()).name();
+				cout << tipo << endl;
+				cout << "----" << endl;
+				
+				xmlSettings.setValue("element:"+tipo, e->getVal());
+				xmlSettings.addAttribute("element:"+tipo, "name", e->name, 0);
 
+//				if (e->kind == TOGGLE || e->kind == RADIOITEM) {
+//					xmlSettings.setValue("element:bool:" , (bool)e->getVal());
+//					xmlSettings.addAttribute("element:bool", "name", e->name, 0);
+//					xmlSettings.addAttribute("element:bool", "kind", tipo, 0);
+//				}
+//				else if (e->kind == RADIO || e->kind == PRESETS) {
+//					xmlSettings.setValue("element:string:" , (string)e->getValString());
+//					xmlSettings.addAttribute("element:string", "name", e->name, 0);
+//					xmlSettings.addAttribute("element:string", "kind", tipo, 0);
+//				}
+//				else if (e->kind == SLIDER2D) {
+//					xmlSettings.setValue("element:point:x", e->getValPoint().x);
+//					xmlSettings.addAttribute("element:point:x", "name", e->name, 0);
+//					xmlSettings.setValue("element:point:y", e->getValPoint().y);
+//					xmlSettings.addAttribute("element:point:y", "name", e->name, 0);
+//					xmlSettings.addAttribute("element:point:x", "kind", tipo, 0);
+//				}
+//
+//				else if (e->kind != LABEL) {
+//					string tipo = typeid(e->getVal()).name();
+//					xmlSettings.setValue("element:" + tipo, e->getVal());
+//					xmlSettings.addAttribute("element:" + tipo, "name", e->name, 0);
+//					xmlSettings.addAttribute("element:" + tipo, "kind", tipo, 0);
+//				}
+			}
+		}
+	}
 	xmlSettings.save(xml);
 }
 
@@ -1117,40 +1165,6 @@ void ofxDmtrUI3::save(string xml) {
 
 //--------------------------------------------------------------
 //void ofxDmtrUI3::save(string xml) {
-//	ofxXmlSettings xmlSettings;
-//	xmlSettings.setValue("ofxDmtrUIVersion", 5.0);
-//	for (auto & e : elements) {
-//		if (e->saveXml) {
-//			string tipo = typeid(e->getVal()).name();
-//			
-//			if (e->kind == TOGGLE || e->kind == RADIOITEM) {
-//				xmlSettings.setValue("element:bool:" , (bool)e->getVal());
-//				xmlSettings.addAttribute("element:bool", "name", e->name, 0);
-//				xmlSettings.addAttribute("element:bool", "kind", tipo, 0);
-//			}
-//			else if (e->kind == RADIO || e->kind == PRESETS) {
-//				xmlSettings.setValue("element:string:" , (string)e->getValString());
-//				xmlSettings.addAttribute("element:string", "name", e->name, 0);
-//				xmlSettings.addAttribute("element:string", "kind", tipo, 0);
-//			}
-//			else if (e->kind == SLIDER2D) {
-//				xmlSettings.setValue("element:point:x", e->getValPoint().x);
-//				xmlSettings.addAttribute("element:point:x", "name", e->name, 0);
-//				xmlSettings.setValue("element:point:y", e->getValPoint().y);
-//				xmlSettings.addAttribute("element:point:y", "name", e->name, 0);
-//				xmlSettings.addAttribute("element:point:x", "kind", tipo, 0);
-//			}
-//			
-//			else if (e->kind != LABEL) {
-//				string tipo = typeid(e->getVal()).name();
-//				xmlSettings.setValue("element:" + tipo, e->getVal());
-//				xmlSettings.addAttribute("element:" + tipo, "name", e->name, 0);
-//				xmlSettings.addAttribute("element:" + tipo, "kind", tipo, 0);
-//				
-//			}
-//		}
-//	}
-//	
 //	xmlSettings.save(xml);
 //}
 
@@ -1266,10 +1280,10 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 	
 	loadMode = MASTER;
 	saveMode = MASTER;
-//	keepSettings = true;
-//	savePreset = true;
-//	loadPreset = true;
 	
+	for (auto & f : presetupFunctions) {
+		f();
+	}
 
 	createFromText(file);
 
@@ -1281,34 +1295,15 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 		if (dimensoes.size() > 2) { 
 			software.multiSampling = ofToInt(dimensoes[2]);
 		}
-		//cout << "dentro" << endl;
-	} else {
-		//cout << "fora" << endl;
 	}
-//	cout << software.w << endl;
-//	cout << software.h << endl;
-
+	
 	ofFbo * fbo = &mapFbos["fbo"];
 	allocateAndClearFbo(*fbo);
-//#ifdef DMTRUI_TARGET_TOUCH
-//	int format = GL_RGBA; //GL_RGBA32F_ARB  //GL_RGBA32F
-//#else
-//	int format = GL_RGBA32F_ARB; //GL_RGBA32F_ARB  //GL_RGBA32F
-//#endif
-//	if (software.multiSampling == 0) {
-//		fbo->allocate			(software.w, software.h, format);
-//	} else {
-//		fbo->allocate			(software.w, software.h, format, software.multiSampling);
-//	}
-//
-//	fbo->begin();
-//	ofClear(0,255);
-//	fbo->end();
-
 	setFbo(*fbo);
-
 	allUIs.push_back(this);
-
+	for (auto & f : setupFunctions) {
+		f();
+	}
 }
 
 //--------------------------------------------------------------
@@ -1639,7 +1634,9 @@ void ofxDmtrUI3::clear(bool keepVars) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::uiEvents(uiEv & e) {
-	
+	for (auto & f : uiEventFunctions) {
+		f(e);
+	}
 	
 	if (e.tag == "color") {
 		string name;
@@ -1715,8 +1712,12 @@ string ofxDmtrUI3::getFileFullPath(string n) {
 	
 	//string f = getRadio(n)->getFullFileName();
 	
-	
-	return ((radio*)getElement(n))->getFullFileName();
+	// check if exists...
+	string saida = "";
+	if ( radiosLookup.find(n) != radiosLookup.end() ) {
+		saida = ((radio*)getElement(n))->getFullFileName();
+	}
+	return saida;
 }
 
 void ofxDmtrUI3::showUI(int show) {

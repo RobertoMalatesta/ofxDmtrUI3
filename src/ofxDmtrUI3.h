@@ -359,9 +359,9 @@ fbo	$PaletaAtual	200 10
 float	$S	0 255 255
 float	$HRange	0 720 100
 float	$HRangeAudio	0 360 0
+int	$HStep	0 6 0
 float	$BRange	0 512 0
 float	$BStop	0 1 1
-int	$HStep	0 6 0
 float	$Alpha	0 255 255
 float	$AlphaAudio	0 255 0
 float	$AlphaRange	0 255 0
@@ -398,4 +398,16 @@ endTemplate
 
 	
 	string fixedLabel = "";
+	
+	
+	vector < std::function<void()> > presetupFunctions;
+	vector < std::function<void()> > setupFunctions;
+	vector < std::function<void()> > updateFunctions;
+	vector < std::function<void()> > drawFunctions;
+	vector < std::function<void(uiEv &)> > uiEventFunctions;
+	
+//	void addUpdateFunction(std::function<void()> & func) {
+//		updateFunctions.push_back(std::bind(func, this));
+//	}
+	//std::function<void(string,string)> updateUI = NULL
 };
