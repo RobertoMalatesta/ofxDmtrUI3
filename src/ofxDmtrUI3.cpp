@@ -336,8 +336,9 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 		vector <string> linhas = textToVector("uiAll.txt");
 		
 		if (fixedLabel != "") {
-			linhas.insert(linhas.begin(), "labelmain	" + fixedLabel);
+			linhas.insert(linhas.end(), "labelmain	" + fixedLabel);
 		}
+
 		createFromLines(linhas);
 	}
 
@@ -358,6 +359,7 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 	//saveMode = MASTER;
 	if (loadMode == MASTER) {
 		string file = "_presets/" + UINAME + ".xml";
+		//cout << "loadMode MASTER " << UINAME << " : " << file << endl;
 		load(file);
 	}
 
@@ -1295,6 +1297,10 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 		if (dimensoes.size() > 2) { 
 			software.multiSampling = ofToInt(dimensoes[2]);
 		}
+		
+		cout << "output.txt" << endl;
+		cout << software.w << endl;
+		cout << software.h << endl;
 	}
 	
 	ofFbo * fbo = &mapFbos["fbo"];
@@ -1483,7 +1489,6 @@ void ofxDmtrUI3::reFlowUis() {
 //--------------------------------------------------------------
 void ofxDmtrUI3::autoFit() {
 	
-	//cout << "autoFit :: " + UINAME << endl;
 
 	if (showInterface) {
 		int maxw = 0;
@@ -1492,7 +1497,18 @@ void ofxDmtrUI3::autoFit() {
 			//e->getProperties();
 			maxw = MAX(maxw, e->boundsRect.x + e->boundsRect.width);
 			maxh = MAX(maxh, e->boundsRect.y + e->boundsRect.height);
+			
+//			if (UINAME == "uishadersgenerators") {
+//				cout << e->name << endl;
+//				cout << e->boundsRect.width << endl;
+//				cout << "-----" << endl;
+//			}
 		}
+
+//		cout << "autoFit :: " + UINAME << endl;
+//		cout << "maxw :: " << maxw << endl;
+//		cout << "maxh :: " << maxh << endl;
+
 
 		settings.rect.width  = maxw + settings.margin.x;
 		settings.rect.height = maxh + settings.margin.y;
@@ -1612,12 +1628,9 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::clear(bool keepVars) {
-
 	createdFromTextFile = "";
-
 	elements.clear();
 	settings.reset();
-
 	if (!keepVars) {
 		pFloat.clear();
 		pInt.clear();
@@ -1627,7 +1640,6 @@ void ofxDmtrUI3::clear(bool keepVars) {
 		pEasy.clear();
 		pColor.clear();
 	}
-
 	settings.needsRedraw = true;
 }
 
@@ -1811,6 +1823,7 @@ void ofxDmtrUI3::updateLookup() {
 
 void ofxDmtrUI3::allocateAndClearFbo(ofFbo &f) {
 	//f.allocate(
+	cout << "allocate and clear fbo " << software.w << "x" << software.h << " - " << software.multiSampling << endl;
 	
 #ifdef DMTRUI_TARGET_TOUCH
 	int format = GL_RGBA; //GL_RGBA32F_ARB  //GL_RGBA32F
