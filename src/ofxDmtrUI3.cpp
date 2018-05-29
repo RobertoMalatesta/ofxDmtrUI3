@@ -821,7 +821,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 				settings.spacing = ofToInt(nome);
 			}
 			else if (tipo == "nPresets") {
-				cout << tipo << endl;
+				//cout << tipo << endl;
 				settings.nPresets = ofToInt(nome);
 			}
 			else if (tipo == "margin") {
@@ -1298,9 +1298,9 @@ void ofxDmtrUI3::createSoftwareFromText(string file) {
 			software.multiSampling = ofToInt(dimensoes[2]);
 		}
 		
-		cout << "output.txt" << endl;
-		cout << software.w << endl;
-		cout << software.h << endl;
+//		cout << "output.txt" << endl;
+//		cout << software.w << endl;
+//		cout << software.h << endl;
 	}
 	
 	ofFbo * fbo = &mapFbos["fbo"];

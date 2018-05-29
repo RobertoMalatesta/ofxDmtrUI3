@@ -431,6 +431,7 @@ public:
 	}
 
 	void getProperties() {
+		//cout << "getProperties " << name << endl;
 		
 		if (settings->software->customColors) {
 			labelColor = settings->software->colors.label;
