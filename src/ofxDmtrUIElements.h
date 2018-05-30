@@ -35,7 +35,7 @@ enum elementType {
 
 // naming conflicts? namespace?
 enum dmtrUIVarType {
-	FLOAT, INT, STRING, BOOLEAN, POINT
+	DMTRUI_FLOAT, DMTRUI_INT, DMTRUI_STRING, DMTRUI_BOOLEAN, DMTRUI_POINT
 };
 
 // teste ainda podemos remover. 18 de novembro de 2017
@@ -393,28 +393,28 @@ public:
 //			(*invoke)();
 //		}
 
-		if (varType == STRING) {
+		if (varType == DMTRUI_STRING) {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, getValString());
 			e.isDir = isDir;
 			e.onClick = settings->software->eventOnClick;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
-		else if (varType == BOOLEAN) {
+		else if (varType == DMTRUI_BOOLEAN) {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, getValBool());
 			e.onClick = settings->software->eventOnClick;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
-		else if (varType == INT) {
+		else if (varType == DMTRUI_INT) {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, (int)getVal());
 			e.onClick = settings->software->eventOnClick;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
-		else if (varType == POINT) {
+		else if (varType == DMTRUI_POINT) {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, getValPoint());
 			e.onClick = settings->software->eventOnClick;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
-		else if (varType == FLOAT)  {
+		else if (varType == DMTRUI_FLOAT)  {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, getVal());
 			e.onClick = settings->software->eventOnClick;
 			ofNotifyEvent(settings->uiEvent, e);
@@ -508,7 +508,7 @@ public:
 		}
 
 		else if (kind == SLIDER) {
-			varType = FLOAT;
+			varType = DMTRUI_FLOAT;
 		}
 
 		else if (kind == TOGGLE || kind == BANG) {
@@ -729,17 +729,17 @@ public:
 	}
 
 	void restoreVal() {
-		if (varType == FLOAT) {
+		if (varType == DMTRUI_FLOAT) {
 			set((*settings->pFloat)[name]);
 		}
-		else if (varType == INT) {
+		else if (varType == DMTRUI_INT) {
 			// ainda igual ao int. vamos ver o que acontece.
 			set(float((*settings->pInt)[name]));
 		}
-		else if (varType == STRING) {
+		else if (varType == DMTRUI_STRING) {
 			set((*settings->pString)[name]);
 		}
-		else if (varType == POINT) {
+		else if (varType == DMTRUI_POINT) {
 			set((*settings->pPoint)[name]);
 		}
 //		else if (varType == COLOR) {
@@ -773,7 +773,7 @@ public:
 	slider2d(string n, uiConfig & u, ofPoint mi = ofPoint(0,0), ofPoint ma = ofPoint(1,1), ofPoint v = ofPoint(.5,.5))
 	: min(mi), max(ma) {
 		kind = SLIDER2D;
-		varType = POINT;
+		varType = DMTRUI_POINT;
 		settings = &u;
 		name = n;
 		getProperties();
@@ -884,7 +884,7 @@ public:
 		name = n;
 		getProperties();
 		set(v);
-		varType = isInt ? INT : FLOAT;
+		varType = isInt ? DMTRUI_INT : DMTRUI_FLOAT;
 	}
 
 	// slider
@@ -1032,7 +1032,7 @@ public:
 
 	toggle(string n, uiConfig & u, bool v, bool l = true)  {
 		kind = TOGGLE;
-		varType = BOOLEAN;
+		varType = DMTRUI_BOOLEAN;
 		settings = &u;
 		name = n;
 		showLabel = l;
@@ -1054,7 +1054,7 @@ class bang : public booleano {
 public:
 	bang(string n, uiConfig & u, bool l = true)  {
 		kind = BANG;
-		varType = BOOLEAN;
+		varType = DMTRUI_BOOLEAN;
 		settings = &u;
 		name = n;
 		showLabel = l;
@@ -1310,7 +1310,7 @@ public:
 	
 	radio (string n, uiConfig & u, vector <string> its) {
 		kind = RADIO;
-		varType = STRING;
+		varType = DMTRUI_STRING;
 		settings = &u;
 		name = n;
 		items = its;
@@ -1359,7 +1359,7 @@ public:
 
 	preset (string n, uiConfig & u) {
 		kind = PRESET;
-		varType = BOOLEAN;
+		varType = DMTRUI_BOOLEAN;
 
 		settings = &u;
 		name = n;
@@ -1415,7 +1415,7 @@ public:
 		showLabel = false;
 		eventWhenSameSelectedIndex = true;
 		kind = PRESETS;
-		varType = STRING;
+		varType = DMTRUI_STRING;
 		settings = &u;
 		name = n;
 
@@ -1470,7 +1470,7 @@ class color : public mult {
 public:
 	color (string n, uiConfig & u, vector <string> its) {
 		kind = COLOR;
-		varType = STRING;
+		varType = DMTRUI_STRING;
 		settings = &u;
 		name = n;
 		items = its;

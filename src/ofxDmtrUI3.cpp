@@ -552,7 +552,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 			else if (tipo == "radioitem") {
 				elements.push_back(new radioitem(nome, settings));
 				
-				elements.back()->varType = BOOLEAN;
+				elements.back()->varType = DMTRUI_BOOLEAN;
 			}
 
 			else if (tipo == "toggle") {
