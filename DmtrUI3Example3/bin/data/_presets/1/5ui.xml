@@ -1,0 +1,20 @@
+<ofxDmtrUIVersion>4.000000000</ofxDmtrUIVersion>
+<element>
+    <string>
+        <scene>image</scene>
+    </string>
+    <point>
+        <bg>
+            <x>0.768181801</x>
+            <y>0.777777791</y>
+        </bg>
+        <color>
+            <x>0.518181801</x>
+            <y>0.822222233</y>
+        </color>
+    </point>
+    <f>
+        <bg_S>255.000000000</bg_S>
+        <color_S>255.000000000</color_S>
+    </f>
+</element>

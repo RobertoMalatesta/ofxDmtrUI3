@@ -1,0 +1,6 @@
+label	CENA DEFASA
+float	defasaY	0 9 .5fin	audio
+float	multTime	.01 10 1	audio
+float	w	1 100 10	audio
+
+bool	corX	0

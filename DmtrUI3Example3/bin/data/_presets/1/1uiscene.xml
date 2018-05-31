@@ -1,0 +1,14 @@
+<ofxDmtrUIVersion>4.000000000</ofxDmtrUIVersion>
+<element>
+    <f>
+        <numero>33.000000000</numero>
+        <raio>8.181818008</raio>
+        <raioMax>400.000000000</raioMax>
+        <shaper>6.863636494</shaper>
+        <multTimeX>0.085000001</multTimeX>
+        <multTimeY>0.111111112</multTimeY>
+    </f>
+    <bool>
+        <colorImpar>1</colorImpar>
+    </bool>
+</element>

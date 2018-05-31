@@ -1,0 +1,6 @@
+label	IMAGE
+int	offX	0 1000 0
+int	offY	0 1000 0
+float	scale	0 2 1
+
+dirList	image	_images

@@ -5,9 +5,9 @@
         <allPresets>2</allPresets>
     </string>
     <f>
-        <fboX>450.000000000</fboX>
+        <fboX>341.000000000</fboX>
         <fboY>40.000000000</fboY>
-        <fboScale>0.500000000</fboScale>
+        <fboScale>1.000000000</fboScale>
         <easing>10.000000000</easing>
     </f>
 </element>

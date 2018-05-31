@@ -1,43 +1,16 @@
 #include "ofApp.h"
 
-void bang() {
-	ofSystemAlertDialog("bang!");
-}
-
-void setBool(bool b) {
-	ofSystemAlertDialog(b ? "yes" : "no");
-}
-
-void setFloat(float f) {
-	cout << "invoke function setfloat returning :: " + ofToString(f) << endl;
-}
-
-void setString(string s) {
-	cout << "invoke function setfloat returning :: " + s << endl;
-}
-
 //--------------------------------------------------------------
 void ofApp::setup(){
 	ofSetWindowPosition(40, 40);
-	//u.setup();
-	// ALL Elements definitions are loaded from this file:
-	u.createFromText("u.txt");
 
-	// change to keepsettings
+	u.createFromText("u.txt");
 	u.load("default.xml");
 
 	ofAddListener(u.settings.uiEvent,this, &ofApp::uiEvents);
 	ofSetFrameRate(60);
 	ofSetCircleResolution(120);
 	ofEnableAlphaBlending();
-
-	// OK
-//	u.getElement("invoke")->invoke = &bang;
-//	//u.getElement("invoke")->invokeBool = &setBool;
-//	u.getElement("opacity")->invokeFloat = &setFloat;
-//	u.getElement("testeInt")->invokeFloat = &setFloat;
-//	u.getElement("blend")->invokeString = &setString;
-	//u.getElement("invoke")->invoke = setBoolApp;
 }
 
 //--------------------------------------------------------------

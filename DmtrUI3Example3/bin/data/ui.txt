@@ -1,0 +1,5 @@
+scene	scene	_scene
+
+colorHsv	bg
+colorHsv	color
+autoFit

@@ -1,0 +1,9 @@
+int	numero	1 100 3
+float	raio	0 300 10
+float	raioMax	0 1000 100
+float	shaper	0 10 0
+
+float	multTimeX	.001 1 .085
+float	multTimeY	.001 1 0.111111111111111
+
+bool	colorImpar	1

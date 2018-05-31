@@ -1,0 +1,18 @@
+<ofxDmtrUIVersion>4.000000000</ofxDmtrUIVersion>
+<element>
+    <f>
+        <numero>3.000000000</numero>
+        <raio>100.000000000</raio>
+        <raioN>20.000000000</raioN>
+        <shaper>0.000000000</shaper>
+        <multTimeX>0.085000001</multTimeX>
+        <multTimeY>0.111111112</multTimeY>
+        <cor_S>255.000000000</cor_S>
+    </f>
+    <point>
+        <cor>
+            <x>0.500000000</x>
+            <y>0.500000000</y>
+        </cor>
+    </point>
+</element>

@@ -1,0 +1,14 @@
+<ofxDmtrUIVersion>4.000000000</ofxDmtrUIVersion>
+<element>
+    <f>
+        <defasaY>0.613636374</defasaY>
+        <defasaYAudio>0.000000000</defasaYAudio>
+        <multTime>1.000000000</multTime>
+        <multTimeAudio>0.000000000</multTimeAudio>
+        <w>10.000000000</w>
+        <wAudio>0.000000000</wAudio>
+    </f>
+    <bool>
+        <corX>0</corX>
+    </bool>
+</element>

@@ -1,0 +1,11 @@
+<ofxDmtrUIVersion>4.000000000</ofxDmtrUIVersion>
+<element>
+    <f>
+        <offX>0.000000000</offX>
+        <offY>268.000000000</offY>
+        <scale>2.000000000</scale>
+    </f>
+    <string>
+        <image>grad.jpg</image>
+    </string>
+</element>

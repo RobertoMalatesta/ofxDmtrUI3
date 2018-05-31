@@ -1,0 +1,11 @@
+sliderWidth	220
+float	easing	0 20 0
+radio	presetsFolder	1 2 3 4 5 6 7
+fps
+presets
+int	fboX	0 1000 0
+int	fboY	0 1000 0
+float	fboScale	0 1 .5
+addUI	ui
+addUIDown	uiscene
+autoFit
