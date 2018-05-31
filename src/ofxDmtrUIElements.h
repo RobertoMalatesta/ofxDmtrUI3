@@ -668,10 +668,10 @@ public:
 	}
 
 
-	virtual float getVal() { cout << "never to be used getval float :: " + name << endl; } //return 1;
-	virtual bool getValBool() { cout << "never to be used getvalbool :: " + name << endl; }
-	virtual string getValString() { cout << "never to be used getValString :: " + name << endl; }
-	virtual ofPoint getValPoint() { cout << "never to be used getvalpoint:: " + name << endl; }
+	virtual float getVal() { cout << "never to be used getval float :: " + name << endl; return 1; } //return 1;
+	virtual bool getValBool() { cout << "never to be used getvalbool :: " + name << endl; return true; }
+	virtual string getValString() { cout << "never to be used getValString :: " + name << endl; return ""; }
+	virtual ofPoint getValPoint() { cout << "never to be used getvalpoint:: " + name << endl; return ofPoint(0,0); }
 
 	virtual void draw() {
 
