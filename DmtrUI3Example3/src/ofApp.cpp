@@ -43,13 +43,13 @@ void ofApp::desenha() {
 	}
 
 	else if (*cena == "image") {
-		if (image.isAllocated()) {
+		if (uiC->pImage["image"].isAllocated()) {
 			int x = uiC->pInt["offX"];
 			int y = uiC->pInt["offY"];
 			float scale = uiC->pFloat["scale"];
-			int w = image.getWidth() * scale;
-			int h = image.getHeight() * scale;
-			image.draw(x,y,w,h);
+			int w = uiC->pImage["image"].getWidth() * scale;
+			int h = uiC->pImage["image"].getHeight() * scale;
+			uiC->pImage["image"].draw(x,y,w,h);
 		}
 	}
 }
@@ -76,10 +76,5 @@ void ofApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void ofApp::uiEvents(uiEv & e) {
-	if (e.name == "image") {
-		string file = uiC->getFileFullPath(e.name);
-		if (file != "") {
-			image.load(file);
-		}
-	}
+
 }
