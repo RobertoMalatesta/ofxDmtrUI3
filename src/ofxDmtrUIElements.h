@@ -555,6 +555,7 @@ public:
 					int largura = r.width + margem * 2;
 					boundsRect.width = rect.width = largura;
 					activeRect = rect;
+
 				} else {
 					int contaletras = 0;
 					for(auto c: ofUTF8Iterator(name)){
@@ -623,7 +624,6 @@ public:
 			if (useLabelShadow) {
 				ofSetColor(0,130);
 				settings->software->font.drawString(n, labelPos.x - 1, labelPos.y + 1 - 3);
-				//ofDrawBitmapString(n, labelPos.x - 1, labelPos.y + 1);
 			}
 			
 			//decidir se remover o labelcolor totalmente
@@ -1118,7 +1118,7 @@ public:
 
 	void drawSpecific() {
 		if (val) {
-			ofSetColor(color);
+			ofSetColor(settings->activeColor);
 			ofDrawRectangle(activeRect);
 		}
 	}
@@ -1308,7 +1308,8 @@ public:
 	// teste 8 de marco de 2018 // babel
 	bool isImage = false;
 	
-	radio (string n, uiConfig & u, vector <string> its) {
+	radio (string n, uiConfig & u, vector <string> its, bool showThisLabel = true) {
+		showLabel = showThisLabel;
 		kind = RADIO;
 		varType = DMTRUI_STRING;
 		settings = &u;

@@ -151,7 +151,7 @@ public:
 	void clear(bool keepVars = false);
 	
 	
-	void allocateAndClearFbo(ofFbo &fbo);
+	void allocateAndClearFbo(ofFbo &fbo, ofPoint dimensions = ofPoint(0,0));
 
 
 

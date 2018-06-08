@@ -551,7 +551,6 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 			else if (tipo == "radioitem") {
 				elements.push_back(new radioitem(nome, settings));
-				
 				elements.back()->varType = DMTRUI_BOOLEAN;
 			}
 
@@ -597,12 +596,13 @@ void ofxDmtrUI3::createFromLine(string l) {
 				elements.push_back(new bang(nome, settings, false));
 			}
 			
-			else if (tipo == "radio") {
+			else if (tipo == "radio" || tipo == "radioNoLabel") {
 				vector <string> opcoes = ofSplitString(valores, " ");
-
-				elements.push_back(new radio(nome, settings, opcoes));
-				if (ofIsStringInString(nome, "_shortcut")) {
-					((radio*)elements.back())->showLabel = false;
+				bool shortcut = ofIsStringInString(nome, "_shortcut");
+				bool label = tipo == "radio" && !shortcut;
+				elements.push_back(new radio(nome, settings, opcoes, label));
+				if (shortcut) {
+					//((radio*)elements.back())->showLabel = false;
 					((radio*)elements.back())->saveXml = false;
 				}
 
@@ -686,23 +686,26 @@ void ofxDmtrUI3::createFromLine(string l) {
 			}
 
 
-			else if (tipo == "dirList" || tipo == "dirlist" || tipo == "dirListNoExt" || tipo == "scene" || tipo == "imageList"
+			else if (tipo == "dirList" || tipo == "dirlist" || tipo == "dirListNoExt"
+					 || tipo == "scene" || tipo == "sceneNoLabel" || tipo == "imageList"
 					 ) {
 				ofDirectory dir;
-				if (tipo == "scene") {
+				if (tipo == "scene" || tipo == "sceneNoLabel") {
 					dir.allowExt("txt");
 				}
 				dir.listDir(valores);
 				vector <string> opcoes;
 				for (auto & d : dir) {
-					if (tipo == "dirListNoExt" || tipo == "scene") {
+					if (tipo == "dirListNoExt" || tipo == "scene" || tipo == "sceneNoLabel") {
 						opcoes.push_back(d.getBaseName());
 					} else {
 						opcoes.push_back(d.getFileName());
 					}
 				}
-				elements.push_back(new radio(nome, settings, opcoes));
-				if (tipo == "scene") {
+				
+				bool label = tipo != "sceneNoLabel";
+				elements.push_back(new radio(nome, settings, opcoes, label));
+				if (tipo == "scene" || tipo == "sceneNoLabel") {
 					using namespace std::placeholders;
 					((radio*)elements.back())->changeUI =
 					std::bind(&ofxDmtrUI3::changeUI, this, _1, _2);
@@ -1277,6 +1280,22 @@ auto ofxDmtrUI3::getVal(string n) {
 // Dividir em outra pagina, legacy algo assim
 //--------------------------------------------------------------
 void ofxDmtrUI3::createSoftwareFromText(string file) {
+	
+	if (!ofFile::doesFileExist(file)) {
+		string alertString =
+R"(Dmtr.org Software
+_ ._. ._ _. ... .._ ._. .._. .. _. __.
+		
+File not found
+Does the folder has a data folder?
+Did you try run.command?
+Does the full path to software has blank spaces?
+)";
+		ofSystemAlertDialog(alertString);
+		std::exit(1);
+	}
+	
+	
 	settings.software = &software;
 	UINAME = "master";
 	
@@ -1820,21 +1839,31 @@ void ofxDmtrUI3::updateLookup() {
 
 //slider * ofxDmtrUI3::getSlider("") {}
 
-
-void ofxDmtrUI3::allocateAndClearFbo(ofFbo &f) {
+//--------------------------------------------------------------
+void ofxDmtrUI3::allocateAndClearFbo(ofFbo &f, ofPoint dimensions) {
 	//f.allocate(
-	cout << "allocate and clear fbo " << software.w << "x" << software.h << " - " << software.multiSampling << endl;
+	
+	int w = software.w;
+	int h = software.h;
+	int m = software.multiSampling;
+	if (dimensions != ofPoint(0,0)) {
+		w = dimensions.x;
+		h = dimensions.y;
+		m = dimensions.z;
+	}
+	
+	cout << "allocate and clear fbo " << w << "x" << h << " - " << m << endl;
 	
 #ifdef DMTRUI_TARGET_TOUCH
 	int format = GL_RGBA; //GL_RGBA32F_ARB  //GL_RGBA32F
 #else
 	int format = GL_RGBA32F_ARB; //GL_RGBA32F_ARB  //GL_RGBA32F
 #endif
-	if (software.multiSampling == 0) {
+	if (m == 0) {
 		//cout << "allocate without multisampling" << endl;
-		f.allocate			(software.w, software.h, format);
+		f.allocate			(w, h, format);
 	} else {
-		f.allocate			(software.w, software.h, format, software.multiSampling);
+		f.allocate			(w, h, format, m);
 	}
 	
 	f.begin();
