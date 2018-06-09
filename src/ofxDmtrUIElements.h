@@ -511,7 +511,7 @@ public:
 			varType = DMTRUI_FLOAT;
 		}
 
-		else if (kind == TOGGLE || kind == BANG) {
+		else if (kind == TOGGLE || kind == BANG ) {
 			//labelPos.x = x + 25;
 			int retanguloMaisOffset = settings->sliderDimensions.y * 1.3;
 			labelPos.x = x + retanguloMaisOffset;
@@ -1130,7 +1130,8 @@ public:
 class mult : public element {
 public:
 
-
+	// adicionado 8 de junho de 2018, teste pra Mareh Marisco
+	bool isFloat = false;
 
 	
 	vector <element*> elements;
@@ -1208,6 +1209,10 @@ public:
 					updated = true;
 					valString = e->name;
 					(*settings->pString)[name] = valString;
+					
+					if (isFloat) {
+						(*settings->pFloat)[name] = ofToFloat(valString);
+					}
 					
 					if (e->kind == COLOR) {
 						(*settings->pColor)[name] = e->color;

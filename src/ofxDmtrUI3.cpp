@@ -596,7 +596,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 				elements.push_back(new bang(nome, settings, false));
 			}
 			
-			else if (tipo == "radio" || tipo == "radioNoLabel") {
+			else if (tipo == "radio" || tipo == "radioNoLabel" || tipo == "radioFloat") {
 				vector <string> opcoes = ofSplitString(valores, " ");
 				bool shortcut = ofIsStringInString(nome, "_shortcut");
 				bool label = tipo == "radio" && !shortcut;
@@ -608,6 +608,10 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 				if (cols.size() == 4) {
 					((radio*)elements.back())->set(cols[3]);
+				}
+				
+				if (tipo == "radioFloat") {
+					((radio*)elements.back())->isFloat = true;
 				}
 			}
 			
@@ -874,9 +878,13 @@ void ofxDmtrUI3::createFromLine(string l) {
 			}
 			
 			else if (tipo == "radioitemList") {
+				if (nome != "") {
+				cout << tipo << endl;
+				cout << nome << "x" << endl;
 				vector <string> nomes = ofSplitString(nome, " ");
 				for (auto & n : nomes) {
 					createFromLine("radioitem	" + n + "	0");
+				}
 				}
 			}
 
@@ -1473,6 +1481,25 @@ void ofxDmtrUI3::downTo(ofxDmtrUI3 & u) {
 	}
 }
 
+void ofxDmtrUI3::reFlowUiNeue() {
+	// fazer aqui uma maneira de guardar o estado anterior da posicao y etc, e nao mexer se nao precisar
+	if (_uiUnder != NULL) {
+		int nextHeight = visible ? settings.rect.height + settings.margin.y : 0;
+		_uiUnder->settings.rect.y = settings.rect.y + nextHeight;
+		_uiUnder->reFlowUiNeue();
+	}
+	
+	// isto so vai funcionar se o objeto saber que ele mesmo é uidown ou nao.
+	// ou se eu contar no software se pode reduzir aquele flow. astral.
+	
+//	if (_uiRight != NULL) {
+//		int nextWidth = visible ? settings.rect.width + settings.margin.x : 0;
+//		_uiRight->settings.rect.x = settings.rect.x + nextWidth;
+//		_uiRight->reFlowUiNeue();
+//	}
+}
+
+
 //--------------------------------------------------------------
 // software - recursive repositioning until the last UI
 void ofxDmtrUI3::reFlowUis() {
@@ -1490,6 +1517,7 @@ void ofxDmtrUI3::reFlowUis() {
 		}
 		_uiUnder->reFlowUis();
 	}
+	
 	if (_uiRight != NULL) {
 		//if (_uiRight->visible)
 		{
@@ -1751,32 +1779,36 @@ string ofxDmtrUI3::getFileFullPath(string n) {
 	return saida;
 }
 
+
+void ofxDmtrUI3::showUINeue(bool show) {
+	//settings.opacity = show ? 1.0 : .2;
+	visible = show;
+	//reFlowUiNeue();
+}
+
 void ofxDmtrUI3::showUI(int show) {
-	
-	// novidade
+	//cout << "showUI " << UINAME << "::" << show << endl;
 	visible = show == 1;
-	
 	
 	showInterface = show;
 	if (show == 1) {
 		autoFit();
-	} else {
-		
+	}
+	else {
 		settings.rect.width = 40;
-		
 		if (show == 2) {
 			settings.rect.width = 1;
 		}
 		
-		fboSettings.width = settings.rect.width;
-		fboSettings.height = settings.rect.height;
-
-		fboUI.allocate(fboSettings);
+		// 9 de junho. comentei aqui que nao tem necessidade de realocar o fbo.
+//		fboSettings.width = settings.rect.width;
+//		fboSettings.height = settings.rect.height;
+//
+//		fboUI.allocate(fboSettings);
 		settings.redraw = true;
 		settings.needsRedraw = true;
-		//if (UINAME != "master")
-
 	}
+	
 	if (_uiUnder != NULL) {
 		_uiUnder->showUI(show);
 	}

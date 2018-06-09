@@ -146,6 +146,7 @@ public:
 	}
 	void autoFit();
 	void reFlowUis();
+	void reFlowUiNeue();
 
 	string getPresetsPath(string ext="");
 	void clear(bool keepVars = false);
@@ -264,6 +265,7 @@ public:
 	string getFileFullPath(string n);
 
 	void showUI(int show);
+	void showUINeue(bool show);
 
 	bool showInterface = true;
 
