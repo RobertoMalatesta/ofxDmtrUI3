@@ -378,7 +378,9 @@ void ofxDmtrUI3::createFromLines(string lines) {
 void ofxDmtrUI3::createFromLines(vector<string> lines) {
 	for (auto & l : lines) {
 		if (buildingTemplate == "") {
+            //cout << l << endl;
 			createFromLine(l);
+            
 		} else {
 			if (ofIsStringInString(l, "endTemplate")) {
 				buildingTemplate = "";
