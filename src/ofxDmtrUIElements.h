@@ -1001,6 +1001,7 @@ public:
 							invokeBool(val);
 						}
 					}
+                    //val = false;
 				} else {
 					notify();
 					if (invokeBool != NULL) {
@@ -1008,9 +1009,6 @@ public:
 					}
 				}
 			}
-//			if (invokeBool != NULL) {
-//				invokeBool(val);
-//			}
 		}
 	}
 
