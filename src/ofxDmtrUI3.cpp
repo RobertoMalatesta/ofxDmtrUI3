@@ -230,8 +230,6 @@ void ofxDmtrUI3::keyPressed(int key){
 			settings.software->visible ^= 1;
 		}
 		
-		
-		
 		else if (key == 'a' || key == 'A') {
 			loadPresetAll(0, true);
 		}
@@ -357,13 +355,15 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 	
 	//if (loadPreset) {
 	//saveMode = MASTER;
+	
+	updateLookup();
+
 	if (loadMode == MASTER) {
 		string file = "_presets/" + UINAME + ".xml";
 		//cout << "loadMode MASTER " << UINAME << " : " << file << endl;
 		load(file);
 	}
 
-	updateLookup();
 	autoFit();
 }
 
@@ -1770,15 +1770,19 @@ void ofxDmtrUI3::createRadio(string name, vector<string> options, string sel) {
 }
 
 string ofxDmtrUI3::getFileFullPath(string n) {
+	radio * e = getRadio(n);
+	return e != NULL ? e->getFullFileName() : "";
+
 	
+	// XAXA LIMPAR
 	//string f = getRadio(n)->getFullFileName();
-	
 	// check if exists...
-	string saida = "";
-	if ( radiosLookup.find(n) != radiosLookup.end() ) {
-		saida = ((radio*)getElement(n))->getFullFileName();
-	}
-	return saida;
+//	string saida = "";
+//	// fazer getradio aqui xaxa xaxa
+//	if ( radiosLookup.find(n) != radiosLookup.end() ) {
+//		saida = ((radio*)getElement(n))->getFullFileName();
+//	}
+//	return saida;
 }
 
 
@@ -1818,16 +1822,20 @@ void ofxDmtrUI3::showUI(int show) {
 }
 
 
+// maybe update with getToggle
 void ofxDmtrUI3::set(string el, bool v) {
-	if (togglesLookup.find(el) != togglesLookup.end()) {
-		togglesLookup[el]->set(v);
+	toggle * e = getToggle(el);
+	if (e != NULL) {
+		e->set(v);
 	}
+//	if (togglesLookup.find(el) != togglesLookup.end()) {
+//		togglesLookup[el]->set(v);
+//	}
 };
 
 void ofxDmtrUI3::set(string el, string v) {
 	if (radiosLookup.find(el) != radiosLookup.end()) {
 		radiosLookup[el]->set(v);
-		//cout << ("radio set " + el + " to value : " + v) << endl;;
 	}
 };
 
@@ -1849,29 +1857,8 @@ void ofxDmtrUI3::set(string el, ofPoint p) {
 	}
 };
 
-void ofxDmtrUI3::updateLookup() {
-	togglesLookup.clear();
-	radiosLookup.clear();
-	slidersLookup.clear();
-	sliders2dLookup.clear();
-	
-	for (auto & e : elements) {
-		if (e->kind == TOGGLE) {
-			togglesLookup[e->name] = (toggle*)e;
-		}
-		else if (e->kind == RADIO) {
-			radiosLookup[e->name] = (radio*)e;
-		}
-		else if (e->kind == SLIDER) {
-			slidersLookup[e->name] = (slider*)e;
-		}
-		else if (e->kind == SLIDER2D) {
-			sliders2dLookup[e->name] = (slider2d*)e;
-		}
-	}
-}
 
-//slider * ofxDmtrUI3::getSlider("") {}
+
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::allocateAndClearFbo(ofFbo &f, ofPoint dimensions) {

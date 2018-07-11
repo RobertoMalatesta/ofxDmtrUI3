@@ -154,49 +154,96 @@ public:
 	
 	void allocateAndClearFbo(ofFbo &fbo, ofPoint dimensions = ofPoint(0,0));
 
+    
+    /*
+     LOOKUP SECTION
+    */
+
+	void set(string e, bool b);
+	void set(string e, int i);
+	void set(string e, float f);
+	void set(string e, string s);
+	void set(string e, ofPoint p);
+	
+	map <string, slider *> slidersLookup;
+	map <string, toggle *> togglesLookup;
+	map <string, radio  *> radiosLookup;
+	map <string, slider2d *> sliders2dLookup;
+	map <string, bang *> bangsLookup;
+	
+	map <string, element *> elementsLookup;
 
 
 	//--------------------------------------------------------------
-	element * getElement(string n) {
-		bool result = false;
-		for (auto & e : elements) {
-			if (e->name == n) {
-				result = true;
-				return e;
-			}
-		}
-		if (!result) {
-			return NULL;
-		}
-	}
-
-	//--------------------------------------------------------------
-	// not working yet. check pointer or something pointer
 	slider * getSlider(string n) {
-		if ( slidersLookup.find("f") != slidersLookup.end() ) {
-			cout << "returning found element" << endl;
-			return slidersLookup[n];
-		} else {
-			cout << "returning  element not found !!!" << endl;
-			return NULL;
-		}
+		return slidersLookup.find(n) != slidersLookup.end() ? slidersLookup[n] : NULL;
 	}
 	
 	//--------------------------------------------------------------
 	radio * getRadio(string n) {
-		// TODO -> usar lookup aqui.
-		bool result = false;
-		for (auto & e : elements) {
-			if (e->name == n && e->kind == RADIO) {
-				result = true;
-				return (radio*)e;
-			}
-		}
-		if (!result) {
-			return NULL;
-		}
+		return radiosLookup.find(n) != radiosLookup.end() ? radiosLookup[n] : NULL;
+	}
+	
+	//--------------------------------------------------------------
+	toggle * getToggle(string n) {
+		return togglesLookup.find(n) != togglesLookup.end() ? togglesLookup[n] : NULL;
+	}
+	
+	//--------------------------------------------------------------
+	slider2d * getSlider2d(string n) {
+		return sliders2dLookup.find(n) != sliders2dLookup.end() ? sliders2dLookup[n] : NULL;
 	}
 
+	//--------------------------------------------------------------
+	bang * getBang(string n) {
+		return bangsLookup.find(n) != bangsLookup.end() ? bangsLookup[n] : NULL;
+	}
+    
+    
+    //--------------------------------------------------------------
+    element * getElement(string n) {
+        return elementsLookup.find(n) != elementsLookup.end() ? elementsLookup[n] : NULL;
+    }
+    
+    //--------------------------------------------------------------
+    void updateLookup() {
+        togglesLookup.clear();
+        radiosLookup.clear();
+        slidersLookup.clear();
+        sliders2dLookup.clear();
+        bangsLookup.clear();
+        
+        elementsLookup.clear();
+        
+        for (auto & e : elements) {
+            if (e->kind == TOGGLE) {
+                togglesLookup[e->name] = (toggle*)e;
+            }
+            else if (e->kind == RADIO) {
+                radiosLookup[e->name] = (radio*)e;
+            }
+            else if (e->kind == SLIDER) {
+                slidersLookup[e->name] = (slider*)e;
+            }
+            else if (e->kind == SLIDER2D) {
+                sliders2dLookup[e->name] = (slider2d*)e;
+            }
+            else if (e->kind == BANG) {
+                bangsLookup[e->name] = (bang*)e;
+            }
+            
+            elementsLookup[e->name] = e;
+        }
+    }
+    
+    /*
+     END LOOKUP SECTION
+     */
+    
+    
+    
+	
+    //--------------------------------------------------------------
 	void changeUI(string ui, string path) {
 		if ( _uiFather->uis.find(ui) != _uiFather->uis.end() ) {
 			_uiFather->uis[ui].clear();
@@ -269,18 +316,7 @@ public:
 
 	bool showInterface = true;
 
-	void set(string e, bool b);
-	void set(string e, int i);
-	void set(string e, float f);
-	void set(string e, string s);
-	void set(string e, ofPoint p);
 
-	map <string, slider *> slidersLookup;
-	map <string, toggle *> togglesLookup;
-	map <string, radio  *> radiosLookup;
-	map <string, slider2d *> sliders2dLookup;
-	
-	void updateLookup();
 
 
 	bool hasPresets = false;
