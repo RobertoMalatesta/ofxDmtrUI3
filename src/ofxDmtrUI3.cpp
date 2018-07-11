@@ -331,6 +331,8 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 	createdFromTextFile = "";
 
 	if (ofFile::doesFileExist("uiAll.txt")) {
+        createdFromTextFile += ofBufferFromFile("uiAll.txt").getText();
+
 		vector <string> linhas = textToVector("uiAll.txt");
 		
 		if (fixedLabel != "") {
@@ -343,7 +345,8 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 	if (ofFile::doesFileExist(file)) {
 		loadedTextFile = file;
 		
-		createdFromTextFile += ofBufferFromFile(file).getText() + "\r\r";
+//		createdFromTextFile += ofBufferFromFile(file).getText() + "\r\r";
+        createdFromTextFile += ofBufferFromFile(file).getText();
 		vector <string> linhas = textToVector(file);
 
 		createFromLines(linhas);
@@ -449,7 +452,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 			// 19 agosto 2017 serie 3%
 			else if (tipo == "spacer") {
-				settings.flow.x += settings.sliderDimensions.y;
+				settings.flow.x += settings.sliderDimensions.y + settings.spacing;
 			}
 			
 			else if (tipo == "audioControls" || tipo == "audioBpmControls") {
