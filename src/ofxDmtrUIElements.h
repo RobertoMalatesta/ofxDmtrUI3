@@ -1066,6 +1066,9 @@ public:
 		if (val) {
 			ofSetColor(settings->activeColor);
 			ofDrawRectangle(activeRect);
+            
+            val = false;
+            needsRedraw();
 		}
 	}
 };
