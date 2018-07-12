@@ -1444,13 +1444,11 @@ void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 	}
 	
 	
-
 	uis[nome]._uiFather = this;
 
 	_uiLast = &uis[nome];
 	uis[nome].autoFit();
 	
-
 	allUIs.push_back(&uis[nome]);
 }
 
@@ -1540,8 +1538,6 @@ void ofxDmtrUI3::reFlowUis() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::autoFit() {
-	
-
 	if (showInterface) {
 		int maxw = 0;
 		int maxh = 0;
@@ -1549,14 +1545,7 @@ void ofxDmtrUI3::autoFit() {
 			//e->getProperties();
 			maxw = MAX(maxw, e->boundsRect.x + e->boundsRect.width);
 			maxh = MAX(maxh, e->boundsRect.y + e->boundsRect.height);
-			
-//			if (UINAME == "uishadersgenerators") {
-//				cout << e->name << endl;
-//				cout << e->boundsRect.width << endl;
-//				cout << "-----" << endl;
-//			}
 		}
-
 //		cout << "autoFit :: " + UINAME << endl;
 //		cout << "maxw :: " << maxw << endl;
 //		cout << "maxh :: " << maxh << endl;
