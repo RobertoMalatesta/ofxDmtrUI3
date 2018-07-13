@@ -1348,6 +1348,12 @@ Does the full path to software has blank spaces?
 void ofxDmtrUI3::loadMaster() {
 	string file = "_presets/" + UINAME + ".xml";
 	load(file);
+	
+	for (auto & u : uis) {
+		if (u.second.loadMode == MASTER) {
+			u.second.loadMaster();
+		}
+	}
 }
 
 //--------------------------------------------------------------
