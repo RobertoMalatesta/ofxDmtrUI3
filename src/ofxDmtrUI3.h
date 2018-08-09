@@ -75,10 +75,14 @@ public:
 	void onUpdate(ofEventArgs &data);
 
 	void onMouseMoved(ofMouseEventArgs &data);
-
 	void onMousePressed(ofMouseEventArgs &data);
 	void onMouseDragged(ofMouseEventArgs &data);
 	void onMouseReleased(ofMouseEventArgs &data);
+
+	void onTouchUp(ofTouchEventArgs & touch);
+	void onTouchDown(ofTouchEventArgs & touch);
+	void onTouchMoved(ofTouchEventArgs & touch);
+
 	void onKeyPressed(ofKeyEventArgs &data);
 	void onKeyReleased(ofKeyEventArgs &data);
 
@@ -159,10 +163,10 @@ public:
      LOOKUP SECTION
     */
 
+	void set(string e, string s);
 	void set(string e, bool b);
 	void set(string e, int i);
 	void set(string e, float f);
-	void set(string e, string s);
 	void set(string e, ofPoint p);
 	
 	map <string, slider *> slidersLookup;
@@ -276,12 +280,12 @@ public:
 		time ( &rawtime );
 		timeinfo = localtime ( &rawtime );
 		cout << "-------- Dmtr Expires: " ;
-		cout << rawtime << endl;
+		cout << rawtime;
 		int segundosPorDia = 86400;
 		int segundosExpira = segundosPorDia * dias;
 		float diasExpira = (segundosExpira - (difftime(rawtime,dataInicial))) / (float)segundosPorDia;
 
-		cout << "--------- expira em " + ofToString(diasExpira) + " dias" << endl;
+        cout << ": expira em " + ofToString(diasExpira) + " dias" << endl;
 		if (diasExpira < 0 || diasExpira > dias) {
 			ofSystemAlertDialog("Dmtr.org Software Expired ~ " + ofToString(dataInicial) + "\rhttp://dmtr.org/");
 			std::exit(1);
@@ -448,4 +452,12 @@ endTemplate
 //		updateFunctions.push_back(std::bind(func, this));
 //	}
 	//std::function<void(string,string)> updateUI = NULL
+
+	void saveActualPreset() {
+//		cout << "saveActualPreset" << endl;
+		int slot = ofToInt(getElement("allPresets")->getValString());
+		savePresetAll(slot);
+	}
+	
+	void mouseRelease();
 };

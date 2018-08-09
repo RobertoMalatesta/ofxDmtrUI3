@@ -397,26 +397,31 @@ public:
 			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, getValString());
 			e.isDir = isDir;
 			e.onClick = settings->software->eventOnClick;
+			e.uiname = settings->uiname;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == DMTRUI_BOOLEAN) {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, getValBool());
 			e.onClick = settings->software->eventOnClick;
+			e.uiname = settings->uiname;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == DMTRUI_INT) {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, (int)getVal());
 			e.onClick = settings->software->eventOnClick;
+			e.uiname = settings->uiname;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == DMTRUI_POINT) {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, getValPoint());
 			e.onClick = settings->software->eventOnClick;
+			e.uiname = settings->uiname;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 		else if (varType == DMTRUI_FLOAT)  {
 			uiEv e = uiEv(name, settings->uiname, kind, varType, tag, getVal());
 			e.onClick = settings->software->eventOnClick;
+			e.uiname = settings->uiname;
 			ofNotifyEvent(settings->uiEvent, e);
 		}
 	}
@@ -551,6 +556,7 @@ public:
 				
 				// CUSTOM FONT
 				if (settings->software->customFont) {
+					//cout << name << endl;
 					ofRectangle r = settings->software->font.getStringBoundingBox(name, 0, 0);
 					int largura = r.width + margem * 2;
 					boundsRect.width = rect.width = largura;

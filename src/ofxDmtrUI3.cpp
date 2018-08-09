@@ -1,6 +1,6 @@
 /**********************************************************************************
 
- Copyright (C) 2018 Dimitre Lima (www.dmtr.org)
+ Copyright (C) 2018 Dimitre Lima (dmtr.org)
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of
  this software and associated documentation files (the "Software"), to deal in
@@ -33,7 +33,6 @@ http://dmtr.org/
 #include "ofxDmtrUI3.h"
 
 ofFbo::Settings fboSettings;
-
 
 
 //--------------------------------------------------------------
@@ -69,10 +68,25 @@ void ofxDmtrUI3::setup() {
 	ofAddListener(ofEvents().draw, this, &ofxDmtrUI3::onDraw);
 	ofAddListener(ofEvents().update, this, &ofxDmtrUI3::onUpdate);
 	
+	
+	
+	
+	
+#ifdef DMTRUI_TARGET_TOUCH
+	ofAddListener(ofEvents().touchUp, this, &ofxDmtrUI3::onTouchUp);
+	ofAddListener(ofEvents().touchDown, this, &ofxDmtrUI3::onTouchDown);
+	ofAddListener(ofEvents().touchMoved, this, &ofxDmtrUI3::onTouchMoved);
+	//ofAddListener(ofEvents().touch, this, &ofxDmtrUI3::onMouseDragged);
+
+#else
 	ofAddListener(ofEvents().mouseMoved, this, &ofxDmtrUI3::onMouseMoved);
 	ofAddListener(ofEvents().mousePressed, this, &ofxDmtrUI3::onMousePressed);
 	ofAddListener(ofEvents().mouseDragged, this, &ofxDmtrUI3::onMouseDragged);
 	ofAddListener(ofEvents().mouseReleased, this, &ofxDmtrUI3::onMouseReleased);
+#endif
+
+
+	
 	ofAddListener(ofEvents().keyPressed, this, &ofxDmtrUI3::onKeyPressed);
 	ofAddListener(ofEvents().keyReleased, this, &ofxDmtrUI3::onKeyReleased);
 	ofAddListener(ofEvents().exit, this, &ofxDmtrUI3::onExit);
@@ -96,12 +110,15 @@ ofxDmtrUI3::~ofxDmtrUI3() {
 
 	ofRemoveListener(ofEvents().draw, this, &ofxDmtrUI3::onDraw);
 	ofRemoveListener(ofEvents().update, this, &ofxDmtrUI3::onUpdate);
+	
 	ofRemoveListener(ofEvents().mouseMoved, this, &ofxDmtrUI3::onMouseMoved);
 	ofRemoveListener(ofEvents().mousePressed, this, &ofxDmtrUI3::onMousePressed);
 	ofRemoveListener(ofEvents().mouseDragged, this, &ofxDmtrUI3::onMouseDragged);
 	ofRemoveListener(ofEvents().mouseReleased, this, &ofxDmtrUI3::onMouseReleased);
+	
 	ofRemoveListener(ofEvents().keyPressed, this, &ofxDmtrUI3::onKeyPressed);
 	ofRemoveListener(ofEvents().keyReleased, this, &ofxDmtrUI3::onKeyReleased);
+	
 	ofRemoveListener(ofEvents().exit, this, &ofxDmtrUI3::onExit);
 	ofRemoveListener(ofEvents().windowResized, this, &ofxDmtrUI3::onWindowResized);
 
@@ -169,8 +186,9 @@ void ofxDmtrUI3::draw() {
 		fboUI.begin();
 		for (auto & e : elements) {
 			if (e->redraw && !e->alwaysRedraw) {
-				ofSetColor(255, 1);
+				ofSetColor(255, 0);
 				ofDrawRectangle(e->boundsRect);
+				ofSetColor(255);
 				e->draw();
 				e->redraw = false;
 			}
@@ -199,6 +217,8 @@ void ofxDmtrUI3::draw() {
 	if (settings.software->visible && visible) {
 		ofPushStyle();
 //		ofSetColor(255, settings.opacity);
+		
+		//cout << settings.software->opacity << endl;
 		ofSetColor(255, settings.software->opacity);
 		
 		ofTranslate(software.offset);
@@ -229,15 +249,16 @@ void ofxDmtrUI3::keyPressed(int key){
 		if (key == '=') {
 			settings.software->visible ^= 1;
 		}
+        else if (key == '-') {
+            ofToggleFullscreen();
+        }
 		
 		else if (key == 'a' || key == 'A') {
 			loadPresetAll(0, true);
 		}
 		else if (key == 's' || key == 'S') {
 			if (ofGetKeyPressed(OF_KEY_COMMAND)) {
-				int slot = ofToInt(getElement("allPresets")->getValString());
-				// xaxa
-				savePresetAll(slot);
+				saveActualPreset();
 			} else {
 				loadPresetAll(1, true);
 			}
@@ -332,26 +353,19 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 
 	if (ofFile::doesFileExist("uiAll.txt")) {
         createdFromTextFile += ofBufferFromFile("uiAll.txt").getText();
-
 		vector <string> linhas = textToVector("uiAll.txt");
-		
 		if (fixedLabel != "") {
 			linhas.insert(linhas.end(), "labelmain	" + fixedLabel);
 		}
-
 		createFromLines(linhas);
 	}
 
 	if (ofFile::doesFileExist(file)) {
 		loadedTextFile = file;
-		
-//		createdFromTextFile += ofBufferFromFile(file).getText() + "\r\r";
         createdFromTextFile += ofBufferFromFile(file).getText();
 		vector <string> linhas = textToVector(file);
-
 		createFromLines(linhas);
 		notify("createFromText");
-
 	} else {
 		cout << "ofxDmtrUI3 createFromText ::: File not found " + file << endl;
 	}
@@ -361,11 +375,10 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 	
 	updateLookup();
 
-	if (loadMode == MASTER) {
-		string file = "_presets/" + UINAME + ".xml";
-		//cout << "loadMode MASTER " << UINAME << " : " << file << endl;
-		load(file);
-	}
+//	if (loadMode == MASTER) {
+//		string file = "_presets/" + UINAME + ".xml";
+//		load(file);
+//	}
 
 	autoFit();
 }
@@ -775,8 +788,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 			}
 			
 			else if (tipo == "font") {
-				software.font.load(nome, ofToInt(valores));
-				software.customFont = true;
+				software.customFont = software.font.load(nome, ofToInt(valores));;
 			}
 			
 			// temporario
@@ -1080,17 +1092,38 @@ void ofxDmtrUI3::mouseUI(int x, int y, bool pressed) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMouseReleased(ofMouseEventArgs& data) {
+	mouseRelease();
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::mouseRelease() {
 	for (auto & e : elements) {
 		e->isPressed = false;
 		e->firstClicked = false;
 		e->dragging = false;
-
+		
 		if (e->kind == BANG) {
 			e->set(false);
 		}
 	}
 }
 
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::onTouchUp(ofTouchEventArgs & touch) {
+	mouseRelease();
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::onTouchDown(ofTouchEventArgs & data) {
+	cout << "touch event " << data.x << ":" << data.y << ":" << data.id << endl;
+	mouseUI(data.x, data.y, true);
+}
+
+//--------------------------------------------------------------
+void ofxDmtrUI3::onTouchMoved(ofTouchEventArgs & data) {
+	mouseUI(data.x, data.y);
+}
 
 
 //--------------------------------------------------------------
@@ -1333,6 +1366,8 @@ Does the full path to software has blank spaces?
 //		cout << "output.txt" << endl;
 //		cout << software.w << endl;
 //		cout << software.h << endl;
+	} else {
+		cout << "missing output.txt file" << endl;
 	}
 	
 	ofFbo * fbo = &mapFbos["fbo"];
@@ -1346,7 +1381,9 @@ Does the full path to software has blank spaces?
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::loadMaster() {
+	
 	string file = "_presets/" + UINAME + ".xml";
+	cout << "loadMaster() : " << file << endl;
 	load(file);
 	
 	for (auto & u : uis) {
@@ -1713,12 +1750,10 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 		//cout << name << " :: " << pColor[name] << endl;
 	}
 
-	//&& e.tipo != LOAD
 	if (ofIsStringInString(e.name, "_shortcut") ) {
-//	if (ofIsStringInString(e.name, "_shortcutInt") ) {
 		vector <string> split = ofSplitString(e.name, "_shortcut");
-		string nome = split[0];
-		((slider*)getElement(nome))->set(ofToFloat(pString[e.name]));
+		string name = split[0];
+		set(name, ofToFloat(pString[e.name]));
 	}
 
 
@@ -1822,6 +1857,7 @@ void ofxDmtrUI3::showUI(int show) {
 
 // maybe update with getToggle
 void ofxDmtrUI3::set(string el, bool v) {
+	cout << "set bool" << endl;
 	toggle * e = getToggle(el);
 	if (e != NULL) {
 		e->set(v);
@@ -1832,24 +1868,29 @@ void ofxDmtrUI3::set(string el, bool v) {
 };
 
 void ofxDmtrUI3::set(string el, string v) {
-	if (radiosLookup.find(el) != radiosLookup.end()) {
-		radiosLookup[el]->set(v);
+	//cout << "set :: " << el << " - " << v << endl;
+	radio * e = getRadio(el);
+	if (e != NULL) {
+		e->set(v);
 	}
 };
 
 void ofxDmtrUI3::set(string el, float v) {
+	//cout << "set float" << endl;
 	if (slidersLookup.find(el) != slidersLookup.end()) {
 		slidersLookup[el]->set(v);
 	}
 };
 
 void ofxDmtrUI3::set(string el, int v) {
+	//cout << "set int" << endl;
 	if (slidersLookup.find(el) != slidersLookup.end()) {
 		slidersLookup[el]->set(v);
 	}
 };
 
 void ofxDmtrUI3::set(string el, ofPoint p) {
+	//cout << "set point" << endl;
 	if (sliders2dLookup.find(el) != sliders2dLookup.end()) {
 		sliders2dLookup[el]->set(p);
 	}
@@ -1871,7 +1912,7 @@ void ofxDmtrUI3::allocateAndClearFbo(ofFbo &f, ofPoint dimensions) {
 		m = dimensions.z;
 	}
 	
-	cout << "allocate and clear fbo " << w << "x" << h << " - " << m << endl;
+	//cout << "allocate and clear fbo " << w << "x" << h << " - " << m << endl;
 	
 #ifdef DMTRUI_TARGET_TOUCH
 	int format = GL_RGBA; //GL_RGBA32F_ARB  //GL_RGBA32F
