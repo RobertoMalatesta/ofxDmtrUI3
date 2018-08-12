@@ -120,10 +120,13 @@ public:
 	map <string, ofxDmtrUI3> uis;
 	vector <ofxDmtrUI3 *> allUIs;
 
-	ofxDmtrUI3 *_uiUnder = NULL;
-	ofxDmtrUI3 *_uiRight = NULL;
 	ofxDmtrUI3 *_uiLast = NULL;
+	ofxDmtrUI3 *_uiNext = NULL;
+
 	ofxDmtrUI3 *_uiFather = NULL;
+
+//	ofxDmtrUI3 *_uiUnder = NULL;
+//	ofxDmtrUI3 *_uiRight = NULL;
 
 	map <string, ofFbo> mapFbos;
 	void createSoftwareFromText(string file);
@@ -249,16 +252,19 @@ public:
 	
     //--------------------------------------------------------------
 	void changeUI(string ui, string path) {
+		
+		//cout << "changeUI :: " << ui << " >> " << path << endl;
 		if ( _uiFather->uis.find(ui) != _uiFather->uis.end() ) {
 			_uiFather->uis[ui].clear();
 			_uiFather->uis[ui].createFromText(path);
 			_uiFather->uis[ui].autoFit();
-
-			if (_uiFather->uis[ui]._uiUnder != NULL) {
-				_uiFather->uis[ui]._uiUnder->autoFit();
-			}
-
-			//_uiFather->uis[ui].settings.redraw = true;
+			_uiFather->uis[ui].reFlowUis();
+//
+//			if (_uiFather->uis[ui]._uiUnder != NULL) {
+//				_uiFather->uis[ui]._uiUnder->autoFit();
+//			}
+//
+//			//_uiFather->uis[ui].settings.redraw = true;
 		} else {
 			//"uis key not found";
 		}
@@ -319,9 +325,6 @@ public:
 	void showUINeue(bool show);
 
 	bool showInterface = true;
-
-
-
 
 	bool hasPresets = false;
 
@@ -460,4 +463,9 @@ endTemplate
 	}
 	
 	void mouseRelease();
+	
+
+	bool isDown = false;
+	ofFbo::Settings fboSettings;
+
 };

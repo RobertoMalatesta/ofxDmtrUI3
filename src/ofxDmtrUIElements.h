@@ -64,6 +64,8 @@ public:
 
 // 16 oct 2017, areia
 	bool eventOnClick = true;
+	
+	bool masterIsSetup = false;
 
 	bool visible = true;
 	float opacity = 180;
@@ -75,7 +77,7 @@ public:
 	int h = 0;
 	
 	// porque isso ta aqui no software?
-	ofPoint sliderDimensions = ofPoint(220, 20);
+	//ofPoint sliderDimensions = ofPoint(220, 20);
 
 	ofPoint offset = ofPoint(0,0);
 	soft() {}
@@ -91,7 +93,6 @@ public:
 	
 	//11 de setembro de 2017, RIR
 	string uiTag = "";
-	
 	
 	bool customColors = false;
 	customColor colors;
@@ -146,28 +147,19 @@ public:
 
 struct uiConfig {
 public:
-	
-	
 	bool notifyEventWhenSetDoesntChange = true;
-
 	string uiname;
 	string tag;
-	
 	//	ofColor bgColor = ofColor(120, 220);
 	//ofColor bgColor = ofColor(80, 200);
-	
-	
 	//ofColor bgColor = ofColor(80, 140);
+	//	ofColor bgColor = ofColor(0, 140);
+
 	ofColor bgColor = ofColor(80, 220);
-//	ofColor bgColor = ofColor(0, 140);
-	
-	
 	ofColor activeColor = ofColor(0,0,0,190);
 //	ofColor activeColor = ofColor(0,255);
-	
 	ofColor bwElementColor = ofColor(120, 220); //127
 //	ofColor bwElementColor = ofColor(90, 255); //127
-
 	//senao fazer pointer to function aqui...
 	//std::function<void(string,string)> updateUI = NULL;
 
@@ -177,6 +169,8 @@ public:
 	int minimumWidth = 200;
 
 	ofPoint sliderDimensions; // = ofPoint(200, 20);
+	
+	// mudar margin pra dentro do software. tirar daqui.
 	ofPoint margin = ofPoint(10,10);
 	float opacity = 200;
 	ofPoint flow = margin;
@@ -185,8 +179,10 @@ public:
 	int spacing = 5;
 	int spacingChildren = 1;
 
-
+	// as dimensoes sao as mesmas do fboUI mas o x e y ainda valem.
 	ofRectangle rect;
+	
+	// vai pro software
 	int nPresets = 21;
 	// ponteiro pro addUI geral.
 	soft * software = NULL;
@@ -194,7 +190,7 @@ public:
 	void setSoftware(soft & s) {
 		//cout << "setSoftware " << endl;
 		software = &s;
-		sliderDimensions = software->sliderDimensions;
+		//sliderDimensions = software->sliderDimensions;
 		//cout << sliderDimensions << endl;
 	}
 
@@ -237,9 +233,9 @@ public:
 	map <string, ofPoint>	* pPoint;
 	map <string, ofColor>	* pColor;
 
-	float hueStart = 60;
-	float hue;
-	int hueStep = 4;
+	float hueStart = 90;
+	float hue = hueStart;
+	float hueStep = 2.0;
 	ofColor color;
 	bool bw = false;
 	//float flowxbak = -100;
@@ -261,7 +257,11 @@ public:
 //	}
 
 	ofColor getColor() {
-		color = ofColor::fromHsb(hue, 155, 210, 230);
+//		color = ofColor::fromHsb(hue, 155, 210, 230);
+		float s = 230; //155
+		float b = 200; //210
+		float a = 230;
+		color = ofColor::fromHsb(hue, s, b, a);
 		if (bw) {
 			color = bwElementColor;
 		}

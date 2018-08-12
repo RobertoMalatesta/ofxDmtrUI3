@@ -32,18 +32,12 @@ http://dmtr.org/
 
 #include "ofxDmtrUI3.h"
 
-ofFbo::Settings fboSettings;
-
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::setup() {
-
-	
-	
 	// REVER AQUI
 	settings.setSoftware(software);
 	//settings.software = &software;
-	
 	
 	createFromLines(templatesString);
 
@@ -52,24 +46,14 @@ void ofxDmtrUI3::setup() {
 	fboSettings.height = 10;
 	fboSettings.internalformat = GL_RGBA;
 
-//	fboSettings.numSamples = 0;
-//	fboSettings.useDepth = false;
-//	fboSettings.useStencil = false;
-
 	settings.pFloat	 	= &pFloat;
 	settings.pInt	 	= &pInt;
 	settings.pBool 		= &pBool;
 	settings.pString	 	= &pString;
 	settings.pPoint 		= &pPoint;
 
-//	fboUI.allocate(fboSettings);
-//	fboClear();
-
 	ofAddListener(ofEvents().draw, this, &ofxDmtrUI3::onDraw);
 	ofAddListener(ofEvents().update, this, &ofxDmtrUI3::onUpdate);
-	
-	
-	
 	
 	
 #ifdef DMTRUI_TARGET_TOUCH
@@ -85,17 +69,12 @@ void ofxDmtrUI3::setup() {
 	ofAddListener(ofEvents().mouseReleased, this, &ofxDmtrUI3::onMouseReleased);
 #endif
 
-
-	
 	ofAddListener(ofEvents().keyPressed, this, &ofxDmtrUI3::onKeyPressed);
 	ofAddListener(ofEvents().keyReleased, this, &ofxDmtrUI3::onKeyReleased);
 	ofAddListener(ofEvents().exit, this, &ofxDmtrUI3::onExit);
 	ofAddListener(ofEvents().windowResized, this, &ofxDmtrUI3::onWindowResized);
 
 	ofAddListener(settings.uiEvent,this, &ofxDmtrUI3::uiEvents);
-	
-	
-
 }
 // END SETUP
 
@@ -193,13 +172,11 @@ void ofxDmtrUI3::draw() {
 				e->redraw = false;
 			}
 		}
-//		ofSetColor(255,0,0,40);
-//		ofDrawRectangle(settings.rect);
 		fboUI.end();
 		settings.needsRedraw = false;
 	}
 
-	// lately we never redraw fully, only on allocate (autofit?)
+	// lately we never redraw fully, only on allocate
 	if (settings.redraw) {
 		fboClear();
 
@@ -216,11 +193,7 @@ void ofxDmtrUI3::draw() {
 
 	if (settings.software->visible && visible) {
 		ofPushStyle();
-//		ofSetColor(255, settings.opacity);
-		
-		//cout << settings.software->opacity << endl;
 		ofSetColor(255, settings.software->opacity);
-		
 		ofTranslate(software.offset);
 
 		if (scale != 1) {
@@ -228,6 +201,7 @@ void ofxDmtrUI3::draw() {
 		} else {
 			fboUI.draw(settings.rect.x, settings.rect.y);
 		}
+		
 		// XAXA todo performance, vector or something
 		ofPushMatrix();
 		ofTranslate(settings.rect.x, settings.rect.y);
@@ -381,6 +355,10 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 //	}
 
 	autoFit();
+	
+	if (settings.software->masterIsSetup) {
+		reFlowUis();
+	}
 }
 
 //--------------------------------------------------------------
@@ -804,7 +782,9 @@ void ofxDmtrUI3::createFromLine(string l) {
 			}
 
 			else if (tipo == "sliderWidth") {
-				settings.setSliderWidth(ofToInt(nome));
+				//if (!isDown) {
+					settings.setSliderWidth(ofToInt(nome));
+				//}
 			}
 			else if (tipo == "sliderHeight") {
 				settings.sliderDimensions.y = ofToInt(nome);
@@ -988,46 +968,6 @@ void ofxDmtrUI3::onDraw(ofEventArgs &data) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::onUpdate(ofEventArgs &data) {
 	update();
-	
-//	if (software.autoScrolling && UINAME == "master") {
-//		scroll.dif.x = software.rect.width - ofGetWindowWidth();
-//		scroll.dif.y = software.rect.height - ofGetWindowHeight();
-//		
-//		if (scroll.dif.x > 0) {
-//			if (scroll.mouse.x > ofGetWindowWidth() *.9 && -software.offset.x < scroll.dif.x) {
-//				scroll.vel.x = ofMap(scroll.mouse.x, ofGetWindowWidth(), ofGetWindowWidth() *.9, -50, 0);
-//			}
-//			else if (scroll.mouse.x < ofGetWindowWidth() *.1 && -software.offset.x > 0) {
-//				scroll.vel.x = ofMap(scroll.mouse.x, 0, ofGetWindowWidth() *.1, 50, 0);
-//			}
-//			else {
-//				scroll.vel.x = 0;
-//			}
-//		}
-//		
-//		if (scroll.dif.y > 0) {
-//			if (scroll.mouse.y > ofGetWindowHeight() *.9 && -software.offset.y < scroll.dif.y) {
-//				scroll.vel.y = ofMap(scroll.mouse.y, ofGetWindowHeight(), ofGetWindowHeight() *.9, -50, 0);
-//			}
-//			else if (scroll.mouse.y < ofGetWindowHeight() *.1 && -software.offset.y > 0) {
-//				scroll.vel.y = ofMap(scroll.mouse.y, 0, ofGetWindowHeight() *.1, 50, 0);
-//			}
-//			else {
-//				scroll.vel.y = 0;
-//			}
-//		}
-//		
-//		if (-software.offset.x < scroll.dif.x || software.offset.x < 0) {
-//			software.offset.x += scroll.vel.x;
-//		}
-//		if (-software.offset.y < scroll.dif.y || software.offset.y < 0) {
-//			software.offset.y += scroll.vel.y;
-//		}
-//		
-//		software.offset.x = int(software.offset.x);
-//		software.offset.y = int(software.offset.y);
-//	}
-
 }
 
 //--------------------------------------------------------------
@@ -1042,11 +982,6 @@ void ofxDmtrUI3::onKeyReleased(ofKeyEventArgs& data) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMouseMoved(ofMouseEventArgs& data) {
-//	if (software.autoScrolling && UINAME == "master") {
-//		scroll.mouse.x = data.x;
-//		scroll.mouse.y = data.y;
-//	}
-	
 	if (software.autoScrolling && UINAME == "master") {
 		int difX = software.rect.width - ofGetWindowWidth();
 		int difY = software.rect.height - ofGetWindowHeight();
@@ -1068,21 +1003,12 @@ void ofxDmtrUI3::onMouseDragged(ofMouseEventArgs& data) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::mouseUI(int x, int y, bool pressed) {
-	
-	//data.x += settings.software->offset.x;
-	
-//	if (settings.software->visible && settings.rect.inside(x, y)) {
+
 	if (settings.software->visible &&
-		
 		settings.rect.inside(x - settings.software->offset.x, y - settings.software->offset.y)) {
 
 		int mx = x - settings.rect.x - settings.software->offset.x;
 		int my = y - settings.rect.y - settings.software->offset.y;
-		
-		//		if (scale != 1) {
-		//			mx /= scale;
-		//			my /= scale;
-		//		}
 		
 		for (auto & e : elements) {
 			e->checkMouseNeu(mx, my, pressed);
@@ -1108,7 +1034,6 @@ void ofxDmtrUI3::mouseRelease() {
 	}
 }
 
-
 //--------------------------------------------------------------
 void ofxDmtrUI3::onTouchUp(ofTouchEventArgs & touch) {
 	mouseRelease();
@@ -1128,11 +1053,6 @@ void ofxDmtrUI3::onTouchMoved(ofTouchEventArgs & data) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onExit(ofEventArgs &data) {
-	//if (keepSettings) {
-	//if (savePreset) {
-	
-	
-	// revisar esta parte
 	if (saveMode == MASTER) {
 		saveMaster();
 	}
@@ -1304,7 +1224,7 @@ void ofxDmtrUI3::reFlow() {
 //	}
 //	fboSettings.width = settings.rect.width;
 //	fboSettings.height = settings.rect.height;
-	autoFit();
+	//autoFit();
 }
 
 
@@ -1319,8 +1239,6 @@ auto ofxDmtrUI3::getVal(string n) {
 	}
 }
 */
-
-
 
 
 // Dividir em outra pagina, legacy algo assim
@@ -1377,6 +1295,8 @@ Does the full path to software has blank spaces?
 	for (auto & f : setupFunctions) {
 		f();
 	}
+	
+	software.masterIsSetup = true;
 }
 
 //--------------------------------------------------------------
@@ -1400,81 +1320,41 @@ void ofxDmtrUI3::setFbo(ofFbo &fbo) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
-	// aqui tenho tres ponteiros. o _uiLast o uiNext e o uiRight. nao sei se precisa tantos.
-	// de repente fazer um vector de ponteiros?
-	
-	
-	
-//	string uiname = nome;
-//	string
-	
+
+	// primeiro tudo que é geral, não precisamos mexer nisso.
 	uis[nome].UINAME = nome;
-	
-	
+	uis[nome]._uiFather = this;
 	if (software.uiTag != "") {
 		uis[nome].uiTag = software.uiTag;
 	}
-
-	// todos no mesmo sofwtare que o master.
-
+	// todos no mesmo software que o master.
 	uis[nome].settings.software = &software;
 
-	if (down) {
-
-		// nao funcionou direito
-//		uis[nome].settings.sliderDimensions = settings.sliderDimensions;
-		
-		autoFit();
-	}
-
-	if (_uiLast == NULL) {
-		uis[nome].settings.hue = settings.hue;
-
-		if (!down) {
-			uis[nome].nextTo(*this);
-		} else {
-			//uis[nome].minimumWidth = settings.rect.width;
-			uis[nome].settings.minimumWidth = settings.rect.width;
-			uis[nome].downTo(*this);
-		}
+	// lembrando que o addUI roda antes do createsoftware from text acabar e a master se adicionar na lista de allUIs
+	if (allUIs.size())
+	{
+		uis[nome]._uiLast = allUIs.back();
 	} else {
-
-		uis[nome].settings.hue = _uiLast->settings.hue;
-		if (!down) {
-			uis[nome].nextTo(*_uiLast);
-		} else {
-//			uis[nome].minimumWidth = _uiLast->settings.rect.width;
-			uis[nome].settings.minimumWidth = _uiLast->settings.rect.width;
-			uis[nome].downTo(*_uiLast);
-		}
+		uis[nome]._uiLast = this;
 	}
+	uis[nome]._uiLast->_uiNext = &uis[nome];
+	allUIs.push_back(&uis[nome]);
+
+
+	// AQUI SEMPRE VAI TER _uiLast. SEMPRE
+	uis[nome].settings.hue = uis[nome]._uiLast->settings.hue;
 
 	string fileName = nome+".txt";
-	//cout << valores << endl;
 	if (ofIsStringInString(valores, "text:")) {
 		fileName = ofSplitString(valores, "text:")[1] + ".txt";
 	}
 	
-	//cout << "addUI::" + nome + "\t\t" + fileName << endl;
-	
-	// ainda n. funciona
-	if (down) {
-		uis[nome].settings.sliderDimensions = settings.sliderDimensions;
-	}
-
-	
 	if (ofFile::doesFileExist(fileName)) {
 		if (valores == "keepSettings") {
-			//uis[nome].keepSettings = true;
-//			uis[nome].savePreset = true;
-//			uis[nome].loadPreset = true;
 			uis[nome].loadMode = MASTER;
 			uis[nome].saveMode = MASTER;
-			//	saveMode = MASTER;
 		}
 		else if (valores == "disableLoadSave") {
-//			uis[nome].savePreset = false;
-//			uis[nome].loadPreset = false;
 			uis[nome].loadMode = NONE;
 			uis[nome].saveMode = NONE;
 		}
@@ -1482,133 +1362,85 @@ void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 			uis[nome].loadMode = MASTER;
 			uis[nome].saveMode = NONE;
 		}
-		
 		uis[nome].createFromText(fileName);
 	}
 	
-	
-	uis[nome]._uiFather = this;
-
-	_uiLast = &uis[nome];
-	uis[nome].autoFit();
-	
-	allUIs.push_back(&uis[nome]);
-}
-
-//--------------------------------------------------------------
-void ofxDmtrUI3::nextTo(ofxDmtrUI3 & u) {
-	u.autoFit();
-	settings.rect.x = u.settings.rect.x + u.settings.rect.width + u.settings.margin.x;
-	settings.rect.y = 0;
-	u._uiRight = this;
-
-	if (_uiUnder != NULL) {
-		_uiUnder->downTo(*this);
+	if (down) {
+		if (uis[nome]._uiLast->UINAME == "master") {
+			autoFit();
+		}
+		uis[nome].settings.minimumWidth = uis[nome]._uiLast->fboUI.getWidth();
+		uis[nome]._uiLast->autoFit();
+		
+		uis[nome].isDown = true;
+		// nao funciona pois o uiAll.txt override.
+		uis[nome].settings.sliderDimensions = uis[nome]._uiLast->settings.sliderDimensions;
+		//uis[nome].settings.setSliderWidth(settings.sliderDimensions.x);
+//		uis[nome].downTo(*uis[nome]._uiLast);
+		uis[nome].settings.rect.width = uis[nome]._uiLast->settings.rect.width ;
+		uis[nome].settings.rect.x  = uis[nome]._uiLast->settings.rect.x ;
+		uis[nome].settings.rect.y  = uis[nome]._uiLast->settings.rect.y + uis[nome]._uiLast->settings.rect.height + uis[nome]._uiLast->settings.margin.y;
+		// precisa?
+		uis[nome].settings.minimumWidth = MAX(settings.minimumWidth, settings.sliderDimensions.x);
 	}
-	if (_uiRight != NULL) {
-		_uiRight->nextTo(*this);
-	}
-}
-
-//--------------------------------------------------------------
-void ofxDmtrUI3::downTo(ofxDmtrUI3 & u) {
-	u.autoFit();
-	settings.rect.x  = u.settings.rect.x ;
-	settings.rect.y  = u.settings.rect.y + u.settings.rect.height + u.settings.margin.y ;
-
-	u._uiUnder = this;
-
-	if (_uiUnder != NULL) {
-		_uiUnder->downTo(*this);
-	}
-
-	if (_uiRight != NULL) {
-		_uiRight->nextTo(*this);
+	else {
+		uis[nome].settings.rect.x = uis[nome]._uiLast->settings.rect.x + uis[nome]._uiLast->settings.rect.width + uis[nome]._uiLast->settings.margin.x;
+		uis[nome].settings.rect.y = 0;
 	}
 }
-
-void ofxDmtrUI3::reFlowUiNeue() {
-	// fazer aqui uma maneira de guardar o estado anterior da posicao y etc, e nao mexer se nao precisar
-	if (_uiUnder != NULL) {
-		int nextHeight = visible ? settings.rect.height + settings.margin.y : 0;
-		_uiUnder->settings.rect.y = settings.rect.y + nextHeight;
-		_uiUnder->reFlowUiNeue();
-	}
-	
-	// isto so vai funcionar se o objeto saber que ele mesmo é uidown ou nao.
-	// ou se eu contar no software se pode reduzir aquele flow. astral.
-	
-//	if (_uiRight != NULL) {
-//		int nextWidth = visible ? settings.rect.width + settings.margin.x : 0;
-//		_uiRight->settings.rect.x = settings.rect.x + nextWidth;
-//		_uiRight->reFlowUiNeue();
-//	}
-}
-
 
 //--------------------------------------------------------------
 // software - recursive repositioning until the last UI
 void ofxDmtrUI3::reFlowUis() {
+	// reflowuis apenas se ja estiver interfaceado com txt.
+	// XAXA apenas se houver mudado as dimensoes da paradinha
 	
-	
-	// check only if I am visible
-	int nextHeight = visible ? settings.rect.height + settings.margin.y : 0;
-	int nextWidth = visible ? settings.rect.width + settings.margin.x : 0;
-	
-	if (_uiUnder != NULL) {
-		//if (_uiUnder->visible)
-		{
-			_uiUnder->settings.rect.x = settings.rect.x;
-			_uiUnder->settings.rect.y = settings.rect.y + nextHeight;
+	if (_uiNext != NULL) {
+		if (_uiNext->isDown) {
+			int nextHeight = visible ? settings.rect.height + settings.margin.y : 0;
+			_uiNext->settings.rect.x = settings.rect.x;
+			_uiNext->settings.rect.y = settings.rect.y + nextHeight;
+		} else {
+			int nextWidth = visible ? settings.rect.width + settings.margin.x : 0;
+			_uiNext->settings.rect.x = settings.rect.x + nextWidth;
 		}
-		_uiUnder->reFlowUis();
-	}
-	
-	if (_uiRight != NULL) {
-		//if (_uiRight->visible)
-		{
-//			int largura = MAX(settings.rect.width, settings.minimumWidth);
-//			_uiRight->settings.rect.x = settings.rect.x + largura + settings.margin.x;
-			_uiRight->settings.rect.x = settings.rect.x + nextWidth;
-		}
-		_uiRight->reFlowUis();
-	}
-	
-	if (_uiUnder == NULL && _uiRight == NULL && _uiFather != NULL) {
+		_uiNext->reFlowUis();
+		
+	} else {
 		_uiFather->updateSoftwareRect();
+		//cout << "----- this is the end" << endl;
 	}
 }
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::autoFit() {
 	if (showInterface) {
-		int maxw = 0;
+		
+		int maxw = settings.minimumWidth + settings.margin.x; // + settings.margin.x*2
 		int maxh = 0;
 		for (auto & e : elements) {
-			//e->getProperties();
 			maxw = MAX(maxw, e->boundsRect.x + e->boundsRect.width);
 			maxh = MAX(maxh, e->boundsRect.y + e->boundsRect.height);
 		}
-//		cout << "autoFit :: " + UINAME << endl;
-//		cout << "maxw :: " << maxw << endl;
-//		cout << "maxh :: " << maxh << endl;
-
-
 		settings.rect.width  = maxw + settings.margin.x;
 		settings.rect.height = maxh + settings.margin.y;
-		settings.rect.width = MAX(settings.rect.width, settings.minimumWidth);
 
 		fboSettings.width = settings.rect.width;
 		fboSettings.height = settings.rect.height;
 
-		fboUI.allocate(fboSettings);
-		fboUI.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+		// novidade : somente redimensiona se for necessario
+		if (fboUI.getWidth() != fboSettings.width || fboUI.getHeight() != fboSettings.height) {
+			if (isDown) {
+				
+				settings.rect.width = fboSettings.width = _uiLast->fboSettings.width;
+				settings.sliderDimensions.x = _uiLast->settings.sliderDimensions.x;
+			}
 
-		settings.redraw = true;
-		settings.needsRedraw = true;
+			fboUI.allocate(fboSettings);
+			fboUI.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 
-		if (UINAME != "master") {
-			reFlowUis();
+			settings.redraw = true;
+			settings.needsRedraw = true;
 		}
 	}
 }
@@ -1775,14 +1607,7 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 			e->updateImage();
 		}
 	}
-
-	else if (e.name == "easing") {
-		easing = pFloat["easing"];
-		for (auto & p : uis) {
-			p.second.easing = pFloat["easing"];
-		}
-	}
-
+	
 	// SAVE / LOAD Presets
 	else if (e.name == "allPresets") {
 		string p = getElement("allPresets")->getValString();
@@ -1791,6 +1616,14 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 		}
 		else {
 			loadPresetAll(ofToInt(p));
+		}
+	}
+
+	else if (e.name == "easing") {
+		easing = pFloat["easing"];
+		for (auto & p : uis) {
+			// XAXA Passar isso aqui pra software master
+			p.second.easing = pFloat["easing"];
 		}
 	}
 }
@@ -1805,30 +1638,10 @@ void ofxDmtrUI3::createRadio(string name, vector<string> options, string sel) {
 string ofxDmtrUI3::getFileFullPath(string n) {
 	radio * e = getRadio(n);
 	return e != NULL ? e->getFullFileName() : "";
-
-	
-	// XAXA LIMPAR
-	//string f = getRadio(n)->getFullFileName();
-	// check if exists...
-//	string saida = "";
-//	// fazer getradio aqui xaxa xaxa
-//	if ( radiosLookup.find(n) != radiosLookup.end() ) {
-//		saida = ((radio*)getElement(n))->getFullFileName();
-//	}
-//	return saida;
-}
-
-
-void ofxDmtrUI3::showUINeue(bool show) {
-	//settings.opacity = show ? 1.0 : .2;
-	visible = show;
-	//reFlowUiNeue();
 }
 
 void ofxDmtrUI3::showUI(int show) {
-	//cout << "showUI " << UINAME << "::" << show << endl;
 	visible = show == 1;
-	
 	showInterface = show;
 	if (show == 1) {
 		autoFit();
@@ -1838,37 +1651,27 @@ void ofxDmtrUI3::showUI(int show) {
 		if (show == 2) {
 			settings.rect.width = 1;
 		}
-		
-		// 9 de junho. comentei aqui que nao tem necessidade de realocar o fbo.
-//		fboSettings.width = settings.rect.width;
-//		fboSettings.height = settings.rect.height;
-//
-//		fboUI.allocate(fboSettings);
 		settings.redraw = true;
 		settings.needsRedraw = true;
 	}
 	
-	if (_uiUnder != NULL) {
-		_uiUnder->showUI(show);
+	if (_uiNext != NULL) {
+		if (_uiNext->isDown) {
+			_uiNext->showUI(show);
+		}
 	}
 	reFlowUis();
 }
 
 
-// maybe update with getToggle
 void ofxDmtrUI3::set(string el, bool v) {
-	cout << "set bool" << endl;
 	toggle * e = getToggle(el);
 	if (e != NULL) {
 		e->set(v);
 	}
-//	if (togglesLookup.find(el) != togglesLookup.end()) {
-//		togglesLookup[el]->set(v);
-//	}
 };
 
 void ofxDmtrUI3::set(string el, string v) {
-	//cout << "set :: " << el << " - " << v << endl;
 	radio * e = getRadio(el);
 	if (e != NULL) {
 		e->set(v);
@@ -1876,27 +1679,25 @@ void ofxDmtrUI3::set(string el, string v) {
 };
 
 void ofxDmtrUI3::set(string el, float v) {
-	//cout << "set float" << endl;
-	if (slidersLookup.find(el) != slidersLookup.end()) {
-		slidersLookup[el]->set(v);
+	slider * e = getSlider(el);
+	if (e != NULL) {
+		e->set(v);
 	}
 };
 
 void ofxDmtrUI3::set(string el, int v) {
-	//cout << "set int" << endl;
-	if (slidersLookup.find(el) != slidersLookup.end()) {
-		slidersLookup[el]->set(v);
+	slider * e = getSlider(el);
+	if (e != NULL) {
+		e->set(v);
 	}
 };
 
-void ofxDmtrUI3::set(string el, ofPoint p) {
-	//cout << "set point" << endl;
-	if (sliders2dLookup.find(el) != sliders2dLookup.end()) {
-		sliders2dLookup[el]->set(p);
+void ofxDmtrUI3::set(string el, ofPoint v) {
+	slider2d * e = getSlider2d(el);
+	if (e != NULL) {
+		e->set(v);
 	}
 };
-
-
 
 
 //--------------------------------------------------------------
