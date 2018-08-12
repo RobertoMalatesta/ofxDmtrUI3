@@ -56,49 +56,11 @@ struct customColor {
 	customColor(ofColor l, ofColor s, ofColor a, ofColor c) : label(l), slider(s), activeSlider(a), column(c) {}
 };
 
-
-
-
-struct soft {
-public:
-
-// 16 oct 2017, areia
-	bool eventOnClick = true;
-	
-	bool masterIsSetup = false;
-
-	bool visible = true;
-	float opacity = 180;
-	ofPoint presetDimensions = ofPoint(72,48);
-	string presetsFolder = "_presets/";
-	int presetLoaded = -1;
-	int multiSampling = 0;
-	int w = 0;
-	int h = 0;
-	
-	// porque isso ta aqui no software?
-	//ofPoint sliderDimensions = ofPoint(220, 20);
-
-	ofPoint offset = ofPoint(0,0);
-	soft() {}
-	
-	//new, 25 08 2017, frejat
-	ofRectangle rect;
-	bool autoScrolling = true;
-	
-	bool customFont = false;
-	ofTrueTypeFont font;
-	
-	bool needsRedraw = false;
-	
-	//11 de setembro de 2017, RIR
-	string uiTag = "";
-	
-	bool customColors = false;
-	customColor colors;
-};
-
-
+//struct scrolling {
+//	ofPoint mouse;
+//	ofPoint vel;
+//	ofPoint dif;
+//} scroll;
 
 struct future {
 public:
@@ -145,39 +107,76 @@ public:
 };
 
 
+struct soft {
+public:
+	// 16 oct 2017, areia
+	bool eventOnClick = true;
+	
+	bool masterIsSetup = false;
+	
+	bool visible = true;
+	float opacity = 180;
+	ofPoint presetDimensions = ofPoint(72,48);
+	string presetsFolder = "_presets/";
+	int presetLoaded = -1;
+	int multiSampling = 0;
+	int w = 0;
+	int h = 0;
+	
+	
+	ofPoint offset = ofPoint(0,0);
+	soft() {}
+	
+	//new, 25 08 2017, frejat
+	ofRectangle rect;
+	bool autoScrolling = true;
+	
+	bool customFont = false;
+	ofTrueTypeFont font;
+	
+	bool needsRedraw = false;
+	
+	//11 de setembro de 2017, RIR
+	string uiTag = "";
+	
+	bool customColors = false;
+	customColor colors;
+	
+	
+	//ofPoint margin = ofPoint(10,10);
+	
+	int colSpacing = 16;
+	int colPadding = 10;
+
+};
+
+
 struct uiConfig {
 public:
 	bool notifyEventWhenSetDoesntChange = true;
 	string uiname;
 	string tag;
-	//	ofColor bgColor = ofColor(120, 220);
-	//ofColor bgColor = ofColor(80, 200);
-	//ofColor bgColor = ofColor(80, 140);
-	//	ofColor bgColor = ofColor(0, 140);
-
 	ofColor bgColor = ofColor(80, 220);
 	ofColor activeColor = ofColor(0,0,0,190);
-//	ofColor activeColor = ofColor(0,255);
 	ofColor bwElementColor = ofColor(120, 220); //127
-//	ofColor bwElementColor = ofColor(90, 255); //127
-	//senao fazer pointer to function aqui...
-	//std::function<void(string,string)> updateUI = NULL;
-
-	//void (*updateUI)(string,string) = NULL;
-	//map <string, string> radioUIMap;
-
+	
+	// remover isso e calcular com o retangulo do _uiLast
 	int minimumWidth = 200;
 
-	ofPoint sliderDimensions; // = ofPoint(200, 20);
+	ofPoint sliderDimensions = ofPoint(200, 20);
 	
 	// mudar margin pra dentro do software. tirar daqui.
-	ofPoint margin = ofPoint(10,10);
+	//ofPoint margin = ofPoint(10,10);
 	float opacity = 200;
-	ofPoint flow = margin;
-	ofPoint flowBak;
-	float colx;
 	int spacing = 5;
 	int spacingChildren = 1;
+
+	ofPoint flow;
+	ofPoint flowBak;
+	
+	// xaxa - tive que enjambrar isso aqui. repetindo o = 10.
+	// fazer melhor, deixar isto dentro do software e fazer uma funcao int getColX()
+	float colx = 10;
 
 	// as dimensoes sao as mesmas do fboUI mas o x e y ainda valem.
 	ofRectangle rect;
@@ -190,12 +189,11 @@ public:
 	void setSoftware(soft & s) {
 		//cout << "setSoftware " << endl;
 		software = &s;
-		//sliderDimensions = software->sliderDimensions;
-		//cout << sliderDimensions << endl;
+		flow = ofPoint(software->colPadding, software->colPadding);
 	}
 
 	void setSliderWidth(int w) {
-		//cout << "setSliderWidth " << w <<  " uiname:" << uiname << endl;
+		cout << "setSliderWidth " << w <<  " uiname:" << uiname << endl;
 		sliderDimensions.x = w;
 		minimumWidth = MAX(minimumWidth, sliderDimensions.x);
 	}
@@ -279,11 +277,18 @@ public:
  	}
 
 	void reset() {
-		flow = flowBak = margin;
+//		flow = flowBak = margin;
+		if (software != NULL) {
+			flow = flowBak = ofPoint(software->colPadding, software->colPadding);
+			colx = flow.x;
+			
+			//cout << "reset, colx = " << colx << endl;
+			//colx = software->margin.x;
+		}
 		// starthue no futuro
 		hue = hueStart;
 		needsRedraw = true;
-		colx = margin.x;
+//		colx = margin.x;
 	}
 
 	int getSpacing() {
@@ -316,10 +321,14 @@ public:
 		flow.y += sliderDimensions.y + getSpacing();
 	}
 	void newCol() {
-		colx +=  sliderDimensions.x + margin.x;
+		
+		// confuso aqui . margin que é o de fora com
+		//		colx +=  sliderDimensions.x + margin.x;
+		colx +=  sliderDimensions.x + spacing;
 		//flow.x += sliderDimensions.x + margin.x;
 		flow.x = colx;
-		flow.y =  margin.y;
+		//flow.y = margin.y;
+		flow.y = spacing;
 	}
 
 	void setFlowVert(bool f) {
@@ -557,6 +566,7 @@ public:
 				// CUSTOM FONT
 				if (settings->software->customFont) {
 					//cout << name << endl;
+					
 					ofRectangle r = settings->software->font.getStringBoundingBox(name, 0, 0);
 					int largura = r.width + margem * 2;
 					boundsRect.width = rect.width = largura;

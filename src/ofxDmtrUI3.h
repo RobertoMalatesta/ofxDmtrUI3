@@ -25,16 +25,11 @@
 
 //#define NOXML
 
-
-
 #pragma once
 
 #include "ofMain.h"
 #include "ofEvents.h"
 #include "ofxXmlSettings.h"
-
-
-
 
 #if defined( TARGET_OF_IPHONE ) || defined( TARGET_OF_IOS ) || defined( TARGET_ANDROID )
 	#define DMTRUI_TARGET_TOUCH
@@ -109,10 +104,8 @@ public:
 	// novidade teste 10 de março de 2018
 	map <string,ofImage>		pImage;
 
-	
 	void reFlow();
 	void fboClear();
-
 
 	// Straight from old ofxDmtrUI
 	// eventualmente rever isto
@@ -122,17 +115,14 @@ public:
 
 	ofxDmtrUI3 *_uiLast = NULL;
 	ofxDmtrUI3 *_uiNext = NULL;
-
 	ofxDmtrUI3 *_uiFather = NULL;
-
-//	ofxDmtrUI3 *_uiUnder = NULL;
-//	ofxDmtrUI3 *_uiRight = NULL;
 
 	map <string, ofFbo> mapFbos;
 	void createSoftwareFromText(string file);
 	void loadPresetAll(int n, bool fromKey = false);
 	void savePresetAll(int n);
 	void setFbo(ofFbo &fbo);
+
 	// pointer to save presets from
 	ofFbo *_fbo;
 	soft software;
@@ -143,14 +133,16 @@ public:
 	//int minimumWidth = 100;
 
 	void addUI(string nome, bool down = false, string valores = "");
-	void nextTo(ofxDmtrUI3 & uiNext);
-	void downTo(ofxDmtrUI3 & uiNext);
+//	void nextTo(ofxDmtrUI3 & uiNext);
+//	void downTo(ofxDmtrUI3 & uiNext);
+
 	void addRadio(string name, vector<string> options, string sel = "") {
 		elements.push_back(new radio(name, settings, options));
 		if (sel != "") {
 			elements.back()->set(sel);
 		}
 	}
+	
 	void autoFit();
 	void reFlowUis();
 	void reFlowUiNeue();
@@ -158,11 +150,9 @@ public:
 	string getPresetsPath(string ext="");
 	void clear(bool keepVars = false);
 	
-	
 	void allocateAndClearFbo(ofFbo &fbo, ofPoint dimensions = ofPoint(0,0));
 
-    
-    /*
+	/*
      LOOKUP SECTION
     */
 
@@ -179,7 +169,6 @@ public:
 	map <string, bang *> bangsLookup;
 	
 	map <string, element *> elementsLookup;
-
 
 	//--------------------------------------------------------------
 	slider * getSlider(string n) {
@@ -205,8 +194,7 @@ public:
 	bang * getBang(string n) {
 		return bangsLookup.find(n) != bangsLookup.end() ? bangsLookup[n] : NULL;
 	}
-    
-    
+	
     //--------------------------------------------------------------
     element * getElement(string n) {
         return elementsLookup.find(n) != elementsLookup.end() ? elementsLookup[n] : NULL;
@@ -238,7 +226,6 @@ public:
             else if (e->kind == BANG) {
                 bangsLookup[e->name] = (bang*)e;
             }
-            
             elementsLookup[e->name] = e;
         }
     }
@@ -247,24 +234,11 @@ public:
      END LOOKUP SECTION
      */
     
-    
-    
-	
     //--------------------------------------------------------------
 	void changeUI(string ui, string path) {
-		
-		//cout << "changeUI :: " << ui << " >> " << path << endl;
 		if ( _uiFather->uis.find(ui) != _uiFather->uis.end() ) {
 			_uiFather->uis[ui].clear();
 			_uiFather->uis[ui].createFromText(path);
-			_uiFather->uis[ui].autoFit();
-			_uiFather->uis[ui].reFlowUis();
-//
-//			if (_uiFather->uis[ui]._uiUnder != NULL) {
-//				_uiFather->uis[ui]._uiUnder->autoFit();
-//			}
-//
-//			//_uiFather->uis[ui].settings.redraw = true;
 		} else {
 			//"uis key not found";
 		}
@@ -298,7 +272,6 @@ public:
 		}
 	}
 
-
 	ofColor stringHexToColor(string corString) {
 		int corInt = ofHexToInt(corString.substr(1));
 		ofColor cor = ofColor::fromHex(ofHexToInt(corString.substr(1)));
@@ -308,7 +281,6 @@ public:
 	string createdFromTextFile = "";
 
 	void notify(string e);
-
 	void redraw();
 
 	// ofxDmtrUIMidiController
@@ -323,9 +295,7 @@ public:
 
 	void showUI(int show);
 	void showUINeue(bool show);
-
 	bool showInterface = true;
-
 	bool hasPresets = false;
 
 	// talvez desencanar disso...
@@ -341,8 +311,6 @@ public:
 	string buildingTemplate = "";
 	
 	void mouseUI(int x, int y, bool pressed = false);
-	
-	
 	
 	//17 agosto de 2017 - experimental
 	map <string, vector <string> > templateVectorString;
@@ -360,61 +328,7 @@ public:
 	}
 	
 	ofPoint velOffXUI = ofPoint(0,0);
-	
-	struct scrolling {
-		ofPoint mouse;
-		ofPoint vel;
-		ofPoint dif;
-	} scroll;
-	
-	string templatesString =
-R"(#======
-beginTemplate	audioBpmControls
-bool	audioOuBpm	0
-int	BPM	1 200 120
-radio	ondaBeats	1 2 4 8
-radio	onda	s w ww r
-slider2d	freq
-float	audioGanho	0 .5 0.25
-float	audioOffset	-1 0 -.2
-float	peakhold	0 20 2
-float	decay	0 .98 .85
-bool	invertAudio	0
-_float	envelopeMin	0 1 0
-_float	envelopeMax	0 1 1
-endTemplate
-#======
-beginTemplate	audioControls
-slider2d	freq
-float	audioGanho	0.0 .5 0.25
-float	audioOffset	-1 0 -.2
-float	peakhold	0 20 2
-float	decay	0 .98 .85
-bool	invertAudio	0
-endTemplate
-#======
-beginTemplate	colorLicht
-bool	$UsaPaleta	0
-tag	paleta
-slider2d	$Paleta	.5 .5
-tag	hsv
-slider2d	$Hsv	.5 .5
-tag
-fbo	$PaletaAtual	200 10
-float	$S	0 255 255
-float	$HRange	0 720 100
-float	$HRangeAudio	0 360 0
-int	$HStep	0 6 0
-float	$BRange	0 512 0
-float	$BStop	0 1 1
-float	$Alpha	0 255 255
-float	$AlphaAudio	0 255 0
-float	$AlphaRange	0 255 0
-endTemplate
-#======)";
 
-
-	
 	string uiTag = "";
 	
 	loadSaveType loadMode = PRESETSFOLDER;
@@ -427,8 +341,6 @@ endTemplate
 //	bool loadPreset = true;
 //	bool savePreset = true;
 //	bool keepSettings = false;
-
-	
 	
 	bool visible = true;
 
@@ -441,9 +353,7 @@ endTemplate
 	// so tem parametro pq to usando o invokeBool
 	void saveMaster(bool save=true);
 
-	
 	string fixedLabel = "";
-	
 	
 	vector < std::function<void()> > presetupFunctions;
 	vector < std::function<void()> > setupFunctions;

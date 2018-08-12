@@ -37,13 +37,12 @@ http://dmtr.org/
 void ofxDmtrUI3::setup() {
 	// REVER AQUI
 	settings.setSoftware(software);
-	//settings.software = &software;
-	
-	createFromLines(templatesString);
+	// antigo. ear pra por os audiobpm na inicializacao de tudo.
+	//createFromLines(templatesString);
 
 	//settings.updateUI = &ofxDmtrUI3::updateUI;
-	fboSettings.width = 10; // will resize on autofit
-	fboSettings.height = 10;
+//	fboSettings.width = 10; // will resize on autofit
+//	fboSettings.height = 10;
 	fboSettings.internalformat = GL_RGBA;
 
 	settings.pFloat	 	= &pFloat;
@@ -320,6 +319,8 @@ void ofxDmtrUI3::reload() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::createFromText(string file, bool n) {
+	cout << "createFromText:" << file << ":" << (n ? "yes" : "no") << endl;
+	
 	settings.uiname = UINAME;
 	vector <string> linhas;
 	
@@ -343,19 +344,8 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 	} else {
 		cout << "ofxDmtrUI3 createFromText ::: File not found " + file << endl;
 	}
-	
-	//if (loadPreset) {
-	//saveMode = MASTER;
-	
 	updateLookup();
-
-//	if (loadMode == MASTER) {
-//		string file = "_presets/" + UINAME + ".xml";
-//		load(file);
-//	}
-
 	autoFit();
-	
 	if (settings.software->masterIsSetup) {
 		reFlowUis();
 	}
@@ -372,9 +362,7 @@ void ofxDmtrUI3::createFromLines(string lines) {
 void ofxDmtrUI3::createFromLines(vector<string> lines) {
 	for (auto & l : lines) {
 		if (buildingTemplate == "") {
-            //cout << l << endl;
 			createFromLine(l);
-            
 		} else {
 			if (ofIsStringInString(l, "endTemplate")) {
 				buildingTemplate = "";
@@ -829,7 +817,9 @@ void ofxDmtrUI3::createFromLine(string l) {
 				settings.nPresets = ofToInt(nome);
 			}
 			else if (tipo == "margin") {
-				settings.margin = ofPoint(ofToInt(nome), ofToInt(nome));
+				// XAXA RESOLVER - total rewrite of the heart
+				//settings.software->margin = ofPoint(ofToInt(nome), ofToInt(nome));
+				//settings.margin = ofPoint(ofToInt(nome), ofToInt(nome));
 			}
 
 			else if (tipo == "addUI" || tipo == "addUIDown") {
@@ -1210,8 +1200,12 @@ void ofxDmtrUI3::load(string xml) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::reFlow() {
 	cout << "==== reflow == " + UINAME << endl;
-	settings.flow = settings.margin;
-//	for (auto & e : elements) {
+	
+	// xaxa not working
+	//settings.flow = settings.margin;
+
+	
+	//	for (auto & e : elements) {
 //		e->getProperties();
 //	}
 
@@ -1228,18 +1222,6 @@ void ofxDmtrUI3::reFlow() {
 }
 
 
-/*
- c++14 only
-//--------------------------------------------------------------
-auto ofxDmtrUI3::getVal(string n) {
-	for (auto & e : elements) {
-		if (e->name == n) {
-			return e->getVal();
-		}
-	}
-}
-*/
-
 
 // Dividir em outra pagina, legacy algo assim
 //--------------------------------------------------------------
@@ -1253,14 +1235,14 @@ _ ._. ._ _. ... .._ ._. .._. .. _. __.
 File not found
 Does the folder has a data folder?
 Did you try run.command?
-Does the full path to software has blank spaces?
 )";
 		ofSystemAlertDialog(alertString);
 		std::exit(1);
 	}
 	
-	
-	settings.software = &software;
+//	settings.software = &software;
+	settings.setSoftware(software);
+
 	UINAME = "master";
 	
 	loadMode = MASTER;
@@ -1367,45 +1349,53 @@ void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 	
 	if (down) {
 		if (uis[nome]._uiLast->UINAME == "master") {
+			// needed because it will add UI before finish loading txt (adding uis inside the txt itself)
 			autoFit();
 		}
 		uis[nome].settings.minimumWidth = uis[nome]._uiLast->fboUI.getWidth();
-		uis[nome]._uiLast->autoFit();
+		//uis[nome]._uiLast->autoFit();
 		
 		uis[nome].isDown = true;
 		// nao funciona pois o uiAll.txt override.
 		uis[nome].settings.sliderDimensions = uis[nome]._uiLast->settings.sliderDimensions;
 		//uis[nome].settings.setSliderWidth(settings.sliderDimensions.x);
 //		uis[nome].downTo(*uis[nome]._uiLast);
-		uis[nome].settings.rect.width = uis[nome]._uiLast->settings.rect.width ;
+		uis[nome].settings.rect.width = uis[nome]._uiLast->settings.rect.width;
 		uis[nome].settings.rect.x  = uis[nome]._uiLast->settings.rect.x ;
-		uis[nome].settings.rect.y  = uis[nome]._uiLast->settings.rect.y + uis[nome]._uiLast->settings.rect.height + uis[nome]._uiLast->settings.margin.y;
+		
+		uis[nome].settings.rect.y  = uis[nome]._uiLast->settings.rect.y + uis[nome]._uiLast->settings.rect.height + software.colSpacing;
 		// precisa?
-		uis[nome].settings.minimumWidth = MAX(settings.minimumWidth, settings.sliderDimensions.x);
+//		uis[nome].settings.minimumWidth = MAX(settings.minimumWidth, settings.sliderDimensions.x);
 	}
 	else {
-		uis[nome].settings.rect.x = uis[nome]._uiLast->settings.rect.x + uis[nome]._uiLast->settings.rect.width + uis[nome]._uiLast->settings.margin.x;
+
+		uis[nome].settings.rect.x = uis[nome]._uiLast->settings.rect.x + uis[nome]._uiLast->settings.rect.width + software.colSpacing;
+//		uis[nome].settings.rect.x = uis[nome]._uiLast->settings.rect.x + uis[nome]._uiLast->fboUI.getWidth() + software.colSpacing;
 		uis[nome].settings.rect.y = 0;
 	}
+	
+	cout << uis[nome]._uiLast->UINAME << endl;
+	cout << uis[nome]._uiLast->settings.rect.x << endl;
+	cout << uis[nome]._uiLast->settings.rect.width << endl;
+	//cout << uis[nome].settings.rect.width << endl;
+	cout << "-------" << endl;
+
+	updateSoftwareRect();
 }
 
 //--------------------------------------------------------------
 // software - recursive repositioning until the last UI
 void ofxDmtrUI3::reFlowUis() {
-	// reflowuis apenas se ja estiver interfaceado com txt.
-	// XAXA apenas se houver mudado as dimensoes da paradinha
-	
 	if (_uiNext != NULL) {
 		if (_uiNext->isDown) {
-			int nextHeight = visible ? settings.rect.height + settings.margin.y : 0;
+			int nextHeight = visible ? settings.rect.height + settings.software->colSpacing : 0;
 			_uiNext->settings.rect.x = settings.rect.x;
 			_uiNext->settings.rect.y = settings.rect.y + nextHeight;
 		} else {
-			int nextWidth = visible ? settings.rect.width + settings.margin.x : 0;
+			int nextWidth = visible ? settings.rect.width + settings.software->colSpacing : 0;
 			_uiNext->settings.rect.x = settings.rect.x + nextWidth;
 		}
 		_uiNext->reFlowUis();
-		
 	} else {
 		_uiFather->updateSoftwareRect();
 		//cout << "----- this is the end" << endl;
@@ -1414,17 +1404,30 @@ void ofxDmtrUI3::reFlowUis() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::autoFit() {
+	
+	cout << "autoFit :: " + UINAME << endl;
 	if (showInterface) {
 		
-		int maxw = settings.minimumWidth + settings.margin.x; // + settings.margin.x*2
+		
+//		int maxw = settings.minimumWidth + settings.software->colPadding;
+		int maxw = settings.minimumWidth;
+		maxw = MAX(maxw, settings.sliderDimensions.x + settings.software->colPadding);
+		
 		int maxh = 0;
 		for (auto & e : elements) {
 			maxw = MAX(maxw, e->boundsRect.x + e->boundsRect.width);
 			maxh = MAX(maxh, e->boundsRect.y + e->boundsRect.height);
 		}
-		settings.rect.width  = maxw + settings.margin.x;
-		settings.rect.height = maxh + settings.margin.y;
+		
+		if (elements.size() == 0) {
+			// xaxa ta errado. seria *2 aqui...
+			maxw = settings.sliderDimensions.x + settings.software->colPadding*3;
+		}
+		
+		settings.rect.width  = maxw + settings.software->colPadding;
+		settings.rect.height = maxh + settings.software->colPadding;
 
+		
 		fboSettings.width = settings.rect.width;
 		fboSettings.height = settings.rect.height;
 
@@ -1739,3 +1742,18 @@ void ofxDmtrUI3::saveMaster(bool s) {
 	cout << file << endl;
 	save("_presets/" + UINAME + ".xml");
 }
+
+
+
+
+/*
+ c++14 only
+ //--------------------------------------------------------------
+ auto ofxDmtrUI3::getVal(string n) {
+ for (auto & e : elements) {
+ if (e->name == n) {
+ return e->getVal();
+ }
+ }
+ }
+ */
