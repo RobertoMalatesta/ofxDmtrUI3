@@ -145,7 +145,7 @@ public:
 	
 	//ofPoint margin = ofPoint(10,10);
 	
-	int colSpacing = 16;
+	int colSpacing = 10;
 	int colPadding = 10;
 
 };
@@ -193,7 +193,7 @@ public:
 	}
 
 	void setSliderWidth(int w) {
-		cout << "setSliderWidth " << w <<  " uiname:" << uiname << endl;
+		//cout << "setSliderWidth " << w <<  " uiname:" << uiname << endl;
 		sliderDimensions.x = w;
 		minimumWidth = MAX(minimumWidth, sliderDimensions.x);
 	}
@@ -321,14 +321,16 @@ public:
 		flow.y += sliderDimensions.y + getSpacing();
 	}
 	void newCol() {
+		//cout << "newcol now, spacing = " << spacing << endl;
 		
 		// confuso aqui . margin que é o de fora com
 		//		colx +=  sliderDimensions.x + margin.x;
-		colx +=  sliderDimensions.x + spacing;
+		colx +=  sliderDimensions.x + software->colPadding;
+		
 		//flow.x += sliderDimensions.x + margin.x;
 		flow.x = colx;
 		//flow.y = margin.y;
-		flow.y = spacing;
+		flow.y = software->colPadding;
 	}
 
 	void setFlowVert(bool f) {

@@ -319,7 +319,7 @@ void ofxDmtrUI3::reload() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::createFromText(string file, bool n) {
-	cout << "createFromText:" << file << ":" << (n ? "yes" : "no") << endl;
+	//cout << "createFromText:" << file << ":" << (n ? "yes" : "no") << endl;
 	
 	settings.uiname = UINAME;
 	vector <string> linhas;
@@ -810,6 +810,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 			
 			else if (tipo == "sliderMargin") {
+				// tava errado aqui XAXA
 				settings.spacing = ofToInt(nome);
 			}
 			else if (tipo == "nPresets") {
@@ -1303,16 +1304,15 @@ void ofxDmtrUI3::setFbo(ofFbo &fbo) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 
-	// primeiro tudo que é geral, não precisamos mexer nisso.
 	uis[nome].UINAME = nome;
 	uis[nome]._uiFather = this;
 	if (software.uiTag != "") {
 		uis[nome].uiTag = software.uiTag;
 	}
-	// todos no mesmo software que o master.
+	// every GUI has the same software object than the master (pointer to it)
 	uis[nome].settings.software = &software;
 
-	// lembrando que o addUI roda antes do createsoftware from text acabar e a master se adicionar na lista de allUIs
+	// master is added to allUIs vector just on finish, but it already has addUI before it, so if size==0, then add this.
 	if (allUIs.size())
 	{
 		uis[nome]._uiLast = allUIs.back();
@@ -1323,9 +1323,36 @@ void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 	allUIs.push_back(&uis[nome]);
 
 
-	// AQUI SEMPRE VAI TER _uiLast. SEMPRE
+	// Any UI added with addUI has a _uiLast pointer set.
 	uis[nome].settings.hue = uis[nome]._uiLast->settings.hue;
+	if (uis[nome]._uiLast->UINAME == "master") {
+		//cout << "this is master, this is autofit" << endl;
+		autoFit();
+	}
 
+	if (down) {
+		uis[nome].isDown = true;
+		//cout << "this new ui is uidown :: " << nome << endl;
+		uis[nome].settings.minimumWidth = uis[nome]._uiLast->fboUI.getWidth();
+		
+		// nao funciona pois o uiAll.txt override.
+		uis[nome].settings.sliderDimensions = uis[nome]._uiLast->settings.sliderDimensions;
+		//uis[nome].settings.setSliderWidth(settings.sliderDimensions.x);
+//		uis[nome].downTo(*uis[nome]._uiLast);
+		uis[nome].settings.rect.width = uis[nome]._uiLast->settings.rect.width;
+		uis[nome].settings.rect.x  = uis[nome]._uiLast->settings.rect.x ;
+		
+		uis[nome].settings.rect.y  = uis[nome]._uiLast->settings.rect.y + uis[nome]._uiLast->settings.rect.height + software.colSpacing;
+		// precisa?
+//		uis[nome].settings.minimumWidth = MAX(settings.minimumWidth, settings.sliderDimensions.x);
+	}
+	else {
+
+		uis[nome].settings.rect.x = uis[nome]._uiLast->settings.rect.x + uis[nome]._uiLast->settings.rect.width + software.colSpacing;
+//		uis[nome].settings.rect.x = uis[nome]._uiLast->settings.rect.x + uis[nome]._uiLast->fboUI.getWidth() + software.colSpacing;
+		uis[nome].settings.rect.y = 0;
+	}
+	
 	string fileName = nome+".txt";
 	if (ofIsStringInString(valores, "text:")) {
 		fileName = ofSplitString(valores, "text:")[1] + ".txt";
@@ -1347,38 +1374,10 @@ void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 		uis[nome].createFromText(fileName);
 	}
 	
-	if (down) {
-		if (uis[nome]._uiLast->UINAME == "master") {
-			// needed because it will add UI before finish loading txt (adding uis inside the txt itself)
-			autoFit();
-		}
-		uis[nome].settings.minimumWidth = uis[nome]._uiLast->fboUI.getWidth();
-		//uis[nome]._uiLast->autoFit();
-		
-		uis[nome].isDown = true;
-		// nao funciona pois o uiAll.txt override.
-		uis[nome].settings.sliderDimensions = uis[nome]._uiLast->settings.sliderDimensions;
-		//uis[nome].settings.setSliderWidth(settings.sliderDimensions.x);
-//		uis[nome].downTo(*uis[nome]._uiLast);
-		uis[nome].settings.rect.width = uis[nome]._uiLast->settings.rect.width;
-		uis[nome].settings.rect.x  = uis[nome]._uiLast->settings.rect.x ;
-		
-		uis[nome].settings.rect.y  = uis[nome]._uiLast->settings.rect.y + uis[nome]._uiLast->settings.rect.height + software.colSpacing;
-		// precisa?
-//		uis[nome].settings.minimumWidth = MAX(settings.minimumWidth, settings.sliderDimensions.x);
-	}
-	else {
-
-		uis[nome].settings.rect.x = uis[nome]._uiLast->settings.rect.x + uis[nome]._uiLast->settings.rect.width + software.colSpacing;
-//		uis[nome].settings.rect.x = uis[nome]._uiLast->settings.rect.x + uis[nome]._uiLast->fboUI.getWidth() + software.colSpacing;
-		uis[nome].settings.rect.y = 0;
-	}
-	
-	cout << uis[nome]._uiLast->UINAME << endl;
-	cout << uis[nome]._uiLast->settings.rect.x << endl;
-	cout << uis[nome]._uiLast->settings.rect.width << endl;
-	//cout << uis[nome].settings.rect.width << endl;
-	cout << "-------" << endl;
+//	cout << uis[nome]._uiLast->UINAME << endl;
+//	cout << uis[nome]._uiLast->settings.rect.x << endl;
+//	cout << uis[nome]._uiLast->settings.rect.width << endl;
+//	cout << "-------" << endl;
 
 	updateSoftwareRect();
 }
@@ -1405,7 +1404,7 @@ void ofxDmtrUI3::reFlowUis() {
 //--------------------------------------------------------------
 void ofxDmtrUI3::autoFit() {
 	
-	cout << "autoFit :: " + UINAME << endl;
+	//cout << "autoFit :: " + UINAME << endl;
 	if (showInterface) {
 		
 		
