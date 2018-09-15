@@ -156,11 +156,11 @@ public:
      LOOKUP SECTION
     */
 
-	void set(string e, string s);
-	void set(string e, bool b);
-	void set(string e, int i);
-	void set(string e, float f);
-	void set(string e, ofPoint p);
+	void set(string e, string s, bool notifyEvent = true);
+	void set(string e, bool b, bool notifyEvent = true);
+	void set(string e, int i, bool notifyEvent = true);
+	void set(string e, float f, bool notifyEvent = true);
+	void set(string e, ofPoint p, bool notifyEvent = true);
 	
 	map <string, slider *> slidersLookup;
 	map <string, toggle *> togglesLookup;
