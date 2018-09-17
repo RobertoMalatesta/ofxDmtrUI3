@@ -1291,6 +1291,7 @@ void ofxDmtrUI3::loadMaster() {
 	
 	for (auto & u : uis) {
 		if (u.second.loadMode == MASTER) {
+			cout << "loadMaster UI " << u.second.UINAME << endl;
 			u.second.loadMaster();
 		}
 	}
@@ -1523,16 +1524,9 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 			software.eventOnClick = false;
 
 			for (auto & u : uis) {
-				// xaxa limpar
-				//if (u.first != "master")
-				{
-					if (u.second.loadMode == PRESETSFOLDER) {
-					//if (!u.second.keepSettings && (u.second.loadSave && u.second.loadPreset)) {
-						string nome = getPresetsPath(ofToString(n) + u.first + ".xml");
-						u.second.load(nome);
-					}
-					// feito pra ofxDmtrUI3Remote
-					//u.second.notify("loadPreset");
+				if (u.second.loadMode == PRESETSFOLDER) {
+					string nome = getPresetsPath(ofToString(n) + u.first + ".xml");
+					u.second.load(nome);
 				}
 			}
 			software.eventOnClick = true;
@@ -1605,8 +1599,11 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 		
 		// da erro aqui se nao tiver um elemento chamado allPresets no master.
 		// contornar?
+
+		if (getElement("allPresets") != NULL) {
 		for (auto & e : ((mult*)getElement("allPresets"))->elements) {
 			e->updateImage();
+		}
 		}
 	}
 	
@@ -1666,38 +1663,39 @@ void ofxDmtrUI3::showUI(int show) {
 }
 
 
-void ofxDmtrUI3::set(string el, bool v) {
+void ofxDmtrUI3::set(string el, bool v, bool notifyEvent) {
 	toggle * e = getToggle(el);
 	if (e != NULL) {
-		e->set(v);
+		e->set(v, notifyEvent);
+		
 	}
 };
 
-void ofxDmtrUI3::set(string el, string v) {
+void ofxDmtrUI3::set(string el, string v, bool notifyEvent) {
 	radio * e = getRadio(el);
 	if (e != NULL) {
-		e->set(v);
+		e->set(v, notifyEvent);
 	}
 };
 
-void ofxDmtrUI3::set(string el, float v) {
+void ofxDmtrUI3::set(string el, float v, bool notifyEvent) {
 	slider * e = getSlider(el);
 	if (e != NULL) {
-		e->set(v);
+		e->set(v, notifyEvent);
 	}
 };
 
-void ofxDmtrUI3::set(string el, int v) {
+void ofxDmtrUI3::set(string el, int v, bool notifyEvent) {
 	slider * e = getSlider(el);
 	if (e != NULL) {
-		e->set(v);
+		e->set(v, notifyEvent);
 	}
 };
 
-void ofxDmtrUI3::set(string el, ofPoint v) {
+void ofxDmtrUI3::set(string el, ofPoint v, bool notifyEvent) {
 	slider2d * e = getSlider2d(el);
 	if (e != NULL) {
-		e->set(v);
+		e->set(v, notifyEvent);
 	}
 };
 
