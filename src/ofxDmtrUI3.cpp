@@ -1286,12 +1286,12 @@ Did you try run.command?
 void ofxDmtrUI3::loadMaster() {
 	
 	string file = "_presets/" + UINAME + ".xml";
-	cout << "loadMaster() : " << file << endl;
+	//cout << "loadMaster() : " << file << endl;
 	load(file);
 	
 	for (auto & u : uis) {
 		if (u.second.loadMode == MASTER) {
-			cout << "loadMaster UI " << u.second.UINAME << endl;
+			//cout << "loadMaster UI " << u.second.UINAME << endl;
 			u.second.loadMaster();
 		}
 	}
@@ -1337,7 +1337,11 @@ void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 		uis[nome].settings.minimumWidth = uis[nome]._uiLast->fboUI.getWidth();
 		
 		// nao funciona pois o uiAll.txt override.
+		
+		
 		uis[nome].settings.sliderDimensions = uis[nome]._uiLast->settings.sliderDimensions;
+//		cout << "this ui is called " << nome << endl;
+//		cout << "sliders dimensions = " << uis[nome].settings.sliderDimensions << endl;
 		//uis[nome].settings.setSliderWidth(settings.sliderDimensions.x);
 //		uis[nome].downTo(*uis[nome]._uiLast);
 		uis[nome].settings.rect.width = uis[nome]._uiLast->settings.rect.width;
@@ -1563,13 +1567,16 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 	}
 	
 	if (e.tag == "color") {
-		string name;
-		if (e.kind == SLIDER2D) {
+		string name = "";
+		if (e.kind == SLIDER2D && e.onClick) {
 			name = e.name;
-		} else if (e.kind == SLIDER) {
+		}
+
+		if (e.kind == SLIDER) {
 			vector <string> nomes = ofSplitString(e.name, "_");
 			name = nomes[0];
 		}
+
 		ofPoint xy = pPoint[name];
 		float h = xy.x * 255.0;
 		float s = pFloat[name + "_S"];
