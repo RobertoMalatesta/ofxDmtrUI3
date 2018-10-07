@@ -681,7 +681,9 @@ void ofxDmtrUI3::createFromLine(string l) {
 				if (tipo == "scene" || tipo == "sceneNoLabel") {
 					dir.allowExt("txt");
 				}
+
 				dir.listDir(valores);
+				dir.sort();
 				vector <string> opcoes;
 				for (auto & d : dir) {
 					if (tipo == "dirListNoExt" || tipo == "scene" || tipo == "sceneNoLabel") {
@@ -689,6 +691,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 					} else {
 						opcoes.push_back(d.getFileName());
 					}
+
 				}
 				
 				bool label = tipo != "sceneNoLabel";
