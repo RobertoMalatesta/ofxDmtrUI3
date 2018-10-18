@@ -1,6 +1,6 @@
 /**********************************************************************************
 
- Copyright (C) 2018 Dimitre Lima (www.dmtr.org)
+ Copyright (C) 2018 Dimitre Lima (dmtr.org)
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of
  this software and associated documentation files (the "Software"), to deal in
@@ -377,5 +377,36 @@ public:
 
 	bool isDown = false;
 	ofFbo::Settings fboSettings;
+
+
+	void messageBox(string s) {
+		vector <string> linhas = ofSplitString(s, "\r");
+		int size = 0;
+		for (auto & l : linhas) {
+			size = MAX(size, l.size());
+		}
+		// cout << "messagebox :: " << s << endl;
+		// cout << "size = " << size << endl;
+		for (int a=0; a<size+4; a++) {
+			cout << "-" ;
+		}
+		cout << endl;
+
+		for (auto & l : linhas) {
+			string spaces = "";
+			int difSize = (size - l.size());
+			//cout << difSize << endl;
+			if (difSize) {
+				for (int a=0; a<difSize; a++) {
+					spaces += " ";
+				}
+			}
+			cout << "| " << l << spaces << " |" << endl;
+		}
+		for (int a=0; a<size+4; a++) {
+			cout << "-" ;
+		}
+		cout << endl;
+	}
 
 };
