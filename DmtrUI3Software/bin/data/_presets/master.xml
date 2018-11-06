@@ -1,13 +1,18 @@
-<ofxDmtrUIVersion>4.000000000</ofxDmtrUIVersion>
+<?xml version="1.0"?>
+<ofxDmtrUIVersion>5</ofxDmtrUIVersion>
 <element>
-    <string>
-        <presetsFolder>2</presetsFolder>
-        <allPresets>2</allPresets>
-    </string>
-    <f>
-        <fboX>341.000000000</fboX>
-        <fboY>40.000000000</fboY>
-        <fboScale>1.000000000</fboScale>
-        <easing>10.000000000</easing>
-    </f>
+	<bool />
+	<string>
+		<presetsFolder></presetsFolder>
+		<allPresets>4</allPresets>
+	</string>
+	<point />
+	<int>
+		<fboX>785</fboX>
+		<fboY>40</fboY>
+	</int>
+	<float>
+		<fboScale>0.5</fboScale>
+		<easing>10</easing>
+	</float>
 </element>

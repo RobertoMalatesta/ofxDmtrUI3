@@ -29,7 +29,7 @@
 
 #include "ofMain.h"
 #include "ofEvents.h"
-#include "ofxXmlSettings.h"
+//#include "ofxXmlSettings.h"
 
 #if defined( TARGET_OF_IPHONE ) || defined( TARGET_OF_IOS ) || defined( TARGET_ANDROID )
 	#define DMTRUI_TARGET_TOUCH
@@ -56,7 +56,9 @@ public:
 
 	void save(string xml);
 	void load(string xml);
-	
+	void save2(string xml);
+	void load2(string xml);
+
 	void reload();
 
 	vector <string> textToVector(string file);

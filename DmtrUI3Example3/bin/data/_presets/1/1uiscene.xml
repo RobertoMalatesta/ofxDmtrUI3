@@ -1,14 +1,19 @@
-<ofxDmtrUIVersion>4.000000000</ofxDmtrUIVersion>
+<?xml version="1.0"?>
+<ofxDmtrUIVersion>5</ofxDmtrUIVersion>
 <element>
-    <f>
-        <numero>33.000000000</numero>
-        <raio>8.181818008</raio>
-        <raioMax>400.000000000</raioMax>
-        <shaper>6.863636494</shaper>
-        <multTimeX>0.085000001</multTimeX>
-        <multTimeY>0.111111112</multTimeY>
-    </f>
-    <bool>
-        <colorImpar>1</colorImpar>
-    </bool>
+	<bool>
+		<colorImpar>1</colorImpar>
+	</bool>
+	<string />
+	<point />
+	<int>
+		<numero>33</numero>
+	</int>
+	<float>
+		<raio>8</raio>
+		<raioMax>400</raioMax>
+		<shaper>6</shaper>
+		<multTimeX>0</multTimeX>
+		<multTimeY>0</multTimeY>
+	</float>
 </element>

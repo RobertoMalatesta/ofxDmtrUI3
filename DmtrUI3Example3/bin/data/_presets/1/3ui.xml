@@ -1,20 +1,23 @@
-<ofxDmtrUIVersion>4.000000000</ofxDmtrUIVersion>
+<?xml version="1.0"?>
+<ofxDmtrUIVersion>5</ofxDmtrUIVersion>
 <element>
-    <string>
-        <scene>defasa</scene>
-    </string>
-    <point>
-        <bg>
-            <x>0.290909082</x>
-            <y>0.000000000</y>
-        </bg>
-        <color>
-            <x>0.449999988</x>
-            <y>0.911111116</y>
-        </color>
-    </point>
-    <f>
-        <bg_S>255.000000000</bg_S>
-        <color_S>255.000000000</color_S>
-    </f>
+	<bool />
+	<string>
+		<scene>defasa</scene>
+	</string>
+	<point>
+		<bg>
+			<x>0.290909</x>
+			<y>0</y>
+		</bg>
+		<color>
+			<x>0.45</x>
+			<y>0.911111</y>
+		</color>
+	</point>
+	<int />
+	<float>
+		<bg_S>255</bg_S>
+		<color_S>255</color_S>
+	</float>
 </element>

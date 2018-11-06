@@ -1061,140 +1061,176 @@ void ofxDmtrUI3::onWindowResized(ofResizeEventArgs &data) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::save(string xml) {
-	int version = 4;
-	ofxXmlSettings xmlSettings;
-	if (version == 4) {
-		xmlSettings.setValue("ofxDmtrUIVersion", 4.0);
+	int version = 5;
+	
+	ofXml xmlSettings;
+	if (version == 5) {
+		xmlSettings.appendChild("ofxDmtrUIVersion").set(version);
+		auto xmlElements = 	xmlSettings.appendChild("element");
+		auto bools =		xmlElements.appendChild("bool");
+		auto strings =		xmlElements.appendChild("string");
+		auto points = 		xmlElements.appendChild("point");
+		auto ints = 		xmlElements.appendChild("int");
+		auto floats = 		xmlElements.appendChild("float");
+
 		for (auto & e : elements) {
+			
 			if (e->saveXml) {
 				if (e->kind == TOGGLE || e->kind == RADIOITEM) {
-					xmlSettings.setValue("element:bool:" + e->name, (bool)e->getVal());
+					//xmlSettings.appendChild("element:bool:" + e->name).set((bool)e->getVal());
+					bools.appendChild(e->name).set((bool)e->getVal());
 				}
+				
 				else if (e->kind == RADIO || e->kind == PRESETS) {
-					xmlSettings.setValue("element:string:" + e->name, (string)e->getValString());
+					//xmlSettings.appendChild("element:string:" + e->name).set((string)e->getValString());
+					strings.appendChild(e->name).set((string)e->getValString());
 				}
+				
 				else if (e->kind == SLIDER2D) {
-					xmlSettings.setValue("element:point:" + e->name + ":x", e->getValPoint().x);
-					xmlSettings.setValue("element:point:" + e->name + ":y", e->getValPoint().y);
+					auto slider2ds = points.appendChild(e->name);
+					slider2ds.appendChild("x").set(e->getValPoint().x);
+					slider2ds.appendChild("y").set(e->getValPoint().y);
+					
+					//points.appendChild(e->name + ":x").set(e->getValPoint().x);
+					//points.appendChild(e->name + ":x").set(e->getValPoint().x);
+					//xmlSettings.appendChild("element:point:" + e->name + ":x").set(e->getValPoint().x);
+					//xmlSettings.appendChild("element:point:" + e->name + ":y").set(e->getValPoint().y);
 				}
-
+				
+				else if (e->kind == SLIDER) {
+//					if (((slider*)e)->isInt) {
+					if (e->varType == DMTRUI_INT) {
+						ints.appendChild(e->name).set(e->getVal());
+					} else {
+						floats.appendChild(e->name).set(e->getVal());
+					}
+				}
+				
 				else if (e->kind != LABEL) {
+					// generic. floats and ints // not anymore
 					string tipo = typeid(e->getVal()).name();
-					xmlSettings.setValue("element:" + tipo + ":" + e->name, e->getVal());
+					auto tipos = xmlElements.appendChild(tipo);
+					tipos.appendChild(e->name).set(e->getVal());
 				}
 			}
 		}
+		xmlSettings.save(xml);
 	}
-	else if (version == 5) {
-		xmlSettings.setValue("ofxDmtrUIVersion", 5.0);
-		for (auto & e : elements) {
-			if (e->saveXml) {
-				string tipo = typeid(e->getVal()).name();
-				cout << tipo << endl;
-				cout << "----" << endl;
-				
-				xmlSettings.setValue("element:"+tipo, e->getVal());
-				xmlSettings.addAttribute("element:"+tipo, "name", e->name, 0);
+}
 
+//--------------------------------------------------------------
+//void ofxDmtrUI3::save2(string xml) {
+//	int version = 4;
+//
+//	ofxXmlSettings xmlSettings;
+//	if (version == 4) {
+//		xmlSettings.setValue("ofxDmtrUIVersion", 4.0);
+//		for (auto & e : elements) {
+//			if (e->saveXml) {
 //				if (e->kind == TOGGLE || e->kind == RADIOITEM) {
-//					xmlSettings.setValue("element:bool:" , (bool)e->getVal());
-//					xmlSettings.addAttribute("element:bool", "name", e->name, 0);
-//					xmlSettings.addAttribute("element:bool", "kind", tipo, 0);
+//					xmlSettings.setValue("element:bool:" + e->name, (bool)e->getVal());
 //				}
 //				else if (e->kind == RADIO || e->kind == PRESETS) {
-//					xmlSettings.setValue("element:string:" , (string)e->getValString());
-//					xmlSettings.addAttribute("element:string", "name", e->name, 0);
-//					xmlSettings.addAttribute("element:string", "kind", tipo, 0);
+//					xmlSettings.setValue("element:string:" + e->name, (string)e->getValString());
 //				}
 //				else if (e->kind == SLIDER2D) {
-//					xmlSettings.setValue("element:point:x", e->getValPoint().x);
-//					xmlSettings.addAttribute("element:point:x", "name", e->name, 0);
-//					xmlSettings.setValue("element:point:y", e->getValPoint().y);
-//					xmlSettings.addAttribute("element:point:y", "name", e->name, 0);
-//					xmlSettings.addAttribute("element:point:x", "kind", tipo, 0);
+//					xmlSettings.setValue("element:point:" + e->name + ":x", e->getValPoint().x);
+//					xmlSettings.setValue("element:point:" + e->name + ":y", e->getValPoint().y);
 //				}
 //
 //				else if (e->kind != LABEL) {
 //					string tipo = typeid(e->getVal()).name();
-//					xmlSettings.setValue("element:" + tipo, e->getVal());
-//					xmlSettings.addAttribute("element:" + tipo, "name", e->name, 0);
-//					xmlSettings.addAttribute("element:" + tipo, "kind", tipo, 0);
+//					xmlSettings.setValue("element:" + tipo + ":" + e->name, e->getVal());
 //				}
-			}
-		}
-	}
-	xmlSettings.save(xml);
-}
-
-
-
-//--------------------------------------------------------------
-//void ofxDmtrUI3::save(string xml) {
+//			}
+//		}
+//	}
+//
+//
 //	xmlSettings.save(xml);
 //}
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::load(string xml) {
-	ofxXmlSettings xmlSettings;
-	if (ofFile::doesFileExist(xml)) {
-		xmlSettings.loadFile(xml);
-		loadedXmlFile = xml;
-		int UIVersion = xmlSettings.getValue("ofxDmtrUIVersion", 0);
-		
+	ofXml xmlSettings;
 
-		if (UIVersion == 4) {
+	if (ofFile::doesFileExist(xml)) {
+		xmlSettings.load(xml);
+		loadedXmlFile = xml;
+		int UIVersion = xmlSettings.getChild("ofxDmtrUIVersion").getIntValue();
+
+		if (UIVersion == 4 || UIVersion == 5)
+		{
+			auto xmlElements = 	xmlSettings.getChild("element");
+			auto bools =		xmlElements.findFirst("bool");
+			auto strings =		xmlElements.findFirst("string");
+			auto points = 		xmlElements.findFirst("point");
+			auto ints = 		xmlElements.findFirst("int");
+			auto floats = 		xmlElements.findFirst("float");
+			auto fs = 			xmlElements.findFirst("f");
 
 			for (auto & e : elements) {
 				if (e->saveXml) {
 					if (e->kind == TOGGLE || e->kind == RADIOITEM) {
-						bool valor = xmlSettings.getValue("element:bool:" +e->name, e->getValBool());
+						bool valor = bools.getChild(e->name).getBoolValue();
 						e->set(valor, notifyEventOnLoad);
 					}
 					else if (e->kind == RADIO || e->kind == PRESETS) {
-						string valor = xmlSettings.getValue("element:string:" +e->name, "");
+						string valor = strings.getChild(e->name).getValue();
 						e->set(valor, notifyEventOnLoad);
 					}
-
 					else if (e->kind == SLIDER2D) {
-						float x = xmlSettings.getValue("element:point:" +e->name + ":x", 0.0);
-						float y = xmlSettings.getValue("element:point:" +e->name + ":y", 0.0);
+						auto x = points.getChild(e->name).getChild("x").getFloatValue();
+						auto y = points.getChild(e->name).getChild("y").getFloatValue();
 						e->set(ofPoint(x,y), notifyEventOnLoad);
 					}
 
 					else if (e->kind == SLIDER) {
-						string tipo = typeid(e->getVal()).name();
-						float valor = xmlSettings.getValue("element:" + tipo + ":" + e->name, e->getVal());
-						e->set(valor, notifyEventOnLoad);
+						string tipo = e->varType == DMTRUI_INT ? "int" : "float";
+						if (UIVersion == 4) {
+							auto valor = fs.getChild(e->name).getIntValue();
+							e->set(valor, notifyEventOnLoad);
+						}
+
+						else {
+							if (tipo == "int") {
+								auto valor = ints.getChild(e->name).getIntValue();
+								e->set(valor, notifyEventOnLoad);
+							} else {
+								auto valor = floats.getChild(e->name).getIntValue();
+								e->set(valor, notifyEventOnLoad);
+							}
+						}
 					}
 				}
 			}
 		}
 
-		else if (UIVersion == 3) {
-			for (auto & e : elements) {
-				if (e->saveXml) {
-					if (e->kind == TOGGLE || e->kind == RADIOITEM) {
-						bool valor = xmlSettings.getValue("element:" +e->name, e->getValBool());
-						e->set(valor);
-					}
-					else if (e->kind == RADIO || e->kind == PRESETS) {
-						string valor = xmlSettings.getValue("element:" +e->name, "");
-						e->set(valor);
-					}
-
-					else if (e->kind == SLIDER2D) {
-						float x = xmlSettings.getValue("element:" +e->name + ":x", 0.0);
-						float y = xmlSettings.getValue("element:" +e->name + ":y", 0.0);
-						e->set(ofPoint(x,y));
-					}
-
-					else if (e->kind == SLIDER) {
-						float valor = xmlSettings.getValue("element:" +e->name, e->getVal());
-						e->set(valor);
-					}
-				}
-			}
-		}
+//		else if (UIVersion == 3) {
+//			for (auto & e : elements) {
+//				if (e->saveXml) {
+//					if (e->kind == TOGGLE || e->kind == RADIOITEM) {
+//						bool valor = xmlSettings.getValue("element:" +e->name, e->getValBool());
+//						e->set(valor);
+//					}
+//					else if (e->kind == RADIO || e->kind == PRESETS) {
+//						string valor = xmlSettings.getValue("element:" +e->name, "");
+//						e->set(valor);
+//					}
+//
+//					else if (e->kind == SLIDER2D) {
+//						float x = xmlSettings.getValue("element:" +e->name + ":x", 0.0);
+//						float y = xmlSettings.getValue("element:" +e->name + ":y", 0.0);
+//						e->set(ofPoint(x,y));
+//					}
+//
+//					else if (e->kind == SLIDER) {
+//						float valor = xmlSettings.getValue("element:" +e->name, e->getVal());
+//						e->set(valor);
+//					}
+//				}
+//			}
+//		}
 		notify("load");
 
 		// XAXA Notify

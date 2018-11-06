@@ -1,1 +1,9 @@
-<ofxDmtrUIVersion>3.000000000</ofxDmtrUIVersion>
+<?xml version="1.0"?>
+<ofxDmtrUIVersion>5</ofxDmtrUIVersion>
+<element>
+	<bool />
+	<string />
+	<point />
+	<int />
+	<float />
+</element>
