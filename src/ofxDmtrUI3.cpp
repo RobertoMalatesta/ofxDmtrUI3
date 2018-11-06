@@ -1186,18 +1186,18 @@ void ofxDmtrUI3::load(string xml) {
 					}
 
 					else if (e->kind == SLIDER) {
-						string tipo = e->varType == DMTRUI_INT ? "int" : "float";
 						if (UIVersion == 4) {
-							auto valor = fs.getChild(e->name).getIntValue();
+							auto valor = fs.getChild(e->name).getFloatValue();
 							e->set(valor, notifyEventOnLoad);
 						}
 
 						else {
+							string tipo = e->varType == DMTRUI_INT ? "int" : "float";
 							if (tipo == "int") {
 								auto valor = ints.getChild(e->name).getIntValue();
 								e->set(valor, notifyEventOnLoad);
 							} else {
-								auto valor = floats.getChild(e->name).getIntValue();
+								auto valor = floats.getChild(e->name).getFloatValue();
 								e->set(valor, notifyEventOnLoad);
 							}
 						}
