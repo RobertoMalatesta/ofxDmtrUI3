@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<ofxDmtrUIVersion>5</ofxDmtrUIVersion>
+<element>
+	<bool />
+	<string />
+	<point />
+	<int />
+	<float />
+</element>

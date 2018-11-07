@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<ofxDmtrUIVersion>5</ofxDmtrUIVersion>
+<element>
+	<bool />
+	<string />
+	<point />
+	<int>
+		<limite>181</limite>
+		<w>167</w>
+		<h>165</h>
+		<transX>264</transX>
+		<transY>200</transY>
+	</int>
+	<float />
+</element>

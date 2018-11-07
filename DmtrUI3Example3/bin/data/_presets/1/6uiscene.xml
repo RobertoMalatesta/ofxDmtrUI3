@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<ofxDmtrUIVersion>5</ofxDmtrUIVersion>
+<element>
+	<bool>
+		<colorImpar>1</colorImpar>
+	</bool>
+	<string />
+	<point />
+	<int>
+		<numero>57</numero>
+	</int>
+	<float>
+		<raio>8</raio>
+		<raioMax>222</raioMax>
+		<shaper>6.8</shaper>
+		<multTimeX>0</multTimeX>
+		<multTimeY>0</multTimeY>
+	</float>
+</element>

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<ofxDmtrUIVersion>5</ofxDmtrUIVersion>
+<element>
+	<bool />
+	<string>
+		<scene>bolas</scene>
+	</string>
+	<point>
+		<bg>
+			<x>0.92</x>
+			<y>0.8</y>
+		</bg>
+		<color>
+			<x>0.93</x>
+			<y>0.888889</y>
+		</color>
+	</point>
+	<int />
+	<float>
+		<bg_S>255</bg_S>
+		<color_S>255</color_S>
+	</float>
+</element>

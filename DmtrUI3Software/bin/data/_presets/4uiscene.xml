@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<ofxDmtrUIVersion>5</ofxDmtrUIVersion>
+<element>
+	<bool>
+		<old>1</old>
+		<thresh>1</thresh>
+		<drawContourFinder>0</drawContourFinder>
+		<gaussianBlur>0</gaussianBlur>
+	</bool>
+	<string>
+		<drawCam>no</drawCam>
+	</string>
+	<point />
+	<int />
+	<float>
+		<easing>140</easing>
+		<thresh>127</thresh>
+		<blurRadius>0</blurRadius>
+		<camOpacity>51</camOpacity>
+		<fatorArea>0.898</fatorArea>
+		<minArea>35.65</minArea>
+		<maxArea>126.685</maxArea>
+		<contourThreshold>12.76</contourThreshold>
+		<maximumDistance>78.15</maximumDistance>
+		<persistence>255.745</persistence>
+	</float>
+</element>
