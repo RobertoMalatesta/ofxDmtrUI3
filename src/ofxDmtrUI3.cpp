@@ -1188,6 +1188,7 @@ void ofxDmtrUI3::load(string xml) {
 					else if (e->kind == SLIDER) {
 						if (UIVersion == 4) {
 							auto valor = fs.getChild(e->name).getFloatValue();
+							//auto valor = fs.getChild(e->name).getValue();
 							e->set(valor, notifyEventOnLoad);
 						}
 

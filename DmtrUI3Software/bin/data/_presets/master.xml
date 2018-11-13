@@ -4,11 +4,11 @@
 	<bool />
 	<string>
 		<presetsFolder></presetsFolder>
-		<allPresets>4</allPresets>
+		<allPresets>0</allPresets>
 	</string>
 	<point />
 	<int>
-		<fboX>785</fboX>
+		<fboX>450</fboX>
 		<fboY>40</fboY>
 	</int>
 	<float>

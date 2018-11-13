@@ -20,6 +20,10 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::desenha(){
+	
+	ofClear(u.pColor["bg"]);
+	
+	
 	if (*cena == "test") {
 		float raio = ui->pFloat["raio"];
 		float x = ofNoise(ofGetElapsedTimef()*.2) * fbo->getWidth();
