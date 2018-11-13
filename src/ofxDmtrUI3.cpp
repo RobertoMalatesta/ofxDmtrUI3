@@ -1190,6 +1190,7 @@ void ofxDmtrUI3::load(string xml) {
 							auto valor = fs.getChild(e->name).getFloatValue();
 							//auto valor = fs.getChild(e->name).getValue();
 							e->set(valor, notifyEventOnLoad);
+							
 						}
 
 						else {
