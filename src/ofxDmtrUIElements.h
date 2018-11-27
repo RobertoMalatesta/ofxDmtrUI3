@@ -1465,30 +1465,6 @@ public:
 
 };
 
-class fps : public element {
-public:
-	fps(string n, uiConfig & u) {
-		kind = LABEL;
-		settings = &u;
-		name = n;
-		getProperties();
-		alwaysRedraw = true;
-		saveXml = false;
-	}
-
-	void drawSpecific() {
-		ofSetColor(255);
-		if (settings->software->customFont) {
-			settings->software->font.drawString(ofToString(ofGetFrameRate()), labelPos.x, labelPos.y);
-		}
-		else {
-			ofDrawBitmapString(ofToString(ofGetFrameRate()), labelPos.x, labelPos.y);
-		}
-	}
-};
-
-
-
 
 // fazer derivado do mult tb, colorizar quadros assim posso usar eles tb pra moving heads por ex.
 class color : public mult {
@@ -1517,8 +1493,6 @@ public:
 	}
 };
 
-
-
 class image : public element {
 public:
 	ofImage img;
@@ -1544,3 +1518,85 @@ public:
 		activeRect.height = 0;
 	}
 };
+
+
+
+class fps : public element {
+public:
+    fps(string n, uiConfig & u) {
+        kind = LABEL;
+        settings = &u;
+        name = n;
+        getProperties();
+        alwaysRedraw = true;
+        saveXml = false;
+    }
+    
+    void drawSpecific() {
+        ofSetColor(255);
+        if (settings->software->customFont) {
+            settings->software->font.drawString(ofToString(ofGetFrameRate()), labelPos.x, labelPos.y);
+        }
+        else {
+            ofDrawBitmapString(ofToString(ofGetFrameRate()), labelPos.x, labelPos.y);
+        }
+    }
+};
+
+
+class inspector : public element {
+public:
+    inspector(string n, uiConfig & u) {
+        kind = LABEL;
+        settings = &u;
+        name = n;
+        getProperties();
+        alwaysRedraw = true;
+        saveXml = false;
+        showLabel = false;
+    }
+    
+    void setVal(string s) {
+        label = s;
+    }
+    
+    void drawSpecific() {
+        ofSetColor(255);
+        
+        // xaxa transformar em funcao.
+        if (settings->software->customFont) {
+            settings->software->font.drawString(label, labelPos.x, labelPos.y);
+        }
+        else {
+            ofDrawBitmapString(label, labelPos.x, labelPos.y);
+        }
+    }
+};
+
+
+class bar : public element {
+public:
+    float val;
+    bar(string n, uiConfig & u) {
+        kind = SLIDER;
+        settings = &u;
+        name = n;
+        getProperties();
+        alwaysRedraw = true;
+        saveXml = false;
+        showLabel = false;
+    }
+    
+    void setVal(float v) {
+        val = v;
+    }
+    
+    void drawSpecific() {
+        ofSetColor(255);
+        ofNoFill();
+        ofDrawRectangle(rect);
+        ofFill();
+        ofDrawRectangle(rect.x, rect.y, rect.width * val, rect.height);
+    }
+};
+

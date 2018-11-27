@@ -399,6 +399,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 				elements.push_back(new fps("", settings));
 			}
 
+
 			else if (tipo == "presets") {
 				hasPresets = true;
 				elements.push_back(new presets("allPresets", settings));
@@ -620,7 +621,16 @@ void ofxDmtrUI3::createFromLine(string l) {
 			else if (tipo == "plotter") {
 				elements.push_back(new plotter(nome, settings));
 			}
+            
+            else if (tipo == "inspector") {
+                elements.push_back(new inspector(nome, settings));
+            }
+            
+            else if (tipo == "bar") {
+                elements.push_back(new bar(nome, settings));
+            }
 
+            
 			else if (tipo == "colorHsv") {
 				createFromLine("tag	color");
 				elements.push_back(new slider2d(nome, settings));
