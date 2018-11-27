@@ -1119,38 +1119,6 @@ void ofxDmtrUI3::save(string xml) {
 }
 
 //--------------------------------------------------------------
-//void ofxDmtrUI3::save2(string xml) {
-//	int version = 4;
-//
-//	ofxXmlSettings xmlSettings;
-//	if (version == 4) {
-//		xmlSettings.setValue("ofxDmtrUIVersion", 4.0);
-//		for (auto & e : elements) {
-//			if (e->saveXml) {
-//				if (e->kind == TOGGLE || e->kind == RADIOITEM) {
-//					xmlSettings.setValue("element:bool:" + e->name, (bool)e->getVal());
-//				}
-//				else if (e->kind == RADIO || e->kind == PRESETS) {
-//					xmlSettings.setValue("element:string:" + e->name, (string)e->getValString());
-//				}
-//				else if (e->kind == SLIDER2D) {
-//					xmlSettings.setValue("element:point:" + e->name + ":x", e->getValPoint().x);
-//					xmlSettings.setValue("element:point:" + e->name + ":y", e->getValPoint().y);
-//				}
-//
-//				else if (e->kind != LABEL) {
-//					string tipo = typeid(e->getVal()).name();
-//					xmlSettings.setValue("element:" + tipo + ":" + e->name, e->getVal());
-//				}
-//			}
-//		}
-//	}
-//
-//
-//	xmlSettings.save(xml);
-//}
-
-//--------------------------------------------------------------
 void ofxDmtrUI3::load(string xml) {
 	ofXml xmlSettings;
 
@@ -1172,35 +1140,51 @@ void ofxDmtrUI3::load(string xml) {
 			for (auto & e : elements) {
 				if (e->saveXml) {
 					if (e->kind == TOGGLE || e->kind == RADIOITEM) {
-						bool valor = bools.getChild(e->name).getBoolValue();
-						e->set(valor, notifyEventOnLoad);
+                        if (bools.getChild(e->name)) {
+                            bool valor = bools.getChild(e->name).getBoolValue();
+                            e->set(valor, notifyEventOnLoad);
+                        }
 					}
 					else if (e->kind == RADIO || e->kind == PRESETS) {
-						string valor = strings.getChild(e->name).getValue();
-						e->set(valor, notifyEventOnLoad);
+                        if (strings.getChild(e->name)) {
+                            string valor = strings.getChild(e->name).getValue();
+                            e->set(valor, notifyEventOnLoad);
+                        }
 					}
 					else if (e->kind == SLIDER2D) {
-						auto x = points.getChild(e->name).getChild("x").getFloatValue();
-						auto y = points.getChild(e->name).getChild("y").getFloatValue();
-						e->set(ofPoint(x,y), notifyEventOnLoad);
+                        if (points.getChild(e->name)) {
+                            auto x = points.getChild(e->name).getChild("x").getFloatValue();
+                            auto y = points.getChild(e->name).getChild("y").getFloatValue();
+                            e->set(ofPoint(x,y), notifyEventOnLoad);
+                        }
 					}
 
 					else if (e->kind == SLIDER) {
 						if (UIVersion == 4) {
-							auto valor = fs.getChild(e->name).getFloatValue();
-							//auto valor = fs.getChild(e->name).getValue();
-							e->set(valor, notifyEventOnLoad);
+                            if (fs.getChild(e->name)) {
+                                auto valor = fs.getChild(e->name).getFloatValue();
+                                //auto valor = fs.getChild(e->name).getValue();
+                                e->set(valor, notifyEventOnLoad);
+                            }
 							
 						}
 
 						else {
-							string tipo = e->varType == DMTRUI_INT ? "int" : "float";
-							if (tipo == "int") {
-								auto valor = ints.getChild(e->name).getIntValue();
-								e->set(valor, notifyEventOnLoad);
+							if (e->varType == DMTRUI_INT) {
+                                if (ints.getChild(e->name)) {
+                                    auto valor = ints.getChild(e->name).getIntValue();
+                                    e->set(valor, notifyEventOnLoad);
+                                }
 							} else {
-								auto valor = floats.getChild(e->name).getFloatValue();
-								e->set(valor, notifyEventOnLoad);
+                                if (floats.getChild(e->name)) {
+                                    
+//                                    cout << e->name << endl;
+//                                    cout << UINAME << endl;
+//                                    cout << "-------" << endl;
+                                    
+                                    auto valor = floats.getChild(e->name).getFloatValue();
+                                    e->set(valor, notifyEventOnLoad);
+                                }
 							}
 						}
 					}
@@ -1208,33 +1192,7 @@ void ofxDmtrUI3::load(string xml) {
 			}
 		}
 
-//		else if (UIVersion == 3) {
-//			for (auto & e : elements) {
-//				if (e->saveXml) {
-//					if (e->kind == TOGGLE || e->kind == RADIOITEM) {
-//						bool valor = xmlSettings.getValue("element:" +e->name, e->getValBool());
-//						e->set(valor);
-//					}
-//					else if (e->kind == RADIO || e->kind == PRESETS) {
-//						string valor = xmlSettings.getValue("element:" +e->name, "");
-//						e->set(valor);
-//					}
-//
-//					else if (e->kind == SLIDER2D) {
-//						float x = xmlSettings.getValue("element:" +e->name + ":x", 0.0);
-//						float y = xmlSettings.getValue("element:" +e->name + ":y", 0.0);
-//						e->set(ofPoint(x,y));
-//					}
-//
-//					else if (e->kind == SLIDER) {
-//						float valor = xmlSettings.getValue("element:" +e->name, e->getVal());
-//						e->set(valor);
-//					}
-//				}
-//			}
-//		}
 		notify("load");
-
 		// XAXA Notify
 	}
 }
