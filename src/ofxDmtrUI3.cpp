@@ -1130,6 +1130,15 @@ void ofxDmtrUI3::save(string xml) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::load(string xml) {
+	
+//	cout << "load " << xml << endl;
+//	if (loadMode == MASTER) {
+//		cout << "loadmode master" << endl;
+//	} else {
+//		cout << "loadmode != master" << endl;
+//	}
+	
+	
 	ofXml xmlSettings;
 
 	if (ofFile::doesFileExist(xml)) {
@@ -1156,8 +1165,15 @@ void ofxDmtrUI3::load(string xml) {
                         }
 					}
 					else if (e->kind == RADIO || e->kind == PRESETS) {
-                        if (strings.getChild(e->name)) {
+                        //if (strings.getChild(e->name))
+						{
                             string valor = strings.getChild(e->name).getValue();
+							
+							if (e->name == "scene") {
+								cout << "Set Value :: " << endl;
+								cout << e->name << endl;
+								cout << valor << endl;
+							}
                             e->set(valor, notifyEventOnLoad);
                         }
 					}

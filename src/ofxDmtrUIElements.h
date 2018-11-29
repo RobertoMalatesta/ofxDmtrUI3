@@ -373,6 +373,8 @@ public:
 
 
 	// deixar somente pro que tem fbo
+    
+    virtual void resetDefault() {}
 	virtual void setFbo (ofFbo &fbo) {}
 	virtual void setFolder(string s) {};
 
@@ -892,6 +894,7 @@ public:
 	float min = 0;
 	float max = 1;
 	float val = .5;
+    float def = .5;
 
 	// temporary, just to fire set event on initialization
 	float lastVal = -12349871234;
@@ -901,11 +904,16 @@ public:
 		isVert = vert;
 		name = n;
 		getProperties();
+        def = v;
 		set(v);
 		varType = isInt ? DMTRUI_INT : DMTRUI_FLOAT;
 	}
 
 	// slider
+    
+    void resetDefault() {
+        set(def);
+    }
 	
 	void internalSet(float v, bool notifyEvent = true) {
 		val = v;
