@@ -634,6 +634,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 			else if (tipo == "colorHsv") {
 				createFromLine("tag	color");
 				elements.push_back(new slider2d(nome, settings));
+				
 				ofFbo * f = &mapFbos["fboColor"];
 				int sliderWidth = settings.sliderDimensions.x;
 				int sliderHeight = settings.sliderDimensions.y * 2 + settings.spacing;
@@ -653,7 +654,8 @@ void ofxDmtrUI3::createFromLine(string l) {
 				}
 				f->end();
 				elements.back()->setFbo(*f);
-				
+				((slider2d*)elements.back())->showPointer = true;
+
 				elements.push_back(new slider(nome + "_S", settings, 0, 255, 255, tipo=="int"));
 				
 				createFromLine("tag	");
@@ -1167,13 +1169,12 @@ void ofxDmtrUI3::load(string xml) {
 					else if (e->kind == RADIO || e->kind == PRESETS) {
                         //if (strings.getChild(e->name))
 						{
-                            string valor = strings.getChild(e->name).getValue();
-							
-							if (e->name == "scene") {
-								cout << "Set Value :: " << endl;
-								cout << e->name << endl;
-								cout << valor << endl;
-							}
+                            string valor = strings.getChild(e->name).getValue();							
+//							if (e->name == "scene") {
+//								cout << "Set Value :: " << endl;
+//								cout << e->name << endl;
+//								cout << valor << endl;
+//							}
                             e->set(valor, notifyEventOnLoad);
                         }
 					}

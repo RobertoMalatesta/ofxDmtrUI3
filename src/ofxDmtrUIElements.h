@@ -781,10 +781,12 @@ public:
 
 	ofFbo * _fbo = NULL;
 	bool fboSet = false;
+	bool showPointer = true;
 
 	void setFbo(ofFbo &fbo) {
 		_fbo = &fbo;
 		fboSet = true;
+		showPointer = false;
 		//alwaysRedraw = true;
 		//activeRect.width = 0;
 		//rect.width = 0;
@@ -823,12 +825,10 @@ public:
 		// tem como melhorar performance? acho q tem.
 		ofSetColor(255);
 		if (_fbo != NULL) {
-//			_fbo->draw(rect.x + settings->rect.x , rect.y + settings->rect.y);
-			
-//			cout << "drawing fbo " + name << endl;
-//			cout << rect << endl;
 			_fbo->draw(rect.x, rect.y);
-		} else {
+		}
+
+		if (showPointer) {
 			float x = rect.x + val.x * rect.width;
 			float y = rect.y + val.y * rect.height;
 			ofDrawLine(x, rect.y, x, rect.y + rect.height);
