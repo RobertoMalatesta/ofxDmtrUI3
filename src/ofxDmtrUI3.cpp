@@ -660,6 +660,35 @@ void ofxDmtrUI3::createFromLine(string l) {
 				
 				createFromLine("tag	");
 			}
+			
+			else if (tipo == "colorHsvA") {
+				createFromLine("tag	colorHsvA");
+				elements.push_back(new slider2d(nome, settings));
+				
+				ofFbo * f = &mapFbos["fboColor"];
+				int sliderWidth = settings.sliderDimensions.x;
+				int sliderHeight = settings.sliderDimensions.y * 2 + settings.spacing;
+				f->allocate(sliderWidth, sliderHeight, GL_RGBA);
+				f->begin();
+				ofClear(0);
+				ofColor cor;
+				for (int b=0; b<sliderHeight; b++) {
+					for (int a=0; a<sliderWidth; a++) {
+						int este = b*sliderWidth + a;
+						float hue = (255 * a / (float) sliderWidth);
+						cor = ofColor::fromHsb(hue, 255, b*255/sliderHeight, 255);
+						ofFill();
+						ofSetColor(cor);
+						ofDrawRectangle(a,b,1,1);
+					}
+				}
+				f->end();
+				elements.back()->setFbo(*f);
+				((slider2d*)elements.back())->showPointer = true;
+				elements.push_back(new slider(nome + "_S", settings, 0, 255, 255, tipo=="float"));
+				elements.push_back(new slider(nome + "_Alpha", settings, 0, 255, 255, tipo=="float"));
+				createFromLine("tag	");
+			}
 
 			else if (tipo == "color") {
 				vector <string> opcoes = ofSplitString(valores, " ");
@@ -1608,6 +1637,29 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 		float s = pFloat[name + "_S"];
 		float b = xy.y * 255.0;
 		pColor[name] = ofColor::fromHsb(h,s,b);
+		//cout << name << " :: " << pColor[name] << endl;
+	}
+	
+	else if (e.tag == "colorHsvA") {
+		string name = "";
+		if (e.kind == SLIDER2D && e.onClick) {
+			name = e.name;
+		}
+		
+		if (e.kind == SLIDER) {
+			vector <string> nomes = ofSplitString(e.name, "_");
+			name = nomes[0];
+		}
+		
+		ofPoint xy = pPoint[name];
+		float h = xy.x * 255.0;
+		float s = pFloat[name + "_S"];
+		float b = xy.y * 255.0;
+		float a = pFloat[name + "_Alpha"];
+		
+
+		pColor[name] = ofColor::fromHsb(h,s,b,a);
+		pColor[name].a = a;
 		//cout << name << " :: " << pColor[name] << endl;
 	}
 
