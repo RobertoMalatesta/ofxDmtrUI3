@@ -335,14 +335,7 @@ public:
 	
 	loadSaveType loadMode = PRESETSFOLDER;
 	loadSaveType saveMode = PRESETSFOLDER;
-	
-//	loadMode = MASTER;
-//	saveMode = MASTER;
-	
-//	bool loadSave = true;
-//	bool loadPreset = true;
-//	bool savePreset = true;
-//	bool keepSettings = false;
+
 	
 	bool visible = true;
 
