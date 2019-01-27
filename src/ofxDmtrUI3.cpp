@@ -862,10 +862,15 @@ void ofxDmtrUI3::createFromLine(string l) {
 				//cout << tipo << endl;
 				settings.nPresets = ofToInt(nome);
 			}
-			else if (tipo == "margin") {
+			else if (tipo == "colPadding") {
+				settings.software->colPadding = ofToInt(nome);
+				settings.flow = ofPoint(ofToInt(nome), ofToInt(nome));
 				// XAXA RESOLVER - total rewrite of the heart
 				//settings.software->margin = ofPoint(ofToInt(nome), ofToInt(nome));
 				//settings.margin = ofPoint(ofToInt(nome), ofToInt(nome));
+			}
+			else if (tipo == "colSpacing") {
+				settings.software->colSpacing = ofToInt(nome);
 			}
 
 			else if (tipo == "addUI" || tipo == "addUIDown") {

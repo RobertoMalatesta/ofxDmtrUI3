@@ -75,6 +75,10 @@ public:
 // rename to a more significant name?
 struct uiEv {
 public:
+	
+	// doens't work, element is declared afterwards
+	//	element * e;
+	//	uiEv(element & ee) { e = ee };
 	string name;
 	// STILL TO BE COMPLETED
 	string uiname;
@@ -92,12 +96,8 @@ public:
 	bool onClick = true;
 	string tag;
 
-	// doens't work, element is declared afterwards
-//	element * e;
-//	uiEv(element & ee) { e = ee };
 	
 	uiEv(string n) : name(n) { uiGlobal = true; }
-
 	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta) 				: name(n), uiname(u), kind(k), varType(t), tag(ta) {}
 	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, float ff)		: name(n), uiname(u), kind(k), varType(t), tag(ta), f(ff) {}
 	uiEv(string n, string u, elementType k, dmtrUIVarType t, string ta, int ii) 		: name(n), uiname(u), kind(k), varType(t), tag(ta), i(ii) {}
