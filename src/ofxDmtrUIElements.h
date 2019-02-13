@@ -199,9 +199,11 @@ public:
 	}
 
 	string getPresetsPath(string ext) {
+		string saida = "";
 		if (software != NULL) {
-			return software->presetsFolder + ext;
+			saida = software->presetsFolder + ext;
 		}
+		return saida;
 	}
 
 

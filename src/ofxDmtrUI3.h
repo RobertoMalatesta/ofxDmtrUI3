@@ -31,6 +31,11 @@
 #include "ofEvents.h"
 //#include "ofxXmlSettings.h"
 
+
+#if defined( TARGET_ANDROID ) || defined( TARGET_LINUX ) || defined( TARGET_LINUX64 ) || defined( TARGET_LINUX64 ) 
+	#define DMTRUI_TARGET_NOARB
+#endif
+
 #if defined( TARGET_OF_IPHONE ) || defined( TARGET_OF_IOS ) || defined( TARGET_ANDROID )
 	#define DMTRUI_TARGET_TOUCH
 #endif
