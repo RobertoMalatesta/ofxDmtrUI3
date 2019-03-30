@@ -279,18 +279,12 @@ public:
  	}
 
 	void reset() {
-//		flow = flowBak = margin;
 		if (software != NULL) {
 			flow = flowBak = ofPoint(software->colPadding, software->colPadding);
 			colx = flow.x;
-			
-			//cout << "reset, colx = " << colx << endl;
-			//colx = software->margin.x;
 		}
-		// starthue no futuro
 		hue = hueStart;
 		needsRedraw = true;
-//		colx = margin.x;
 	}
 
 	int getSpacing() {
@@ -309,7 +303,8 @@ public:
 			flow.y += r.height + getSpacing();
 		} else {
 			if ((flow.x + r.width) > (colx + sliderDimensions.x) && obeyColumn) {
-				flow.x = colx;
+				//flow.x = colx;
+				flow.x = software->colPadding;
 				flow.y += r.height + getSpacing();
 			} else {
 				flow.x += r.width + getSpacing();
@@ -323,23 +318,16 @@ public:
 		flow.y += sliderDimensions.y + getSpacing();
 	}
 	void newCol() {
-		//cout << "newcol now, spacing = " << spacing << endl;
-		
-		// confuso aqui . margin que é o de fora com
-		//		colx +=  sliderDimensions.x + margin.x;
 		colx +=  sliderDimensions.x + software->colPadding;
-		
-		//flow.x += sliderDimensions.x + margin.x;
 		flow.x = colx;
-		//flow.y = margin.y;
 		flow.y = software->colPadding;
 	}
 
 	void setFlowVert(bool f) {
 		flowVert = f;
 		if (f) {
+			//flow.x = software->colPadding;
 			flow.x = colx;
-
 			// consertar aqui pra isVert
 		}
 	}
@@ -593,6 +581,7 @@ public:
 			if ((settings->flow.x + boundsRect.width) >
 				(settings->colx + settings->sliderDimensions.x)) {
 				settings->flow.x = settings->colx;
+//				settings->flow.x = settings->software->colPadding;
 				settings->flow.y += boundsRect.height + 1;
 
 				// TODO :: avoid infinite loop to long filenames

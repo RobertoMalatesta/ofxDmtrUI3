@@ -1,3 +1,4 @@
+sliderWidth	230
 radio	presetsFolder	1 2 3 4 5 6 7
 fps
 presets	2 12

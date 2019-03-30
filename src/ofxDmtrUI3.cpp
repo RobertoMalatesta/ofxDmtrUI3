@@ -864,6 +864,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 			}
 			else if (tipo == "colPadding") {
 				settings.software->colPadding = ofToInt(nome);
+				settings.colx = ofToInt(nome);
 				settings.flow = ofPoint(ofToInt(nome), ofToInt(nome));
 				// XAXA RESOLVER - total rewrite of the heart
 				//settings.software->margin = ofPoint(ofToInt(nome), ofToInt(nome));
@@ -983,7 +984,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 							contagem++;
 						}
 						createFromLine("flowVert");
-						createFromLine("");
+						//createFromLine("");
 					}
 				}
 			}
@@ -1486,7 +1487,8 @@ void ofxDmtrUI3::autoFit() {
 		
 		if (elements.size() == 0) {
 			// xaxa ta errado. seria *2 aqui...
-			maxw = settings.sliderDimensions.x + settings.software->colPadding*3;
+			//maxw = settings.sliderDimensions.x + settings.software->colPadding*3;
+			maxw = settings.sliderDimensions.x + settings.software->colPadding*2;
 		}
 		
 		settings.rect.width  = maxw + settings.software->colPadding;

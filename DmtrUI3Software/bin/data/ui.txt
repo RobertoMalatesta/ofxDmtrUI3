@@ -1,10 +1,9 @@
 scene	scene	_scene
 scene	scene2	_scene2
 
-bool	flowFree	1
-bool	invoke	0
-float	opacity	50 255 180
-dirListNoExt	scene	_scene
+#bool	flowFree	1
+#bool	invoke	0
+#float	opacity	50 255 180
 
 int	testeInt	0 4 2
 
@@ -36,17 +35,17 @@ bool	falso	0
 float	scale	0 1 .5
 float	scale2	0 1 .5
 float	scale3	0 1 .5
-#newCol
 
 label	batch commands
 ints	sliders[0-5]	0 1000 0
 bools	toggles[0-5]	1
 
-newcol
+newCol
 int	fboX	0 1000 0
 int	fboY	0 1000 0
 
-toggleMatrix	drum	8 3
+#toggleMatrix	drum	8 3
+#toggleMatrix	a	8 3
 
 ints	newsliders[0-5]	0 1000 0
 bools	newtoggles[0-5]	0
