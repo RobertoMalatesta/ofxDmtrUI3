@@ -174,7 +174,6 @@ public:
 	map <string, radio  *> radiosLookup;
 	map <string, slider2d *> sliders2dLookup;
 	map <string, bang *> bangsLookup;
-	
 	map <string, element *> elementsLookup;
 
 	//--------------------------------------------------------------
@@ -202,10 +201,10 @@ public:
 		return bangsLookup.find(n) != bangsLookup.end() ? bangsLookup[n] : NULL;
 	}
 	
-    //--------------------------------------------------------------
-    element * getElement(string n) {
-        return elementsLookup.find(n) != elementsLookup.end() ? elementsLookup[n] : NULL;
-    }
+	//--------------------------------------------------------------
+	element * getElement(string n) {
+		return elementsLookup.find(n) != elementsLookup.end() ? elementsLookup[n] : NULL;
+	}
     
     //--------------------------------------------------------------
     void updateLookup() {

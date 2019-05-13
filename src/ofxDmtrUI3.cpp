@@ -111,9 +111,27 @@ void ofxDmtrUI3::update() {
 		f();
 	}
 	
-	for (auto & p : pFloat) {
+//	if (pEasy.size()) {
+//		cout << pEasy.size() << endl;
+//	}
+	
+//	for (auto & p : pEasy) {
+//		pEasy[p.first] = pFloat[p.first];
+//	}
+
+	//if (2==3)
+	for (auto & p : pEasy) {
 		if (easing > 0) {
-			pEasy[p.first] += (pFloat[p.first] - pEasy[p.first])/easing;
+			if (ABS(pEasy[p.first] - pFloat[p.first]) > 0.007) {  //0.00007
+				pEasy[p.first] += (pFloat[p.first] - pEasy[p.first])/easing;
+				//cout << pFloat[p.first] << " :: " << p.second << endl;
+				//cout << (pFloat[p.first] - pEasy[p.first])/easing << endl;
+			} else {
+				pEasy[p.first] = pFloat[p.first];
+				//cout << "equal" << endl;
+			}
+
+			//cout << (pFloat[p.first] - pEasy[p.first]) << endl;
 		}
 		else {
 			pEasy[p.first] = pFloat[p.first];
@@ -1024,13 +1042,13 @@ void ofxDmtrUI3::onKeyReleased(ofKeyEventArgs& data) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::onMouseMoved(ofMouseEventArgs& data) {
-	if (software.autoScrolling && UINAME == "master") {
-		int difX = software.rect.width - ofGetWindowWidth();
-		int difY = software.rect.height - ofGetWindowHeight();
-		int scrollX = difX > 0 ? - data.x * difX / ofGetWindowWidth() : 0;
-		int scrollY = difY > 0 ? - data.y * difY / ofGetWindowHeight() : 0;
-		software.offset = ofPoint(scrollX, scrollY);
-	}
+//	if (software.autoScrolling && UINAME == "master") {
+//		int difX = software.rect.width - ofGetWindowWidth();
+//		int difY = software.rect.height - ofGetWindowHeight();
+//		int scrollX = difX > 0 ? - data.x * difX / ofGetWindowWidth() : 0;
+//		int scrollY = difY > 0 ? - data.y * difY / ofGetWindowHeight() : 0;
+//		software.offset = ofPoint(scrollX, scrollY);
+//	}
 }
 
 //--------------------------------------------------------------
