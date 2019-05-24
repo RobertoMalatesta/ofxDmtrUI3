@@ -548,6 +548,12 @@ void ofxDmtrUI3::createFromLine(string l) {
 				elements.push_back(new label(nome, settings));
 			}
 			
+			else if (tipo == "fixedLabel") {
+				fixedLabel = nome;
+				createFromLine("labelmain	"+nome);
+				//elements.push_back(new label(nome, settings));
+			}
+			
 			else if (tipo == "labelmain") {
 				elements.push_back(new label(nome, settings));
 				((label*) elements.back())->labelColor = ofColor(255,0,160);
