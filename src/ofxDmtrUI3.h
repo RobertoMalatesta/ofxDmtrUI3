@@ -408,4 +408,6 @@ public:
 		cout << endl;
 	}
 
+	int fboFormat = GL_RGBA; //GL_RGBA32F_ARB  //GL_RGBA32F
+
 };

@@ -1827,15 +1827,14 @@ void ofxDmtrUI3::allocateAndClearFbo(ofFbo &f, ofPoint dimensions) {
 	//cout << "allocate and clear fbo " << w << "x" << h << " - " << m << endl;
 	
 //#ifdef DMTRUI_TARGET_TOUCH || #ifdef DMTRUI_TARGET_NOARB
-	int format = GL_RGBA; //GL_RGBA32F_ARB  //GL_RGBA32F
 //#else
 //	int format = GL_RGBA32F_ARB; //GL_RGBA32F_ARB  //GL_RGBA32F
 //#endif
 	if (m == 0) {
 		//cout << "allocate without multisampling" << endl;
-		f.allocate			(w, h, format);
+		f.allocate			(w, h, fboFormat);
 	} else {
-		f.allocate			(w, h, format, m);
+		f.allocate			(w, h, fboFormat, m);
 	}
 	
 	f.begin();
