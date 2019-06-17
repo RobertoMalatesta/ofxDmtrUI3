@@ -1779,7 +1779,7 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
             float h = pPoint[name].x * 255.0;
             float s = pFloat[name + "_S"];
             float b = pPoint[name].y * 255.0;
-            float a = 1.0;
+            float a = 255.0;
             if (e.tag == "colorHsvA") {
                 a = pFloat[name + "_Alpha"];
             }
