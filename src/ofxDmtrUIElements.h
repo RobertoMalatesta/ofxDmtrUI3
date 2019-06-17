@@ -824,6 +824,7 @@ public:
 			float y = rect.y + val.y * rect.height;
 			ofDrawLine(x, rect.y, x, rect.y + rect.height);
 			ofDrawLine(rect.x, y, rect.x + rect.width, y);
+			ofDrawRectangle(x-3, y-3, 6, 6);
 		}
 	}
 
@@ -1008,7 +1009,10 @@ public:
 	void set(bool v, bool notifyEvent = true) {
 		if (val != v || settings->notifyEventWhenSetDoesntChange) {
 			val = v;
-			(*settings->pBool)[name] = val;
+			
+			if (kind != RADIOITEM) {
+				(*settings->pBool)[name] = val;
+			}
 			needsRedraw();
 			if (notifyEvent) {
 				if (kind == BANG) {
@@ -1165,8 +1169,6 @@ public:
 	std::function<void(string, string)> changeUI = NULL;
 	std::function<void(string, string)> loadImageList = NULL;
 
-	
-	
 	void startChildren() {
 		flowBak = settings->flow;
 		if (showLabel) {

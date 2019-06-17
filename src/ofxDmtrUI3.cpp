@@ -335,17 +335,37 @@ void ofxDmtrUI3::reload() {
 	}
 }
 
+
+////--------------------------------------------------------------
+//void ofxDmtrUI3::createFromText(string file, bool n) {
+//	ofBuffer lines;
+//	if (ofFile::doesFileExist("uiAll.txt")) {
+//	}
+//}
+
+
+
+
 //--------------------------------------------------------------
 void ofxDmtrUI3::createFromText(string file, bool n) {
 	//cout << "createFromText:" << file << ":" << (n ? "yes" : "no") << endl;
 	
+	
+	/*
+	 Aqui mudar toda a maneira com que carregamos interfaces.
+	 primeiro somar em um unico arquivo txt o uiAll e o texto em si
+	 depois parsear os includes dos dois.
+	 */
+	
+	
 	settings.uiname = UINAME;
 	vector <string> linhas;
-	
 	createdFromTextFile = "";
+	
 
 	if (ofFile::doesFileExist("uiAll.txt")) {
-        createdFromTextFile += ofBufferFromFile("uiAll.txt").getText();
+		// aqui o mesmo arquivo é carregado duas vezes o que nao faz sentido.
+        createdFromTextFile += ofBufferFromFile("uiAll.txt").getText() + "\r";
 		vector <string> linhas = textToVector("uiAll.txt");
 		if (fixedLabel != "") {
 			linhas.insert(linhas.end(), "labelmain	" + fixedLabel);
@@ -362,6 +382,12 @@ void ofxDmtrUI3::createFromText(string file, bool n) {
 	} else {
 		cout << "ofxDmtrUI3 createFromText ::: File not found " + file << endl;
 	}
+	
+	
+	
+	
+	
+	
 	updateLookup();
 	autoFit();
 	if (settings.software->masterIsSetup) {
@@ -381,6 +407,16 @@ void ofxDmtrUI3::createFromLines(vector<string> lines) {
 	for (auto & l : lines) {
 		if (buildingTemplate == "") {
 			//cout << l << endl;
+			
+			// testing includes.
+			vector <string> cols = ofSplitString(l, "\t");
+			if (cols[0] == "include") {
+				vector <string> linhas2 = textToVector(cols[1]);
+				for (auto & l2 : linhas2) {
+					cout << l2 << endl;
+					createFromLine(l2);
+				}
+			}
 			createFromLine(l);
 		} else {
 			if (ofIsStringInString(l, "endTemplate")) {
@@ -412,7 +448,10 @@ void ofxDmtrUI3::createFromLine(string l) {
 			else if (tipo == "autoFit") {
 				autoFit();
 			}
-
+			else if (tipo == "clear") {
+				clear();
+			}
+			
 			else if (tipo == "fps") {
 				// XAXA TEMP
 				elements.push_back(new fps("", settings));
@@ -474,11 +513,16 @@ void ofxDmtrUI3::createFromLine(string l) {
 				vector <string> v = ofSplitString(valores, " ");
 				float min = ofToFloat(v[0]);
 				float max = ofToFloat(v[1]);
+				
 				if (v.size() < 2) {
 					cout << "WILL ERROR :: " + l;
 				}
 				//cout << l << endl;
 				float val = ofToFloat(v[2]);
+				
+//				cout << nome << endl;
+//				cout << "building float slider, value = " << val << endl;
+
 				
 				if (tipo == "int") {
 					if (pInt.find(nome) != pInt.end() ) {
@@ -680,9 +724,25 @@ void ofxDmtrUI3::createFromLine(string l) {
 				f->end();
 				elements.back()->setFbo(*f);
 				((slider2d*)elements.back())->showPointer = true;
-
-				elements.push_back(new slider(nome + "_S", settings, 0, 255, 255, tipo=="int"));
 				
+				//float sat = 0;
+				string sat = "0";
+				
+				if (cols.size() == 3) {
+					//cout << cols[2] << endl;
+					vector <string> vals = ofSplitString(cols[2], " ");
+					float hue = ofToFloat(vals[0]);
+					sat = vals[1];
+					//cout << "sat = " << sat << endl;
+					
+					float brightness = ofToFloat(vals[2]);
+					((slider2d*)elements.back())->set(ofPoint(hue/255.0, brightness/255.0));
+				}
+				
+				// for some reason it doesn't work this way.
+                // string line = "float	" + nome + "_S	0 255 " + sat;
+				// createFromLine(line);
+				elements.push_back(new slider(nome + "_S", settings, 0, 255, ofToInt(sat), tipo=="int"));
 				createFromLine("tag	");
 			}
 			
@@ -1355,6 +1415,8 @@ Did you try run.command?
 //		cout << software.h << endl;
 	} else {
 		cout << "missing output.txt file" << endl;
+		software.w = 1280;
+		software.h = 720;
 	}
 	
 	ofFbo * fbo = &mapFbos["fbo"];
@@ -1649,63 +1711,16 @@ void ofxDmtrUI3::clear(bool keepVars) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::uiEvents(uiEv & e) {
+	
+
 	for (auto & f : uiEventFunctions) {
 		f(e);
 	}
 	
-	if (e.tag == "color") {
-		string name = "";
-		if (e.kind == SLIDER2D && e.onClick) {
-			name = e.name;
-		}
-
-		if (e.kind == SLIDER) {
-			vector <string> nomes = ofSplitString(e.name, "_");
-			name = nomes[0];
-		}
-
-		ofPoint xy = pPoint[name];
-		float h = xy.x * 255.0;
-		float s = pFloat[name + "_S"];
-		float b = xy.y * 255.0;
-		pColor[name] = ofColor::fromHsb(h,s,b);
-		//cout << name << " :: " << pColor[name] << endl;
-	}
-	
-	else if (e.tag == "colorHsvA") {
-		string name = "";
-		if (e.kind == SLIDER2D && e.onClick) {
-			name = e.name;
-		}
-		
-		if (e.kind == SLIDER) {
-			vector <string> nomes = ofSplitString(e.name, "_");
-			name = nomes[0];
-		}
-		
-		ofPoint xy = pPoint[name];
-		float h = xy.x * 255.0;
-		float s = pFloat[name + "_S"];
-		float b = xy.y * 255.0;
-		float a = pFloat[name + "_Alpha"];
-		
-
-		pColor[name] = ofColor::fromHsb(h,s,b,a);
-		pColor[name].a = a;
-		//cout << name << " :: " << pColor[name] << endl;
-	}
-
-	if (ofIsStringInString(e.name, "_shortcut") ) {
-		vector <string> split = ofSplitString(e.name, "_shortcut");
-		string name = split[0];
-		set(name, ofToFloat(pString[e.name]));
-	}
-
-
 	if (e.name == "presetsFolder") {
 		string folder = pString["presetsFolder"];
 		software.presetsFolder = "_presets/" + folder + "/";
-
+		
 		// reload preset images here
 		if (!ofFile::doesFileExist(software.presetsFolder)) {
 			if (!ofFile::doesFileExist("_presets")) {
@@ -1716,31 +1731,69 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 		
 		// da erro aqui se nao tiver um elemento chamado allPresets no master.
 		// contornar?
-
+		
 		if (getElement("allPresets") != NULL) {
-		for (auto & e : ((mult*)getElement("allPresets"))->elements) {
-			e->updateImage();
-		}
+			for (auto & e : ((mult*)getElement("allPresets"))->elements) {
+				e->updateImage();
+			}
 		}
 	}
 	
 	// SAVE / LOAD Presets
+	
 	else if (e.name == "allPresets") {
 		string p = getElement("allPresets")->getValString();
 		if (ofGetKeyPressed(OF_KEY_COMMAND)) {
 			savePresetAll(ofToInt(p));
 		}
 		else {
-			loadPresetAll(ofToInt(p));
+			// aqui precisa entrar na fila pro futuro.
+			if (enableLoadPresets) {
+				loadPresetAll(ofToInt(p));
+			}
 		}
 	}
-
+	
 	else if (e.name == "easing") {
 		easing = pFloat["easing"];
 		for (auto & p : uis) {
 			// XAXA Passar isso aqui pra software master
 			p.second.easing = pFloat["easing"];
 		}
+	}
+	
+	
+	
+	if (e.tag == "color" || e.tag == "colorHsvA") {
+		string name = "";
+		if (e.kind == SLIDER2D && e.onClick) {
+			name = e.name;
+		}
+
+		if (e.kind == SLIDER) {
+            name = ofSplitString(e.name, "_")[0];
+		}
+
+        // for some reason there is a empty name when I load preset
+        if (name != "") {
+            float h = pPoint[name].x * 255.0;
+            float s = pFloat[name + "_S"];
+            float b = pPoint[name].y * 255.0;
+            float a = 1.0;
+            if (e.tag == "colorHsvA") {
+                a = pFloat[name + "_Alpha"];
+            }
+            pColor[name] = ofColor::fromHsb(h,s,b,a);
+            pColor[name].a = a;
+//            cout << UINAME << endl;
+//            cout << "color " << name << " = " << pColor[name] << endl;
+        }
+	}
+
+	if (ofIsStringInString(e.name, "_shortcut") ) {
+		vector <string> split = ofSplitString(e.name, "_shortcut");
+		string name = split[0];
+		set(name, ofToFloat(pString[e.name]));
 	}
 }
 
