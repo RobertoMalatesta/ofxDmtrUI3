@@ -35,7 +35,7 @@ enum elementType {
 
 // naming conflicts? namespace?
 enum dmtrUIVarType {
-	DMTRUI_FLOAT, DMTRUI_INT, DMTRUI_STRING, DMTRUI_BOOLEAN, DMTRUI_POINT
+	DMTRUI_FLOAT, DMTRUI_INT, DMTRUI_STRING, DMTRUI_BOOLEAN, DMTRUI_POINT, DMTRUI_COLOR
 };
 
 // teste ainda podemos remover. 18 de novembro de 2017
@@ -600,7 +600,7 @@ public:
 
 		if (kind != PRESETS && kind != PRESET &&
 			kind != RADIOITEM && kind != RADIO &&
-			kind != COLOR && kind != COLORITEM) {
+			 kind != COLORITEM) { //kind != COLOR &&
 			updateFlow();
 		}
 
@@ -676,6 +676,11 @@ public:
 	// novidade 7 de agosto
 	virtual void set(int i, bool notifyEvent = true) {
 		cout << "set function on primitive element, using int " + name << endl;
+	}
+	
+	// novidade 24 junho 2019
+	virtual void set(ofColor i, bool notifyEvent = true) {
+		cout << "set function on primitive element, using color " + name << endl;
 	}
 
 
@@ -753,9 +758,11 @@ public:
 		else if (varType == DMTRUI_POINT) {
 			set((*settings->pPoint)[name]);
 		}
-//		else if (varType == COLOR) {
-//			set((*settings->pColor)[name]);
-//		}
+		
+		// 2019. doubt if it makes difference
+		else if (varType == DMTRUI_COLOR) {
+			set((*settings->pColor)[name]);
+		}
 
 	}
 };
@@ -1154,20 +1161,18 @@ public:
 
 	// adicionado 8 de junho de 2018, teste pra Mareh Marisco
 	bool isFloat = false;
-
-	
 	vector <element*> elements;
-
 	vector <string> items;
 	string lastVal;
-
 	bool eventWhenSameSelectedIndex = false;
-
 	ofPoint flowBak;
 	string folder;
 
 	std::function<void(string, string)> changeUI = NULL;
 	std::function<void(string, string)> loadImageList = NULL;
+	
+	// 24 junho 2019
+	ofColor valColor;
 
 	void startChildren() {
 		flowBak = settings->flow;
@@ -1234,8 +1239,11 @@ public:
 						(*settings->pFloat)[name] = ofToFloat(valString);
 					}
 					
-					if (e->kind == COLOR) {
-						(*settings->pColor)[name] = e->color;
+					if (e->kind == COLORITEM) {
+						cout << name << endl;
+						cout << e->color << endl;
+						valColor = e->color;
+						(*settings->pColor)[name] = valColor;
 					}
 
 					e->set(true);
@@ -1473,6 +1481,7 @@ public:
 	color (string n, uiConfig & u, vector <string> its) {
 		kind = COLOR;
 		varType = DMTRUI_STRING;
+//		varType = DMTRUI_COLOR;
 		settings = &u;
 		name = n;
 		items = its;

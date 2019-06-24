@@ -265,13 +265,20 @@ public:
 		struct tm * timeinfo;
 		time ( &rawtime );
 		timeinfo = localtime ( &rawtime );
-		cout << "-------- Dmtr Expires: " ;
-		cout << rawtime;
+		
+		
 		int segundosPorDia = 86400;
 		int segundosExpira = segundosPorDia * dias;
 		float diasExpira = (segundosExpira - (difftime(rawtime,dataInicial))) / (float)segundosPorDia;
 
-        cout << ": expira em " + ofToString(diasExpira) + " dias" << endl;
+		string notice = "Dmtr " + ofToString(rawtime) + " :: ";
+		notice +=  "Expires in " + ofToString(diasExpira) + " days";
+		
+		messageBox(notice);
+
+		//cout << "-------- Dmtr Expires: " ;
+		//cout << rawtime;
+        //cout << "expires in " + ofToString(diasExpira) + " days" << endl;
 		if (diasExpira < 0 || diasExpira > dias) {
 			ofSystemAlertDialog("Dmtr.org Software Expired ~ " + ofToString(dataInicial) + "\rhttp://dmtr.org/");
 			std::exit(1);

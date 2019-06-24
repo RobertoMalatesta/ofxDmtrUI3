@@ -50,7 +50,9 @@ void ofxDmtrUI3::setup() {
 	settings.pBool 		= &pBool;
 	settings.pString	 	= &pString;
 	settings.pPoint 		= &pPoint;
-
+	// 24 june 2019
+	settings.pColor 		= &pColor;
+	
 	ofAddListener(ofEvents().draw, this, &ofxDmtrUI3::onDraw);
 	ofAddListener(ofEvents().update, this, &ofxDmtrUI3::onUpdate);
 	
