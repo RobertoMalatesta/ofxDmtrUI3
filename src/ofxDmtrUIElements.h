@@ -1240,8 +1240,8 @@ public:
 					}
 					
 					if (e->kind == COLORITEM) {
-						cout << name << endl;
-						cout << e->color << endl;
+//						cout << name << endl;
+//						cout << e->color << endl;
 						valColor = e->color;
 						(*settings->pColor)[name] = valColor;
 					}

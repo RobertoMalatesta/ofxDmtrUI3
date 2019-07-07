@@ -171,7 +171,7 @@ void ofxDmtrUI3::redraw() {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::draw() {
-	
+	//ofEnableBlendMode(OF_BLENDMODE_ADD);
 	if (UINAME == "master" && settings.software->needsRedraw) {
 		settings.redraw = true;
 		for (auto & u : uis) {
@@ -1215,7 +1215,7 @@ void ofxDmtrUI3::save(string xml) {
 					bools.appendChild(e->name).set((bool)e->getVal());
 				}
 				
-				else if (e->kind == RADIO || e->kind == PRESETS) {
+				else if (e->kind == RADIO || e->kind == PRESETS || e->kind == COLOR) {
 					//xmlSettings.appendChild("element:string:" + e->name).set((string)e->getValString());
 					strings.appendChild(e->name).set((string)e->getValString());
 				}
@@ -1288,7 +1288,7 @@ void ofxDmtrUI3::load(string xml) {
                             e->set(valor, notifyEventOnLoad);
                         }
 					}
-					else if (e->kind == RADIO || e->kind == PRESETS) {
+					else if (e->kind == RADIO || e->kind == PRESETS  || e->kind == COLOR) {
                         //if (strings.getChild(e->name))
 						{
                             string valor = strings.getChild(e->name).getValue();							
