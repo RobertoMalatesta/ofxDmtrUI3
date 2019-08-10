@@ -112,31 +112,55 @@ void ofxDmtrUI3::update() {
 	for (auto & f : updateFunctions) {
 		f();
 	}
-	
-//	if (pEasy.size()) {
-//		cout << pEasy.size() << endl;
-//	}
-	
-//	for (auto & p : pEasy) {
-//		pEasy[p.first] = pFloat[p.first];
-//	}
 
-	//if (2==3)
+
 	for (auto & p : pEasy) {
 		if (easing > 0) {
-			if (ABS(pEasy[p.first] - pFloat[p.first]) > 0.007) {  //0.00007
+			if (ABS(pEasy[p.first] - pFloat[p.first]) > 0.00007) {  //0.00007
 				pEasy[p.first] += (pFloat[p.first] - pEasy[p.first])/easing;
-				//cout << pFloat[p.first] << " :: " << p.second << endl;
-				//cout << (pFloat[p.first] - pEasy[p.first])/easing << endl;
 			} else {
 				pEasy[p.first] = pFloat[p.first];
-				//cout << "equal" << endl;
 			}
-
-			//cout << (pFloat[p.first] - pEasy[p.first]) << endl;
 		}
 		else {
 			pEasy[p.first] = pFloat[p.first];
+		}
+	}
+	
+	for (auto & p : pPointEasy) {
+		if (easing > 0) {
+			if (
+				(ABS(pPointEasy[p.first].x - pPoint[p.first].x) > 0.00007) ||
+				(ABS(pPointEasy[p.first].y - pPoint[p.first].y) > 0.00007)
+			)
+			{  //0.00007
+				pPointEasy[p.first] += (pPoint[p.first] - pPointEasy[p.first])/easing;
+			} else {
+				pPointEasy[p.first] = pPoint[p.first];
+			}
+		}
+		else {
+			pPointEasy[p.first] = pPoint[p.first];
+		}
+	}
+	
+	for (auto & p : pColorEasy) {
+		if (easing > 0) {
+			if (
+				(ABS(pColorEasy[p.first].r - pColor[p.first].r) > 0.00007) ||
+				(ABS(pColorEasy[p.first].g - pColor[p.first].g) > 0.00007) ||
+				(ABS(pColorEasy[p.first].b - pColor[p.first].b) > 0.00007)
+			)
+			{  //0.00007
+				pColorEasy[p.first].r += (pColor[p.first].r - pColorEasy[p.first].r)/easing;
+				pColorEasy[p.first].g += (pColor[p.first].g - pColorEasy[p.first].g)/easing;
+				pColorEasy[p.first].b += (pColor[p.first].b - pColorEasy[p.first].b)/easing;
+			} else {
+				pColorEasy[p.first] = pColor[p.first];
+			}
+		}
+		else {
+			pColorEasy[p.first] = pColor[p.first];
 		}
 	}
 
@@ -1070,7 +1094,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 							contagem++;
 						}
 						createFromLine("flowVert");
-						//createFromLine("");
+						createFromLine("");
 					}
 				}
 			}
@@ -1700,12 +1724,13 @@ void ofxDmtrUI3::clear(bool keepVars) {
 	settings.reset();
 	if (!keepVars) {
 		pFloat.clear();
+		pEasy.clear();
 		pInt.clear();
 		pBool.clear();
 		pString.clear();
 		pPoint.clear();
-		pEasy.clear();
 		pColor.clear();
+		pColorEasy.clear();
 	}
 	settings.needsRedraw = true;
 }

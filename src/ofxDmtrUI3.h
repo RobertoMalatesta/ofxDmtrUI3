@@ -106,7 +106,9 @@ public:
 	map <string,bool>		pBool;
 	map <string,string>		pString;
 	map <string,ofPoint>		pPoint;
+	map <string,ofPoint>		pPointEasy;
 	map <string,ofColor>		pColor;
+	map <string,ofColor>		pColorEasy;
 
 	// novidade teste 10 de março de 2018
 	map <string,ofImage>		pImage;
