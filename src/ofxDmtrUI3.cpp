@@ -178,8 +178,11 @@ void ofxDmtrUI3::update() {
 					loadPresetAll(lastPreset, true);
 				}
 			}
-			else if (f.action == "setFromIndex") {
+			else if (f.action == "radioSetFromIndex") {
 				((radio*)getElement(f.name))->setFromIndex(f.valInt);
+			}
+			else if (f.action == "radioSet") {
+				((radio*)getElement(f.name))->set(f.valString);
 			}
 		}
 		futureCommands.clear();
@@ -679,8 +682,8 @@ void ofxDmtrUI3::createFromLine(string l) {
 			else if (tipo == "radio" || tipo == "radioNoLabel" || tipo == "radioFloat") {
 				vector <string> opcoes = ofSplitString(valores, " ");
 				bool shortcut = ofIsStringInString(nome, "_shortcut");
-				bool label = tipo == "radio" && !shortcut;
-				elements.push_back(new radio(nome, settings, opcoes, label));
+				bool useLabel = tipo == "radio" && !shortcut;
+				elements.push_back(new radio(nome, settings, opcoes, useLabel));
 				if (shortcut) {
 					//((radio*)elements.back())->showLabel = false;
 					((radio*)elements.back())->saveXml = false;
@@ -695,10 +698,10 @@ void ofxDmtrUI3::createFromLine(string l) {
 				}
 			}
 			
-			else if (tipo == "radioPipe") {
+			else if (tipo == "radioPipe" || tipo == "radioPipeNoLabel") {
 				vector <string> opcoes = ofSplitString(valores, "|");
-				
-				elements.push_back(new radio(nome, settings, opcoes));
+				bool useLabel = tipo == "radioPipe";
+				elements.push_back(new radio(nome, settings, opcoes, useLabel));
 				if (ofIsStringInString(nome, "_shortcut")) {
 					((radio*)elements.back())->showLabel = false;
 					((radio*)elements.back())->saveXml = false;

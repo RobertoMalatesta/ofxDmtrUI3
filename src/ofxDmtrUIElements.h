@@ -68,7 +68,9 @@ public:
 	string name;
 	string action;
 	int valInt;
+	string valString;
 	future (string u, string n, string a, int v) : uiname(u), name(n), action(a), valInt(v) {}
+	future (string u, string n, string a, string v) : uiname(u), name(n), action(a), valString(v) {}
 };
 
 

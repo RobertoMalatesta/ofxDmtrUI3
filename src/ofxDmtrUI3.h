@@ -421,4 +421,8 @@ public:
 	int fboFormat = GL_RGBA; //GL_RGBA32F_ARB  //GL_RGBA32F
 
 	bool enableLoadPresets = true;
+	
+	int getPresetNumber() {
+		return ((presets*)getElement("allPresets"))->selectedId;
+	}
 };
