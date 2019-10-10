@@ -10,3 +10,4 @@ common:
 	#ADDON_DEPENDENCIES = ofxMidi ofxDmtrUI3	
 	# ofxDmtrUI3MidiController
 	#ADDON_DEPENDENCIES = ofxOsc
+
