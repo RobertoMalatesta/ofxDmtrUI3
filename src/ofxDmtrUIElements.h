@@ -111,6 +111,11 @@ public:
 
 struct soft {
 public:
+	
+	// 04 sep 2019, Muti easing
+	bool useEasing = true;
+	bool useColorEasing = true;
+
 	// 16 oct 2017, areia
 	bool eventOnClick = true;
 	
@@ -149,12 +154,18 @@ public:
 	
 	int colSpacing = 10;
 	int colPadding = 10;
+	
+
 
 };
 
 
 struct uiConfig {
 public:
+	
+	// mudar isso pro settings.
+	bool useLabelShadow = true;
+	
 	bool notifyEventWhenSetDoesntChange = true;
 	string uiname;
 	string tag;
@@ -237,7 +248,8 @@ public:
 
 	float hueStart = 90;
 	float hue = hueStart;
-	float hueStep = 2.0;
+//	float hueStep = 2.0;
+	float hueStep = 1.33;
 	ofColor color;
 	bool bw = false;
 	//float flowxbak = -100;
@@ -263,6 +275,14 @@ public:
 		float s = 230; //155
 		float b = 200; //210
 		float a = 230;
+
+		//hue = fmod((rect.x/3.0 + rect.y/3.0), 255);
+		
+		s = 200;
+//		s = 240;
+//		b = 240;
+		a = 255;
+
 		color = ofColor::fromHsb(hue, s, b, a);
 		if (bw) {
 			color = bwElementColor;
@@ -370,7 +390,7 @@ public:
 	virtual void setFbo (ofFbo &fbo) {}
 	virtual void setFolder(string s) {};
 
-	bool useLabelShadow = true;
+
 	// medida provisoria ate resolver o radioitem
 	string valString = "";
 
@@ -630,11 +650,12 @@ public:
 	virtual void updateFromPixels(ofPixels & p) {}
 	virtual void updateImage() {}
 
-	virtual void drawLabel() {
-		string n = name + label;
+	virtual void drawLabel(string l = "") {
+		string n = l == "" ? name + label : l ;
+
 		
 		if (settings->software->customFont) {
-			if (useLabelShadow) {
+			if (settings->useLabelShadow) {
 				ofSetColor(0,130);
 				settings->software->font.drawString(n, labelPos.x - 1, labelPos.y + 1 - 3);
 			}
@@ -645,7 +666,7 @@ public:
 			settings->software->font.drawString(n, labelPos.x , labelPos.y - 3);
 			
 		} else {
-			if (useLabelShadow) {
+			if (settings->useLabelShadow) {
 				ofSetColor(0,180);
 				ofDrawBitmapString(n, labelPos.x - 1, labelPos.y + 1);
 			}
@@ -656,7 +677,6 @@ public:
 			ofDrawBitmapString(n, labelPos.x, labelPos.y);
 		}
 	}
-
 
 
 	virtual void set(bool i, bool notifyEvent = true) {
@@ -765,7 +785,6 @@ public:
 		else if (varType == DMTRUI_COLOR) {
 			set((*settings->pColor)[name]);
 		}
-
 	}
 };
 
@@ -783,7 +802,7 @@ public:
 	bool fboSet = false;
 	bool showPointer = true;
 
-	void setFbo(ofFbo &fbo) {
+	void setFbo(ofFbo &fbo) override {
 		_fbo = &fbo;
 		fboSet = true;
 		showPointer = false;
@@ -803,7 +822,7 @@ public:
 		showLabel = false;
 	}
 
-	void set(ofPoint v, bool notifyEvent = true) {
+	void set(ofPoint v, bool notifyEvent = true) override {
 		val = v;
 		if (lastVal != val || settings->notifyEventWhenSetDoesntChange) {
 			(*settings->pPoint)[name] = val;
@@ -816,12 +835,12 @@ public:
 		}
 	}
 
-	ofPoint getValPoint() {
+	ofPoint getValPoint() override {
 		return val;
 	}
 
 	// slider2d
-	void drawSpecific() {
+	void drawSpecific() override {
 		// tem como melhorar performance? acho q tem.
 		ofSetColor(255);
 		if (_fbo != NULL) {
@@ -837,7 +856,7 @@ public:
 		}
 	}
 
-	void setValFromMouse(int x, int y) {
+	void setValFromMouse(int x, int y) override {
 		int xx = ofClamp(x, rect.x, rect.x + rect.width);
 		int yy = ofClamp(y, rect.y, rect.y + rect.height);
 		ofPoint xy = ofPoint (xx,yy) - ofPoint(rect.x, rect.y);
@@ -863,7 +882,7 @@ public:
 		}
 	}
 	
-	void drawSpecific() {
+	void drawSpecific() override {
 		//ofClear(0,255);
 		ofSetColor(0,255);
 		ofDrawRectangle(rect);
@@ -1011,11 +1030,11 @@ class booleano : public element {
 public:
 	bool val = false;
 
-	bool getValBool() {
+	bool getValBool() override {
 		return val;
 	}
 
-	void set(bool v, bool notifyEvent = true) {
+	void set(bool v, bool notifyEvent = true) override {
 		if (val != v || settings->notifyEventWhenSetDoesntChange) {
 			val = v;
 			
@@ -1042,14 +1061,14 @@ public:
 		}
 	}
 
-	void setValFromMouse(int x, int y) {
+	void setValFromMouse(int x, int y) override {
 		if (!isPressed) {
 			set(val ^ 1);
 			isPressed = true;
 		}
 	}
 
-	float getVal() {
+	float getVal() override {
 		return val;
 	}
 };
@@ -1078,30 +1097,6 @@ public:
 };
 
 
-class bang : public booleano {
-public:
-	bang(string n, uiConfig & u, bool l = true)  {
-		kind = BANG;
-		varType = DMTRUI_BOOLEAN;
-		settings = &u;
-		name = n;
-		showLabel = l;
-		getProperties();
-		//set(v);
-		needsRedraw();
-		saveXml = false;
-	}
-
-	void drawSpecific() {
-		if (val) {
-			ofSetColor(settings->activeColor);
-			ofDrawRectangle(activeRect);
-            
-            val = false;
-            needsRedraw();
-		}
-	}
-};
 
 
 class radioitem : public booleano {
@@ -1114,7 +1109,7 @@ public:
 		getProperties();
 	}
 
-	void drawSpecific() {
+	void drawSpecific() override {
 		if (val) {
 			ofSetColor(settings->activeColor);
 			ofDrawRectangle(activeRect);
@@ -1126,7 +1121,6 @@ public:
 
 class coloritem : public booleano {
 public:
-	
 	coloritem (string n, uiConfig & u) {
 		kind = COLORITEM;
 		settings = &u;
@@ -1147,7 +1141,7 @@ public:
 		color = corzinha;
 	}
 
-	void drawSpecific() {
+	void drawSpecific() override {
 		if (val) {
 			ofSetColor(settings->activeColor);
 			ofDrawRectangle(activeRect);
@@ -1192,20 +1186,19 @@ public:
 	}
 
 
-	void setFolder(string s) {
+	void setFolder(string s) override {
 		folder = s;
 	}
 
-	void drawSpecific() {
+	void drawSpecific() override {
 		for (auto & e : elements) {
 			e->draw();
 		}
-
 //		ofSetColor(255,160);
 //		ofDrawRectangle(boundsRect);
 	}
 
-	void setValFromMouse(int x, int y) {
+	void setValFromMouse(int x, int y) override {
 		for (auto & e : elements) {
 			if (e->boundsRect.inside(x,y)) {
 				set(e->name);
@@ -1213,7 +1206,7 @@ public:
 		}
 	}
 
-	string getValString() {
+	string getValString() override {
 		return valString;
 	}
 
@@ -1223,7 +1216,7 @@ public:
 	
 	
 	// mult (radio and presets)
-	void set(string s, bool notifyEvent = true) {
+	void set(string s, bool notifyEvent = true) override {
 		int index = 0;
 		bool updated = false;
 
@@ -1556,59 +1549,204 @@ public:
 };
 
 
+class bang : public booleano {
+public:
+	bang(string n, uiConfig & u, bool l = true)  {
+		kind = BANG;
+		varType = DMTRUI_BOOLEAN;
+		settings = &u;
+		name = n;
+		showLabel = l;
+		getProperties();
+		needsRedraw();
+		saveXml = false;
+	}
+	
+	using booleano::set;
+	
+	void drawSpecific() override {
+		if (val) {
+			ofSetColor(settings->activeColor);
+			ofDrawRectangle(activeRect);
+			
+			val = false;
+			needsRedraw();
+		}
+	}
+	
+	void plau()  {
+		notify();
+		if (invokeBool != NULL) {
+			invokeBool(val);
+		}
+	}
+};
+
+
+
+
+
+
+class joystick : public slider2d {
+	
+	using slider2d::slider2d;
+	float vx = 0;
+	float vy = 0;
+	float vvx, vvy;
+	
+	void drawSpecific() override {
+		ofSetColor(0);
+		ofDrawRectangle(rect);
+		ofSetColor(255, 0, 0);
+		if (showPointer) {
+			float x = rect.x + val.x * rect.width;
+			float y = rect.y + val.y * rect.height;
+//			ofDrawLine(x, rect.y, x, rect.y + rect.height);
+//			ofDrawLine(rect.x, y, rect.x + rect.width, y);
+			ofDrawRectangle(x-3, y-3, 6, 6);
+		}
+		ofSetColor(255, 255, 255);
+		ofNoFill();
+		float raio = 16;
+		// checar se ta dentro do range certo pra desenhar.
+		ofDrawRectangle(vvx - raio*.5, vvy - raio*.5, raio, raio );
+		ofFill();
+	}
+	
+	
+	void setValFromMouse(int x, int y) override {
+		cout << x << endl;
+		alwaysRedraw = true;
+		
+		vx = ofMap(x, rect.x, rect.x + rect.width, -1, 1);
+		vy = ofMap(y, rect.y, rect.y + rect.height, -1, 1);
+		
+		//if (!dragging)
+		{
+//			vx = 0;
+//			vy = 0;
+		}
+		
+		ofPoint velxy = ofPoint(vx, vy) * 0.01;
+		ofPoint v = val += velxy;
+		v.x = ofClamp(v.x, 0.0, 1.0);
+		v.y = ofClamp(v.y, 0.0, 1.0);
+		vvx = ofMap(vx, -1, 1, rect.x, rect.x + rect.width);
+		vvy = ofMap(vy, -1, 1, rect.y, rect.y + rect.height);
+
+		set (v);
+	}
+	
+	
+};
+
+
+
+
+
 class inspector : public element {
 public:
-    inspector(string n, uiConfig & u) {
-        kind = LABEL;
-        settings = &u;
-        name = n;
-        getProperties();
-        alwaysRedraw = true;
-        saveXml = false;
-        showLabel = false;
-    }
-    
-    void setVal(string s) {
-        label = s;
-    }
-    
-    void drawSpecific() {
-        ofSetColor(255);
-        
-        // xaxa transformar em funcao.
-        if (settings->software->customFont) {
-            settings->software->font.drawString(label, labelPos.x, labelPos.y);
-        }
-        else {
-            ofDrawBitmapString(label, labelPos.x, labelPos.y);
-        }
-    }
+	inspector(string n, uiConfig & u) {
+		kind = LABEL;
+		settings = &u;
+		name = n;
+		getProperties();
+		//alwaysRedraw = true;
+		saveXml = false;
+		showLabel = false;
+		//showLabel = true;
+	}
+	
+	void setVal(string s) {
+		label = s;
+		needsRedraw();
+	}
+	
+	void drawSpecific() {
+		ofSetColor(255);
+		
+		drawLabel(label);
+		// xaxa transformar em funcao.
+//		if (settings->software->customFont) {
+//			settings->software->font.drawString(label, labelPos.x, labelPos.y);
+//		}
+//		else {
+//			ofDrawBitmapString(label, labelPos.x, labelPos.y);
+//		}
+	}
 };
 
 
 class bar : public element {
 public:
-    float val;
-    bar(string n, uiConfig & u) {
-        kind = SLIDER;
-        settings = &u;
-        name = n;
-        getProperties();
-        alwaysRedraw = true;
-        saveXml = false;
-        showLabel = false;
-    }
-    
-    void setVal(float v) {
-        val = v;
-    }
-    
-    void drawSpecific() {
-        ofSetColor(255);
-        ofNoFill();
-        ofDrawRectangle(rect);
-        ofFill();
-        ofDrawRectangle(rect.x, rect.y, rect.width * val, rect.height);
-    }
+	float val;
+	bar(string n, uiConfig & u) {
+		kind = SLIDER;
+		settings = &u;
+		name = n;
+		getProperties();
+		//alwaysRedraw = true;
+		saveXml = false;
+		showLabel = false;
+	}
+	
+	void setVal(float v) {
+		val = ofClamp(v, 0, 1);
+//		redraw = true;
+		needsRedraw();
+	}
+	
+	void drawSpecific() {
+		ofSetColor(255);
+		//ofNoFill();
+		//ofDrawRectangle(rect);
+		ofFill();
+		ofDrawRectangle(rect.x, rect.y, rect.width * val, rect.height);
+	}
 };
 
+
+class barInspector : public element {
+public:
+	float val;
+
+	barInspector(string n, uiConfig & u) {
+		kind = SLIDER;
+		settings = &u;
+		name = n;
+		getProperties();
+		//alwaysRedraw = true;
+		saveXml = false;
+		showLabel = false;
+	}
+
+	void setVal(string s) {
+		label = s;
+		needsRedraw();
+	}
+	
+	void setVal(float v) {
+		val = ofClamp(v, 0, 1);
+		//		redraw = true;
+		needsRedraw();
+	}
+	
+	void drawSpecific() {
+		ofSetColor(0);
+		//ofNoFill();
+		//ofDrawRectangle(rect);
+		ofFill();
+		ofDrawRectangle(rect.x, rect.y, rect.width * val, rect.height);
+		
+		drawLabel(label);
+
+//		ofSetColor(255);
+//		// xaxa transformar em funcao.
+//		if (settings->software->customFont) {
+//			settings->software->font.drawString(label, labelPos.x, labelPos.y);
+//		}
+//		else {
+//			ofDrawBitmapString(label, labelPos.x, labelPos.y);
+//		}
+	}
+};

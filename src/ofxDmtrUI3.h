@@ -141,7 +141,7 @@ public:
 	// remover no futuro
 	//int minimumWidth = 100;
 
-	void addUI(string nome, bool down = false, string valores = "");
+	void addUI(string nome, bool down = false, string valores = "", string fn = "");
 //	void nextTo(ofxDmtrUI3 & uiNext);
 //	void downTo(ofxDmtrUI3 & uiNext);
 
@@ -154,7 +154,31 @@ public:
 	
 	void autoFit();
 	void reFlowUis();
-	void reFlowUiNeue();
+	
+	void reFlowUisNeue() {
+		float flowX = settings.rect.x;
+		float flowY = settings.rect.y;
+		
+		ofxDmtrUI3 * prev = this;
+		
+		for (auto & u : allUIs) {
+			if (u->UINAME != "master") {
+				float altura = prev->settings.rect.height + prev->settings.software->colSpacing;
+				float largura = prev->settings.rect.width + prev->settings.software->colSpacing;
+				if (u->isDown) {
+					u->settings.rect.x = prev->settings.rect.x;
+					u->settings.rect.y = prev->settings.rect.y + altura;
+				}
+				else {
+					u->settings.rect.x = prev->settings.rect.x + largura;
+					u->settings.rect.y = settings.rect.y;
+				}
+				if (u->visible) {
+					prev = u;
+				}
+			}
+		}
+	}
 
 	string getPresetsPath(string ext="");
 	void clear(bool keepVars = false);
@@ -320,15 +344,13 @@ public:
 	string loadedXmlFile = "";
 	string loadedTextFile = "";
 
-
 	map <string, vector<string> > templateUI;
-
 	string buildingTemplate = "";
-	
-	void mouseUI(int x, int y, bool pressed = false);
-	
 	//17 agosto de 2017 - experimental
 	map <string, vector <string> > templateVectorString;
+
+	void mouseUI(int x, int y, bool pressed = false);
+	
 	
 	//22 de agosto de 2017 - experimental
 	map <string, string> vars;
@@ -350,8 +372,6 @@ public:
 	loadSaveType saveMode = PRESETSFOLDER;
 
 	
-	bool visible = true;
-
 	// somente serve pro midi controller, pro push and hold
 	int lastPreset = -1;
 	
@@ -425,4 +445,19 @@ public:
 	int getPresetNumber() {
 		return ((presets*)getElement("allPresets"))->selectedId;
 	}
+	
+	
+	
+	void showUIbyTag(string tag, bool show) {
+		for (auto & u : uis) {
+			if (u.second.uiTag == tag) {
+				u.second.visible = show;
+			}
+		}
+		reFlowUisNeue();
+		//reFlowUis();
+	}
+	
+// duplicate with settings
+	bool visible = true;
 };

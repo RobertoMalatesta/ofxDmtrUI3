@@ -113,26 +113,62 @@ void ofxDmtrUI3::update() {
 		f();
 	}
 
+	if (settings.software->useEasing) {
+		//cout << UINAME << " :: use easing "  << endl;
+		if (easing > .6) {
+			for (auto & p : pEasy) {
+				if (ABS(pEasy[p.first] - pFloat[p.first])) {  //0.00007    > 0.00007
+					pEasy[p.first] += (pFloat[p.first] - pEasy[p.first])/easing;
+				} else {
+					pEasy[p.first] = pFloat[p.first];
+				}
+			}
+		} else {
+			pEasy = pFloat;
+		}
+	}
+	
+	if (settings.software->useColorEasing) {
+		if (easing > 0.6) {
+//			if (pColorEasy.size() > 0) {
+//				cout << UINAME << endl;
+//				cout << pColorEasy.size() << endl;
+//			}
+			for (auto & p : pColorEasy) {
+				if (
+					(ABS(pColorEasy[p.first].r - pColor[p.first].r) > 0.00007) ||
+					(ABS(pColorEasy[p.first].g - pColor[p.first].g) > 0.00007) ||
+					(ABS(pColorEasy[p.first].b - pColor[p.first].b) > 0.00007)
+					)
+				{  //0.00007
+					pColorEasy[p.first].r += (pColor[p.first].r - pColorEasy[p.first].r)/easing;
+					pColorEasy[p.first].g += (pColor[p.first].g - pColorEasy[p.first].g)/easing;
+					pColorEasy[p.first].b += (pColor[p.first].b - pColorEasy[p.first].b)/easing;
+					pColorEasy[p.first].a = pColor[p.first].a;
+					
+//					cout << p.first << endl;
+//					cout << pColorEasy[p.first] << endl;
+//					cout << "----" << endl;
 
-	for (auto & p : pEasy) {
-		if (easing > 0) {
-			if (ABS(pEasy[p.first] - pFloat[p.first]) > 0.00007) {  //0.00007
-				pEasy[p.first] += (pFloat[p.first] - pEasy[p.first])/easing;
-			} else {
-				pEasy[p.first] = pFloat[p.first];
+				} else {
+					pColorEasy[p.first] = pColor[p.first];
+				}
 			}
 		}
 		else {
-			pEasy[p.first] = pFloat[p.first];
+			pColorEasy = pColor;
 		}
-	}
+	} // end color easing
+//
+	
+	
 	
 	for (auto & p : pPointEasy) {
 		if (easing > 0) {
 			if (
 				(ABS(pPointEasy[p.first].x - pPoint[p.first].x) > 0.00007) ||
 				(ABS(pPointEasy[p.first].y - pPoint[p.first].y) > 0.00007)
-			)
+				)
 			{  //0.00007
 				pPointEasy[p.first] += (pPoint[p.first] - pPointEasy[p.first])/easing;
 			} else {
@@ -143,26 +179,13 @@ void ofxDmtrUI3::update() {
 			pPointEasy[p.first] = pPoint[p.first];
 		}
 	}
+
+//	pPointEasy = pPoint;
+
 	
-	for (auto & p : pColorEasy) {
-		if (easing > 0) {
-			if (
-				(ABS(pColorEasy[p.first].r - pColor[p.first].r) > 0.00007) ||
-				(ABS(pColorEasy[p.first].g - pColor[p.first].g) > 0.00007) ||
-				(ABS(pColorEasy[p.first].b - pColor[p.first].b) > 0.00007)
-			)
-			{  //0.00007
-				pColorEasy[p.first].r += (pColor[p.first].r - pColorEasy[p.first].r)/easing;
-				pColorEasy[p.first].g += (pColor[p.first].g - pColorEasy[p.first].g)/easing;
-				pColorEasy[p.first].b += (pColor[p.first].b - pColorEasy[p.first].b)/easing;
-			} else {
-				pColorEasy[p.first] = pColor[p.first];
-			}
-		}
-		else {
-			pColorEasy[p.first] = pColor[p.first];
-		}
-	}
+
+	
+
 
 	if (futureCommands.size()) {
 		for (auto & f : futureCommands) {
@@ -716,6 +739,10 @@ void ofxDmtrUI3::createFromLine(string l) {
 				elements.push_back(new slider2d(nome, settings));
 			}
 			
+			else if (tipo == "joystick") {
+				elements.push_back(new joystick(nome, settings));
+			}
+
 			else if (tipo == "plotter") {
 				elements.push_back(new plotter(nome, settings));
 			}
@@ -727,7 +754,9 @@ void ofxDmtrUI3::createFromLine(string l) {
             else if (tipo == "bar") {
                 elements.push_back(new bar(nome, settings));
             }
-
+			else if (tipo == "barInspector") {
+				elements.push_back(new barInspector(nome, settings));
+			}
             
 			else if (tipo == "colorHsv") {
 				createFromLine("tag	color");
@@ -829,7 +858,7 @@ void ofxDmtrUI3::createFromLine(string l) {
 			}
 
 
-			else if (tipo == "dirList" || tipo == "dirlist" || tipo == "dirListNoExt"
+			else if (tipo == "dirList" || tipo == "dirlist" || tipo == "dirListNoLabel" || tipo == "dirListNoExt"
 					 || tipo == "scene" || tipo == "sceneNoLabel" || tipo == "imageList"
 					 ) {
 				ofDirectory dir;
@@ -846,10 +875,10 @@ void ofxDmtrUI3::createFromLine(string l) {
 					} else {
 						opcoes.push_back(d.getFileName());
 					}
-
 				}
+				bool label = ofIsStringInString(tipo, "NoLabel") ? false : true;
 				
-				bool label = tipo != "sceneNoLabel";
+				//bool label = (tipo != "sceneNoLabel" && tipo != "dirListNoLabel";
 				elements.push_back(new radio(nome, settings, opcoes, label));
 				if (tipo == "scene" || tipo == "sceneNoLabel") {
 					using namespace std::placeholders;
@@ -988,7 +1017,13 @@ void ofxDmtrUI3::createFromLine(string l) {
 			}
 
 			else if (tipo == "addUI" || tipo == "addUIDown") {
-				addUI(nome, tipo == "addUIDown", valores);
+				string uiName = valores;
+				cout << "addUI :: " << nome << endl;
+				if (cols.size() == 3) {
+					uiName = cols[2];
+				}
+
+				addUI(nome, tipo == "addUIDown", valores, uiName);
 			}
 			
 
@@ -1159,7 +1194,7 @@ void ofxDmtrUI3::onMouseDragged(ofMouseEventArgs& data) {
 //--------------------------------------------------------------
 void ofxDmtrUI3::mouseUI(int x, int y, bool pressed) {
 
-	if (settings.software->visible &&
+	if (settings.software->visible && visible &&
 		settings.rect.inside(x - settings.software->offset.x, y - settings.software->offset.y)) {
 
 		int mx = x - settings.rect.x - settings.software->offset.x;
@@ -1178,13 +1213,15 @@ void ofxDmtrUI3::onMouseReleased(ofMouseEventArgs& data) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::mouseRelease() {
-	for (auto & e : elements) {
-		e->isPressed = false;
-		e->firstClicked = false;
-		e->dragging = false;
-		
-		if (e->kind == BANG) {
-			e->set(false);
+	if (settings.software->visible && visible) {
+		for (auto & e : elements) {
+			e->isPressed = false;
+			e->firstClicked = false;
+			e->dragging = false;
+			
+			if (e->kind == BANG) {
+				e->set(false);
+			}
 		}
 	}
 }
@@ -1427,6 +1464,7 @@ Did you try run.command?
 	for (auto & f : presetupFunctions) {
 		f();
 	}
+	allUIs.push_back(this);
 
 	createFromText(file);
 
@@ -1451,7 +1489,6 @@ Did you try run.command?
 	ofFbo * fbo = &mapFbos["fbo"];
 	allocateAndClearFbo(*fbo);
 	setFbo(*fbo);
-	allUIs.push_back(this);
 	for (auto & f : setupFunctions) {
 		f();
 	}
@@ -1480,8 +1517,18 @@ void ofxDmtrUI3::setFbo(ofFbo &fbo) {
 }
 
 //--------------------------------------------------------------
-void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
+void ofxDmtrUI3::addUI(string nome, bool down, string valores, string fn) {
 
+	string fileName = nome + ".txt";
+	if (fn != "") {
+		fileName = fn;
+	}
+	
+	// old school
+	if (ofIsStringInString(valores, "text:")) {
+		fileName = ofSplitString(valores, "text:")[1] + ".txt";
+	}
+	
 	uis[nome].UINAME = nome;
 	uis[nome]._uiFather = this;
 	if (software.uiTag != "") {
@@ -1491,10 +1538,12 @@ void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 	uis[nome].settings.software = &software;
 
 	// master is added to allUIs vector just on finish, but it already has addUI before it, so if size==0, then add this.
-	if (allUIs.size())
-	{
+	
+	if (allUIs.size()) {
+//		cout << "alluis have size: adding last. this is " << nome << "uiLast is " << allUIs.back()->UINAME << endl;
 		uis[nome]._uiLast = allUIs.back();
 	} else {
+//		cout << "alluis zero: adding master. this is " << nome << endl;
 		uis[nome]._uiLast = this;
 	}
 	uis[nome]._uiLast->_uiNext = &uis[nome];
@@ -1512,9 +1561,7 @@ void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 		uis[nome].isDown = true;
 		//cout << "this new ui is uidown :: " << nome << endl;
 		uis[nome].settings.minimumWidth = uis[nome]._uiLast->fboUI.getWidth();
-		
 		// nao funciona pois o uiAll.txt override.
-		
 		
 		uis[nome].settings.sliderDimensions = uis[nome]._uiLast->settings.sliderDimensions;
 //		cout << "this ui is called " << nome << endl;
@@ -1523,8 +1570,17 @@ void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 //		uis[nome].downTo(*uis[nome]._uiLast);
 		uis[nome].settings.rect.width = uis[nome]._uiLast->settings.rect.width;
 		uis[nome].settings.rect.x  = uis[nome]._uiLast->settings.rect.x ;
-		
 		uis[nome].settings.rect.y  = uis[nome]._uiLast->settings.rect.y + uis[nome]._uiLast->settings.rect.height + software.colSpacing;
+		
+//		cout << "===============" << endl;
+//		cout << "ADDING UI DOWN" << endl;
+//		cout << "ALLUIS size :: " << allUIs.size() << endl;
+//		cout << nome << endl;
+//		cout << "UILAST = " << uis[nome]._uiLast->UINAME << endl;
+//		cout << uis[nome].settings.rect.x << endl;
+//		cout << uis[nome].settings.rect.y << endl;
+//		cout << "===============" << endl;
+
 		// precisa?
 //		uis[nome].settings.minimumWidth = MAX(settings.minimumWidth, settings.sliderDimensions.x);
 	}
@@ -1535,10 +1591,7 @@ void ofxDmtrUI3::addUI(string nome, bool down, string valores) {
 		uis[nome].settings.rect.y = 0;
 	}
 	
-	string fileName = nome+".txt";
-	if (ofIsStringInString(valores, "text:")) {
-		fileName = ofSplitString(valores, "text:")[1] + ".txt";
-	}
+
 	
 	if (ofFile::doesFileExist(fileName)) {
 		if (valores == "keepSettings") {
@@ -1785,7 +1838,7 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 	}
 	
 	else if (e.name == "easing") {
-		easing = pFloat["easing"];
+		easing = pFloat["easing"] * 30.0;
 		for (auto & p : uis) {
 			// XAXA Passar isso aqui pra software master
 			p.second.easing = pFloat["easing"];
