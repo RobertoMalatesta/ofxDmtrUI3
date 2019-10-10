@@ -1,6 +1,7 @@
-# ofxDmtrUI3
+# [DISCONTINUED] use ofxMicroUI instead
+# https://github.com/dimitre/ofxMicroUI
 
-## Project is now discontinued, please use ofxMicroUI instead
+# ofxDmtrUI3
 
 ## 2019 october 10
 MidiController support and OSC mirroring are not separate addons anymore. 

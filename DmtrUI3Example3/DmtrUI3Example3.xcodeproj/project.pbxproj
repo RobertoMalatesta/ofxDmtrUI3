@@ -24,28 +24,6 @@
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
-			<key>DA762DAB64B5944AF5DF84FF</key>
-			<dict>
-				<key>fileRef</key>
-				<string>4790974DFACAB035AFA1F347</string>
-				<key>isa</key>
-				<string>PBXBuildFile</string>
-			</dict>
-			<key>4790974DFACAB035AFA1F347</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.cpp.cpp</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>ofxDmtrUIMidiController.cpp</string>
-				<key>path</key>
-				<string>../../../addons/ofxDmtrUI3/src/ofxDmtrUIMidiController.cpp</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
 			<key>37886F31DFCABC9086733A60</key>
 			<dict>
 				<key>explicitFileType</key>
@@ -76,28 +54,6 @@
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
-			<key>34569C0BE41BA0725A5C3D9D</key>
-			<dict>
-				<key>fileRef</key>
-				<string>D1C4014D3195D2048D61F91B</string>
-				<key>isa</key>
-				<string>PBXBuildFile</string>
-			</dict>
-			<key>D1C4014D3195D2048D61F91B</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.cpp.cpp</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>ofxDmtrUI3Remote.cpp</string>
-				<key>path</key>
-				<string>../../../addons/ofxDmtrUI3/src/ofxDmtrUI3Remote.cpp</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
 			<key>1727745FEDCECBB985611A49</key>
 			<dict>
 				<key>explicitFileType</key>
@@ -119,10 +75,8 @@
 				<array>
 					<string>9486FFA10A0EAFC05AF58178</string>
 					<string>1727745FEDCECBB985611A49</string>
-					<string>D1C4014D3195D2048D61F91B</string>
 					<string>9F20D040218692CA6C532E8D</string>
 					<string>37886F31DFCABC9086733A60</string>
-					<string>4790974DFACAB035AFA1F347</string>
 					<string>747B8841B5C306A08ABBB68B</string>
 				</array>
 				<key>isa</key>
@@ -3268,8 +3222,6 @@ fi
 					<string>E4B69E200A3A1BDC003C02F2</string>
 					<string>E4B69E210A3A1BDC003C02F2</string>
 					<string>E80018223C74DC5790FD4FD9</string>
-					<string>34569C0BE41BA0725A5C3D9D</string>
-					<string>DA762DAB64B5944AF5DF84FF</string>
 				</array>
 				<key>isa</key>
 				<string>PBXSourcesBuildPhase</string>
