@@ -1,5 +1,11 @@
 # ofxDmtrUI3
 
+## Project is now discontinued, please use ofxMicroUI instead
+
+## 2019 october 10
+MidiController support and OSC mirroring are not separate addons anymore. 
+All files are inside this same repository.
+
 ## 2017 june 29
 First version is ready to go. all the basics working and building my first project using it.  
 
