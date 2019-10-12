@@ -2,28 +2,21 @@
 ofxDmtrUI3Remote 
  Created by Dimitre Lima on 18/05/16.
  Copyright 2016 Dmtr.org. All rights reserved.
- Only for Dmtr.org projects use.
 */
 
 #pragma once
-
 
 #if defined( TARGET_OF_IPHONE ) || defined( TARGET_OF_IOS ) || defined( TARGET_ANDROID )
 #define DMTRUI_TARGET_TOUCH
 #endif
 
-
 #include "ofEvents.h"
 #include "ofxDmtrUI3.h"
 #include "ofxOsc.h"
 
-
 #ifdef DMTRUI_TARGET_TOUCH
 #include "ofxAccelerometer.h"
 #endif
-
-
-
 
 class ofxDmtrUI3Remote : public ofBaseApp {
 public:
@@ -38,12 +31,13 @@ public:
 //	void sendAccel(float x, float y, float z);
 //	
 //	void setupServer(ofxDmtrUI3 * ui);
-	
+//	void enableAccelerometer();
+//	void uiEvent(uiEv & e);
+
 	
 	ofxOscSender 	send;
 	ofxOscReceiver 	receive;
 
-	void uiEvent(uiEv & e);
 
 	string lastAdd = "";
 	string linha = "";
@@ -59,7 +53,6 @@ public:
 	string 	remoteHostname = "";
 	int 	remotePort = 9000;
 
-	void enableAccelerometer();
 
 	string remoteStyle = "";
 
@@ -82,7 +75,10 @@ public:
 
 	bool fireEvent = true;
 
-	static int actualPort;
+//	static int actualPort;
+	//static int actualPort = 7999;
+	int actualPort = 8000;
+
 	int serverPort;
 
 
@@ -104,7 +100,7 @@ public:
 
 	void addUI(ofxDmtrUI3 * ui) {
 		_uis.push_back(ui);
-		ofAddListener(_uis.back()->settings.uiEvent, this, &uiEvent);
+		ofAddListener(_uis.back()->settings.uiEvent, this, &ofxDmtrUI3Remote::uiEvent);
 	}
 
 	void setupMainUI(ofxDmtrUI3 & u) {
@@ -116,8 +112,8 @@ public:
 		actualPort ++;
 		serverPort = actualPort;
 		//cout << "ofxDmtrUI3Remote YES " << serverPort << endl;
-		ofAddListener(ofEvents().draw,   		this, &onDraw);
-		ofAddListener(ofEvents().update, 		this, &onUpdate);
+		ofAddListener(ofEvents().draw, this, &ofxDmtrUI3Remote::onDraw);
+		ofAddListener(ofEvents().update, this, &ofxDmtrUI3Remote::onUpdate);
 	}
 
 
@@ -165,16 +161,12 @@ public:
 
 	ofEvent<ofxDmtrUIRemoteEvent> remoteEvent;
 
-	
-	
-
-	int actualPort = 7999;
 	string interfaceSpecialCommand = "/uiSpecialCommand/";
 
 	//--------------------------------------------------------------
 	void setListeners() {
 		if (_ui != NULL) {
-			ofAddListener(_ui->settings.uiEvent,	this, &uiEvent);
+			ofAddListener(_ui->settings.uiEvent, this, &ofxDmtrUI3Remote::uiEvent);
 		}
 	}
 
