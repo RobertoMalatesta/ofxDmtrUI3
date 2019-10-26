@@ -162,21 +162,22 @@ void ofxDmtrUI3::update() {
 //
 	
 	
-	
-	for (auto & p : pPointEasy) {
-		if (easing > 0) {
-			if (
-				(ABS(pPointEasy[p.first].x - pPoint[p.first].x) > 0.00007) ||
-				(ABS(pPointEasy[p.first].y - pPoint[p.first].y) > 0.00007)
-				)
-			{  //0.00007
-				pPointEasy[p.first] += (pPoint[p.first] - pPointEasy[p.first])/easing;
-			} else {
+	if (settings.software->usePointEasing) {
+		for (auto & p : pPointEasy) {
+			if (easing > 0) {
+				if (
+					(ABS(pPointEasy[p.first].x - pPoint[p.first].x) > 0.00007) ||
+					(ABS(pPointEasy[p.first].y - pPoint[p.first].y) > 0.00007)
+					)
+				{  //0.00007
+					pPointEasy[p.first] += (pPoint[p.first] - pPointEasy[p.first])/easing;
+				} else {
+					pPointEasy[p.first] = pPoint[p.first];
+				}
+			}
+			else {
 				pPointEasy[p.first] = pPoint[p.first];
 			}
-		}
-		else {
-			pPointEasy[p.first] = pPoint[p.first];
 		}
 	}
 
@@ -1018,7 +1019,6 @@ void ofxDmtrUI3::createFromLine(string l) {
 
 			else if (tipo == "addUI" || tipo == "addUIDown") {
 				string uiName = valores;
-				cout << "addUI :: " << nome << endl;
 				if (cols.size() == 3) {
 					uiName = cols[2];
 				}
@@ -1757,7 +1757,6 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 		}
 		else {
 			software.eventOnClick = false;
-
 			for (auto & u : uis) {
 				if (u.second.loadMode == PRESETSFOLDER) {
 					string nome = getPresetsPath(ofToString(n) + u.first + ".xml");
@@ -1766,7 +1765,6 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 			}
 			software.eventOnClick = true;
 			notify("loadPresetAll");
-
 			// xaxa event here
 		}
 	}

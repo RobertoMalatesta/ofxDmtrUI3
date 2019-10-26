@@ -115,6 +115,7 @@ public:
 	// 04 sep 2019, Muti easing
 	bool useEasing = true;
 	bool useColorEasing = true;
+	bool usePointEasing = true;
 
 	// 16 oct 2017, areia
 	bool eventOnClick = true;

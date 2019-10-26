@@ -441,7 +441,7 @@ public:
 	}
 
 	//--------------------------------------------------------------
-	void sendInterface(bool clear) {
+	void sendInterface(bool clear = true) {
 		if (debug) {
 			cout << "ofxDmtrUI3Remote :: sendInterface to " + remoteHostname << endl;
 		}

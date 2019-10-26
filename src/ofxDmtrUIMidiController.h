@@ -126,6 +126,7 @@ public:
 
 	//--------------------------------------------------------------
 	void setup(string midiDevice) {
+		cout << "ofxDmtrUI3 Midi Controller Setup " << midiDevice << endl;
 		ofxMidi::setConnectionListener(this);
 
 	//	testeFbo.allocate(8,8,GL_RGBA);
