@@ -66,7 +66,7 @@ public:
 
 	void reload();
 
-	vector <string> textToVector(string file);
+	static vector <string> textToVector(string file);
 	vector <element*> elements;
 	//vector <element> newElements;
 
@@ -112,6 +112,51 @@ public:
 
 	// novidade teste 10 de março de 2018
 	map <string,ofImage>		pImage;
+	
+	
+
+
+//	void set(string e, string s, bool notifyEvent = true);
+//	void set(string e, bool b, bool notifyEvent = true);
+//	void set(string e, int i, bool notifyEvent = true);
+//	void set(string e, float f, bool notifyEvent = true);
+//	void set(string e, ofPoint p, bool notifyEvent = true);
+	
+	void set(string name, bool v, bool notifyEvent = true) {
+		toggle * e = getToggle(name);
+		if (e != NULL) {
+			e->set(v, notifyEvent);
+		}
+	}
+
+	void set(string name, string v, bool notifyEvent = true) {
+		radio * e = getRadio(name);
+		if (e != NULL) {
+			e->set(v, notifyEvent);
+		}
+	}
+
+	void set(string name, float v, bool notifyEvent = true) {
+		slider * e = getSlider(name);
+		if (e != NULL) {
+			e->set(v, notifyEvent);
+		}
+	}
+
+	void set(string name, int v, bool notifyEvent = true) {
+		slider * e = getSlider(name);
+		if (e != NULL) {
+			e->set(v, notifyEvent);
+		}
+	}
+
+	void set(string name, ofPoint v, bool notifyEvent = true) {
+		slider2d * e = getSlider2d(name);
+		if (e != NULL) {
+			e->set(v, notifyEvent);
+		}
+	}
+
 
 	void reFlow();
 	void fboClear();
@@ -189,11 +234,6 @@ public:
      LOOKUP SECTION
     */
 
-	void set(string e, string s, bool notifyEvent = true);
-	void set(string e, bool b, bool notifyEvent = true);
-	void set(string e, int i, bool notifyEvent = true);
-	void set(string e, float f, bool notifyEvent = true);
-	void set(string e, ofPoint p, bool notifyEvent = true);
 	
 	map <string, slider *> slidersLookup;
 	map <string, toggle *> togglesLookup;
@@ -460,4 +500,6 @@ public:
 	
 // duplicate with settings
 	bool visible = true;
+	
+	bool presetIsLoading = false;
 };

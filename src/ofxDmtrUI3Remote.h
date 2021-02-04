@@ -61,7 +61,7 @@ public:
 
 	//void sendElement(element &e);
 	//bool debug = true;
-	bool debug = true;
+	bool debug = false;
 
 	// check if the remote side is interfaced
 	bool remoteIsInterfaced = false;
@@ -99,6 +99,7 @@ public:
 	bool hasMasterInterface = false;
 
 	void addUI(ofxDmtrUI3 * ui) {
+		cout << "ofxDmtrUI3Remote addUI :: " << ui->UINAME << endl;
 		_uis.push_back(ui);
 		ofAddListener(_uis.back()->settings.uiEvent, this, &ofxDmtrUI3Remote::uiEvent);
 	}
@@ -141,6 +142,7 @@ public:
 		
 		if (m.getNumArgs() > 0) {
 			if (debug) {
+				cout << "-----" << endl;
 				cout << "SENDING :: " + m.getAddress() << endl;
 				cout << remoteHostname << ":" << remotePort << endl;
 				if (e.varType == DMTRUI_FLOAT) {
@@ -375,7 +377,7 @@ public:
 
 					string uiname = addr[1];
 					
-					cout << addr.size() << endl;
+//					cout << addr.size() << endl;
 					string name = addr[2];
 					
 					if (_u != NULL) {
@@ -384,24 +386,25 @@ public:
 
 					fireEvent = false;
 					bool propagateEvent = false;
-					
-					
+//					bool propagateEvent = true;
+
 					// prova de conceito mas eventualmente nao vai funcionar ainda por causa do propagateevent. refazer isso logo em breve
 					ofxOscArgType k = m.getArgType(0);
+					
 					if (k == OFXOSC_TYPE_FLOAT) {
-						_ui->set(name, (float) m.getArgAsFloat(0), false);
+						_ui->set(name, (float) m.getArgAsFloat(0), propagateEvent);
 					}
 					else if (k == OFXOSC_TYPE_INT32 || k == OFXOSC_TYPE_INT64) {
-						_ui->set(name, (int) m.getArgAsInt(0), false);
+						_ui->set(name, (int) m.getArgAsInt(0), propagateEvent);
 					}
 					else if (k == OFXOSC_TYPE_FALSE) {
-						_ui->set(name, (bool) false, false);
+						_ui->set(name, (bool) false, propagateEvent);
 					}
 					else if (k == OFXOSC_TYPE_TRUE) {
-						_ui->set(name, (bool) true, false);
+						_ui->set(name, (bool) true, propagateEvent);
 					}
 					else if (k == OFXOSC_TYPE_STRING) {
-						_ui->set(name, (string) m.getArgAsString(0), false);
+						_ui->set(name, (string) m.getArgAsString(0), propagateEvent);
 					}
 					fireEvent = true;
 				}
@@ -536,8 +539,8 @@ public:
 	void uiEvent(uiEv &e) {
 		if (serverIsSetup) {
 			if (e.uiGlobal) {
-				cout << "UI GLOBAL " << endl;
-				cout << e.name << endl;
+//				cout << "UI GLOBAL " << endl;
+//				cout << e.name << endl;
 				if (e.name == "createFromText") {
 					considerUIEvents = false;
 					sendInterface(true);
@@ -562,6 +565,7 @@ public:
 
 					
 					string address = "/" + e.uiname + "/" + e.name;
+					cout << "MSG " << address << endl;
 					
 					//ofxOscMessage m = getOscMessageFromElement(address, *_ui->getElement(e.name));
 
@@ -571,6 +575,7 @@ public:
 					// AQUI TA REPETIDO
 					if (e.varType == DMTRUI_FLOAT) {
 						m.addFloatArg(_ui->pFloat[e.name]);
+						cout << "FLOAT " << _ui->pFloat[e.name] << endl;
 					}
 					else if (e.varType == DMTRUI_INT) {
 						m.addIntArg(_ui->pInt[e.name]);
@@ -588,8 +593,8 @@ public:
 
 					if (m.getNumArgs() > 0) {
 						if (debug) {
-							cout << "SENDING :: " + m.getAddress() << endl;
-							cout << remoteHostname << ":" << remotePort << endl;
+							cout << "---------------------------- " << endl;
+							cout << "SENDING :: " << remoteHostname << ":" << remotePort << " : " << m.getAddress() << endl;
 							if (e.varType == DMTRUI_FLOAT) {
 								cout << m.getArgAsFloat(0) << endl;
 							}

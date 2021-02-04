@@ -1743,11 +1743,15 @@ void ofxDmtrUI3::savePresetAll(int n) {
 }
 
 
+// novidade 12 de dezembro pra resolver novas fronteiras
+
+
 //--------------------------------------------------------------
 void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 
 	// temporary, just to fire event from master
 	if (UINAME == "master") {
+		presetIsLoading = true;
 
 		// TODO, averiguar firing event twice here
 		if (fromKey) {
@@ -1767,6 +1771,9 @@ void ofxDmtrUI3::loadPresetAll(int n, bool fromKey) {
 			notify("loadPresetAll");
 			// xaxa event here
 		}
+		
+		presetIsLoading = false;
+
 	}
 }
 
@@ -1792,8 +1799,6 @@ void ofxDmtrUI3::clear(bool keepVars) {
 
 //--------------------------------------------------------------
 void ofxDmtrUI3::uiEvents(uiEv & e) {
-	
-
 	for (auto & f : uiEventFunctions) {
 		f(e);
 	}
@@ -1874,7 +1879,8 @@ void ofxDmtrUI3::uiEvents(uiEv & e) {
 	if (ofIsStringInString(e.name, "_shortcut") ) {
 		vector <string> split = ofSplitString(e.name, "_shortcut");
 		string name = split[0];
-		set(name, ofToFloat(pString[e.name]));
+		float val = ofToFloat(pString[e.name]);
+		set(name, val);
 	}
 }
 
@@ -1914,41 +1920,7 @@ void ofxDmtrUI3::showUI(int show) {
 }
 
 
-void ofxDmtrUI3::set(string el, bool v, bool notifyEvent) {
-	toggle * e = getToggle(el);
-	if (e != NULL) {
-		e->set(v, notifyEvent);
-		
-	}
-};
 
-void ofxDmtrUI3::set(string el, string v, bool notifyEvent) {
-	radio * e = getRadio(el);
-	if (e != NULL) {
-		e->set(v, notifyEvent);
-	}
-};
-
-void ofxDmtrUI3::set(string el, float v, bool notifyEvent) {
-	slider * e = getSlider(el);
-	if (e != NULL) {
-		e->set(v, notifyEvent);
-	}
-};
-
-void ofxDmtrUI3::set(string el, int v, bool notifyEvent) {
-	slider * e = getSlider(el);
-	if (e != NULL) {
-		e->set(v, notifyEvent);
-	}
-};
-
-void ofxDmtrUI3::set(string el, ofPoint v, bool notifyEvent) {
-	slider2d * e = getSlider2d(el);
-	if (e != NULL) {
-		e->set(v, notifyEvent);
-	}
-};
 
 
 //--------------------------------------------------------------

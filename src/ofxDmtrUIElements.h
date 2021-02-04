@@ -96,6 +96,10 @@ public:
 	bool isDir = false;
 	bool uiGlobal = false;
 	bool onClick = true;
+	
+	
+	
+	
 	string tag;
 
 	
@@ -1652,20 +1656,20 @@ public:
 		settings = &u;
 		name = n;
 		getProperties();
-		//alwaysRedraw = true;
+		alwaysRedraw = true;
 		saveXml = false;
 		showLabel = false;
 		//showLabel = true;
 	}
 	
 	void setVal(string s) {
+//		cout << "setVal " << s << endl;
 		label = s;
 		needsRedraw();
 	}
 	
 	void drawSpecific() {
 		ofSetColor(255);
-		
 		drawLabel(label);
 		// xaxa transformar em funcao.
 //		if (settings->software->customFont) {
